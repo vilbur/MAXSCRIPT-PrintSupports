@@ -58,17 +58,17 @@ struct VertexColors_v
 		if flat then this.flatternColors(verts_by_colors) else verts_by_colors --return
 	),
 
-	/** Flattern colors
-	 */
-	function flatternColors verts_by_colors =
-	(
-		--format "\n"; print "VertexColors_v.flatternColors()"
-		verts_by_colors_flat = #{}
-
-		for color_verts in verts_by_colors do verts_by_colors_flat += color_verts.value
-
-		verts_by_colors_flat --return
-	),
+	--/** Flattern colors
+	-- */
+	--function flatternColors verts_by_colors =
+	--(
+	--	--format "\n"; print "VertexColors_v.flatternColors()"
+	--	verts_by_colors_flat = #{}
+	--
+	--	for color_verts in verts_by_colors do verts_by_colors_flat += color_verts.value
+	--
+	--	verts_by_colors_flat --return
+	--),
 
 	/** Get verts and their colors
 	  *
@@ -86,6 +86,25 @@ struct VertexColors_v
 
 		--format "verts: %\n" verts
 		this._getColorsAndVerts (verts)
+	),
+
+	/** Get verts only of colors which are not excluded
+	  *
+	  * @param #(color as string) exclude verts of colors in array will not be returned DEFAULT: get all non white verts
+	  *
+	  * @return BitArray of vertex indexes
+	 */
+	function getColoredVerts exclude:#( white as string ) =
+	(
+		--format "\n"; print "VertexColors_v.getVertsByLors()"
+
+		verts_by_colors.getVertsAndColors()
+
+		colored_verts = #{}
+
+		for vertex_color in verts_by_colors.keys where vertex_color != "(color 255 255 255)" do colored_verts +=  vertex_colors[vertex_color]
+
+		colored_verts --return
 	),
 
 	/** Get verts of same colors as give verts

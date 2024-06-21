@@ -17,7 +17,7 @@ struct PointHelper_v
 
 	/** Generate point helpers
 	 */
-	function generatePointHelpers vert =
+	function generatePointHelpers vert pos: clr: nrml: =
 	(
 		format "\n"; print "PointHelper_v.generatePointHelpers()"
 

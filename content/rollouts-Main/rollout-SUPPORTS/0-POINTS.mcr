@@ -103,26 +103,26 @@ icon:	"across:2|control:spinner|offset:[ 0, 14]|fieldwidth:24|range:[ 1, 999, 3 
 		GENERATE BUTTON
 
 ================================================================================*/
-/** GENERATE POINTS
- */
-macroscript	_print_support_generate_points
-category:	"_3D-Print"
-buttontext:	"POINTS"
-tooltip:	"Generate Points"
-icon:	"across:3|offset:[ 16, 8 ]|height:32|width:128|align:#LEFT|tooltip:CTRL: RESET all points on object.\n\n\n\n\nLAST OBJECT IS USED IF NOTHING SELECTED.\n\nIMPORTANT: VERTEX MUST HAS SINGLE VERTEX COLOR,\notherwise then generator could not work properly."
-(
-	on execute do
-		undo "Generate Points" on
-		--undo off
-		(
-			clearListener(); print("Cleared in:\n"+getSourceFileName())
-
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\0-POINTS.mcr"
-
-			SUPPORT_MANAGER.generateSupports( selection[1] )
-
-		)
-)
+--/** GENERATE POINTS
+-- */
+--macroscript	_print_support_generate_points
+--category:	"_3D-Print"
+--buttontext:	"POINTS"
+--tooltip:	"Generate Points"
+--icon:	"across:3|offset:[ 16, 8 ]|height:32|width:128|align:#LEFT|tooltip:CTRL: RESET all points on object.\n\n\n\n\nLAST OBJECT IS USED IF NOTHING SELECTED.\n\nIMPORTANT: VERTEX MUST HAS SINGLE VERTEX COLOR,\notherwise then generator could not work properly."
+--(
+--	on execute do
+--		undo "Generate Points" on
+--		--undo off
+--		(
+--			clearListener(); print("Cleared in:\n"+getSourceFileName())
+--
+--			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\0-POINTS.mcr"
+--
+--			SUPPORT_MANAGER.generateSupports( selection[1] )
+--
+--		)
+--)
 --
 --/** GENERATE POINTS
 -- */
