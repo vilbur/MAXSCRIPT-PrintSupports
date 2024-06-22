@@ -2,7 +2,7 @@ filein( getFilenamePath(getSourceFileName()) + "/../PointHelper/PointHelper.ms" 
 
 /** Support object
  */
-struct SupportObject_v
+struct RaftObject_v
 (
 	/* construct */
 	source_obj,
@@ -11,9 +11,7 @@ struct SupportObject_v
 
 
 	/* properties */
-	BaseShape,
-
-	is_on_ground = false,
+	support,
 
 	--knots_positions = #(),
 	knots_positions = Array (2),
@@ -22,34 +20,32 @@ struct SupportObject_v
 
 	Beams = #(),
 
-
 	--normal = [0,0,-1],
 
 	/* private */
 	/* dependency */
-	include "MAXSCRIPT-PrintSupports/Lib/SupportManager/SourceObject/SupportRaftBaseObject/SupportRaftBaseObject.ms" --"./../SupportRaftBaseObject/SupportRaftBaseObject.ms"
-
 	/* reference */
 	/* inhered */
 
 	/** Generate support
 	 */
-	function generateSupport vert pos: clr: normal: =
+	function generateRaft vert pos: clr: normal:[0,0,-1] =
 	(
-		format "\n"; print "SupportObject_v.generateSupport()"
-		--this.raft_mode = raft_mode
+		format "\n"; print "RaftObject_v.generateSupport()"
+		this.raft_mode = raft_mode
 
 
 		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
 
 		--(PointHelper_v()).generatePointHelpers(vert)
 
-		--this.BaseShape = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vert) ) pos:knots_positions[1]
-		this.BaseShape = SplineShape name:(this._getName()) wirecolor:clr pos:pos
-
-		this._setSupportKnots(pos)(normal)
-
-		this._createSupportLine(BaseShape)
+		----this.support = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vert) ) pos:knots_positions[1]
+		--this.support = SplineShape name:(this._getName()) wirecolor:clr pos:pos
+		--
+		--if not raft_mode then
+		--	this._createSupportLine(support)
+		--else
+		--	this._createRaftLine(support)
 
 		--support.parent = helpers_chain[helpers_chain.count]
 		--
@@ -58,104 +54,17 @@ struct SupportObject_v
 		--Options.setProp support #raft_mode raft_mode
 		--
 		--this.support_obj --return
-
-		this --return
 	),
 
 
 	private
 
 
-
-	/** Create line netween point helpers
-	  */
-	function _createSupportLine spline_shape =
-	(
-		format "\n"; print "SupportObject_v._createSupportLine()"
-		--format "HELPERS_TREE: %\n" helpers_chain
-
-		direction_down = [0,0,-1]
-
-		spline_index = 1
-
-		addNewSpline spline_shape
-
-
-		/*------------------------------------------------------------------------------
-			ADD KNOTS BY POINTS FROM TOP TO BOTTOM
-		--------------------------------------------------------------------------------*/
-		for pos in knots_positions do
-			addKnot spline_shape spline_index #corner #line pos
-
-
-		/*------------------------------------------------------------------------------
-			GET POSITION OF LAST POINT ABOVE GROUND
-		--------------------------------------------------------------------------------*/
-		pos =  knots_positions[knots_positions.count]
-
-
-		/*------------------------------------------------------------------------------
-			TEST COLLISION WITH OBJECT
-		--------------------------------------------------------------------------------*/
-		support_hits_source_object = this._testCollision pos direction_down
-
-		this.is_on_ground = support_hits_source_object == undefined
-
-
-		/* IF SUPPORT IS GOING TO GROUND */
-		if is_on_ground then
-		(
-			/*------------------------------------------------------------------------------
-				ABOVE POINT ABOVE GROUND - NOT IF RAFT MODE
-			--------------------------------------------------------------------------------*/
-			pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
-
-			addKnot spline_shape spline_index #corner #line pos
-
-			pos.z = 0 -- set spline_shape to ground
-
-			/*------------------------------------------------------------------------------
-				ADD GROUND POINT
-			--------------------------------------------------------------------------------*/
-			addKnot spline_shape spline_index #corner #line pos
-
-		)
-		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN TURN SUPPORT TO RAFT */
-		(
-			format "support_hits_source_object: %\n" support_hits_source_object
-			pos.z = support_hits_source_object.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
-
-			addKnot spline_shape spline_index #corner #line pos
-		)
-
-
-		/*------------------------------------------------------------------------------
-			SET MATERIALS TO SEGMENTS
-		--------------------------------------------------------------------------------*/
-		num_of_segments = numSegments spline_shape ( numSplines spline_shape)
-
-		for segment_i = 1 to num_of_segments do
-			setMaterialID spline_shape spline_index segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
-
-
-		/*------ SET MATERIAL TO GROUND SEGMENT ------*/
-		if is_on_ground then
-			setMaterialID spline_shape spline_index num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
-
-
-		/*------------------------------------------------------------------------------
-			RESULT
-		--------------------------------------------------------------------------------*/
-		updateShape spline_shape
-
-		spline_shape --return
-	),
-
 	/** Set knots positions
 	 */
 	function _setSupportKnots pos normal =
 	(
-		format "\n"; print "SupportObject_v._setSupportKnots()"
+		format "\n"; print "RaftObject_v._setSupportKnots()"
 		format "NORMAL: %\n" normal
 
 		/** Set second point by normal of vertex
@@ -200,6 +109,7 @@ struct SupportObject_v
 		)
 
 
+		this._setSupportKnots(pos)(normal)
 
 		/* ADD FIRST POINT */
 		knots_positions[1] = pos
@@ -218,11 +128,12 @@ struct SupportObject_v
 		format "knots_positions: %\n" knots_positions
 	),
 
-	/** Create raft line
-	 */
-	function _createRaftLine =
+	/** Create line netween point helpers
+	  */
+	function _createSupportLine spline_shape =
 	(
-		--format "\n"; print "SupportObject_v._createRaftLine()"
+		format "\n"; print "RaftObject_v._createSupportLine()"
+		--format "HELPERS_TREE: %\n" helpers_chain
 		direction_down = [0,0,-1]
 
 		spline_index = 1
@@ -284,18 +195,69 @@ struct SupportObject_v
 		updateShape spline_shape
 
 		spline_shape --return
+	),
 
+	/** Create raft line
+	 */
+	function _createRaftLine =
+	(
+		--format "\n"; print "RaftObject_v._createRaftLine()"
 
 		--setMaterialID spline_shape spline_index 1 SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
 
 	),
 
+	/** Test collision with source object
+	 */
+	function _testCollision pos direction =
+	(
+		format "\n"; print "RaftObject_v.testCollision()"
+
+		_ray = Ray pos direction
+
+		intersectRay source_obj _ray --return
+	),
+
+	/*------------------------------------------------------------------------------
+
+		HELPERS
+
+	--------------------------------------------------------------------------------*/
+
+	/** Get name
+	 */
+	function _getName =
+	(
+		--format "\n"; print "HelperObject_v._getName()"
+
+		name_stripped = substituteString source_obj.name "-source" ""
+
+		name_stripped + "-support-" + vertex_index as string -- + "-" + index as string
+	),
+
+	/** Shift wirecolor sligtly
+	  * Each level of points has different wirecolor for better selection
+	  */
+	function _shiftWirecolor wirecolor i =
+	(
+		--format "\n"; print "PlatformGenerator_v.shiftWirecolor()"
+		--format "wirecolor:	% \n" wirecolor
+		wirecolor_shifted = copy wirecolor
+
+
+		if wirecolor_shifted.r >= abs i then wirecolor_shifted.r -= i
+		if wirecolor_shifted.g >= abs i then wirecolor_shifted.g -= i
+		if wirecolor_shifted.b >= abs i then wirecolor_shifted.b -= i
+		--format "wirecolor_shifted:	% \n" wirecolor_shifted
+
+		wirecolor_shifted --return
+	),
 
 	/**
 	 */
 	on create do
 	(
-		--format "\n"; print "SupportObject.onCreate()"
+		--format "\n"; print "RaftObject.onCreate()"
 		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
 		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)

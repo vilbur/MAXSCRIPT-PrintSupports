@@ -9,7 +9,7 @@ struct SupportOptions_v
 
 	/* POINT GENERATOR OPTIONS */
 	use_normals	= true,
-	normal_length	= 3,
+	normal_length	= 1,
 	----normal_limit	= false, -- obsolete
 	--keep_down	= true, -- obsolete
 	----keep_down_limit	= 1, -- obsolete
@@ -199,5 +199,3 @@ struct SupportOptions_v
 		--format "EXPORT_SIZE:	% \n" export_size
 	)
 )
-
-

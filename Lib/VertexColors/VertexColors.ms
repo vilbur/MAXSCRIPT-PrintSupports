@@ -76,7 +76,7 @@ struct VertexColors_v
 	  *
 	  * @return Dictionary KEY: color as string VALUE: BitArray of verts
 	  */
-	function getVertsAndColors verts:#{} =
+	function getVertsAndColors verts:#{} exclude:#() flat:false =
 	(
 		--format "\n"; print "VertexColors_v.getVertsByColor()"
 		--format "verts: %\n" verts
@@ -85,7 +85,19 @@ struct VertexColors_v
 			verts = #{1..(getNumVerts obj_mesh)}
 
 		--format "verts: %\n" verts
-		this._getColorsAndVerts (verts)
+		colors_of_verts = this._getColorsAndVerts (verts) exclude:exclude
+
+		if flat then
+		(
+			colored_verts = #{}
+
+			for vertex_color in verts_by_colors.keys where vertex_color != "(color 255 255 255)" do colored_verts +=  vertex_colors[vertex_color]
+
+			colored_verts --return
+		)
+		else
+			colors_of_verts --return
+
 	),
 
 	/** Get verts only of colors which are not excluded
@@ -102,7 +114,7 @@ struct VertexColors_v
 
 		colored_verts = #{}
 
-		for vertex_color in verts_by_colors.keys where vertex_color != "(color 255 255 255)" do colored_verts +=  vertex_colors[vertex_color]
+		for vertex_color in verts_by_colors.keys where vertex_color != "(color 255 255 255)" do colored_verts +=  verts_by_colors[vertex_color]
 
 		colored_verts --return
 	),
@@ -191,7 +203,7 @@ struct VertexColors_v
 
 	/** Get colors of verts
 	 */
-	function _getColorsAndVerts verts_get_colors =
+	function _getColorsAndVerts verts_get_colors exclude: =
 	(
 		--format "\n"; print "VertexColors_v._getColorsAndVerts()"
 		--format "verts_get_colors: %\n" verts_get_colors
@@ -221,12 +233,9 @@ struct VertexColors_v
 		--(
 			colors_of_verts = Dictionary #STRING
 
-			for colors_data in  colors where not (verts_of_color = (colors_data.value * verts_get_colors)).isEmpty do
-			(
-
-
-				colors_of_verts[ colors_data.key ] = (all_verts_empty + verts_of_color)
-			)
+			for colors_data in colors where not (verts_of_color = (colors_data.value * verts_get_colors)).isEmpty do
+				if findItem exclude colors_data.key == 0 then
+					colors_of_verts[ colors_data.key ] = (all_verts_empty + verts_of_color)
 
 
 		--format "-------------\nCACHE UPDATED\n"
