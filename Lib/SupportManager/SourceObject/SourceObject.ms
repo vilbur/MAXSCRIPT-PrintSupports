@@ -83,6 +83,12 @@ struct SourceObject_v
 				this.Supports[vert] = RaftOrSupport
 			)
 		)
+
+		SUPPORT_MODIFIERS.addModifiers( this.getSupportNodes tye:#SUPPORTS)
+
+		bindSupportToTransformEvent( this.getSupportNodes() )
+
+		
 		--Supports_and_Rafts = Supports + Rafts
 		--for RaftSupport in (Supports + Rafts) do
 			--format "RaftSupport: %\n" RaftSupport

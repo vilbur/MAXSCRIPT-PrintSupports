@@ -28,12 +28,17 @@ struct SupportModifiers_v
 		format "\n"; print "SupportModifiers_v.addModifiers()"
 		format "supports	= % \n" supports
 		--format "supports.count	= % \n" supports.count
+
+
+		--supports_with_modifiers = for support_input in supports_input where support_input.modifiers.count == 0 collect support_input
+
 		this.supports = supports
+
 
 		this._setChamferValues()
 
-		--if not this._modifiersExists() then
-		--(
+		if not this._modifiersExists() then
+		(
 			select supports
 
 			this._sanitizeMaxChamferValue()
@@ -62,9 +67,9 @@ struct SupportModifiers_v
 
 			this._extrude("Extrude Top")(SUPPORT_OPTIONS.extrude_top)
 
-		--)
-		--else
-		--	this._copyModifiers()
+		)
+		else
+			this._copyModifiers()
 	),
 
 	private
@@ -86,8 +91,8 @@ struct SupportModifiers_v
 		/* DIRTY CODE - TIME RPOEASSURE */
 
 		support_with_modifiers	= (this._getSupportsWithModfiers())[1]
-		support_modifiers	= support_with_modifiers.modifiers
 		supports_no_modifiers	= this._getSupportsWithoutModfiers()
+		support_modifiers	= support_with_modifiers.modifiers
 
 
 
@@ -149,7 +154,7 @@ struct SupportModifiers_v
 			QUICK SOLUTION - FOR MORE MODIFIERS OR PROPERTIES SHOULD COMPLEX SOLUTUION EXISTS
 
 		 */
-		function resetSeepModPrpertis sweep_mod =
+		function resetSweepModProperties sweep_mod =
 		(
 			sweep_mod.MirrorXZPlane = off
 			sweep_mod.MirrorXYPlane = off
@@ -170,7 +175,7 @@ struct SupportModifiers_v
 
 		sweep_mod = sweep name:name
 
-		resetSeepModPrpertis (sweep_mod)
+		resetSweepModProperties(sweep_mod)
 
 		modPanel.addModToSelection ( sweep_mod ) --ui:on
 

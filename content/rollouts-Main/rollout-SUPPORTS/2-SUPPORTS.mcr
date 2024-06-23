@@ -18,6 +18,7 @@ icon:	"across:2|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\
 			if selection.count > 0 then
 				SUPPORT_MANAGER.generateSupports( selection[1] )
 
+			if selection.count > 0 then
 			select selection[1]
 		)
 )
@@ -35,6 +36,7 @@ icon:	"across:2|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE RAFTS.\n\nWO
 			clearListener(); print("Cleared in:\n"+getSourceFileName())
 
 			SUPPORT_MANAGER.generateSupports( selection[1] ) raft_mode:true
+			if selection.count > 0 then
 			select selection[1]
 		)
 )

@@ -49,7 +49,13 @@ struct SupportObject_v
 
 		this._setNewSupportKnots(pos)(normal)
 
+
+		this._alignObjectToVector support_obj knots_positions[2]
+
 		this._createSupportLine(support_obj)
+
+
+
 
 		--point_helpers = (HelperObject_v()).generatePoints(knots_positions)
 		--
@@ -76,7 +82,7 @@ struct SupportObject_v
 		--format "support_obj: %\n" support_obj
 		--format "pos: %\n" pos
 		--format "normal: %\n" normal
-
+		support_obj.pivot = pos
 
 		this._setUpdateSupportKnots(pos)
 
@@ -129,9 +135,9 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			TEST COLLISION WITH OBJECT
 		--------------------------------------------------------------------------------*/
-		support_hits_source_object = this._testCollision pos direction_down
+		collision_with_source_obj = this._intersectRaySourceObject pos direction_down
 
-		this.is_on_ground = support_hits_source_object == undefined
+		this.is_on_ground = collision_with_source_obj == undefined
 
 
 		/* IF SUPPORT IS GOING TO GROUND */
@@ -154,8 +160,8 @@ struct SupportObject_v
 		)
 		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN TURN SUPPORT TO RAFT */
 		(
-			--format "support_hits_source_object: %\n" support_hits_source_object
-			pos.z = support_hits_source_object.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
+			--format "collision_with_source_obj: %\n" collision_with_source_obj
+			pos.z = collision_with_source_obj.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
 
 			addKnot spline_shape _spline_index #corner #line pos
 		)

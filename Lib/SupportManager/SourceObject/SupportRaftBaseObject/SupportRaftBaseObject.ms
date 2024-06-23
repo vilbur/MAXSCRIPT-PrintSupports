@@ -3,14 +3,80 @@
 
 	private
 
+	/** Align to ctor
+	 */
+	function _alignObjectToVector obj point_to_rotate =
+	(
+		--format "\n"; print "HelperObject_v._alignObjectToVector()"
+		--format "obj	= % \n" obj
+		--format "% %\n" point_to_rotate obj_pos
+
+		dir = normalize (obj.pos - point_to_rotate)
+		--format "dir: %\n" dir
+
+		axis = #z
+
+		vec = case axis of
+		(
+			#x: obj.transform[1]
+			#y: obj.transform[2]
+			#z: obj.transform[3]
+		)
+
+		tm  = obj.transform
+		vec = normalize vec
+		dir = normalize dir
+
+		angle_vectors = acos (dot vec dir) -- get angle between
+
+		axis_of_plane_defined_by_vectors = normalize (cross dir vec)
+
+		rtm = AngleAxis (angle_vectors) ( axis_of_plane_defined_by_vectors )
+
+		obj.transform = Translate ( Rotate ( ScaleMatrix tm.scale) (tm.rotation*rtm)) tm.pos
+
+		if pos == true then
+			obj.pos = point_to_rotate
+	),
+
 	/** Test collision with source object
 	 */
-	function _testCollision pos direction =
+	function _intersectRaySourceObject pos direction =
 	(
 		--format "\n"; print "SupportObject_v.testCollision()"
-		_ray = Ray pos direction
-	
-		intersectRay source_obj _ray --return
+		--format "pos: %\n" pos
+		/** Modify pos
+		 */
+		function modifyPos _pos axis val =
+		(
+			--format "\n"; print ".modifyPos()"
+			_pos = copy _pos
+
+			_pos[axis] += val
+
+			_pos --return
+		)
+
+		local hit_result
+
+		half_of_bar_width = SUPPORT_OPTIONS.bar_width / 2
+
+
+		bar_bbox = #(
+			modifyPos pos 1 half_of_bar_width,
+			modifyPos pos 1 (half_of_bar_width * -1),
+			modifyPos pos 2 half_of_bar_width,
+			modifyPos pos 2 (half_of_bar_width * -1),
+			pos
+		)
+		--format "bar_bbox: %\n" bar_bbox
+
+		for pos in bar_bbox do
+			if ( hit = intersectRay source_obj ( Ray pos direction) ) != undefined then
+				hit_result = copy hit
+
+
+		hit_result --return
 	),
 
 	/*------------------------------------------------------------------------------

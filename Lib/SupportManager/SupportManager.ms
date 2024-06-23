@@ -77,9 +77,6 @@ struct SupportManager_v
 		SourceObject.generateSupports raft_mode:raft_mode
 
 		format "SourceObject.Supports: %\n" SourceObject.Supports
-		SUPPORT_MODIFIERS.addModifiers( SourceObject.getSupportNodes tye:#SUPPORTS)
-
-		bindSupportToTransformEvent( SourceObject.getSupportNodes() )
 
 	),
 
