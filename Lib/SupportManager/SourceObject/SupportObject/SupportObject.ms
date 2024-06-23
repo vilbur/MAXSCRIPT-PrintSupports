@@ -4,30 +4,21 @@ filein( getFilenamePath(getSourceFileName()) + "/../PointHelper/PointHelper.ms" 
  */
 struct SupportObject_v
 (
-	/* construct */
-	source_obj,
 
-	/* required */
+	/*------ EXTENDS  ------*/
+	include "MAXSCRIPT-PrintSupports/Lib/SupportManager/SourceObject/SupportRaftBaseObject/SupportRaftBaseObject.ms" --"./../SupportRaftBaseObject/SupportRaftBaseObject.ms"
 
-
-	/* properties */
-	support_obj,
 
 	is_on_ground = false,
 
 	--knots_positions = #(),
-	knots_positions = Array (2),
-
-	PointHelpers = #(),
+	--knots_positions = Array (2),
 
 	Beams = #(),
 
 	/* private */
-	_spline_index = 1, -- each support line has ony 1 spline
-
 
 	/* dependency */
-	include "MAXSCRIPT-PrintSupports/Lib/SupportManager/SourceObject/SupportRaftBaseObject/SupportRaftBaseObject.ms" --"./../SupportRaftBaseObject/SupportRaftBaseObject.ms"
 
 	/* reference */
 	/* inhered */
@@ -78,7 +69,8 @@ struct SupportObject_v
 	 */
 	function updateSupport pos: normal: =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
+		format "\n-----------------------------------------\n"
+		format "\n"; print "SupportObject_v.updateSupport()"
 		--format "support_obj: %\n" support_obj
 		--format "pos: %\n" pos
 		--format "normal: %\n" normal

@@ -23,42 +23,48 @@ struct SupportModifiers_v
 	/** Add modifiers
 	  *
 	  */
-	function addModifiers supports =
+	function addModifiers supports raft_mode:false =
 	(
+		--format "\n-----------------------------------------\n"
 		format "\n"; print "SupportModifiers_v.addModifiers()"
 		format "supports	= % \n" supports
-		--format "supports.count	= % \n" supports.count
+		format "supports.count	= % \n" supports.count
+		format "raft_mode: %\n" raft_mode
+		format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
+		--if raft_mode == unsupplied then
 
+		if supports.count == 0 then
+			return false
+
+		max modify mode
+
+		this.raft_mode = raft_mode
 
 		--supports_with_modifiers = for support_input in supports_input where support_input.modifiers.count == 0 collect support_input
 
 		this.supports = supports
 
-
 		this._setChamferValues()
 
-		if not this._modifiersExists() then
+		if not this._modifiersAdded() then
 		(
 			select supports
 
 			this._sanitizeMaxChamferValue()
 
-			max modify mode
-
-			--this._addEditSpline()
 
 			this._addSweepModifier("Bar Width") (  if raft_mode then SUPPORT_OPTIONS.raft_width else SUPPORT_OPTIONS.bar_width )
 
 			--format "RAFT_MODE	= % \n" raft_mode
 			--format "not raft_mode	= % \n" (not raft_mode)
-			--if not raft_mode then
-			--(
+			if not raft_mode then
+			(
 				this._selectFace("Select Base")(SUPPORT_OPTIONS.mat_ids[#BASE])
 
 				this._extrude("Extrude Base") (SUPPORT_OPTIONS.base_width)
 
 				this._chamfer("Chamfer Base") (this.chamfer_values[#BASE])
-			--)
+			)
 
 
 			this._chamfer("Chamfer Bar")  (this.chamfer_values[ if raft_mode then #RAFT else #TOP]) selection_option:#ALL materialoption:( if raft_mode then #OFF else #DIFFERENT )  material_ID:( if raft_mode then SUPPORT_OPTIONS.mat_ids[#MIDDLE] )
@@ -76,9 +82,9 @@ struct SupportModifiers_v
 
 	/** Modifiers exists
 	 */
-	function _modifiersExists =
+	function _modifiersAdded =
 	(
-		--format "\n"; print "SupportModifiers_v._modifiersExists()"
+		--format "\n"; print "SupportModifiers_v._modifiersAdded()"
 		(this._getSupportsWithModfiers()).count > 0
 	),
 
@@ -92,55 +98,22 @@ struct SupportModifiers_v
 
 		support_with_modifiers	= (this._getSupportsWithModfiers())[1]
 		supports_no_modifiers	= this._getSupportsWithoutModfiers()
-		support_modifiers	= support_with_modifiers.modifiers
 
-
+		modifiers_of_supports	= support_with_modifiers.modifiers
 
 		for support_no_modifiers in supports_no_modifiers do
-			for i = support_modifiers.count to 1 by -1 do
-				addModifierWithLocalData support_no_modifiers support_modifiers[i] support_with_modifiers support_modifiers[i] -- instance the modifier
+			for i = modifiers_of_supports.count to 1 by -1 do
+				addModifierWithLocalData support_no_modifiers modifiers_of_supports[i] support_with_modifiers modifiers_of_supports[i] -- instance the modifier
 
 
-		--for i = support_modifiers.count to 1 by -1 do
+		--for i = modifiers_of_supports.count to 1 by -1 do
 		--	try(
-		--			addModifier supports_no_modifiers support_modifiers[i]
+		--			addModifier supports_no_modifiers modifiers_of_supports[i]
 		--	)catch()
 
 	),
 
 
-	/** Get obejcts with modfiers
-	 */
-	function _getSupportsWithModfiers =
-	(
-		for obj in supports where obj.modifiers.count > 0 collect obj
-	),
-
-	/** Get obejcts with modfiers
-	 */
-	function _getSupportsWithoutModfiers =
-	(
-		for obj in supports where obj.modifiers.count == 0 collect obj
-	),
-
-	/** Make sure that chamfer value is less then radius
-	  */
-	function _sanitizeMaxChamferValue =
-	(
-		--format "\n"; print "PlatformModifiers_v._sanitizeMaxChamferValue()"
-
-		if SUPPORT_OPTIONS.bar_width / 2 == SUPPORT_OPTIONS.chamfer_top then
-			SUPPORT_OPTIONS.chamfer_top -= 0.05
-	),
-
-	/** Add edit spline
-	  *
-	  */
-	function _addEditSpline =
-	(
-		format "\n"; print "PlatformModifiers_v._addEditSpline()"
-		modPanel.addModToSelection (Edit_Spline ())
-	),
 
 	/** SWEEP Modifier
 	  *
@@ -174,6 +147,9 @@ struct SupportModifiers_v
 		)
 
 		sweep_mod = sweep name:name
+		format "selection: %\n" (selection as Array )
+		format "sweep_mod: %\n" sweep_mod
+		format "sweep_mod: %\n" (classOf sweep_mod)
 
 		resetSweepModProperties(sweep_mod)
 
@@ -192,6 +168,15 @@ struct SupportModifiers_v
 		sweep_mod.UseSectionIDs	= false
 		sweep_mod.UsePathIDs	= true
 
+	),
+
+	/** Add edit spline
+	  *
+	  */
+	function _addEditSpline =
+	(
+		format "\n"; print "PlatformModifiers_v._addEditSpline()"
+		modPanel.addModToSelection (Edit_Spline ())
 	),
 
 	/** Add SELECT modifier
@@ -290,6 +275,30 @@ struct SupportModifiers_v
 			--extrude_mod.scale	= scale
 
 		modPanel.addModToSelection ( extrude_mod ) --ui:on
+	),
+
+	/** Get obejcts with modfiers
+	 */
+	function _getSupportsWithModfiers =
+	(
+		for obj in supports where obj.modifiers.count > 0 collect obj
+	),
+
+	/** Get obejcts with modfiers
+	 */
+	function _getSupportsWithoutModfiers =
+	(
+		for obj in supports where obj.modifiers.count == 0 collect obj
+	),
+
+	/** Make sure that chamfer value is less then radius
+	  */
+	function _sanitizeMaxChamferValue =
+	(
+		--format "\n"; print "PlatformModifiers_v._sanitizeMaxChamferValue()"
+
+		if SUPPORT_OPTIONS.bar_width / 2 == SUPPORT_OPTIONS.chamfer_top then
+			SUPPORT_OPTIONS.chamfer_top -= 0.05
 	),
 
 	/**

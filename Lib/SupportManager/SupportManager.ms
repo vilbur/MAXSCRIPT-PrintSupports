@@ -146,7 +146,7 @@ struct SupportManager_v
 	(
 		format "\n"; print "SupportManager_v._loadSourceObjectsFromScene()"
 
-		unindSupportToTransformEvent()
+		--unindSupportToTransformEvent()
 
 		for obj_in_scene in objects where (sync_key = getUserPropVal obj_in_scene "SUPPORT_SYNC_SOURCE") != undefined do
 			SourceObjects[sync_key] = SourceObject_v(obj_in_scene) (sync_key)
@@ -166,11 +166,8 @@ struct SupportManager_v
 /*------------------------------------------------------------------------------
 	INIT GLOBAL CLASSES
 --------------------------------------------------------------------------------*/
-SUPPORT_MANAGER = SupportManager_v()
-
 SUPPORT_OPTIONS = SupportOptions_v()
 
 SUPPORT_MODIFIERS = SupportModifiers_v()
-
-
-
+format "SUPPORT_MODIFIERS: %\n" SUPPORT_MODIFIERS
+SUPPORT_MANAGER = SupportManager_v()

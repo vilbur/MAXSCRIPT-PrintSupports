@@ -69,26 +69,34 @@ struct SourceObject_v
 			(
 				second_point_direction = if use_normals then normalize (verts_normals[vert] * obj.transform - obj.pos) else direction_down
 
-				RaftOrSupport = if raft_mode then
-					( RaftObject(obj)).generateRaft vert pos:verts_pos[vert] clr:(execute vertex_color) normal:second_point_direction --"./SupportObject/SupportObject.ms"
-				else
-					( SupportObject_v(obj)).generateSupport vert pos:verts_pos[vert] clr:(execute vertex_color) normal:second_point_direction --"./SupportObject/SupportObject.ms"
+				RaftOrSupport = if raft_mode then RaftObject_v(obj) else SupportObject_v(obj)
+
+				/*------------------------------------------------------------------------------
+					GENERATE SUPPORT OR RAFT
+				--------------------------------------------------------------------------------*/
+				RaftOrSupport.generateSupport vert pos:verts_pos[vert] clr:(execute vertex_color) normal:second_point_direction --"./SupportObject/SupportObject.ms"
+
+				RaftOrSupport.support_obj.parent = obj
 
 				support_poiter = (getHandleByAnim RaftOrSupport.support_obj) as string
 
 				setUserPropVal RaftOrSupport.support_obj "SUPPORT_SYNC"	sync_key
 				setUserPropVal RaftOrSupport.support_obj "THIS"	support_poiter
 				setUserPropVal RaftOrSupport.support_obj "INDEX"	vert
+				setUserPropVal RaftOrSupport.support_obj "RAFT"	raft_mode
 
 				this.Supports[vert] = RaftOrSupport
 			)
 		)
 
-		SUPPORT_MODIFIERS.addModifiers( this.getSupportNodes tye:#SUPPORTS)
+
+		SUPPORT_MODIFIERS.addModifiers( this.getSupportNodes type:( if raft_mode then #RAFT else #SUPPORT ) ) raft_mode:raft_mode
 
 		bindSupportToTransformEvent( this.getSupportNodes() )
 
-		
+		--for support in (this.getSupportNodes()) do
+		--	support.parent = obj
+
 		--Supports_and_Rafts = Supports + Rafts
 		--for RaftSupport in (Supports + Rafts) do
 			--format "RaftSupport: %\n" RaftSupport
@@ -101,30 +109,8 @@ struct SourceObject_v
 	function updateSupports support_nodes =
 	(
 		--format "\n"; print "SourceObject_v.updateSupports()"
-		--format "support_nodes: %\n" support_nodes
-		--verts = #()
-		--
-		--SupportsToUpdate = #()
-		--
-		--
-		--
-		--for support_node in support_nodes do
-		--	if ( index = getUserPropVal support_node "INDEX") != undefined then
-		--	(
-		--		append verts index
-		--
-		--		append SupportsToUpdate Supports[index]
-		--	)
-		--
-		--		--Supports[index].updateSupport pos:verts_pos[index] normal:
-		--verts_normals = this._getVertsNormals(verts)
-		--
-		--verts_pos = this._getVertsPositions()
-		--
-		--for i = 1 to SupportsToUpdate.count do
-		--	SupportsToUpdate[i].updateSupport pos:verts_pos[verts[i]] normal:verts_normals[verts[i]]
 
-		if verts_pos == undefined then
+		--if verts_pos == undefined then
 			verts_pos = this._getVertsPositions()
 
 		for support_node in support_nodes do
@@ -148,9 +134,9 @@ struct SourceObject_v
 
 		if type != unsupplied then
 		(
-			type = toLower( type as string )
-
-			for RaftOrSupport in Supports where structName(RaftOrSupport.value) == type collect RaftOrSupport.value.support_obj --return
+			type = toLower( type as string + "Object_v" )
+			format "TYPE: %\n" TYPE
+			for RaftOrSupport in Supports where toLower (structName(RaftOrSupport.value)) == type collect RaftOrSupport.value.support_obj --return
 		)
 		else
 			for RaftOrSupport in Supports collect RaftOrSupport.value.support_obj --return
@@ -207,7 +193,9 @@ struct SourceObject_v
 		(
 			vert = getUserPropVal obj_in_scene "INDEX"
 
-			this.Supports[ vert ] = SupportObject_v(obj)(obj_in_scene)
+			is_raft = getUserPropVal obj_in_scene "RAFT"
+
+			this.Supports[ vert ] = if is_raft then RaftObject_v(obj)(obj_in_scene) else SupportObject_v(obj)(obj_in_scene)
 		)
 	),
 
@@ -223,29 +211,13 @@ struct SourceObject_v
 		flattern_dict --return
 	),
 
-	--
-	--/** Test collision with source object
-	-- */
-	--function _testCollision pos direction =
-	--(
-	--	--format "\n"; print "SupportObject_v.testCollision()"
-	--
-	--	_ray = Ray pos direction
-	--
-	--	intersectRay obj _ray --return
-	--),
 
 	/** Remove deleted nodes
 	 */
 	function _removeDeletedNodes =
 	(
 		--format "\n"; print "SourceObject_v._removeDeletedNodes()"
-		--for key in Supports.keys do
-			--format "%: %\n" key Supports[key].support_obj
-
 		for key in Supports.keys where not isValidNode Supports[key].support_obj do removeDictValue Supports key
-
-
 	),
 
 	/**

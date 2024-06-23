@@ -4,17 +4,15 @@ filein( getFilenamePath(getSourceFileName()) + "/../PointHelper/PointHelper.ms" 
  */
 struct RaftObject_v
 (
-	/* construct */
-	source_obj,
-
-	/* required */
+	/*------ EXTENDS  ------*/
+	include "MAXSCRIPT-PrintSupports/Lib/SupportManager/SourceObject/SupportRaftBaseObject/SupportRaftBaseObject.ms" --"./../SupportRaftBaseObject/SupportRaftBaseObject.ms"
 
 
 	/* properties */
-	support,
+	--support,
 
 	--knots_positions = #(),
-	knots_positions = Array (2),
+	--knots_positions = Array (2),
 
 	PointHelpers = #(),
 
@@ -27,23 +25,19 @@ struct RaftObject_v
 
 	/** Generate support
 	 */
-	function generateRaft vert pos: clr: normal:[0,0,-1] =
+	function generateSupport vert pos: clr: normal:[0,0,-1] =
 	(
 		format "\n"; print "RaftObject_v.generateSupport()"
-		this.raft_mode = raft_mode
 
+		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr pos:pos
 
-		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
+		this._setNewRaftKnots(pos)(normal)
 
-		--(PointHelper_v()).generatePointHelpers(vert)
+		support_obj.pivot = knots_positions[2]
 
-		----this.support = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vert) ) pos:knots_positions[1]
-		--this.support = SplineShape name:(this._getName()) wirecolor:clr pos:pos
-		--
-		--if not raft_mode then
-		--	this._createSupportLine(support)
-		--else
-		--	this._createRaftLine(support)
+		this._alignObjectToVector support_obj knots_positions[1]
+
+		this._createRaftLine(support_obj)
 
 		--support.parent = helpers_chain[helpers_chain.count]
 		--
@@ -51,18 +45,59 @@ struct RaftObject_v
 		--
 		--Options.setProp support #raft_mode raft_mode
 		--
-		--this.support_obj --return
+		this --return
 	),
 
+	/** Update support
+	 */
+	function updateSupport pos: normal: =
+	(
+		format "\n-----------------------------------------\n"
+		format "\n"; print "RaftObject_v.updateSupport()"
+		--format "support_obj: %\n" support_obj
+		--format "pos: %\n" pos
+		--format "normal: %\n" normal
+
+		this._setUpdateRaftKnots(pos)
+
+		support_obj.pivot = knots_positions[2]
+
+		deleteSpline support_obj 1
+
+		this._createRaftLine(support_obj)
+	),
 
 	private
 
+	/** Create line netween point helpers
+	  */
+	function _createRaftLine spline_shape =
+	(
+		format "\n"; print "RaftObject_v._createSupportLine()"
+
+		direction_down = [0,0,-1]
+
+		addNewSpline spline_shape
+
+		/*------------------------------------------------------------------------------
+			ADD KNOTS BY POINTS FROM TOP TO BOTTOM
+		--------------------------------------------------------------------------------*/
+		for pos in knots_positions do
+			addKnot spline_shape _spline_index #corner #line pos
+
+		/*------------------------------------------------------------------------------
+			RESULT
+		--------------------------------------------------------------------------------*/
+		updateShape spline_shape
+
+		spline_shape --return
+	),
 
 	/** Set knots positions
 	 */
-	function _setSupportKnots pos normal =
+	function _setNewRaftKnots pos normal =
 	(
-		format "\n"; print "RaftObject_v._setSupportKnots()"
+		format "\n"; print "RaftObject_v._setNewRaftKnots()"
 		format "NORMAL: %\n" normal
 
 		/** Set second point by normal of vertex
@@ -74,11 +109,19 @@ struct RaftObject_v
 			/** Get ray to ground
 			 */
 			--function getRayToGround second_vert_pos = Ray second_vert_pos [0,0,-1]
+			collision_with_source_obj = this._intersectRaySourceObject pos _normal
 
-			local second_vert_pos = copy pos
+			second_vert_pos = if collision_with_source_obj == undefined then
+			(
+				/* MOVE SECOND POINT ALONG NORMAL OF FIRST POINT */
+				pos + SUPPORT_OPTIONS.normal_length * _normal
 
-			/* MOVE SECOND POINT ALONG NORMAL OF FIRST POINT */
-			second_vert_pos += SUPPORT_OPTIONS.normal_length * _normal
+			)
+			else
+				collision_with_source_obj.pos
+
+			--local second_vert_pos = copy pos
+
 
 			/* EXTEND SECOND POINT ALONG NORMAL IF INTERSECT WITH OBJECT ON ITS WAY TO TTHE GROUND */
 			--while (intersection = intersectRay source_obj (getRayToGround(second_vert_pos))) != undefined do
@@ -107,7 +150,6 @@ struct RaftObject_v
 		)
 
 
-		this._setSupportKnots(pos)(normal)
 
 		/* ADD FIRST POINT */
 		knots_positions[1] = pos
@@ -126,129 +168,20 @@ struct RaftObject_v
 		format "knots_positions: %\n" knots_positions
 	),
 
-	/** Create line netween point helpers
-	  */
-	function _createSupportLine spline_shape =
-	(
-		format "\n"; print "RaftObject_v._createSupportLine()"
-		--format "HELPERS_TREE: %\n" helpers_chain
-		direction_down = [0,0,-1]
-
-		spline_index = 1
-
-		addNewSpline spline_shape
-
-		--support_hits_source_object = this._testCollision knots_positions[1] [0,0,-1]
-		--format "SOURCE_OBJ_INTERSECTION: %\n" support_hits_source_object
-
-		/*------------------------------------------------------------------------------
-			ADD KNOTS BY POINTS FROM TOP TO BOTTOM
-		--------------------------------------------------------------------------------*/
-		for pos in knots_positions do
-			addKnot spline_shape spline_index #corner #line pos
-
-		/* GET POSITION OF LAST POINT ABOVE GROUND */
-		pos =  knots_positions[knots_positions.count]
-
-		/* IF SUPPORT IS GOING TO GROUND */
-		if ( support_hits_source_object = this._testCollision pos direction_down ) == undefined then
-		(
-			/*------------------------------------------------------------------------------
-				ABOVE POINT ABOVE GROUND - NOT IF RAFT MODE
-			--------------------------------------------------------------------------------*/
-
-			pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
-
-			addKnot spline_shape spline_index #corner #line pos
-
-			pos.z = 0 -- set spline_shape to ground
-
-			/*------------------------------------------------------------------------------
-				GROUND POINT
-			--------------------------------------------------------------------------------*/
-			addKnot spline_shape spline_index #corner #line pos
-
-		)
-		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN TURN SUPPORT TO RAFT */
-		(
-			format "support_hits_source_object: %\n" support_hits_source_object
-
-			this.raft_mode = true
-
-			pos.z = support_hits_source_object.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
-
-			addKnot spline_shape spline_index #corner #line pos
-		)
-
-		/*------ SET MATERIAL TO SEGMENTS ------*/
-		num_of_segments = numSegments spline_shape ( numSplines spline_shape)
-
-		for segment_i = 1 to num_of_segments do
-			setMaterialID spline_shape spline_index segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
-
-		/*------ SET MATERIAL TO BOTTOM SEGMENT ------*/
-
-		setMaterialID spline_shape spline_index num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
-
-		updateShape spline_shape
-
-		spline_shape --return
-	),
-
-	/** Create raft line
+	/** Set update support knots
 	 */
-	function _createRaftLine =
+	function _setUpdateRaftKnots pos =
 	(
-		--format "\n"; print "RaftObject_v._createRaftLine()"
+		--function getNumKnots = numKnots support_obj _spline_index
+		knots_positions = #(pos) -- set first knot of spline to vertex position
 
-		--setMaterialID spline_shape spline_index 1 SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
+		last_knot_pos = getKnotPoint support_obj _spline_index 2
 
-	),
+		collision_with_source_obj = this._intersectRaySourceObject pos ( normalize (last_knot_pos - pos))
 
-	/** Test collision with source object
-	 */
-	function _testCollision pos direction =
-	(
-		format "\n"; print "RaftObject_v.testCollision()"
+		second_vert_pos = if collision_with_source_obj != undefined then collision_with_source_obj.pos else last_knot_pos
 
-		_ray = Ray pos direction
-
-		intersectRay source_obj _ray --return
-	),
-
-	/*------------------------------------------------------------------------------
-
-		HELPERS
-
-	--------------------------------------------------------------------------------*/
-
-	/** Get name
-	 */
-	function _getName =
-	(
-		--format "\n"; print "HelperObject_v._getName()"
-
-		name_stripped = substituteString source_obj.name "-source" ""
-
-		name_stripped + "-support-" + vertex_index as string -- + "-" + index as string
-	),
-
-	/** Shift wirecolor sligtly
-	  * Each level of points has different wirecolor for better selection
-	  */
-	function _shiftWirecolor wirecolor i =
-	(
-		--format "\n"; print "PlatformGenerator_v.shiftWirecolor()"
-		--format "wirecolor:	% \n" wirecolor
-		wirecolor_shifted = copy wirecolor
-
-
-		if wirecolor_shifted.r >= abs i then wirecolor_shifted.r -= i
-		if wirecolor_shifted.g >= abs i then wirecolor_shifted.g -= i
-		if wirecolor_shifted.b >= abs i then wirecolor_shifted.b -= i
-		--format "wirecolor_shifted:	% \n" wirecolor_shifted
-
-		wirecolor_shifted --return
+		append knots_positions second_vert_pos
 	),
 
 	/**
@@ -256,8 +189,5 @@ struct RaftObject_v
 	on create do
 	(
 		--format "\n"; print "RaftObject.onCreate()"
-		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
-		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)
-
 )
