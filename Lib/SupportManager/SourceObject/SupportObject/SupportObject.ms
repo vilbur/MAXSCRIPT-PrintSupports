@@ -34,18 +34,18 @@ struct SupportObject_v
 
 	/** Generate support
 	 */
-	function generateSupport vert pos: clr: normal: =
+	function generateSupport vertex_index pos: clr: normal: =
 	(
-		format "\n"; print "SupportObject_v.generateSupport()"
+		--format "\n"; print "SupportObject_v.generateSupport()"
 		--this.raft_mode = raft_mode
 
 
 		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
 
-		--(PointHelper_v()).generatePointHelpers(vert)
+		--(PointHelper_v()).generatePointHelpers(vertex_index)
 
-		--this.support_obj = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vert) ) pos:knots_positions[1]
-		this.support_obj = SplineShape name:(this._getName()) wirecolor:clr pos:pos
+		--this.support_obj = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vertex_index) ) pos:knots_positions[1]
+		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr pos:pos
 
 		this._setNewSupportKnots(pos)(normal)
 
@@ -72,14 +72,14 @@ struct SupportObject_v
 	 */
 	function updateSupport pos: normal: =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
-		format "support_obj: %\n" support_obj
-		format "pos: %\n" pos
-		format "normal: %\n" normal
+		--format "\n"; print "SupportObject_v.updateSupport()"
+		--format "support_obj: %\n" support_obj
+		--format "pos: %\n" pos
+		--format "normal: %\n" normal
 
 
 		this._setUpdateSupportKnots(pos)
-		
+
 		deleteSpline support_obj 1
 
 		this._createSupportLine(support_obj)
@@ -104,7 +104,7 @@ struct SupportObject_v
 	  */
 	function _createSupportLine spline_shape =
 	(
-		format "\n"; print "SupportObject_v._createSupportLine()"
+		--format "\n"; print "SupportObject_v._createSupportLine()"
 		--format "HELPERS_TREE: %\n" helpers_chain
 
 		direction_down = [0,0,-1]
@@ -154,7 +154,7 @@ struct SupportObject_v
 		)
 		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN TURN SUPPORT TO RAFT */
 		(
-			format "support_hits_source_object: %\n" support_hits_source_object
+			--format "support_hits_source_object: %\n" support_hits_source_object
 			pos.z = support_hits_source_object.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
 
 			addKnot spline_shape _spline_index #corner #line pos
@@ -256,20 +256,36 @@ struct SupportObject_v
 	(
 		--format "\n"; print "SupportObject_v._setUpdateSupportKnots()"
 
-		mat_of_last_segment = getMaterialID support_obj _spline_index ( numSegments support_obj _spline_index )
+		/** Last knot
+		 */
+		function getNumKnots = numKnots support_obj _spline_index
 
-		knots_count = numKnots support_obj _spline_index
+		function getKnotPos knot_i = getKnotPoint support_obj _spline_index knot_i
 
-		is_on_ground = mat_of_last_segment == SUPPORT_OPTIONS.mat_ids[#BASE]
+		if ( num_segments = numSegments support_obj _spline_index ) > 1 then
+		(
 
-		last_knot = if is_on_ground then knots_count - 2 else knots_count
+			mat_of_last_segment = getMaterialID support_obj _spline_index num_segments
 
+			is_on_ground = mat_of_last_segment == SUPPORT_OPTIONS.mat_ids[#BASE]
+			--format "is_on_ground: %\n" is_on_ground
+			--last_knot = if is_on_ground then num_knots - 3 else num_knots
+			--format "last_knot: %\n" last_knot
+
+			if is_on_ground then
+				deleteKnot support_obj _spline_index ( getNumKnots() )
+
+
+			deleteKnot support_obj _spline_index ( getNumKnots() )
+		)
 		knots_positions = #(pos) -- set first knot of spline to vertex position
 
-		for knot_i = 2 to last_knot do
-			append knots_positions (getKnotPoint support_obj _spline_index knot_i)
+		for knot_i = 2 to ( getNumKnots() ) do
+			append knots_positions (getKnotPos(knot_i))
 
 	),
+
+
 
 	/**
 	 */

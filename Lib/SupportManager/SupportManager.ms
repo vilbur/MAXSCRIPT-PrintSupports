@@ -1,5 +1,6 @@
-
+filein( getFilenamePath(getSourceFileName()) + "/../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms" )	--"./../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../VertexColors/VertexColors.ms" )	--"./../VertexColors/VertexColors.ms"
+
 filein( getFilenamePath(getSourceFileName()) + "/updateSupportsCallback/updateSupportsCallback.ms" )	--"./updateSupportsCallback/updateSupportsCallback.ms" -- MUST BE BEFORE SourceObject.ms
 
 filein( getFilenamePath(getSourceFileName()) + "/../SupportOptions/SupportOptions.ms" )	--"./../SupportOptions/SupportOptions.ms"
@@ -76,7 +77,8 @@ struct SupportManager_v
 		SourceObject.generateSupports raft_mode:raft_mode
 
 		format "SourceObject.Supports: %\n" SourceObject.Supports
-		--SUPPORT_MODIFIERS.addModifiers( SourceObject.getSupportNodes tye:#SUPPORTS)
+		SUPPORT_MODIFIERS.addModifiers( SourceObject.getSupportNodes tye:#SUPPORTS)
+
 		bindSupportToTransformEvent( SourceObject.getSupportNodes() )
 
 	),
@@ -85,7 +87,7 @@ struct SupportManager_v
 	 */
 	function updateSupports support_nodes =
 	(
-		format "\n"; print "SupportManager_v.updateSupports()"
+		--format "\n"; print "SupportManager_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 
 		for support in support_nodes where (sync_key = getUserPropVal support "SUPPORT_SYNC" ) != undefined do

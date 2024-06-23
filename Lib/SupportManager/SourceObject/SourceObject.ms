@@ -17,6 +17,7 @@ struct SourceObject_v
 
 	/* properties */
 	all_verts,
+	verts_pos,
 
 	Supports = Dictionary #INTEGER, -- KEY: vertex_index VALUE: SupportObject|RaftObject
 
@@ -35,7 +36,11 @@ struct SourceObject_v
 	function generateSupports raft_mode:false =
 	(
 		--format "\n"; print "SourceObject_v.generateSupports()"
+		--format "Supports.keys: %\n" Supports.keys
+
 		this._removeDeletedNodes()
+		--format "Supports.keys: %\n" Supports.keys
+
 		--colored_verts = (VertexColors_v(obj)).getColoredVerts()
 		verts_by_colors = (VertexColors_v(obj)).getVertsAndColors exclude:#(white as string )
 
@@ -58,6 +63,8 @@ struct SourceObject_v
 		for vertex_color in verts_by_colors.keys where vertex_color != white as string do
 		(
 			--format "\nVERTEX_COLOR: %\n" vertex_color
+			--format "VERTS: %\n" verts_by_colors[vertex_color]
+
 			for vert in verts_by_colors[vertex_color] where Supports[vert] == undefined do
 			(
 				second_point_direction = if use_normals then normalize (verts_normals[vert] * obj.transform - obj.pos) else direction_down
@@ -87,7 +94,7 @@ struct SourceObject_v
 	 */
 	function updateSupports support_nodes =
 	(
-		format "\n"; print "SourceObject_v.updateSupports()"
+		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 		--verts = #()
 		--
@@ -110,8 +117,9 @@ struct SourceObject_v
 		--
 		--for i = 1 to SupportsToUpdate.count do
 		--	SupportsToUpdate[i].updateSupport pos:verts_pos[verts[i]] normal:verts_normals[verts[i]]
-		
-		verts_pos = this._getVertsPositions()
+
+		if verts_pos == undefined then
+			verts_pos = this._getVertsPositions()
 
 		for support_node in support_nodes do
 			if ( index = getUserPropVal support_node "INDEX") != undefined then
@@ -225,10 +233,13 @@ struct SourceObject_v
 	 */
 	function _removeDeletedNodes =
 	(
-
 		--format "\n"; print "SourceObject_v._removeDeletedNodes()"
-		--for i = Supports.count to 1 by -1 where not isValidNode Supports[i].support_obj do deleteItem Supports i
+		--for key in Supports.keys do
+			--format "%: %\n" key Supports[key].support_obj
+
 		for key in Supports.keys where not isValidNode Supports[key].support_obj do removeDictValue Supports key
+
+
 	),
 
 	/**
