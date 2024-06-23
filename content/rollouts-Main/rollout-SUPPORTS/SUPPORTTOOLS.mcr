@@ -14,9 +14,7 @@ icon:	"across:5|height:32"
 			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-SUPPORTS\Lib\SupportManager\SupportManager.ms"
 			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-SUPPORTS\SUPPORTTOOLS.mcr"
 
-
 			(getSupportManagerInstance(ROLLOUT_supports)).findIntersections( selection as Array )
-
 
 		)
 )

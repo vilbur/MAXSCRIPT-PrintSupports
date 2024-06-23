@@ -20,8 +20,6 @@ struct RaftObject_v
 
 	Beams = #(),
 
-	--normal = [0,0,-1],
-
 	/* private */
 	/* dependency */
 	/* reference */

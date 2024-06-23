@@ -18,8 +18,7 @@ struct SourceObject_v
 	/* properties */
 	all_verts,
 
-	Supports = #(),
-	Rafts = #(),
+	Supports = Dictionary #INTEGER, -- KEY: vertex_index VALUE: SupportObject|RaftObject
 
 	/* private */
 	/* dependency */
@@ -35,7 +34,7 @@ struct SourceObject_v
 	 */
 	function generateSupports raft_mode:false =
 	(
-		format "\n"; print "SourceObject_v.generateSupports()"
+		--format "\n"; print "SourceObject_v.generateSupports()"
 		this._removeDeletedNodes()
 		--colored_verts = (VertexColors_v(obj)).getColoredVerts()
 		verts_by_colors = (VertexColors_v(obj)).getVertsAndColors exclude:#(white as string )
@@ -59,7 +58,7 @@ struct SourceObject_v
 		for vertex_color in verts_by_colors.keys where vertex_color != white as string do
 		(
 			--format "\nVERTEX_COLOR: %\n" vertex_color
-			for vert in verts_by_colors[vertex_color] do
+			for vert in verts_by_colors[vertex_color] where Supports[vert] == undefined do
 			(
 				second_point_direction = if use_normals then normalize (verts_normals[vert] * obj.transform - obj.pos) else direction_down
 
@@ -68,29 +67,80 @@ struct SourceObject_v
 				else
 					( SupportObject_v(obj)).generateSupport vert pos:verts_pos[vert] clr:(execute vertex_color) normal:second_point_direction --"./SupportObject/SupportObject.ms"
 
+				support_poiter = (getHandleByAnim RaftOrSupport.support_obj) as string
 
-				append ( if raft_mode then this.Rafts else this.Supports ) RaftOrSupport
+				setUserPropVal RaftOrSupport.support_obj "SUPPORT_SYNC"	sync_key
+				setUserPropVal RaftOrSupport.support_obj "THIS"	support_poiter
+				setUserPropVal RaftOrSupport.support_obj "INDEX"	vert
 
-				setUserPropVal RaftOrSupport.BaseShape "SUPPORT_SYNC" sync_key
-				setUserPropVal RaftOrSupport.BaseShape "THIS" (getHandleByAnim RaftOrSupport.BaseShape)
-				setUserPropVal RaftOrSupport.BaseShape "INDEX" vert
+				this.Supports[vert] = RaftOrSupport
 			)
 		)
 		--Supports_and_Rafts = Supports + Rafts
-		for RaftSupport in (Supports + Rafts) do
-			format "RaftSupport: %\n" RaftSupport
+		--for RaftSupport in (Supports + Rafts) do
+			--format "RaftSupport: %\n" RaftSupport
 
-		Supports + Rafts --return
+		--Supports + Rafts --return
 	),
 
-	/** Get support nodes
+	/** Update support
 	 */
-	function getNodes type: =
+	function updateSupports support_nodes =
 	(
-		--format "\n"; print "SourceObject_v.getSupportNodes()"
-		RaftsOrSupports = if type == unsupplied then Supports + Rafts else getProperty this type
+		format "\n"; print "SourceObject_v.updateSupports()"
+		--format "support_nodes: %\n" support_nodes
+		--verts = #()
+		--
+		--SupportsToUpdate = #()
+		--
+		--
+		--
+		--for support_node in support_nodes do
+		--	if ( index = getUserPropVal support_node "INDEX") != undefined then
+		--	(
+		--		append verts index
+		--
+		--		append SupportsToUpdate Supports[index]
+		--	)
+		--
+		--		--Supports[index].updateSupport pos:verts_pos[index] normal:
+		--verts_normals = this._getVertsNormals(verts)
+		--
+		--verts_pos = this._getVertsPositions()
+		--
+		--for i = 1 to SupportsToUpdate.count do
+		--	SupportsToUpdate[i].updateSupport pos:verts_pos[verts[i]] normal:verts_normals[verts[i]]
+		
+		verts_pos = this._getVertsPositions()
 
-		for RaftOrSupport in RaftsOrSupports collect RaftOrSupport.BaseShape --return
+		for support_node in support_nodes do
+			if ( index = getUserPropVal support_node "INDEX") != undefined then
+				Supports[index].updateSupport pos:verts_pos[index]
+	),
+
+	/** Get support nodes of given type
+	  *
+	  * @param #SUPPORT|#RAFT Get only supports or rafts. Get both if unsupplied
+	  *
+	  * @return array of nodes
+	 */
+	function getSupportNodes type: =
+	(
+		format "\n"; print "SourceObject_v.getSupportNodes()"
+
+		/** Struct name
+		 */
+		function structName _struct = (filterString( classof _struct as string ) "(:")[2]
+
+		if type != unsupplied then
+		(
+			type = toLower( type as string )
+
+			for RaftOrSupport in Supports where structName(RaftOrSupport.value) == type collect RaftOrSupport.value.support_obj --return
+		)
+		else
+			for RaftOrSupport in Supports collect RaftOrSupport.value.support_obj --return
+
 	),
 
 	private
@@ -118,7 +168,6 @@ struct SourceObject_v
 			vertex_normals[face_verts.x] += face_normal
 			vertex_normals[face_verts.y] += face_normal
 			vertex_normals[face_verts.z] += face_normal
-
 		)
 
 		--for vert in verts collect normalize vertex_normals[vert]
@@ -135,6 +184,19 @@ struct SourceObject_v
 		in coordsys world  meshop.getVerts obj.mesh all_verts node:obj
 	),
 
+	/** Get existing support and rafts
+	 */
+	function _loadSupportsAndRaftsFromScene =
+	(
+		format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
+		for obj_in_scene in objects where superClassOf obj_in_scene.baseobject == shape and getUserPropVal obj_in_scene "SUPPORT_SYNC" == sync_key do
+		(
+			vert = getUserPropVal obj_in_scene "INDEX"
+
+			this.Supports[ vert ] = SupportObject_v(obj)(obj_in_scene)
+		)
+	),
+
 	/** Flattern dictionary
 	 */
 	function _flatternDictionary dict =
@@ -147,38 +209,43 @@ struct SourceObject_v
 		flattern_dict --return
 	),
 
-
-	/** Test collision with source object
-	 */
-	function _testCollision pos direction =
-	(
-		format "\n"; print "SupportObject_v.testCollision()"
-
-		_ray = Ray pos direction
-
-		intersectRay obj _ray --return
-	),
+	--
+	--/** Test collision with source object
+	-- */
+	--function _testCollision pos direction =
+	--(
+	--	--format "\n"; print "SupportObject_v.testCollision()"
+	--
+	--	_ray = Ray pos direction
+	--
+	--	intersectRay obj _ray --return
+	--),
 
 	/** Remove deleted nodes
 	 */
 	function _removeDeletedNodes =
 	(
-		--format "\n"; print "SourceObject_v._removeDeletedNodes()"
-		for i = Supports.count to 1 by -1 where not isValidNode Supports[i].BaseShape do deleteItem Supports i
 
-		for i = Rafts.count to 1 by -1 where not isValidNode Rafts[i].BaseShape do deleteItem Rafts i
+		--format "\n"; print "SourceObject_v._removeDeletedNodes()"
+		--for i = Supports.count to 1 by -1 where not isValidNode Supports[i].support_obj do deleteItem Supports i
+		for key in Supports.keys where not isValidNode Supports[key].support_obj do removeDictValue Supports key
 	),
 
 	/**
 	 */
 	on create do
 	(
-		--format "\n"; print "SourceObject.onCreate()"
+		format "\n"; print "SourceObject.onCreate()"
 		VertexColors = VertexColors_v(obj)
 		--SupportObject = SupportObject_v(obj)
 		--RaftObject = RaftObject_v(obj)
 
 		all_verts = #{1..(getNumVerts obj.mesh)}
+
+
+		this._loadSupportsAndRaftsFromScene()
+
+		bindSupportToTransformEvent( this.getSupportNodes() )
 
 	)
 

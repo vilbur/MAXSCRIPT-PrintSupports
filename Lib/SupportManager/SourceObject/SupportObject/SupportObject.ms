@@ -11,7 +11,7 @@ struct SupportObject_v
 
 
 	/* properties */
-	BaseShape,
+	support_obj,
 
 	is_on_ground = false,
 
@@ -22,10 +22,10 @@ struct SupportObject_v
 
 	Beams = #(),
 
-
-	--normal = [0,0,-1],
-
 	/* private */
+	_spline_index = 1, -- each support line has ony 1 spline
+
+
 	/* dependency */
 	include "MAXSCRIPT-PrintSupports/Lib/SupportManager/SourceObject/SupportRaftBaseObject/SupportRaftBaseObject.ms" --"./../SupportRaftBaseObject/SupportRaftBaseObject.ms"
 
@@ -44,12 +44,18 @@ struct SupportObject_v
 
 		--(PointHelper_v()).generatePointHelpers(vert)
 
-		--this.BaseShape = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vert) ) pos:knots_positions[1]
-		this.BaseShape = SplineShape name:(this._getName()) wirecolor:clr pos:pos
+		--this.support_obj = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vert) ) pos:knots_positions[1]
+		this.support_obj = SplineShape name:(this._getName()) wirecolor:clr pos:pos
 
-		this._setSupportKnots(pos)(normal)
+		this._setNewSupportKnots(pos)(normal)
 
-		this._createSupportLine(BaseShape)
+		this._createSupportLine(support_obj)
+
+		--point_helpers = (HelperObject_v()).generatePoints(knots_positions)
+		--
+		--point_helpers[1].parent = source_obj
+		--support_obj.parent = point_helpers[point_helpers.count]
+
 
 		--support.parent = helpers_chain[helpers_chain.count]
 		--
@@ -62,9 +68,36 @@ struct SupportObject_v
 		this --return
 	),
 
+	/** Update support
+	 */
+	function updateSupport pos: normal: =
+	(
+		format "\n"; print "SupportObject_v.updateSupport()"
+		format "support_obj: %\n" support_obj
+		format "pos: %\n" pos
+		format "normal: %\n" normal
+
+
+		this._setUpdateSupportKnots(pos)
+		
+		deleteSpline support_obj 1
+
+		this._createSupportLine(support_obj)
+
+
+		----for _spline_index = 1 to numSplines support_obj do
+		--for knot_i = 2 to numKnots support_obj 1 do
+		--	getKnotPoint spl s k
+		--setKnotPoint support_obj 1 1 pos
+
+		--this._createSupportLine(support_obj)
+
+		--updateShape support_obj
+
+	),
+
 
 	private
-
 
 
 	/** Create line netween point helpers
@@ -76,7 +109,6 @@ struct SupportObject_v
 
 		direction_down = [0,0,-1]
 
-		spline_index = 1
 
 		addNewSpline spline_shape
 
@@ -85,13 +117,13 @@ struct SupportObject_v
 			ADD KNOTS BY POINTS FROM TOP TO BOTTOM
 		--------------------------------------------------------------------------------*/
 		for pos in knots_positions do
-			addKnot spline_shape spline_index #corner #line pos
+			addKnot spline_shape _spline_index #corner #line pos
 
 
 		/*------------------------------------------------------------------------------
 			GET POSITION OF LAST POINT ABOVE GROUND
 		--------------------------------------------------------------------------------*/
-		pos =  knots_positions[knots_positions.count]
+		pos = copy knots_positions[knots_positions.count] -- copy to avoid modifing of value in array
 
 
 		/*------------------------------------------------------------------------------
@@ -110,14 +142,14 @@ struct SupportObject_v
 			--------------------------------------------------------------------------------*/
 			pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
 
-			addKnot spline_shape spline_index #corner #line pos
+			addKnot spline_shape _spline_index #corner #line pos
 
 			pos.z = 0 -- set spline_shape to ground
 
 			/*------------------------------------------------------------------------------
 				ADD GROUND POINT
 			--------------------------------------------------------------------------------*/
-			addKnot spline_shape spline_index #corner #line pos
+			addKnot spline_shape _spline_index #corner #line pos
 
 		)
 		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN TURN SUPPORT TO RAFT */
@@ -125,7 +157,7 @@ struct SupportObject_v
 			format "support_hits_source_object: %\n" support_hits_source_object
 			pos.z = support_hits_source_object.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
 
-			addKnot spline_shape spline_index #corner #line pos
+			addKnot spline_shape _spline_index #corner #line pos
 		)
 
 
@@ -135,12 +167,12 @@ struct SupportObject_v
 		num_of_segments = numSegments spline_shape ( numSplines spline_shape)
 
 		for segment_i = 1 to num_of_segments do
-			setMaterialID spline_shape spline_index segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
+			setMaterialID spline_shape _spline_index segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
 
 
 		/*------ SET MATERIAL TO GROUND SEGMENT ------*/
 		if is_on_ground then
-			setMaterialID spline_shape spline_index num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
+			setMaterialID spline_shape _spline_index num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
 
 
 		/*------------------------------------------------------------------------------
@@ -153,9 +185,9 @@ struct SupportObject_v
 
 	/** Set knots positions
 	 */
-	function _setSupportKnots pos normal =
+	function _setNewSupportKnots pos normal =
 	(
-		format "\n"; print "SupportObject_v._setSupportKnots()"
+		format "\n"; print "SupportObject_v._setNewSupportKnots()"
 		format "NORMAL: %\n" normal
 
 		/** Set second point by normal of vertex
@@ -218,78 +250,26 @@ struct SupportObject_v
 		format "knots_positions: %\n" knots_positions
 	),
 
-	/** Create raft line
+	/** Set update support knots
 	 */
-	function _createRaftLine =
+	function _setUpdateSupportKnots pos =
 	(
-		--format "\n"; print "SupportObject_v._createRaftLine()"
-		direction_down = [0,0,-1]
+		--format "\n"; print "SupportObject_v._setUpdateSupportKnots()"
 
-		spline_index = 1
+		mat_of_last_segment = getMaterialID support_obj _spline_index ( numSegments support_obj _spline_index )
 
-		addNewSpline spline_shape
+		knots_count = numKnots support_obj _spline_index
 
-		--support_hits_source_object = this._testCollision knots_positions[1] [0,0,-1]
-		--format "SOURCE_OBJ_INTERSECTION: %\n" support_hits_source_object
+		is_on_ground = mat_of_last_segment == SUPPORT_OPTIONS.mat_ids[#BASE]
 
-		/*------------------------------------------------------------------------------
-			ADD KNOTS BY POINTS FROM TOP TO BOTTOM
-		--------------------------------------------------------------------------------*/
-		for pos in knots_positions do
-			addKnot spline_shape spline_index #corner #line pos
+		last_knot = if is_on_ground then knots_count - 2 else knots_count
 
-		/* GET POSITION OF LAST POINT ABOVE GROUND */
-		pos =  knots_positions[knots_positions.count]
+		knots_positions = #(pos) -- set first knot of spline to vertex position
 
-		/* IF SUPPORT IS GOING TO GROUND */
-		if ( support_hits_source_object = this._testCollision pos direction_down ) == undefined then
-		(
-			/*------------------------------------------------------------------------------
-				ABOVE POINT ABOVE GROUND - NOT IF RAFT MODE
-			--------------------------------------------------------------------------------*/
-
-			pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
-
-			addKnot spline_shape spline_index #corner #line pos
-
-			pos.z = 0 -- set spline_shape to ground
-
-			/*------------------------------------------------------------------------------
-				GROUND POINT
-			--------------------------------------------------------------------------------*/
-			addKnot spline_shape spline_index #corner #line pos
-
-		)
-		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN TURN SUPPORT TO RAFT */
-		(
-			format "support_hits_source_object: %\n" support_hits_source_object
-
-			this.raft_mode = true
-
-			pos.z = support_hits_source_object.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
-
-			addKnot spline_shape spline_index #corner #line pos
-		)
-
-		/*------ SET MATERIAL TO SEGMENTS ------*/
-		num_of_segments = numSegments spline_shape ( numSplines spline_shape)
-
-		for segment_i = 1 to num_of_segments do
-			setMaterialID spline_shape spline_index segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
-
-		/*------ SET MATERIAL TO BOTTOM SEGMENT ------*/
-
-		setMaterialID spline_shape spline_index num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
-
-		updateShape spline_shape
-
-		spline_shape --return
-
-
-		--setMaterialID spline_shape spline_index 1 SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
+		for knot_i = 2 to last_knot do
+			append knots_positions (getKnotPoint support_obj _spline_index knot_i)
 
 	),
-
 
 	/**
 	 */

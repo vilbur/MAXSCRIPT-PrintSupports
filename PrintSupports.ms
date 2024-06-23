@@ -19,7 +19,7 @@ try(
 	ContentLoader	= ContentLoader_v path:(current_dir+"\\content") ini:( getSourceFileName())
 
 
-
+	
 	/* CHANGE PROPERTIES oF ROLLOUTS */
 	ContentLoader.Dialog.title = "PrintSupports"
 
