@@ -43,7 +43,7 @@ struct SupportOptions_v
 	extrude_top	= 0.5,
 
 	chamfer_base = 2,
-	chamfer_top	= 5,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
+	chamfer_bar	= 5,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
 
 	--cross_section	= false, -- connect columns of platform with cross beams
 	--cross_section_max	= 20,	-- max distance between platforms
