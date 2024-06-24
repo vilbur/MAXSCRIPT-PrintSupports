@@ -7,6 +7,7 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManag
 current_dir = getFilenamePath(getSourceFileName())
 
 global DIALOG_content
+global ROLLOUT_supports
 
 /*------------------------------------------------------------------------------
 	START VilTools
@@ -19,7 +20,7 @@ try(
 	ContentLoader	= ContentLoader_v path:(current_dir+"\\content") ini:( getSourceFileName())
 
 
-	
+
 	/* CHANGE PROPERTIES oF ROLLOUTS */
 	ContentLoader.Dialog.title = "PrintSupports"
 

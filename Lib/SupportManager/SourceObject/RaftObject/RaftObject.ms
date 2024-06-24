@@ -52,8 +52,8 @@ struct RaftObject_v
 	 */
 	function updateSupport pos: normal: =
 	(
-		format "\n-----------------------------------------\n"
-		format "\n"; print "RaftObject_v.updateSupport()"
+		--format "\n-----------------------------------------\n"
+		--format "\n"; print "RaftObject_v.updateSupport()"
 		--format "support_obj: %\n" support_obj
 		--format "pos: %\n" pos
 		--format "normal: %\n" normal
@@ -73,7 +73,7 @@ struct RaftObject_v
 	  */
 	function _createRaftLine spline_shape =
 	(
-		format "\n"; print "RaftObject_v._createSupportLine()"
+		--format "\n"; print "RaftObject_v._createSupportLine()"
 
 		direction_down = [0,0,-1]
 

@@ -69,8 +69,8 @@ struct SupportObject_v
 	 */
 	function updateSupport pos: normal: =
 	(
-		format "\n-----------------------------------------\n"
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n-----------------------------------------\n"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "support_obj: %\n" support_obj
 		--format "pos: %\n" pos
 		--format "normal: %\n" normal

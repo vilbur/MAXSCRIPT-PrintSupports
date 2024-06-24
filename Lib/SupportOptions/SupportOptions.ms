@@ -1,8 +1,17 @@
 /** Support options
+  *
+  *
+  * IMPORTANT: Control id, SupportOptions.porp and Modifiers names MUST HAVE SAME NAME
+  *
+  *		UI Control id	-> #cbx_bar_width
+  *		SupportOptions.prop	-> #bar_width
+  *		Modifier.prop	-> #bar_width
+  *
  */
 struct SupportOptions_v
 (
 	/* construct */
+	_rollout, -- rollout where values are store in UI
 	export_size = 1,
 
 	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #CONNECT, #SECOND_POINT_DIRECTION ),
@@ -62,6 +71,47 @@ struct SupportOptions_v
 
 	mat_ids	= Dictionary #( #TOP, 1 /* READ-ONLY */ ) #( #MIDDLE, 3 ) #( #BASE, 4 ) #( #BOTTOM, 2 /* READ-ONLY */ ) #( #CHMAFER, 5 ) #( #BEAM, 6 ), -- #top and #bottom are read-only and they are default by Edit Spline
 
+	/** GET INSTANCE OF SUPPORT GENERATOR
+	  *
+	  */
+	function getValuesFroUi =
+	(
+		/** Reg ex replace
+		 */
+		function regExReplace _string search _replace = ( dotNetObject "System.Text.RegularExpressions.Regex" search ).Replace ( _string as string ) _replace
+
+		export_size = if ROLLOUT_export == undefined then
+		(
+			format "\n============= WARNING =============\n"
+
+			print "VilTools Exporter does not exists"
+			print "Export Size 1 is used"
+
+			1 --return
+		)
+		else
+		  ROLLOUT_export.SPIN_export_size.value
+
+
+		--SupportManager = SupportManager_v export_size:export_size --use_every_nth_vert_of_spline:ROLLOUT_print_3d.SPIN_use_nth_vertex.value
+
+		control_type_to_fetch_values = "SPIN|CBX|RB"
+
+		/** FILL SupportManager PROPERTIES WITH DATA FROM UI
+		  *
+		  * Perform kind of this in loop:
+		  *   Options.base_extrude	= roll.SPIN_base_width.value
+		  */
+		for ctrl in _rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
+			this.setOptionValue prop_key ( if classOf ctrl == CheckBoxControl or classOf ctrl == RadioControl  then ctrl.state else ctrl.value )
+
+		--SupportManager.BeamGenerator.same_height	= _rollout.CBX_same_height.state
+
+		this.init()
+
+		--SupportManager --return
+	),
+
 	/** Init
 	  *
 	  */
@@ -79,9 +129,9 @@ struct SupportOptions_v
 	 */
 	function setOptionValue prop_key val =
 	(
-		--format "\n"; print "SupportOptions_v.setOptionValue()"
-		--format "prop_key: %\n" prop_key
-		--format "val: %\n" val
+		format "\n"; print "SupportOptions_v.setOptionValue()"
+		format "prop_key: %\n" prop_key
+		format "val: %\n" val
 
 		setProperty this prop_key val
 	),
@@ -188,7 +238,6 @@ struct SupportOptions_v
 		base_height = this.bottom_layers_count * this.layer_height / export_size
 	),
 
-
 	/**
 	 *
 	 */
@@ -197,5 +246,11 @@ struct SupportOptions_v
 		--format "\n"; print "SupportOptions_v.create()"
 		--format "\nIMPORTANT\n"
 		--format "EXPORT_SIZE:	% \n" export_size
+		this.getValuesFroUi()
 	)
 )
+
+
+
+
+

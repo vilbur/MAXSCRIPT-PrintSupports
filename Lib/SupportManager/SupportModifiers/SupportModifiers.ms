@@ -10,6 +10,7 @@ struct SupportModifiers_v
 	/* properties */
 	supports,
 	raft_mode = false,
+	update_mode = false,
 
 
 	/* options */
@@ -32,6 +33,8 @@ struct SupportModifiers_v
 		format "raft_mode: %\n" raft_mode
 		format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
 		--if raft_mode == unsupplied then
+		_selection = for o in selection  collect o
+
 
 		if supports.count == 0 then
 			return false
@@ -61,7 +64,7 @@ struct SupportModifiers_v
 			(
 				this._selectFace("Select Base")(SUPPORT_OPTIONS.mat_ids[#BASE])
 
-				this._extrude("Extrude Base") (SUPPORT_OPTIONS.base_width)
+				this._extrude("Base Width") (SUPPORT_OPTIONS.base_width)
 
 				this._chamfer("Chamfer Base") (this.chamfer_values[#BASE])
 			)
@@ -76,6 +79,29 @@ struct SupportModifiers_v
 		)
 		else
 			this._copyModifiers()
+
+		select _selection
+	),
+
+	/** Update modifier by value in SUPPORT_OPTIONS
+	 */
+	function updateModifier supports mod_name =
+	(
+		format "\n"; print "SupportModifiers_v.updateModifier()"
+		format "supports: %\n" supports
+		format "count: %\n" supports.count
+		mod_name = mod_name as name
+		format "mod_name: %\n" mod_name
+
+		mods = for support in supports where ( _mod = support.modifiers[mod_name]) != undefined collect _mod
+
+		format "mods: %\n" mods
+		format "makeUniqueArray mods: %\n" (makeUniqueArray mods)
+		--for obj in nodes do
+		--   for _mod in obj.modifiers where refhierarchy.IsRefTargetInstanced _mod do
+		--		if _mod == _modifier then
+		--			append objects_with_mod obj
+
 	),
 
 	private
@@ -147,6 +173,7 @@ struct SupportModifiers_v
 		)
 
 		sweep_mod = sweep name:name
+
 		format "selection: %\n" (selection as Array )
 		format "sweep_mod: %\n" sweep_mod
 		format "sweep_mod: %\n" (classOf sweep_mod)

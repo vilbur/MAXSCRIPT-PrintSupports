@@ -19,6 +19,7 @@ tooltip:	"Width of base part"
 icon:	"across:2|control:spinner|range:[ 0.1, 999, 4 ]|width:64|offset:[ -6, 6]"
 (
 	format "EventFired:	% \n" EventFired
+	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )
 
 
