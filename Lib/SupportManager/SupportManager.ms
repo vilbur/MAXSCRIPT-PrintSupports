@@ -141,7 +141,7 @@ struct SupportManager_v
 	 */
 	function updateModifiers ctrl val =
 	(
-		format "\n"; print "SupportManager_v.updateModifiers()"
+		--format "\n"; print "SupportManager_v.updateModifiers()"
 		/** Remove control type prefix from control nmae
 		*
 		* @param string ctrl E.G.: "SpinnerControl:SPIN_base_width"
@@ -163,9 +163,9 @@ struct SupportManager_v
 
 		source_objects = this._getSourceObjects ( _selection )
 		supports       = this._getSupportNodes ( _selection )
-		format "_selection: %\n" _selection
-		format "source_objects: %\n" source_objects
-		format "supports: %\n" supports
+		--format "_selection: %\n" _selection
+		--format "source_objects: %\n" source_objects
+		--format "supports: %\n" supports
 		--join supports supports_sel
 
 		for SourceObject in source_objects do

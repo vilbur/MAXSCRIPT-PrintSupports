@@ -112,9 +112,13 @@
 	(
 		--format "\n"; print "HelperObject_v._getName()"
 
-		name_stripped = substituteString source_obj.name "-source" ""
+		support_name = substituteString source_obj.name "-source" ""
 
-		name_stripped + "-support-" + vertex_index as string -- + "-" + index as string
+		if not matchPattern support_name pattern:("*-support*") then
+			support_name += "-support"
+		--support_name + "-support-" + vertex_index as string -- + "-" + index as string
+
+		support_name --return
 	),
 
 	/** Shift wirecolor sligtly

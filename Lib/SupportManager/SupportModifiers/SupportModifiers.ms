@@ -47,7 +47,6 @@ struct SupportModifiers_v
 
 		this.supports = supports
 
-		this._setChamferValues()
 
 		if not this._modifiersAdded() then
 		(
@@ -56,25 +55,25 @@ struct SupportModifiers_v
 			this._sanitizeMaxChamferValue()
 
 
-			this._sweep("Bar Width") ( if raft_mode then SUPPORT_OPTIONS.raft_width else SUPPORT_OPTIONS.bar_width )
+			this._sweep("Bar Width") ( if raft_mode then this._getOption #RAFT_WIDTH else this._getOption #BAR_WIDTH )
 
 			--format "RAFT_MODE	= % \n" raft_mode
 			--format "not raft_mode	= % \n" (not raft_mode)
 			if not raft_mode then
 			(
-				this._selectFace("Select Base")(SUPPORT_OPTIONS.mat_ids[#BASE])
+				this._selectFace("Select Base") (this._getOption #MAT_IDS dict_key:#BASE)
 
-				this._extrude("Base Width") (SUPPORT_OPTIONS.base_width)
+				this._extrude("Base Width")    (this._getOption #BASE_WIDTH)
 
-				this._chamfer("Chamfer Base") (this.chamfer_values[#BASE])
+				this._chamfer("Chamfer Base") (this._getChamferVal #BASE)
 			)
 
 
-			this._chamfer("Chamfer Bar")  (this.chamfer_values[ if raft_mode then #RAFT else #TOP]) selection_option:#ALL materialoption:( if raft_mode then #OFF else #DIFFERENT )  material_ID:( if raft_mode then SUPPORT_OPTIONS.mat_ids[#MIDDLE] )
+			this._chamfer("Chamfer Bar") (this._getChamferVal #TOP) selection_option:#ALL material_ID:( if raft_mode then this._getOption #MAT_IDS dict_key:#MIDDLE ) materialoption:( if raft_mode then #OFF else #DIFFERENT )
 
-			this._selectFace("Select Top Face")(SUPPORT_OPTIONS.mat_ids[ if raft_mode then #MIDDLE else #TOP ]) invert_sel:raft_mode
+			this._selectFace("Select Top Face")( this._getOption #MAT_IDS dict_key:( if raft_mode then #MIDDLE else #TOP )) invert_sel:raft_mode
 
-			this._extrude("Extrude Top")(SUPPORT_OPTIONS.extrude_top)
+			this._extrude("Extrude Top")(this._getOption #EXTRUDE_TOP)
 
 		)
 		else
@@ -87,31 +86,36 @@ struct SupportModifiers_v
 	 */
 	function updateModifier supports mod_name =
 	(
-		clearListener(); print("Cleared in:\n"+getSourceFileName())
-		format "\n"; print "SupportModifiers_v.updateModifier()"
-		format "supports: %\n" supports
-		format "count: %\n" supports.count
+		--clearListener(); print("Cleared in:\n"+getSourceFileName())
+		--format "\n"; print "SupportModifiers_v.updateModifier()"
+		--format "supports: %\n" supports
+		--format "count: %\n" supports.count
 		mod_name = mod_name as name
-		format "mod_name: %\n" mod_name
+		--format "mod_name: %\n" mod_name
 
 		mods = makeUniqueArray (for support in supports where ( _mod = support.modifiers[mod_name]) != undefined collect _mod)
 
-		format "mods: %\n" mods
-		format "mods: %\n" ( superClassOf mods[1] )
-		format "makeUniqueArray mods: %\n" (makeUniqueArray mods)
+		--format "mods: %\n" mods
+		--format "mods: %\n" ( superClassOf mods[1] )
+		--format "makeUniqueArray mods: %\n" (makeUniqueArray mods)
 		--for obj in nodes do
 		--   for _mod in obj.modifiers where refhierarchy.IsRefTargetInstanced _mod do
 		--		if _mod == _modifier then
 		--			append objects_with_mod obj
-		this._setChamferValues()
+
+		option_val = (this._getOption(mod_name))
 
 		for _mod in mods do
 			case classOf _mod of
 			(
-				(Face_Extrude):	this._extrude(_mod)	(SUPPORT_OPTIONS.base_width)
-				(Chamfer):	this._chamfer(_mod)	(this.chamfer_values[ if raft_mode then #RAFT else #TOP])
-				(sweep):	this._sweep(_mod)	(if raft_mode then SUPPORT_OPTIONS.raft_width else SUPPORT_OPTIONS.bar_width)
-				--default:
+				(Face_Extrude):	this._extrude(_mod)	(option_val)
+				(Chamfer):	this._chamfer(_mod)	(this._getChamferVal #TOP )
+				(sweep): (
+					this._sweep(_mod)	(option_val)
+
+					this.updateModifier supports #chamfer_bar
+				)
+				default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" mod_name -- this should never happen
 			)
 
 
@@ -159,7 +163,7 @@ struct SupportModifiers_v
 	  */
 	function _sweep mod_or_name diameter =
 	(
-		format "\n"; print "SupportModifiers_v._sweep()"
+		--format "\n"; print "SupportModifiers_v._sweep()"
 
 		/** Reset mod prpertis -- sweep mpdofoer keeps its settings if newly created, i dont know why.. oteh modifiers dont do that :D
 
@@ -191,7 +195,7 @@ struct SupportModifiers_v
 		format "SWEEP_MOD: %\n" sweep_mod
 		format "sweep_mod: %\n" (classOf sweep_mod)
 
-		if classOf mod_or_name == string then -- if not update mode
+		if superClassOf mod_or_name != modifier then -- if not update mode
 		(
 			resetSweepModProperties(sweep_mod)
 
@@ -205,7 +209,6 @@ struct SupportModifiers_v
 			/* GENERATE MATERIAL ID */
 			sweep_mod.UseSectionIDs	= false
 			sweep_mod.UsePathIDs	= true
-
 		)
 
 		sweep_mod[#Cylinder_Section].radius	= diameter / 2
@@ -245,62 +248,58 @@ struct SupportModifiers_v
 	  */
 	function _chamfer mod_or_name amount selection_option:#STACK materialoption:#OFF material_ID: /* minangle:  */ =
 	(
-		format "\n"; print "SupportModifiers_v._chamfer()"
-		format "mod_or_name: %\n" mod_or_name
-		format "amount: %\n" amount
+		--format "\n"; print "SupportModifiers_v._chamfer()"
+		--format "mod_or_name: %\n" mod_or_name
+		--format "mod_or_name: %\n" (getHandleByAnim mod_or_name)
+		--format "amount: %\n" amount
+		--chamfer_mod = if superClassOf mod_or_name == modifier then mod_or_name else Chamfer name:mod_or_name
 
-		chamfer_mod = if superClassOf mod_or_name == modifier then mod_or_name else Chamfer name:mod_or_name
-
-		chamfer_mod.selectionoption = case selection_option of
+		if superClassOf mod_or_name != modifier then -- if not update mode
 		(
-			#STACK:	0 -- from stack
-			#ALL:	5 -- all edges
+			chamfer_mod = Chamfer name:mod_or_name
+
+			chamfer_mod.selectionoption = case selection_option of
+			(
+				#STACK:	0 -- from stack
+				#ALL:	5 -- all edges
+			)
+
+			/* SET CHAMFER VALUES */
+			chamfer_mod.amount 	 = amount
+
+			chamfer_mod.segments = 0
+
+			/* UNSMOOTH OBJECT */
+			chamfer_mod.smooth 	= true
+
+			chamfer_mod.SmoothType = 0
+
+			chamfer_mod.smooththreshold = 0
+
+			chamfer_mod.materialoption = case materialoption of -- CHAMFER MATERIAL
+										(
+											#OFF:	0 -- mat_ids off
+											#DIFFERENT:	1 -- different mat_ids
+										)
+			/* ALLOW MATERIAL */
+			chamfer_mod.setmaterial	= classOf material_ID == integer
+
+
+			/* ASSIGN CHAMFER MATERIAL */
+			if classOf material_ID == integer then
+				chamfer_mod.materialID	= material_ID
+
+			/* BACKUP MAYBE IT WILL BE NEEDE NEEDED
+
+				--chamfer_mod.minangle = minangle
+
+			*/
+				modPanel.addModToSelection ( chamfer_mod ) --ui:on
+
 		)
+		else
+			mod_or_name.amount = amount
 
-		/* SET CHAMFER VALUES */
-		chamfer_mod.amount 	 = amount
-
-		chamfer_mod.segments = 0
-
-		/* UNSMOOTH OBJECT */
-		chamfer_mod.smooth 	= true
-
-		chamfer_mod.SmoothType = 0
-
-		chamfer_mod.smooththreshold = 0
-
-		chamfer_mod.materialoption = case materialoption of -- CHAMFER MATERIAL
-									(
-										#OFF:	0 -- mat_ids off
-										#DIFFERENT:	1 -- different mat_ids
-									)
-		/* ALLOW MATERIAL */
-		chamfer_mod.setmaterial	= classOf material_ID == integer
-
-
-		/* ASSIGN CHAMFER MATERIAL */
-		if classOf material_ID == integer then
-			chamfer_mod.materialID	= material_ID
-
-		/* BACKUP MAYBE IT WILL BE NEEDE NEEDED
-
-			--chamfer_mod.minangle = minangle
-
-		*/
-		if classOf mod_or_name == string then -- if not update mode
-			modPanel.addModToSelection ( chamfer_mod ) --ui:on
-	),
-
-	/** Set chamfer values, derivated from bar width
-	  *
-	  */
-	function _setChamferValues =
-	(
-		--format "\n"; print "SupportOptions_v._setChamferValues()"
-		this.chamfer_values[#BASE]	= SUPPORT_OPTIONS.base_height / 2
-		this.chamfer_values[#TOP]	= (SUPPORT_OPTIONS.bar_width / 2 / 10) * SUPPORT_OPTIONS.chamfer_bar -- chamfer in steps between 0-10
-		this.chamfer_values[#RAFT]	= (SUPPORT_OPTIONS.raft_width / 2 / 10) * SUPPORT_OPTIONS.chamfer_bar
-		--format "this.chamfer_values: %\n" this.chamfer_values
 	),
 
 	/** Add extrude modifier
@@ -308,7 +307,7 @@ struct SupportModifiers_v
 	  */
 	function _extrude mod_or_name amount scale: =
 	(
-		format "\n"; print "SupportModifiers_v._extrudeBase()"
+		--format "\n"; print "SupportModifiers_v._extrudeBase()"
 
 		extrude_mod = if superClassOf mod_or_name == modifier then mod_or_name else Face_Extrude name:mod_or_name
 
@@ -343,6 +342,32 @@ struct SupportModifiers_v
 
 		if SUPPORT_OPTIONS.bar_width / 2 == SUPPORT_OPTIONS.chamfer_bar then
 			SUPPORT_OPTIONS.chamfer_bar -= 0.05
+	),
+
+	/** Get prop of this
+	 */
+	function _getOption prop_key dict_key:"" =
+	(
+		--format "\n"; print "SupportOptions_v.getProp()"
+		prop_key = prop_key as string
+		dict_key = dict_key as name
+
+		val = getProperty SUPPORT_OPTIONS prop_key
+
+		if classOf val == Dictionary then
+			val = val[dict_key]
+
+		val --return
+	),
+
+	/** Get chamfer val
+	 */
+	function _getChamferVal dict_key =
+	(
+		--format "\n"; print "SupportOptions_v.getChamferVal()"
+		dict_key = dict_key as name
+
+		SUPPORT_OPTIONS.chamfer_values[dict_key]
 	),
 
 	/**

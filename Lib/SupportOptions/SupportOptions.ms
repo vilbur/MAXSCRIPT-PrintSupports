@@ -45,10 +45,8 @@ struct SupportOptions_v
 	chamfer_base = 2,
 	chamfer_bar	= 5,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
 
-	--cross_section	= false, -- connect columns of platform with cross beams
-	--cross_section_max	= 20,	-- max distance between platforms
-	--cross_section_min_height	= 10,	-- generate cross section only if platform is higher than this number
-
+	/* support prop */
+	chamfer_values = Dictionary(),
 
 	/* RAFT OPTIONS */
 	raft_width 	= 0.5,
@@ -122,6 +120,7 @@ struct SupportOptions_v
 
 		this._setDimensions()
 
+		this._setChamferValues()
 		--format "chamfer_top_divider	= % \n" chamfer_top_divider
 	),
 
@@ -129,18 +128,20 @@ struct SupportOptions_v
 	 */
 	function setOptionValue prop_key val =
 	(
-		format "\n"; print "SupportOptions_v.setOptionValue()"
-		format "prop_key: %\n" prop_key
-		format "val: %\n" val
+		--format "\n"; print "SupportOptions_v.setOptionValue()"
+		--format "prop_key: %\n" prop_key
+		--format "val: %\n" val
 
 		setProperty this prop_key val
+
+		this.init()
 	),
 
 	/** Get node prop data
 	 */
-	function getProp obj prop_key as_string:false =
+	function _getUserProp obj prop_key as_string:false =
 	(
-		--format "\n"; print "SupportOptions_v.getProp()"
+		--format "\n"; print "SupportOptions_v._getUserProp()"
 
 		key = ( toLower ( prop_key as string ))
 
@@ -149,9 +150,9 @@ struct SupportOptions_v
 
 	/** Set node prop data
 	 */
-	function setProp obj prop_key val =
+	function _setUserProp obj prop_key val =
 	(
-		--format "\n"; print "SupportOptions_v.setProp()"
+		--format "\n"; print "SupportOptions_v._setUserProp()"
 		key = ( toLower ( prop_key as string ))
 
 		setUserPropVal obj key val --return
@@ -161,7 +162,7 @@ struct SupportOptions_v
 	 */
 	function syncProp from_object to_object from_key destination_key: =
 	(
-		--format "\n"; print "SupportOptions_v.setProp()"
+		--format "\n"; print "SupportOptions_v._setUserProp()"
 		if destination_key == unsupplied then
 			destination_key = from_key
 
@@ -178,11 +179,11 @@ struct SupportOptions_v
 		--format "\n"; print "SupportOptions_v.getThisPointer()"
 		local this_pointer
 
-		if ( this_pointer = this.getProp obj #THIS ) == undefined then
+		if ( this_pointer = this._getUserProp obj #THIS ) == undefined then
 		(
 			this_pointer = getHandleByAnim obj
 
-			this.setProp obj #THIS this_pointer
+			this._setUserProp obj #THIS this_pointer
 		)
 
 		this_pointer
@@ -214,7 +215,7 @@ struct SupportOptions_v
 	  */
 	function _setDimensions =
 	(
-		format "\n"; print "SupportOptions_v._setDimensions()"
+		--format "\n"; print "SupportOptions_v._setDimensions()"
 		--format "DISPLAY_UNITS:	% \n" display_units
 		--format "EXPORT_SIZE:	% \n" export_size
 
@@ -236,6 +237,18 @@ struct SupportOptions_v
 	(
 		--format "\n"; print "SupportOptions_v._setBaseHeight()"
 		base_height = this.bottom_layers_count * this.layer_height / export_size
+	),
+
+	/** Set chamfer values, derivated from bar width
+	  *
+	  */
+	function _setChamferValues =
+	(
+		--format "\n"; print "SupportOptions_v._setChamferValues()"
+		this.chamfer_values[#BASE]	= base_height / 2
+		this.chamfer_values[#TOP]	= (bar_width  / 2 / 10) * chamfer_bar -- chamfer in steps between 0-10
+		this.chamfer_values[#RAFT]	= (raft_width / 2 / 10) * chamfer_bar
+		--format "CHAMFER_VALUES: %\n" this.chamfer_values
 	),
 
 	/**
