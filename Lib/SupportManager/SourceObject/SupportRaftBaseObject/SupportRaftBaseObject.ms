@@ -117,6 +117,7 @@
 		if not matchPattern support_name pattern:("*-support*") then
 			support_name += "-support"
 		--support_name + "-support-" + vertex_index as string -- + "-" + index as string
+		support_name += "-"+ vertex_index as string
 
 		support_name --return
 	),

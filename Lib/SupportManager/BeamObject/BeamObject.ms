@@ -3,13 +3,12 @@
 struct BeamObject_v
 (
 	/* construct */
-
+	support_A,
+	support_B,
 
 	/* required */
-
-
 	/* properties */
-
+	beam,
 
 	/* private */
 	/* dependency */
@@ -18,10 +17,46 @@ struct BeamObject_v
 
 	/** Create beams
 	 */
-	function createBeamsBetweenTwoSupports support_A support_B beam: =
+	function createBeamsBetweenTwoSupports =
 	(
-		format "\n"; print "BeamGenerator_v._createBeamsBetweenTwoSupports()"
+		format "\n"; print "BeamObject_v._createBeamsBetweenTwoSupports()"
+		/* CREATE NEW BEAM */
+		--if beam == unsupplied then
 
+		end_points = this._getBeamsEndPoints()
+		format "end_points: %\n" end_points
+
+		this._createBeam (support_A) (support_B) (end_points[1][#BOTTOM]) (end_points[1][#TOP])
+
+		--	--if SUPPORT_OPTIONS.connect != 2 then
+		--		--this._createBeam support_B support_A pos_bottom_2 pos_top_2
+
+		this --return
+	),
+
+	/** Update beam
+	 */
+	function updateBeam =
+	(
+		--format "\n"; print "BeamObject_v.updateBeam()"
+
+		end_points = this._getBeamsEndPoints()
+		--format "END_POINTS: %\n" end_points
+
+		if numSplines beam > 0 then
+			deleteSpline beam 1
+
+		if end_points[1] != undefined and end_points[2] != undefined   then
+			this._drawLine (end_points[1][#BOTTOM]) (end_points[1][#TOP])
+	),
+
+	private
+
+	/** Get beams end points
+	 */
+	function _getBeamsEndPoints =
+	(
+		--format "\n"; print "BeamObject_v.getBeamEndPoints()"
 		/** Get posiotion of point on line
 		 */
 		function getPosOnLine direction point_data offset =
@@ -41,6 +76,10 @@ struct BeamObject_v
 		--	/* GET TOP POS WHICH IS LOWER */
 		--	pos_top_1 = pos_top_2 = if pos_top_1.z > pos_top_2.z then pos_top_1 else pos_top_2
 		--)
+		--
+		--this.support_A = support_A
+		--this.support_B = support_B
+
 		beams_created = #()
 
 		if ( support_A == undefined or support_B == undefined ) or  distance support_A.pos support_B.pos > SUPPORT_OPTIONS.max_distance  then
@@ -70,34 +109,18 @@ struct BeamObject_v
 		pos_top_2	= getPosOnLine #TOP	point_data_A offset_A
 
 
-		/* CREATE NEW BEAM */
-		if beam == unsupplied then
-		(
-			this._createBeam support_A support_B pos_bottom_1 pos_top_1
-
-			--if SUPPORT_OPTIONS.connect != 2 then
-				--this._createBeam support_B support_A pos_bottom_2 pos_top_2
-		)
-		/* UPDATE NEW BEAM */
-		else
-		(
-			deleteSpline beam 1
-
-			this._drawLine (beam) (pos_bottom_1) (pos_top_1)
-		)
-
-		--append beams_created new_beam
-		--
-		--beams_created --return
+		#(
+			Dictionary #(#BOTTOM,	pos_bottom_1)	#(#TOP,	pos_top_1),
+			Dictionary #(#BOTTOM,	pos_bottom_2)	#(#TOP,	pos_top_2)
+		) -- return
 	),
 
-	private
 
 	/** Get segment point_data
 	 */
 	function _getSegmentEndPoints support =
 	(
-		--format "\n"; print "BeamGenerator_v.getSegmentEnds()"
+		--format "\n"; print "BeamObject_v.getSegmentEnds()"
 		num_knots	= ( numKnots support )
 
 		/* GET INDEX OF USED POINTS */
@@ -115,27 +138,28 @@ struct BeamObject_v
 	 */
 	function _createBeam support_A support_B pos_bottom pos_top =
 	(
-		--format "\n"; print "BeamGenerator_v._createBeam()"
+		--format "\n"; print "BeamObject_v._createBeam()"
 
-		new_beam = SplineShape name:(support_A.name + "-beam") wirecolor:(this._shiftWirecolor(support_A.wirecolor) )
+		this.beam = SplineShape name:(support_A.name + "-beam") wirecolor:(this._shiftWirecolor(support_A.wirecolor) )
 
-		new_beam = this._drawLine (new_beam) (pos_bottom) (pos_top)
+		beam = this._drawLine (pos_bottom) (pos_top)
 
-		this._addToGroup (new_beam) (support_A)
+		this._addToGroup (beam) (support_A)
 
-		new_beam.parent	= support_A
-		new_beam.pivot  = new_beam.center
+		beam.parent	= support_A
+		beam.pivot  = beam.center
 
 
-		--SUPPORT_OPTIONS.setProp new_beam #THIS (getHandleByAnim new_beam)
-		setUserPropVal new_beam "THIS"	(getHandleByAnim new_beam)
+		--SUPPORT_OPTIONS.setProp beam #THIS (getHandleByAnim beam)
+		setUserPropVal beam "THIS"	(getHandleByAnim beam)
 
-		--SUPPORT_OPTIONS.setProp new_beam #BEAM_SUPPORTS #( SUPPORT_OPTIONS.getThisPointer (support_A), SUPPORT_OPTIONS.getThisPointer (support_B) )
-		setUserPropVal new_beam "BEAM_SUPPORTS" #( getUserPropVal support_A "THIS", getUserPropVal support_B "THIS" )
+		--SUPPORT_OPTIONS.setProp beam #BEAM_SUPPORTS #( SUPPORT_OPTIONS.getThisPointer (support_A), SUPPORT_OPTIONS.getThisPointer (support_B) )
+		setUserPropVal beam "support_A" ( getUserPropVal support_A "THIS" )
+		setUserPropVal beam "support_B" ( getUserPropVal support_B "THIS" )
 
 		/* COPY MODIFIERS OF PARENT SUPPORT NAME WHICH NAME IS MATCHING: "*BAR*" */
 		for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
-			addModifier new_beam support_A.modifiers[i]
+			addModifier beam support_A.modifiers[i]
 
 		/* GET DISTANCE BETWEEN POINTS */
 		--distance_between_points = this.getPointDistance (copy beam_start) (copy beam_end_top )
@@ -143,34 +167,32 @@ struct BeamObject_v
 
 		/* CHECK MAX DISTANCE BETWEEN POINTS */
 		--if distance_between_points < SUPPORT_OPTIONS.max_distance then
-			--new_beam = this._drawLine (support_1) (beam_start) (beam_end_top)
+			--beam = this._drawLine (support_1) (beam_start) (beam_end_top)
 
-		--new_beam --return
-		 --return
+		beam --return
 	),
 
 	/** Draw line
 	 */
-	function _drawLine beam_obj start_point end_point =
+	function _drawLine start_point end_point =
 	(
-		--format "\n"; print "BeamGenerator_v.drawLine()"
+		--format "\n"; print "BeamObject_v.drawLine()"
 		spline_id = 1 -- index of spline
 
+		addNewSpline this.beam
 
-		addNewSpline beam_obj
+		addKnot this.beam spline_id #corner #line start_point
+		addKnot this.beam spline_id #corner #line end_point
 
-		addKnot beam_obj spline_id #corner #line start_point
-		addKnot beam_obj spline_id #corner #line end_point
+		setMaterialID this.beam spline_id 1 SUPPORT_OPTIONS.mat_ids[#BEAM] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
 
-		setMaterialID beam_obj spline_id 1 SUPPORT_OPTIONS.mat_ids[#BEAM] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
-
-		updateShape beam_obj
+		updateShape this.beam
 
 
 		--for i = support_A.modifiers.count to 1 by -1 do
-		--	addModifier beam_obj support_A.modifiers[i]
+		--	addModifier this.beam support_A.modifiers[i]
 
-		beam_obj --return
+		this.beam --return
 	),
 
 
@@ -178,7 +200,7 @@ struct BeamObject_v
 	--  */
 	--function getPointDistance point_1 point_2 =
 	--(
-	--	--format "\n"; print "BeamGenerator_v.getPointDistance()"
+	--	--format "\n"; print "BeamObject_v.getPointDistance()"
 	--	--point_1.z = point_2.z = 0 -- get distance in 2D -- COPY OF PARAMETERS IS NEEDED FOR THIS E.G.: point_1_copy = copy point_1
 	--
 	--	distance point_1 point_2 --return
@@ -196,7 +218,7 @@ struct BeamObject_v
 	 */
 	function sortSupportsByDistance =
 	(
-		format "\n"; print "BeamGenerator_v.sortSupportsByDistance()"
+		format "\n"; print "BeamObject_v.sortSupportsByDistance()"
 
 		supports_positions	= for support in supports collect support.pos
 		proccessed_supports 	= #{1..supports.count} * #{}
@@ -301,7 +323,7 @@ struct BeamObject_v
 	 */
 	on create do
 	(
-		--format "\n"; print "BeamObject.onCreate()"
+		format "\n"; print "BeamObject.onCreate()"
 		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
 		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
 	)

@@ -14,7 +14,7 @@ struct SupportObject_v
 	--knots_positions = #(),
 	--knots_positions = Array (2),
 
-	Beams = #(),
+	--Beams = #(),
 
 	/* private */
 
@@ -81,7 +81,6 @@ struct SupportObject_v
 		deleteSpline support_obj 1
 
 		this._createSupportLine(support_obj)
-
 
 		----for _spline_index = 1 to numSplines support_obj do
 		--for knot_i = 2 to numKnots support_obj 1 do

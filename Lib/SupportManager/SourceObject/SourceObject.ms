@@ -143,6 +143,14 @@ struct SourceObject_v
 
 	),
 
+	/** Add beam
+	 */
+	function addBeam beam =
+	(
+		--format "\n"; print "SourceObject_v.addBeam()"
+
+	),
+
 	private
 
 	/** Get verts normals

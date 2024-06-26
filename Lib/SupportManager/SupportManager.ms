@@ -86,6 +86,8 @@ struct SupportManager_v
 	/* properties */
 	SourceObjects = Dictionary #STRING,
 
+	BeamObjects = Dictionary #STRING,
+
 	/* dependency */
 	/* reference */
 	/* inhered */
@@ -132,16 +134,44 @@ struct SupportManager_v
 	 */
 	function generateBeams supports =
 	(
-		--format "\n"; print "SupportManager_v.generateBeams()"
+		format "\n"; print "SupportManager_v.generateBeams()"
+		all_supports = Dictionary #STRING
+		new_beams = #()
+
 		supports = for support in supports where superClassOf support.baseobject == shape collect support
+
+		for support in supports where ( pointer = getUserPropVal support "THIS") != undefined do all_supports[pointer] = support
 
 		if supports.count >= 2 then
 		(
+			--format "supports IN: %\n" supports
 			supports = this._sortSupportsByDistance(supports)
+			format "supports IN: %\n" supports
+			--
+			----for i = 1 to supports.count where supports[i + 1] != undefined do
+			for i = 1 to supports.count - 1 do
+			(
+				support_A = supports[i]
+				support_B = supports[i + 1]
 
-			for i = 1 to supports.count where supports[i + 1] != undefined do
-				(BeamObject_v()).createBeamsBetweenTwoSupports (supports[i]) (supports[i + 1])
+				--sync_key  = getUserPropVal support_A "SUPPORT_SYNC "
+				pointer_A = getUserPropVal support_A "THIS" asString:true
+				pointer_B = getUserPropVal support_B "THIS" asString:true
 
+				if BeamObjects[pointer_A] == undefined then
+					BeamObjects[pointer_A] = #()
+
+				if BeamObjects[pointer_B] == undefined then
+					BeamObjects[pointer_B] = #()
+				--if support_A != undefined and support_B != undefined then
+				--(
+					BeamObject = (BeamObject_v support_A support_B ).createBeamsBetweenTwoSupports()
+
+					--format "BeamObject: %\n" BeamObject
+					append BeamObjects[pointer_A] BeamObject
+					append BeamObjects[pointer_B] BeamObject
+				--)
+			)
 		)
 	),
 
@@ -152,8 +182,18 @@ struct SupportManager_v
 		--format "\n"; print "SupportManager_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 
+		BeamsOfSupports = #()
+
 		for support in support_nodes where (sync_key = getUserPropVal support "SUPPORT_SYNC" ) != undefined do
 			SourceObjects[sync_key].updateSupports #(support)
+
+
+		updated_supports = for support in support_nodes collect getUserPropVal support "THIS" asString:true
+
+		for updated_support in updated_supports where (BeamsOfSupport = BeamObjects[updated_support]) != undefined do join BeamsOfSupports BeamsOfSupport
+
+			for BeamObject in (makeUniqueArray BeamsOfSupports) do
+				BeamObject.updateBeam()
 	),
 
 	/** Update modifiers by control value
@@ -201,7 +241,7 @@ struct SupportManager_v
 	 */
 	function _sortSupportsByDistance supports =
 	(
-		format "\n"; print "BeamGenerator_v.sortSupportsByDistance()"
+		--format "\n"; print "SupportManager_v.sortSupportsByDistance()"
 
         supports_positions	= for support in supports collect support.pos
         proccessed_supports	= #{1..supports.count} * #{}
@@ -219,7 +259,6 @@ struct SupportManager_v
             proccessed_supports[next_support_i]	= true
 
 			next_support_i = undefined
-			--supports_to_search = for i = 1 to supports.count where not proccessed_supports[i] collect i
 
 			for i = 1 to supports.count where not proccessed_supports[i] do
 			--if supports_to_search.count > 0 then
@@ -239,7 +278,6 @@ struct SupportManager_v
 				append supports_sorted supports[next_support_i]
 		)
 
-		--this.supports = makeUniqueArray supports_sorted
 		supports_sorted
 	),
 
