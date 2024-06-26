@@ -17,7 +17,7 @@ struct BeamObject_v
 
 	/** Create beams
 	 */
-	function createBeamsBetweenTwoSupports =
+	function generateBeam =
 	(
 		format "\n"; print "BeamObject_v._createBeamsBetweenTwoSupports()"
 		/* CREATE NEW BEAM */
@@ -26,10 +26,9 @@ struct BeamObject_v
 		end_points = this._getBeamsEndPoints()
 		format "end_points: %\n" end_points
 
-		this._createBeam (support_A) (support_B) (end_points[1][#BOTTOM]) (end_points[1][#TOP])
+		this._createBeam()
 
-		--	--if SUPPORT_OPTIONS.connect != 2 then
-		--		--this._createBeam support_B support_A pos_bottom_2 pos_top_2
+		this._drawLines(end_points)
 
 		this --return
 	),
@@ -43,14 +42,50 @@ struct BeamObject_v
 		end_points = this._getBeamsEndPoints()
 		--format "END_POINTS: %\n" end_points
 
-		if numSplines beam > 0 then
-			deleteSpline beam 1
+		--if numSplines beam > 0 then
+		for i = numSplines beam to 1 by -1 do
+			deleteSpline beam i
 
-		if end_points[1] != undefined and end_points[2] != undefined   then
-			this._drawLine (end_points[1][#BOTTOM]) (end_points[1][#TOP])
+		this._drawLines(end_points)
 	),
 
 	private
+
+	/** Create beam
+	 */
+	function _createBeam =
+	(
+		--format "\n"; print "BeamObject_v._createBeam()"
+
+		this.beam = SplineShape name:(support_A.name + "-beam") wirecolor:(this._shiftWirecolor(support_A.wirecolor) )
+
+		this._addToGroup (beam) (support_A)
+
+		beam.parent	= support_A
+		beam.pivot  = beam.center
+
+
+		--SUPPORT_OPTIONS.setProp beam #THIS (getHandleByAnim beam)
+		setUserPropVal beam "THIS"	(getHandleByAnim beam)
+
+		--SUPPORT_OPTIONS.setProp beam #BEAM_SUPPORTS #( SUPPORT_OPTIONS.getThisPointer (support_A), SUPPORT_OPTIONS.getThisPointer (support_B) )
+		setUserPropVal beam "support_A" ( getUserPropVal support_A "THIS" )
+		setUserPropVal beam "support_B" ( getUserPropVal support_B "THIS" )
+
+		/* COPY MODIFIERS OF PARENT SUPPORT NAME WHICH NAME IS MATCHING: "*BAR*" */
+		for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
+			addModifier beam support_A.modifiers[i]
+
+		/* GET DISTANCE BETWEEN POINTS */
+		--distance_between_points = this.getPointDistance (copy beam_start) (copy beam_end_top )
+		--distance_between_points = this.getPointDistance (point_bottom_1) (point_bottom_2 )
+
+		/* CHECK MAX DISTANCE BETWEEN POINTS */
+		--if distance_between_points < SUPPORT_OPTIONS.max_distance then
+			--beam = this._drawLine (support_1) (beam_start) (beam_end_top)
+
+		--beam --return
+	),
 
 	/** Get beams end points
 	 */
@@ -116,6 +151,23 @@ struct BeamObject_v
 	),
 
 
+
+	/** Draw lines
+	 */
+	function _drawLines end_points =
+	(
+		--format "\n"; print "BeamObject_v._drawLines()"
+	--if end_points[1] != undefined and end_points[2] != undefined then
+
+		this._drawLine (end_points[1][#BOTTOM]) (end_points[1][#TOP]) 1
+
+		if SUPPORT_OPTIONS.connect != 2 then
+			this._drawLine  (end_points[2][#BOTTOM]) (end_points[2][#TOP]) 2
+
+		updateShape this.beam
+
+	),
+
 	/** Get segment point_data
 	 */
 	function _getSegmentEndPoints support =
@@ -134,50 +186,12 @@ struct BeamObject_v
 		Dictionary #( #BOTTOM, point_bottom ) #( #TOP, point_top ) #( #VECTOR, normalize (point_bottom - point_top) ) --return
 	),
 
-	/** Create beam
-	 */
-	function _createBeam support_A support_B pos_bottom pos_top =
-	(
-		--format "\n"; print "BeamObject_v._createBeam()"
-
-		this.beam = SplineShape name:(support_A.name + "-beam") wirecolor:(this._shiftWirecolor(support_A.wirecolor) )
-
-		beam = this._drawLine (pos_bottom) (pos_top)
-
-		this._addToGroup (beam) (support_A)
-
-		beam.parent	= support_A
-		beam.pivot  = beam.center
-
-
-		--SUPPORT_OPTIONS.setProp beam #THIS (getHandleByAnim beam)
-		setUserPropVal beam "THIS"	(getHandleByAnim beam)
-
-		--SUPPORT_OPTIONS.setProp beam #BEAM_SUPPORTS #( SUPPORT_OPTIONS.getThisPointer (support_A), SUPPORT_OPTIONS.getThisPointer (support_B) )
-		setUserPropVal beam "support_A" ( getUserPropVal support_A "THIS" )
-		setUserPropVal beam "support_B" ( getUserPropVal support_B "THIS" )
-
-		/* COPY MODIFIERS OF PARENT SUPPORT NAME WHICH NAME IS MATCHING: "*BAR*" */
-		for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
-			addModifier beam support_A.modifiers[i]
-
-		/* GET DISTANCE BETWEEN POINTS */
-		--distance_between_points = this.getPointDistance (copy beam_start) (copy beam_end_top )
-		--distance_between_points = this.getPointDistance (point_bottom_1) (point_bottom_2 )
-
-		/* CHECK MAX DISTANCE BETWEEN POINTS */
-		--if distance_between_points < SUPPORT_OPTIONS.max_distance then
-			--beam = this._drawLine (support_1) (beam_start) (beam_end_top)
-
-		beam --return
-	),
-
 	/** Draw line
 	 */
-	function _drawLine start_point end_point =
+	function _drawLine start_point end_point spline_id =
 	(
 		--format "\n"; print "BeamObject_v.drawLine()"
-		spline_id = 1 -- index of spline
+		--spline_id = 1 -- index of spline
 
 		addNewSpline this.beam
 
@@ -186,13 +200,12 @@ struct BeamObject_v
 
 		setMaterialID this.beam spline_id 1 SUPPORT_OPTIONS.mat_ids[#BEAM] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
 
-		updateShape this.beam
 
 
 		--for i = support_A.modifiers.count to 1 by -1 do
 		--	addModifier this.beam support_A.modifiers[i]
 
-		this.beam --return
+		--this.beam --return
 	),
 
 

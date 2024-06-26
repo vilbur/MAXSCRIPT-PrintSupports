@@ -165,7 +165,7 @@ struct SupportManager_v
 					BeamObjects[pointer_B] = #()
 				--if support_A != undefined and support_B != undefined then
 				--(
-					BeamObject = (BeamObject_v support_A support_B ).createBeamsBetweenTwoSupports()
+					BeamObject = (BeamObject_v support_A support_B ).generateBeam()
 
 					--format "BeamObject: %\n" BeamObject
 					append BeamObjects[pointer_A] BeamObject
