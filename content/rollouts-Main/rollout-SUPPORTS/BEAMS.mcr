@@ -1,5 +1,5 @@
--- DEV IMPORT
---filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/getSupportManagerInstance.ms" )	--"./Lib/SupportManager/getSupportManagerInstance.ms"
+--DEV
+filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
 
 
 --/**
@@ -80,8 +80,13 @@ icon:	"across:1|offset:[ 0, 6 ]|width:242|height:32|tooltip:GEENERATE BEAMS betw
 		undo "Generate Beams" on
 		(
 			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-SUPPORTS\BEAMS.mcr"
+			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\BEAMS.mcr"
+			_selection = for o in selection collect o
 
-			(getSupportManagerInstance(ROLLOUT_supports)).createBeams( selection as Array )
+			if _selection.count > 0 then
+				SUPPORT_MANAGER.generateBeams( _selection)
+
+			if _selection.count > 0 then
+				select _selection[1]
 		)
 )

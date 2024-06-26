@@ -7,7 +7,9 @@ filein( getFilenamePath(getSourceFileName()) + "/../SupportOptions/SupportOption
 
 filein( getFilenamePath(getSourceFileName()) + "/SourceObject/SourceObject.ms" )	--"./SourceObject/SourceObject.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/HelperObject/HelperObject.ms" )	--"./HelperObject/HelperObject.ms"
+filein( getFilenamePath(getSourceFileName()) + "/BeamObject/BeamObject.ms" )	--"./BeamObject/BeamObject.ms"
+
+--filein( getFilenamePath(getSourceFileName()) + "/HelperObject/HelperObject.ms" )	--"./HelperObject/HelperObject.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/SupportModifiers/SupportModifiers.ms" )	--"./SupportModifiers/SupportModifiers.ms"
 
@@ -126,6 +128,23 @@ struct SupportManager_v
 
 	),
 
+	/** Generate beams
+	 */
+	function generateBeams supports =
+	(
+		--format "\n"; print "SupportManager_v.generateBeams()"
+		supports = for support in supports where superClassOf support.baseobject == shape collect support
+
+		if supports.count >= 2 then
+		(
+			supports = this._sortSupportsByDistance(supports)
+
+			for i = 1 to supports.count where supports[i + 1] != undefined do
+				(BeamObject_v()).createBeamsBetweenTwoSupports (supports[i]) (supports[i + 1])
+
+		)
+	),
+
 	/** Update supports
 	 */
 	function updateSupports support_nodes =
@@ -174,11 +193,55 @@ struct SupportManager_v
 		SUPPORT_OPTIONS.setOptionValue (prop) (val)
 		--SPIN_base_width
 		SUPPORT_MODIFIERS.updateModifier( makeUniqueArray supports )(prop)
-
-
 	),
 
 	private
+
+	/** Sort supports by distance
+	 */
+	function _sortSupportsByDistance supports =
+	(
+		format "\n"; print "BeamGenerator_v.sortSupportsByDistance()"
+
+        supports_positions	= for support in supports collect support.pos
+        proccessed_supports	= #{1..supports.count} * #{}
+
+        next_support_i	= 1
+        supports_sorted	= #(supports[next_support_i])
+
+		while next_support_i != undefined do
+		(
+			min_distance = 9999999
+
+            next_support	= supports[next_support_i]
+            next_support_pos	= next_support.pos
+
+            proccessed_supports[next_support_i]	= true
+
+			next_support_i = undefined
+			--supports_to_search = for i = 1 to supports.count where not proccessed_supports[i] collect i
+
+			for i = 1 to supports.count where not proccessed_supports[i] do
+			--if supports_to_search.count > 0 then
+			(
+				--for i in supports_to_search do
+				if (dist = distance next_support_pos supports_positions[i] ) < min_distance then
+				(
+					min_distance = dist
+
+					next_support_i = i
+				)
+			)
+			--else
+				--next_support_i = undefined
+
+			if next_support_i != undefined then
+				append supports_sorted supports[next_support_i]
+		)
+
+		--this.supports = makeUniqueArray supports_sorted
+		supports_sorted
+	),
 
 	/** Get source object
 	 */
@@ -246,6 +309,7 @@ struct SupportManager_v
 		for obj_in_scene in objects where (sync_key = getUserPropVal obj_in_scene "SUPPORT_SYNC_SOURCE") != undefined do
 			SourceObjects[sync_key] = SourceObject_v(obj_in_scene) (sync_key)
 	),
+
 
 	/**
 	*/
