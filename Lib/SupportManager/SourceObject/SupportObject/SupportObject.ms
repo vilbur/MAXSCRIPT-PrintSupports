@@ -61,16 +61,10 @@ struct SupportObject_v
 	 */
 	function updateSupport pos: normal: =
 	(
-		--format "\n-----------------------------------------\n"
 		--format "\n"; print "SupportObject_v.updateSupport()"
-		--format "support_obj: %\n" support_obj
-		--format "pos: %\n" pos
-		--format "normal: %\n" normal
 		this._resetKnots()
 
 		this._setUpdatedKnots(pos)
-
-		format "knots_positions.count: %\n" knots_positions.count
 
 		this._setPivotToSecondPoint ()
 

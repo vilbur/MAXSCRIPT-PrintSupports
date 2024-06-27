@@ -55,12 +55,12 @@ function bindSupportToTransformEvent supports =
 	format "SUPPORTS: %\n" SUPPORTS
 	format "COUNT: %\n" SUPPORTS.count
 
-	--if classOf supports == Array then
-	--	join SUPPORTS_BINDED supports
-	--
-	--else
-	--	append SUPPORTS_BINDED supports
-	--
+	if classOf supports == Array then
+		join SUPPORTS_BINDED supports
+
+	else
+		append SUPPORTS_BINDED supports
+
 	----for i = SUPPORTS_BINDED.count to 1 by -1 where not isValidNode SUPPORTS_BINDED[i] do deleteItem SUPPORTS_BINDED i
 	--
 	----SUPPORTS_BINDED = makeUniqueArray SUPPORTS_BINDED
@@ -72,7 +72,7 @@ function bindSupportToTransformEvent supports =
 
 	deleteAllChangeHandlers id:#updateSupportsEvent
 
-	when transform supports changes id:#updateSupportsEvent support do
+	when transform SUPPORTS_BINDED changes id:#updateSupportsEvent support do
 	(
 		--appendIfUnique SUPPORTS_TRANSFORM_CHANGED support
 		--

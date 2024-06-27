@@ -100,7 +100,7 @@
 		if second_point_pos != undefined and second_point_pos.z >= SUPPORT_OPTIONS.base_height * 2 then
 			knots_positions[2] = second_point_pos
 
-		format "knots_positions: %\n" knots_positions
+		--format "knots_positions: %\n" knots_positions
 	),
 
 	/** Set update support knots

@@ -28,6 +28,8 @@ struct BeamObject_v
 
 		this._createBeam()
 
+		bindBeamOnDeleteCallback( beam )
+
 		this._drawLines(points_of_lines)
 
 		this --return
@@ -357,13 +359,15 @@ struct BeamObject_v
 
 
 
+
+
+
 	/**
 	 */
 	on create do
 	(
-		format "\n"; print "BeamObject.onCreate()"
-		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
-		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
+		--format "\n"; print "BeamObject.onCreate()"
+
 	)
 
 )

@@ -1,7 +1,8 @@
 filein( getFilenamePath(getSourceFileName()) + "/../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms" )	--"./../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../VertexColors/VertexColors.ms" )	--"./../VertexColors/VertexColors.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/updateSupportsCallback/updateSupportsCallback.ms" )	--"./updateSupportsCallback/updateSupportsCallback.ms" -- MUST BE BEFORE SourceObject.ms
+filein( getFilenamePath(getSourceFileName()) + "/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onSupportTransformCallback/onSupportTransformCallback.ms" -- MUST BE BEFORE SourceObject.ms
+filein( getFilenamePath(getSourceFileName()) + "/onBeamDeletedCallback/onBeamDeletedCallback.ms" )	--"./onBeamDeletedCallback/onBeamDeletedCallback.ms" -- MUST BE BEFORE SourceObject.ms
 
 filein( getFilenamePath(getSourceFileName()) + "/../SupportOptions/SupportOptions.ms" )	--"./../SupportOptions/SupportOptions.ms"
 
@@ -86,7 +87,7 @@ struct SupportManager_v
 	/* properties */
 	SourceObjects = Dictionary #STRING,
 
-	BeamObjects = Dictionary #STRING,
+	BeamObjects = Dictionary #STRING, --KEY:"support_pointer" VALUE:BeamObject_v
 
 	/* dependency */
 	/* reference */
@@ -191,7 +192,6 @@ struct SupportManager_v
 		updated_supports = for support in support_nodes collect getUserPropVal support "THIS" asString:true
 
 		for updated_support in updated_supports where (BeamsOfSupport = BeamObjects[updated_support]) != undefined do join BeamsOfSupports BeamsOfSupport
-
 			for BeamObject in (makeUniqueArray BeamsOfSupports) do
 				BeamObject.updateBeam()
 	),
@@ -233,6 +233,22 @@ struct SupportManager_v
 		SUPPORT_OPTIONS.setOptionValue (prop) (val)
 		--SPIN_base_width
 		SUPPORT_MODIFIERS.updateModifier( makeUniqueArray supports )(prop)
+	),
+
+
+	/** On beam deleted
+	 */
+	function onBeamDeleted beam =
+	(
+		format "\n"; print "SupportManager_v.onBeamDeleted()"
+
+		for support_pointer in BeamObjects.keys where (BeamsOfSupport = BeamObjects[support_pointer]) != undefined do
+			for i = 1 to BeamsOfSupport.count where BeamsOfSupport[i].beam == beam do
+				deleteItem BeamsOfSupport i
+			--for BeamObject in BeamsOfSupport where BeamObject.beam == beam do
+
+		--for BeamObject in BeamObjects where (BeamsOfSupport = BeamObjects[updated_support]) != undefined do join BeamsOfSupports BeamsOfSupport
+
 	),
 
 	private
@@ -354,11 +370,11 @@ struct SupportManager_v
 	(
 		format "\n"; print "SupportManager_v._loadSourceObjectsFromScene()"
 
-		--unindSupportToTransformEvent()
+		all_beams = #()
 
-		for obj_in_scene in objects where (pointer_A = getUserPropVal obj_in_scene "support_A") != undefined do
+		for beam_in_scene in objects where (pointer_A = getUserPropVal beam_in_scene "support_A") != undefined do
 		(
-			pointer_B = getUserPropVal obj_in_scene "support_B"
+			pointer_B = getUserPropVal beam_in_scene "support_B"
 
 			support_A = getAnimByHandle (pointer_A as IntegerPtr )
 			support_B = getAnimByHandle (pointer_B as IntegerPtr )
@@ -372,12 +388,17 @@ struct SupportManager_v
 
 			BeamObject = (BeamObject_v support_A support_B )
 
-			BeamObject.beam = obj_in_scene
+			BeamObject.beam = beam_in_scene
 
 			--format "BeamObject: %\n" BeamObject
 			append BeamObjects[pointer_A] BeamObject
 			append BeamObjects[pointer_B] BeamObject
+
+			append all_beams beam_in_scene
 		)
+
+		bindBeamOnDeleteCallback(all_beams)
+
 	),
 
 
