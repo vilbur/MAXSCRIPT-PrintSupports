@@ -39,14 +39,14 @@ struct BeamObject_v
 	(
 		--format "\n"; print "BeamObject_v.updateBeam()"
 
-		end_points = this._getBeamsEndPoints()
-		--format "END_POINTS: %\n" end_points
+		points_of_lines = this._getBeamsEndPoints()
+		--format "END_POINTS: %\n" points_of_lines
 
 		--if numSplines beam > 0 then
 		for i = numSplines beam to 1 by -1 do
 			deleteSpline beam i
 
-		this._drawLines(end_points)
+		this._drawLines(points_of_lines)
 	),
 
 	private
@@ -111,28 +111,6 @@ struct BeamObject_v
 
 		if height_A < SUPPORT_OPTIONS.min_height and height_B < SUPPORT_OPTIONS.min_height then
 			return beams_created
-		/* DISTANCE FROM END POINTS
-		   -- bak if needed in future
-		--format "\n"; print "BeamObject_v.getBeamEndPoints()"
-
-			function getPosOnLineBak direction point_data offset =
-			(
-				dir = if direction == #BOTTOM then -1 else 1
-
-				point_data[direction]	+ ( offset	* point_data[#VECTOR] * dir)
-			)
-
-			offset_A = height_A / SUPPORT_OPTIONS.connect -- Divide by 0|1|3 SUPPORT_OPTIONS.connect:radiobuttons items:#('END', 'MIDDLE', 'QUATER')
-			offset_B = height_B / SUPPORT_OPTIONS.connect
-
-
-			bottom_A  	= getPosOnLineBak #BOTTOM	point_data_A offset_A
-			top_1	= getPosOnLineBak #TOP	point_data_B offset_B
-
-			bottom_B  	= getPosOnLineBak #BOTTOM	point_data_B offset_B
-			top_2	= getPosOnLineBak #TOP	point_data_A offset_A
-		*/
-
 
 		/* BEAM 1 */
 		bottom_A  	= point_data_A[#BOTTOM]
@@ -169,24 +147,29 @@ struct BeamObject_v
 				append points_of_supports[support] pos
 			)
 		)
+--format "SUPPORT_OPTIONS.beams_count: %\n" SUPPORT_OPTIONS.beams_count
+		pos_count = points_of_supports[1].count
 
-		points_of_beams = deepCopy points_of_supports --return
+		--points_of_beams = Array (SUPPORT_OPTIONS.beams_count)
+		points_of_beams = #()
 
-		pos_count = points_of_beams[1].count
+		for i = 1 to SUPPORT_OPTIONS.beams_count do
+			append points_of_beams (deepCopy points_of_supports[i])
 
-		for beam_line = 1 to 2 do
+
+
+		for support = 1 to SUPPORT_OPTIONS.beams_count do
 		(
-
 			for pos = 1 to pos_count do
 			(
 				even_pos = ( mod pos 2 ) == 0
 
-				if (beam_line == 1 and even_pos) or (beam_line == 2 and even_pos) then
-				(
-					opposite_suport = if beam_line == 1 then 2 else 1
+				points_of_beams[support][pos] =	if (support == 1 and even_pos) or (support == 2 and even_pos)
+					then
+						points_of_supports[if support == 1 then 2 else 1][pos]
+					else
+						points_of_supports[support][pos]
 
-					points_of_beams[beam_line][pos] = copy points_of_supports[opposite_suport][pos]
-				)
 			)
 		)
 
@@ -200,13 +183,12 @@ struct BeamObject_v
 		--format "\n"; print "BeamObject_v._drawLines()"
 	--if end_points[1] != undefined and end_points[2] != undefined then
 
+		sline_i = 0
+
 		for _line = 1 to points_of_lines.count do
 		(
-			this._drawLine (points_of_lines[_line]) _line
-
-
-
-
+			for pos = 1 to points_of_lines[_line].count - 1 do
+				this._drawLine points_of_lines[_line][pos] points_of_lines[_line][pos + 1] (sline_i += 1)
 		)
 
 		--if SUPPORT_OPTIONS.cross_beams then
@@ -214,6 +196,24 @@ struct BeamObject_v
 
 		updateShape this.beam
 
+	),
+
+	/** Draw line
+	 */
+	function _drawLine start_point end_point spline_id =
+	(
+		--format "\n"; print "BeamObject_v.drawLine()"
+		--spline_id = 1 -- index of spline
+
+		addNewSpline this.beam
+
+		--for pos in points_of_lines do
+			--addKnot this.beam spline_id #corner #line pos
+
+		addKnot this.beam spline_id #corner #line start_point
+		addKnot this.beam spline_id #corner #line end_point
+
+		--setMaterialID this.beam spline_id 1 SUPPORT_OPTIONS.mat_ids[#BEAM] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
 	),
 
 	/** Get segment point_data
@@ -233,25 +233,6 @@ struct BeamObject_v
 
 		Dictionary #( #BOTTOM, point_bottom ) #( #TOP, point_top ) #( #VECTOR, normalize (point_bottom - point_top) ) --return
 	),
-
-	/** Draw line
-	 */
-	function _drawLine points_of_lines spline_id =
-	(
-		--format "\n"; print "BeamObject_v.drawLine()"
-		--spline_id = 1 -- index of spline
-
-		addNewSpline this.beam
-
-		for pos in points_of_lines do
-			addKnot this.beam spline_id #corner #line pos
-
-		--addKnot this.beam spline_id #corner #line start_point
-		--addKnot this.beam spline_id #corner #line end_point
-
-		--setMaterialID this.beam spline_id 1 SUPPORT_OPTIONS.mat_ids[#BEAM] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
-	),
-
 
 	--/** Get distance between points in 2D FROM TOP VIEW
 	--  */

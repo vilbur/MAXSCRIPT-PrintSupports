@@ -28,25 +28,17 @@ struct SupportObject_v
 	function generateSupport vertex_index pos: clr: normal: =
 	(
 		--format "\n"; print "SupportObject_v.generateSupport()"
-		--this.raft_mode = raft_mode
-
-
-		--format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
-
-		--(PointHelper_v()).generatePointHelpers(vertex_index)
 
 		--this.support_obj = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vertex_index) ) pos:knots_positions[1]
 		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr pos:pos
 
-		this._setNewSupportKnots(pos)(normal)
+		this._setNewKnots(pos)(normal)
 
+		this._setPivotToSecondPoint()
 
-		this._alignObjectToVector support_obj knots_positions[2]
+		this._alignObjectToVector knots_positions[1]
 
 		this._createSupportLine(support_obj)
-
-
-
 
 		--point_helpers = (HelperObject_v()).generatePoints(knots_positions)
 		--
@@ -74,23 +66,17 @@ struct SupportObject_v
 		--format "support_obj: %\n" support_obj
 		--format "pos: %\n" pos
 		--format "normal: %\n" normal
-		support_obj.pivot = pos
+		this._resetKnots()
 
-		this._setUpdateSupportKnots(pos)
+		this._setUpdatedKnots(pos)
+
+		format "knots_positions.count: %\n" knots_positions.count
+
+		this._setPivotToSecondPoint ()
 
 		deleteSpline support_obj 1
 
 		this._createSupportLine(support_obj)
-
-		----for _spline_index = 1 to numSplines support_obj do
-		--for knot_i = 2 to numKnots support_obj 1 do
-		--	getKnotPoint spl s k
-		--setKnotPoint support_obj 1 1 pos
-
-		--this._createSupportLine(support_obj)
-
-		--updateShape support_obj
-
 	),
 
 
@@ -179,110 +165,6 @@ struct SupportObject_v
 
 		spline_shape --return
 	),
-
-	/** Set knots positions
-	 */
-	function _setNewSupportKnots pos normal =
-	(
-		format "\n"; print "SupportObject_v._setNewSupportKnots()"
-		format "NORMAL: %\n" normal
-
-		/** Set second point by normal of vertex
-		 */
-		function setSecondByNormal pos _normal =
-		(
-			format "\n"; print "HelperObject_v.setSecondByNormal()"
-
-			/** Get ray to ground
-			 */
-			--function getRayToGround second_vert_pos = Ray second_vert_pos [0,0,-1]
-
-			local second_vert_pos = copy pos
-
-			/* MOVE SECOND POINT ALONG NORMAL OF FIRST POINT */
-			second_vert_pos += SUPPORT_OPTIONS.normal_length * _normal
-
-			/* EXTEND SECOND POINT ALONG NORMAL IF INTERSECT WITH OBJECT ON ITS WAY TO TTHE GROUND */
-			--while (intersection = intersectRay source_obj (getRayToGround(second_vert_pos))) != undefined do
-			--	second_vert_pos += SUPPORT_OPTIONS.bar_width * _normal
-			--
-			--/* MOVE SECOND POINT LITTLE MORE TO MAKE SURE THAT IT NOT COLLIDE WITH OBJECT */
-			--second_vert_pos += SUPPORT_OPTIONS.bar_width * _normal
-
-
-			/* KEEP SECOND POINT BELLOW FIRST OF GIVEN AMOUNT */
-			--if SUPPORT_OPTIONS.keep_down and ( second_vert_pos.z - second_vert_pos.z ) < 0 then
-				--second_vert_pos.z = pos.z - SUPPORT_OPTIONS.keep_down_limit
-
-			second_vert_pos --return
-		)
-
-		/** Set second down
-		 */
-		function setSecondDown pos =
-		(
-			--format "\n"; print "HelperObject_v.setSecondDown()"
-			pos.z -= SUPPORT_OPTIONS.normal_length
-
-			--append this.knots_positions pos
-			pos --return
-		)
-
-
-
-		/* ADD FIRST POINT */
-		knots_positions[1] = pos
-
-		/* ADD SECOND POINT */
-		second_point_pos = case SUPPORT_OPTIONS.second_point_direction of
-		(
-			1: setSecondByNormal	(copy pos)( normal )
-			2: setSecondDown	(copy pos)
-		)
-
-		/* CHECK POSITION ABOVE GROUND, POINT IS NOT CRETED IF BOTTOM SPACE IS NOT 2x BASE HEIGH */
-		if second_point_pos != undefined and second_point_pos.z >= SUPPORT_OPTIONS.base_height * 2 then
-			knots_positions[2] = second_point_pos
-
-		format "knots_positions: %\n" knots_positions
-	),
-
-	/** Set update support knots
-	 */
-	function _setUpdateSupportKnots pos =
-	(
-		--format "\n"; print "SupportObject_v._setUpdateSupportKnots()"
-
-		/** Last knot
-		 */
-		function getNumKnots = numKnots support_obj _spline_index
-
-		function getKnotPos knot_i = getKnotPoint support_obj _spline_index knot_i
-
-		if ( num_segments = numSegments support_obj _spline_index ) > 1 then
-		(
-
-			mat_of_last_segment = getMaterialID support_obj _spline_index num_segments
-
-			is_on_ground = mat_of_last_segment == SUPPORT_OPTIONS.mat_ids[#BASE]
-			--format "is_on_ground: %\n" is_on_ground
-			--last_knot = if is_on_ground then num_knots - 3 else num_knots
-			--format "last_knot: %\n" last_knot
-
-			if is_on_ground then
-				deleteKnot support_obj _spline_index ( getNumKnots() )
-
-
-			deleteKnot support_obj _spline_index ( getNumKnots() )
-		)
-		knots_positions = #(pos) -- set first knot of spline to vertex position
-
-		for knot_i = 2 to ( getNumKnots() ) do
-			append knots_positions (getKnotPos(knot_i))
-
-	),
-
-
 
 	/**
 	 */

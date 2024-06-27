@@ -23,28 +23,123 @@
 	/*------------------------------------------------------------------------------
 		METHODS
 	--------------------------------------------------------------------------------*/
+	/** Reset knots
+	 */
+	function _resetKnots =
+	(
+		this.knots_positions = Array (2)
+	),
+
+	/** Set knots positions
+	 */
+	function _setNewKnots pos normal =
+	(
+		format "\n"; print "RaftObject_v._setNewRaftKnots()"
+		format "NORMAL: %\n" normal
+
+		/** Set second point by normal of vertex
+		 */
+		function setSecondByNormal pos _normal =
+		(
+			format "\n"; print "HelperObject_v.setSecondByNormal()"
+
+			/** Get ray to ground
+			 */
+			--function getRayToGround second_vert_pos = Ray second_vert_pos [0,0,-1]
+			collision_with_source_obj = this._intersectRaySourceObject pos _normal
+
+			second_vert_pos = if collision_with_source_obj == undefined then
+			(
+				/* MOVE SECOND POINT ALONG NORMAL OF FIRST POINT */
+				pos + SUPPORT_OPTIONS.normal_length * _normal
+
+			)
+			else
+				collision_with_source_obj.pos
+
+			--local second_vert_pos = copy pos
+
+
+			/* EXTEND SECOND POINT ALONG NORMAL IF INTERSECT WITH OBJECT ON ITS WAY TO TTHE GROUND */
+			--while (intersection = intersectRay source_obj (getRayToGround(second_vert_pos))) != undefined do
+			--	second_vert_pos += SUPPORT_OPTIONS.bar_width * _normal
+			--
+			--/* MOVE SECOND POINT LITTLE MORE TO MAKE SURE THAT IT NOT COLLIDE WITH OBJECT */
+			--second_vert_pos += SUPPORT_OPTIONS.bar_width * _normal
+
+
+			/* KEEP SECOND POINT BELLOW FIRST OF GIVEN AMOUNT */
+			--if SUPPORT_OPTIONS.keep_down and ( second_vert_pos.z - second_vert_pos.z ) < 0 then
+				--second_vert_pos.z = pos.z - SUPPORT_OPTIONS.keep_down_limit
+
+			second_vert_pos --return
+		)
+
+		/** Set second down
+		 */
+		function setSecondDown pos =
+		(
+			--format "\n"; print "HelperObject_v.setSecondDown()"
+			pos.z -= SUPPORT_OPTIONS.normal_length
+
+			--append this.knots_positions pos
+			pos --return
+		)
+
+		/* ADD FIRST POINT */
+		knots_positions[1] = pos
+
+		/* ADD SECOND POINT */
+		second_point_pos = case SUPPORT_OPTIONS.second_point_direction of
+		(
+			1: setSecondByNormal	(copy pos)( normal )
+			2: setSecondDown	(copy pos)
+		)
+
+		/* CHECK POSITION ABOVE GROUND, POINT IS NOT CRETED IF BOTTOM SPACE IS NOT 2x BASE HEIGH */
+		if second_point_pos != undefined and second_point_pos.z >= SUPPORT_OPTIONS.base_height * 2 then
+			knots_positions[2] = second_point_pos
+
+		format "knots_positions: %\n" knots_positions
+	),
+
+	/** Set update support knots
+	 */
+	function _setUpdatedKnots pos =
+	(
+		--function getNumKnots = numKnots support_obj _spline_index
+		knots_positions = #(pos) -- set first knot of spline to vertex position
+
+		last_knot_pos = getKnotPoint support_obj _spline_index 2
+
+		collision_with_source_obj = this._intersectRaySourceObject pos ( normalize (last_knot_pos - pos))
+
+		second_vert_pos = if collision_with_source_obj != undefined then collision_with_source_obj.pos else last_knot_pos
+
+		append knots_positions second_vert_pos
+	),
 
 	/** Align to ctor
 	 */
-	function _alignObjectToVector obj point_to_rotate =
+	function _alignObjectToVector point_to_rotate =
 	(
 		--format "\n"; print "HelperObject_v._alignObjectToVector()"
 		--format "obj	= % \n" obj
 		--format "% %\n" point_to_rotate obj_pos
 
-		dir = normalize (obj.pos - point_to_rotate)
+		dir = normalize (support_obj.pos - point_to_rotate)
 		--format "dir: %\n" dir
 
 		axis = #z
 
 		vec = case axis of
 		(
-			#x: obj.transform[1]
-			#y: obj.transform[2]
-			#z: obj.transform[3]
+			#x: support_obj.transform[1]
+			#y: support_obj.transform[2]
+			#z: support_obj.transform[3]
 		)
 
-		tm  = obj.transform
+		tm  = support_obj.transform
 		vec = normalize vec
 		dir = normalize dir
 
@@ -54,10 +149,18 @@
 
 		rtm = AngleAxis (angle_vectors) ( axis_of_plane_defined_by_vectors )
 
-		obj.transform = Translate ( Rotate ( ScaleMatrix tm.scale) (tm.rotation*rtm)) tm.pos
+		support_obj.transform = Translate ( Rotate ( ScaleMatrix tm.scale) (tm.rotation*rtm)) tm.pos
 
 		if pos == true then
-			obj.pos = point_to_rotate
+			support_obj.pos = point_to_rotate
+	),
+
+	/** Set pivot to position
+	 */
+	function _setPivotToSecondPoint =
+	(
+		--format "\n"; print "HelperObject_v._alignObjectToVector()"
+		support_obj.pivot = knots_positions[2]
 	),
 
 	/** Test collision with source object

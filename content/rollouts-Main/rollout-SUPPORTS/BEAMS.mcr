@@ -3,20 +3,6 @@ filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/Sup
 
 
 
---/**  Export format
---  *
--- */
---macroscript	_print_generator_beams_connect_increment
---category:	"_Export"
---buttontext:	"[Connect]"
---toolTip:	"Where support is connected to beam"
---icon:	"control:radiobuttons|across:1|align:#CENTER|items:#('END', 'MIDDLE', 'THIRD', 'QUATER')|columns:4|offset:[ -72, 0 ]"
---(
---	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
---
---	--DosCommand ("explorer \""+export_dir+"\"")
---	--format "EventFired	= % \n" EventFired
---)
 
 
 /**
@@ -42,17 +28,23 @@ icon:	"across:3|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:64|offse
 (
 	format "EventFired:	% \n" EventFired
 )
+
 /**
   *
-  */
-macroscript	_print_generator_beams_double
-category:	"_3D-Print"
-buttontext:	"Cross Beams"
-tooltip:	""
-icon:	"across:3|control:checkbox|offset:[ 0, 6 ]|checked:true"
+ */
+macroscript	_print_generator_beams_count
+category:	"_Export"
+buttontext:	"[Beams Count]"
+toolTip:	"Beams Count"
+icon:	"control:radiobuttons|across:3|align:#CENTER|items:#('1', '2')|offset:[ 0, 0 ]"
 (
-	format "EventFired:	% \n" EventFired
+	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
+
+	--DosCommand ("explorer \""+export_dir+"\"")
+	--format "EventFired	= % \n" EventFired
 )
+
+
 --/**
 --  *
 --  */
@@ -91,3 +83,21 @@ icon:	"across:1|offset:[ 0, 6 ]|width:242|height:32|tooltip:GEENERATE BEAMS betw
 				select _selection[1]
 		)
 )
+
+
+
+
+--/**  BEAM POSITION
+--  *
+-- */
+--macroscript	_print_generator_beams_connect_increment
+--category:	"_Export"
+--buttontext:	"[Connect]"
+--toolTip:	"Where support is connected to beam"
+--icon:	"control:radiobuttons|across:1|align:#CENTER|items:#('END', 'MIDDLE', 'THIRD', 'QUATER')|columns:4|offset:[ -72, 0 ]"
+--(
+--	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
+--
+--	--DosCommand ("explorer \""+export_dir+"\"")
+--	--format "EventFired	= % \n" EventFired
+--)

@@ -14,7 +14,7 @@ struct SupportOptions_v
 	_rollout, -- rollout where values are store in UI
 	export_size = 1,
 
-	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #CONNECT, #SECOND_POINT_DIRECTION ),
+	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #BEAMS_COUNT, #SECOND_POINT_DIRECTION ),
 
 	/* POINT GENERATOR OPTIONS */
 	use_normals	= true,
@@ -52,7 +52,7 @@ struct SupportOptions_v
 	raft_width 	= 0.5,
 
 	/* BEAMS OPTIONS */
-	cross_beams = true,
+	beams_count = 2,
 	max_distance	= 20,	-- max distance between platforms
 	min_height	= 10,	-- generate beams only if platform is higher than this number=
 	max_height	= 20,	-- gmax height between of beam split
@@ -71,7 +71,7 @@ struct SupportOptions_v
 
 	quiet_mode = false,
 
-	mat_ids	= Dictionary #( #TOP, 1 /* READ-ONLY */ ) #( #MIDDLE, 3 ) #( #BASE, 4 ) #( #BOTTOM, 2 /* READ-ONLY */ ) #( #CHMAFER, 5 ) #( #BEAM, 6 ), -- #top and #bottom are read-only and they are default by Edit Spline
+	mat_ids	= Dictionary #( #TOP, 1 /* READ-ONLY */ ) #( #NORMAL, 7 ) #( #MIDDLE, 3 ) #( #BASE, 4 ) #( #BOTTOM, 2 /* READ-ONLY */ ) #( #CHMAFER, 5 ) #( #BEAM, 6 ), -- #top and #bottom are read-only and they are default by Edit Spline
 
 	/** GET INSTANCE OF SUPPORT GENERATOR
 	  *
