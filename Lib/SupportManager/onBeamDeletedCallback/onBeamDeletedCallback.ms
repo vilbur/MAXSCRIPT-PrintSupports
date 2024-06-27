@@ -1,38 +1,31 @@
 
 
-global BEAMS_BINDED = #()
+global ON_DELETED_OBJECTS = #()
 
 /** Bind transform event
  */
-function bindBeamOnDeleteCallback beams =
+function bindBeamOnDeleteCallback objs =
 (
 	--format "\n"; print ".bindBeamOnDeleteCallback()"
 
-	if classOf beams == Array then
-		join BEAMS_BINDED beams
+	ON_DELETED_OBJECTS = for obj in ON_DELETED_OBJECTS where isValidNode obj collect obj
 
+	if classOf objs == Array then
+		join ON_DELETED_OBJECTS objs
 	else
-		append BEAMS_BINDED beams
+		append ON_DELETED_OBJECTS objs
 
-	----for i = BEAMS_BINDED.count to 1 by -1 where not isValidNode BEAMS_BINDED[i] do deleteItem BEAMS_BINDED i
-	--
-	----BEAMS_BINDED = makeUniqueArray BEAMS_BINDED
-	--
-	--/* GET ONLY VALID NODES */
-	--BEAMS_BINDED = for i = (makeUniqueArray BEAMS_BINDED).count to 1 by -1 where isValidNode BEAMS_BINDED[i] collect BEAMS_BINDED[i]
-	--format "BEAMS_BINDED: %\n" BEAMS_BINDED
-	--format "COUNT: %\n" BEAMS_BINDED.count
+		
+	deleteAllChangeHandlers id:#onDeletedSupportOrBeamEvent
 
-	deleteAllChangeHandlers id:#beamOnDeleteEvent
-
-	when BEAMS_BINDED deleted id:#beamOnDeleteEvent beam do
+	when ON_DELETED_OBJECTS deleted id:#onDeletedSupportOrBeamEvent obj do
 	(
-		--appendIfUnique BEAMS_TRANSFORM_CHANGED beam
+		--appendIfUnique BEAMS_TRANSFORM_CHANGED obj
 		--
 		--waitForSupportDeselectCallbackStart()
-		--format "beam: %\n" beam
-		--for beam in BEAMS_TRANSFORM_CHANGED do
-			--beam.wirecolor = ( color ( random 1 255) ( random 1 255) ( random 1 255) )
-		SUPPORT_MANAGER.onObjectDeleted( beam )
+		--format "obj: %\n" obj
+		--for obj in BEAMS_TRANSFORM_CHANGED do
+			--obj.wirecolor = ( color ( random 1 255) ( random 1 255) ( random 1 255) )
+		SUPPORT_MANAGER.onObjectDeleted( obj )
 	)
 )

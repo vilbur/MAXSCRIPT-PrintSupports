@@ -89,7 +89,7 @@ struct SupportManager_v
 
 	--BeamObjects = Dictionary #STRING, --KEY:"support_pointer" VALUE:BeamObject_v
 
-	BeamObjects =#(),
+	BeamObjects = #(),
 
 	/* dependency */
 	/* reference */
@@ -131,7 +131,8 @@ struct SupportManager_v
 
 		bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
 
-		format "SourceObject.Supports: %\n" SourceObject.Supports
+		--format "SourceObject.getSupportNodes(): %\n" (SourceObject.getSupportNodes())
+		--format "SourceObject.Supports: %\n" SourceObject.Supports
 
 	),
 
@@ -180,7 +181,7 @@ struct SupportManager_v
 
 		SourceObjects[sync_key].updateSupports #(support)
 
-		Object in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
+		for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
 			BeamObject.updateBeam()
 	),
 
@@ -229,26 +230,19 @@ struct SupportManager_v
 	function onObjectDeleted obj =
 	(
 		format "\n"; print "SupportManager_v.onBeamDeleted()"
+		format "obj: %\n" obj
+		format "BeamObjects.count: %\n" BeamObjects.count
 
-		--sync_key = getUserPropVal source_object "SUPPORT_SYNC_SOURCE" asString:true
-
-		--if ( getUserPropVal source_object "RAFT " ) != undefined then
-		--(
-		--
-		--
-		--)
-
-		--for support_pointer in BeamObjects.keys where (BeamsOfSupport = BeamObjects[support_pointer]) != undefined do
-		--for support_pointer in BeamObjects.keys where (BeamsOfSupport = BeamObjects[support_pointer]) != undefined do
-		--	--for i = 1 to BeamsOfSupport.count where BeamsOfSupport[i].beam == beam do
-		--	for i = BeamsOfSupport.count to 1 by -1  where BeamsOfSupport[i].beam == beam do
-		--		deleteItem BeamsOfSupport i
+		BeamObjects = for BeamObject in BeamObjects where isValidNode BeamObject.beam collect BeamObject
 
 
-			--for BeamObject in BeamsOfSupport where BeamObject.beam == beam do
+		if ( getUserPropVal obj "RAFT" ) != undefined then
+			for i = BeamObjects.count to 1 by -1 where BeamObjects[i].support_A == obj or BeamObjects[i].support_B == obj do
+				delete BeamObjects[i].beam
 
-		--for BeamObject in BeamObjects where (BeamsOfSupport = BeamObjects[updated_support]) != undefined do join BeamsOfSupports BeamsOfSupport
-
+		--else if ( getUserPropVal obj "support_A" ) != undefined then
+		--	for i = 1 to BeamObjects.count where BeamObjects[i].beam == obj do
+		--		deleteItem BeamObjects i
 	),
 
 	private
@@ -361,7 +355,20 @@ struct SupportManager_v
 		--unindSupportToTransformEvent()
 
 		for obj_in_scene in objects where (sync_key = getUserPropVal obj_in_scene "SUPPORT_SYNC_SOURCE") != undefined do
-			SourceObjects[sync_key] = SourceObject_v(obj_in_scene) (sync_key)
+		(
+			SourceObject = SourceObject_v(obj_in_scene) (sync_key)
+
+			SourceObject.loadSupportsAndRaftsFromScene()
+
+			supports = SourceObject.getSupportNodes()
+
+			bindSupportToTransformEvent( supports )
+
+			bindBeamOnDeleteCallback( supports )
+
+			SourceObjects[sync_key] = SourceObject
+		)
+
 	),
 
 	/** Load source objects from scene
@@ -369,6 +376,8 @@ struct SupportManager_v
 	function _loadBeamsFromScene =
 	(
 		format "\n"; print "SupportManager_v._loadSourceObjectsFromScene()"
+
+		BeamObjects = for BeamObject in BeamObjects where isValidNode BeamObject.beam collect BeamObject
 
 		for beam_in_scene in objects where (pointer_A = getUserPropVal beam_in_scene "support_A") != undefined do
 		(
@@ -384,7 +393,7 @@ struct SupportManager_v
 			append BeamObjects BeamObject
 		)
 
-		bindBeamOnDeleteCallback( for BeamObject in BeamObjects collect BeamObject.beam  )
+		--bindBeamOnDeleteCallback( for BeamObject in BeamObjects collect BeamObject.beam  )
 	),
 
 	/**

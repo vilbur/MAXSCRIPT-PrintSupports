@@ -51,9 +51,10 @@ global SUPPORTS_BINDED = #()
  */
 function bindSupportToTransformEvent supports =
 (
-	format "\n"; print ".bindSupportToTransformEvent()"
-	format "SUPPORTS: %\n" SUPPORTS
-	format "COUNT: %\n" SUPPORTS.count
+	--format "\n"; print ".bindSupportToTransformEvent()"
+	--format "SUPPORTS: %\n" SUPPORTS
+	--format "COUNT: %\n" SUPPORTS.count
+	SUPPORTS_BINDED = for obj in SUPPORTS_BINDED where isValidNode obj collect obj
 
 	if classOf supports == Array then
 		join SUPPORTS_BINDED supports

@@ -143,12 +143,19 @@ struct SourceObject_v
 
 	),
 
-	/** Add beam
+	/** Get existing support and rafts
 	 */
-	function addBeam beam =
+	function loadSupportsAndRaftsFromScene =
 	(
-		--format "\n"; print "SourceObject_v.addBeam()"
+		format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
+		for obj_in_scene in objects where superClassOf obj_in_scene.baseobject == shape and getUserPropVal obj_in_scene "SUPPORT_SYNC" == sync_key do
+		(
+			vert = getUserPropVal obj_in_scene "INDEX"
 
+			is_raft = getUserPropVal obj_in_scene "RAFT"
+
+			this.Supports[ vert ] = if is_raft then RaftObject_v(obj)(obj_in_scene) else SupportObject_v(obj)(obj_in_scene)
+		)
 	),
 
 	private
@@ -192,20 +199,6 @@ struct SourceObject_v
 		in coordsys world  meshop.getVerts obj.mesh all_verts node:obj
 	),
 
-	/** Get existing support and rafts
-	 */
-	function _loadSupportsAndRaftsFromScene =
-	(
-		format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
-		for obj_in_scene in objects where superClassOf obj_in_scene.baseobject == shape and getUserPropVal obj_in_scene "SUPPORT_SYNC" == sync_key do
-		(
-			vert = getUserPropVal obj_in_scene "INDEX"
-
-			is_raft = getUserPropVal obj_in_scene "RAFT"
-
-			this.Supports[ vert ] = if is_raft then RaftObject_v(obj)(obj_in_scene) else SupportObject_v(obj)(obj_in_scene)
-		)
-	),
 
 	/** Flattern dictionary
 	 */
@@ -234,16 +227,7 @@ struct SourceObject_v
 	(
 		format "\n"; print "SourceObject.onCreate()"
 		VertexColors = VertexColors_v(obj)
-		--SupportObject = SupportObject_v(obj)
-		--RaftObject = RaftObject_v(obj)
 
 		all_verts = #{1..(getNumVerts obj.mesh)}
-
-
-		this._loadSupportsAndRaftsFromScene()
-
-		bindSupportToTransformEvent( this.getSupportNodes() )
-
 	)
-
 )
