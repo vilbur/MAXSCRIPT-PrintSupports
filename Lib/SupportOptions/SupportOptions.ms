@@ -52,9 +52,13 @@ struct SupportOptions_v
 	raft_width 	= 0.5,
 
 	/* BEAMS OPTIONS */
-	connect = 1,
+	cross_beams = true,
 	max_distance	= 20,	-- max distance between platforms
-	min_height	= 10,	-- generate beams only if platform is higher than this number
+	min_height	= 10,	-- generate beams only if platform is higher than this number=
+	max_height	= 20,	-- gmax height between of beam split
+	--same_height	= false,
+
+
 
 	/* PINS OPTIONS */
 	pin_width	= 3.0, -- outter diametter of outter pin

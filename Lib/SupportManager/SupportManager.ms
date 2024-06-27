@@ -154,7 +154,7 @@ struct SupportManager_v
 				support_A = supports[i]
 				support_B = supports[i + 1]
 
-				--sync_key  = getUserPropVal support_A "SUPPORT_SYNC "
+
 				pointer_A = getUserPropVal support_A "THIS" asString:true
 				pointer_B = getUserPropVal support_B "THIS" asString:true
 
@@ -348,6 +348,38 @@ struct SupportManager_v
 			SourceObjects[sync_key] = SourceObject_v(obj_in_scene) (sync_key)
 	),
 
+	/** Load source objects from scene
+	 */
+	function _loadBeamsFromScene =
+	(
+		format "\n"; print "SupportManager_v._loadSourceObjectsFromScene()"
+
+		--unindSupportToTransformEvent()
+
+		for obj_in_scene in objects where (pointer_A = getUserPropVal obj_in_scene "support_A") != undefined do
+		(
+			pointer_B = getUserPropVal obj_in_scene "support_B"
+
+			support_A = getAnimByHandle (pointer_A as IntegerPtr )
+			support_B = getAnimByHandle (pointer_B as IntegerPtr )
+
+			if BeamObjects[pointer_A] == undefined then
+				BeamObjects[pointer_A] = #()
+
+			if BeamObjects[pointer_B] == undefined then
+				BeamObjects[pointer_B] = #()
+
+
+			BeamObject = (BeamObject_v support_A support_B )
+
+			BeamObject.beam = obj_in_scene
+
+			--format "BeamObject: %\n" BeamObject
+			append BeamObjects[pointer_A] BeamObject
+			append BeamObjects[pointer_B] BeamObject
+		)
+	),
+
 
 	/**
 	*/
@@ -355,6 +387,8 @@ struct SupportManager_v
 	(
 		format "\n"; print "SourceObject.onCreate()"
 		this._loadSourceObjectsFromScene()
+
+		this._loadBeamsFromScene()
 	)
 )
 

@@ -19,16 +19,16 @@ struct BeamObject_v
 	 */
 	function generateBeam =
 	(
-		format "\n"; print "BeamObject_v._createBeamsBetweenTwoSupports()"
+		--format "\n"; print "BeamObject_v._createBeamsBetweenTwoSupports()"
 		/* CREATE NEW BEAM */
 		--if beam == unsupplied then
 
-		end_points = this._getBeamsEndPoints()
-		format "end_points: %\n" end_points
+		points_of_lines = this._getBeamsEndPoints()
+		--format "points_of_lines: %\n" points_of_lines
 
 		this._createBeam()
 
-		this._drawLines(end_points)
+		this._drawLines(points_of_lines)
 
 		this --return
 	),
@@ -56,7 +56,6 @@ struct BeamObject_v
 	function _createBeam =
 	(
 		--format "\n"; print "BeamObject_v._createBeam()"
-
 		this.beam = SplineShape name:(support_A.name + "-beam") wirecolor:(this._shiftWirecolor(support_A.wirecolor) )
 
 		this._addToGroup (beam) (support_A)
@@ -64,11 +63,8 @@ struct BeamObject_v
 		beam.parent	= support_A
 		beam.pivot  = beam.center
 
-
-		--SUPPORT_OPTIONS.setProp beam #THIS (getHandleByAnim beam)
 		setUserPropVal beam "THIS"	(getHandleByAnim beam)
 
-		--SUPPORT_OPTIONS.setProp beam #BEAM_SUPPORTS #( SUPPORT_OPTIONS.getThisPointer (support_A), SUPPORT_OPTIONS.getThisPointer (support_B) )
 		setUserPropVal beam "support_A" ( getUserPropVal support_A "THIS" )
 		setUserPropVal beam "support_B" ( getUserPropVal support_B "THIS" )
 
@@ -94,26 +90,12 @@ struct BeamObject_v
 		--format "\n"; print "BeamObject_v.getBeamEndPoints()"
 		/** Get posiotion of point on line
 		 */
-		function getPosOnLine direction point_data offset =
+		function getPosOnLine pos vector offset =
 		(
-			dir = if direction == #BOTTOM then -1 else 1
+			--dir = if direction == #BOTTOM then -1 else 1
 
-			point_data[direction]	+ ( offset	* point_data[#VECTOR] * dir)
+			pos	+ ( offset	* vector * -1 )
 		)
-
-		--if same_height then
-		--(
-		--	/* GET BOTTOM POS WHICH IS UPPER */
-		--	pos_bottom_1 = if pos_bottom_1.z > pos_bottom_2.z then pos_bottom_1 else pos_bottom_2
-		--	pos_bottom_2 = if pos_bottom_1.z > pos_bottom_2.z then pos_bottom_1 else pos_bottom_2
-		--
-		--
-		--	/* GET TOP POS WHICH IS LOWER */
-		--	pos_top_1 = pos_top_2 = if pos_top_1.z > pos_top_2.z then pos_top_1 else pos_top_2
-		--)
-		--
-		--this.support_A = support_A
-		--this.support_B = support_B
 
 		beams_created = #()
 
@@ -124,45 +106,111 @@ struct BeamObject_v
 		point_data_B = this._getSegmentEndPoints(support_B)
 
 
-		length_A = distance point_data_A[#BOTTOM] point_data_A[#TOP]
-		length_B = distance point_data_B[#BOTTOM] point_data_B[#TOP]
+		height_A = distance point_data_A[#BOTTOM] point_data_A[#TOP]
+		height_B = distance point_data_B[#BOTTOM] point_data_B[#TOP]
 
-		if length_A < SUPPORT_OPTIONS.min_height and length_B < SUPPORT_OPTIONS.min_height then
+		if height_A < SUPPORT_OPTIONS.min_height and height_B < SUPPORT_OPTIONS.min_height then
 			return beams_created
+		/* DISTANCE FROM END POINTS
+		   -- bak if needed in future
+		--format "\n"; print "BeamObject_v.getBeamEndPoints()"
 
-		/* DISTANCE FROM END POINTS */
-		offset_A = length_A / SUPPORT_OPTIONS.connect -- Divide by 0|1|3 SUPPORT_OPTIONS.connect:radiobuttons items:#('END', 'MIDDLE', 'QUATER')
-		offset_B = length_B / SUPPORT_OPTIONS.connect
+			function getPosOnLineBak direction point_data offset =
+			(
+				dir = if direction == #BOTTOM then -1 else 1
+
+				point_data[direction]	+ ( offset	* point_data[#VECTOR] * dir)
+			)
+
+			offset_A = height_A / SUPPORT_OPTIONS.connect -- Divide by 0|1|3 SUPPORT_OPTIONS.connect:radiobuttons items:#('END', 'MIDDLE', 'QUATER')
+			offset_B = height_B / SUPPORT_OPTIONS.connect
+
+
+			bottom_A  	= getPosOnLineBak #BOTTOM	point_data_A offset_A
+			top_1	= getPosOnLineBak #TOP	point_data_B offset_B
+
+			bottom_B  	= getPosOnLineBak #BOTTOM	point_data_B offset_B
+			top_2	= getPosOnLineBak #TOP	point_data_A offset_A
+		*/
 
 
 		/* BEAM 1 */
-		pos_bottom_1  	= getPosOnLine #BOTTOM	point_data_A offset_A
-		pos_top_1	= getPosOnLine #TOP	point_data_B offset_B
+		bottom_A  	= point_data_A[#BOTTOM]
+		top_A	= point_data_A[#TOP]
 
 		/* BEAM 2 */
-		pos_bottom_2  	= getPosOnLine #BOTTOM	point_data_B offset_B
-		pos_top_2	= getPosOnLine #TOP	point_data_A offset_A
+		bottom_B  	= point_data_B[#BOTTOM]
+		top_B	= point_data_B[#TOP]
 
+		/* GET BOTTOM POS WHICH IS UPPER */
+		bottom_A.z = bottom_B.z = if bottom_A.z > bottom_B.z then bottom_A.z else bottom_B.z
 
-		#(
-			Dictionary #(#BOTTOM,	pos_bottom_1)	#(#TOP,	pos_top_1),
-			Dictionary #(#BOTTOM,	pos_bottom_2)	#(#TOP,	pos_top_2)
-		) -- return
+		/* GET TOP POS WHICH IS LOWER */
+		top_A.z = top_B.z = if top_A.z > top_B.z then top_B.z else top_A.z
+
+		dist = distance bottom_A top_A
+
+		segments_count = ceil (dist / SUPPORT_OPTIONS.max_height)
+
+		segment_height = dist / segments_count
+
+		points_of_supports = #( #( bottom_A ), #( bottom_B ) )
+
+		vectors = #( point_data_A[#VECTOR], point_data_B[#VECTOR] )
+
+		for support = 1 to 2 do
+		(
+			pos = points_of_supports[support][1]
+
+			for segment = 1 to segments_count do
+			(
+				pos = getPosOnLine pos vectors[support] segment_height
+
+				append points_of_supports[support] pos
+			)
+		)
+
+		points_of_beams = deepCopy points_of_supports --return
+
+		pos_count = points_of_beams[1].count
+
+		for beam_line = 1 to 2 do
+		(
+
+			for pos = 1 to pos_count do
+			(
+				even_pos = ( mod pos 2 ) == 0
+
+				if (beam_line == 1 and even_pos) or (beam_line == 2 and even_pos) then
+				(
+					opposite_suport = if beam_line == 1 then 2 else 1
+
+					points_of_beams[beam_line][pos] = copy points_of_supports[opposite_suport][pos]
+				)
+			)
+		)
+
+		points_of_beams --return
 	),
-
-
 
 	/** Draw lines
 	 */
-	function _drawLines end_points =
+	function _drawLines points_of_lines =
 	(
 		--format "\n"; print "BeamObject_v._drawLines()"
 	--if end_points[1] != undefined and end_points[2] != undefined then
 
-		this._drawLine (end_points[1][#BOTTOM]) (end_points[1][#TOP]) 1
+		for _line = 1 to points_of_lines.count do
+		(
+			this._drawLine (points_of_lines[_line]) _line
 
-		if SUPPORT_OPTIONS.connect != 2 then
-			this._drawLine  (end_points[2][#BOTTOM]) (end_points[2][#TOP]) 2
+
+
+
+		)
+
+		--if SUPPORT_OPTIONS.cross_beams then
+			--this._drawLine  (end_points[2][1]) (end_points[2][2]) 2
 
 		updateShape this.beam
 
@@ -188,24 +236,20 @@ struct BeamObject_v
 
 	/** Draw line
 	 */
-	function _drawLine start_point end_point spline_id =
+	function _drawLine points_of_lines spline_id =
 	(
 		--format "\n"; print "BeamObject_v.drawLine()"
 		--spline_id = 1 -- index of spline
 
 		addNewSpline this.beam
 
-		addKnot this.beam spline_id #corner #line start_point
-		addKnot this.beam spline_id #corner #line end_point
+		for pos in points_of_lines do
+			addKnot this.beam spline_id #corner #line pos
 
-		setMaterialID this.beam spline_id 1 SUPPORT_OPTIONS.mat_ids[#BEAM] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
+		--addKnot this.beam spline_id #corner #line start_point
+		--addKnot this.beam spline_id #corner #line end_point
 
-
-
-		--for i = support_A.modifiers.count to 1 by -1 do
-		--	addModifier this.beam support_A.modifiers[i]
-
-		--this.beam --return
+		--setMaterialID this.beam spline_id 1 SUPPORT_OPTIONS.mat_ids[#BEAM] -- setMaterialID <splineShape> <spline_index> <seg_index> <matID>
 	),
 
 
