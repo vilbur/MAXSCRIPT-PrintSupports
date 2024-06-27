@@ -81,7 +81,7 @@ function bindSupportToTransformEvent supports =
 		--for support in SUPPORTS_TRANSFORM_CHANGED do
 			--support.wirecolor = ( color ( random 1 255) ( random 1 255) ( random 1 255) )
 
-		SUPPORT_MANAGER.updateSupports( support )
+		SUPPORT_MANAGER.updateSupport( support )
 	)
 )
 

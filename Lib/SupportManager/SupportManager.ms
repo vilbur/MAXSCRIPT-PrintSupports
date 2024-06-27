@@ -87,7 +87,9 @@ struct SupportManager_v
 	/* properties */
 	SourceObjects = Dictionary #STRING,
 
-	BeamObjects = Dictionary #STRING, --KEY:"support_pointer" VALUE:BeamObject_v
+	--BeamObjects = Dictionary #STRING, --KEY:"support_pointer" VALUE:BeamObject_v
+
+	BeamObjects =#(),
 
 	/* dependency */
 	/* reference */
@@ -127,6 +129,8 @@ struct SupportManager_v
 
 		SourceObject.generateSupports raft_mode:raft_mode
 
+		bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
+
 		format "SourceObject.Supports: %\n" SourceObject.Supports
 
 	),
@@ -155,45 +159,29 @@ struct SupportManager_v
 				support_A = supports[i]
 				support_B = supports[i + 1]
 
-
 				pointer_A = getUserPropVal support_A "THIS" asString:true
 				pointer_B = getUserPropVal support_B "THIS" asString:true
 
-				if BeamObjects[pointer_A] == undefined then
-					BeamObjects[pointer_A] = #()
+				BeamObject = (BeamObject_v support_A support_B ).generateBeam()
 
-				if BeamObjects[pointer_B] == undefined then
-					BeamObjects[pointer_B] = #()
-				--if support_A != undefined and support_B != undefined then
-				--(
-					BeamObject = (BeamObject_v support_A support_B ).generateBeam()
-
-					--format "BeamObject: %\n" BeamObject
-					append BeamObjects[pointer_A] BeamObject
-					append BeamObjects[pointer_B] BeamObject
-				--)
+				append BeamObjects BeamObject
 			)
 		)
 	),
 
 	/** Update supports
 	 */
-	function updateSupports support_nodes =
+	function updateSupport support =
 	(
 		--format "\n"; print "SupportManager_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 
-		BeamsOfSupports = #()
+		sync_key = getUserPropVal support "SUPPORT_SYNC"
 
-		for support in support_nodes where (sync_key = getUserPropVal support "SUPPORT_SYNC" ) != undefined do
-			SourceObjects[sync_key].updateSupports #(support)
+		SourceObjects[sync_key].updateSupports #(support)
 
-
-		updated_supports = for support in support_nodes collect getUserPropVal support "THIS" asString:true
-
-		for updated_support in updated_supports where (BeamsOfSupport = BeamObjects[updated_support]) != undefined do join BeamsOfSupports BeamsOfSupport
-			for BeamObject in (makeUniqueArray BeamsOfSupports) do
-				BeamObject.updateBeam()
+		Object in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
+			BeamObject.updateBeam()
 	),
 
 	/** Update modifiers by control value
@@ -238,13 +226,25 @@ struct SupportManager_v
 
 	/** On beam deleted
 	 */
-	function onBeamDeleted beam =
+	function onObjectDeleted obj =
 	(
 		format "\n"; print "SupportManager_v.onBeamDeleted()"
 
-		for support_pointer in BeamObjects.keys where (BeamsOfSupport = BeamObjects[support_pointer]) != undefined do
-			for i = 1 to BeamsOfSupport.count where BeamsOfSupport[i].beam == beam do
-				deleteItem BeamsOfSupport i
+		--sync_key = getUserPropVal source_object "SUPPORT_SYNC_SOURCE" asString:true
+
+		--if ( getUserPropVal source_object "RAFT " ) != undefined then
+		--(
+		--
+		--
+		--)
+
+		--for support_pointer in BeamObjects.keys where (BeamsOfSupport = BeamObjects[support_pointer]) != undefined do
+		--for support_pointer in BeamObjects.keys where (BeamsOfSupport = BeamObjects[support_pointer]) != undefined do
+		--	--for i = 1 to BeamsOfSupport.count where BeamsOfSupport[i].beam == beam do
+		--	for i = BeamsOfSupport.count to 1 by -1  where BeamsOfSupport[i].beam == beam do
+		--		deleteItem BeamsOfSupport i
+
+
 			--for BeamObject in BeamsOfSupport where BeamObject.beam == beam do
 
 		--for BeamObject in BeamObjects where (BeamsOfSupport = BeamObjects[updated_support]) != undefined do join BeamsOfSupports BeamsOfSupport
@@ -370,8 +370,6 @@ struct SupportManager_v
 	(
 		format "\n"; print "SupportManager_v._loadSourceObjectsFromScene()"
 
-		all_beams = #()
-
 		for beam_in_scene in objects where (pointer_A = getUserPropVal beam_in_scene "support_A") != undefined do
 		(
 			pointer_B = getUserPropVal beam_in_scene "support_B"
@@ -379,28 +377,15 @@ struct SupportManager_v
 			support_A = getAnimByHandle (pointer_A as IntegerPtr )
 			support_B = getAnimByHandle (pointer_B as IntegerPtr )
 
-			if BeamObjects[pointer_A] == undefined then
-				BeamObjects[pointer_A] = #()
-
-			if BeamObjects[pointer_B] == undefined then
-				BeamObjects[pointer_B] = #()
-
-
 			BeamObject = (BeamObject_v support_A support_B )
 
 			BeamObject.beam = beam_in_scene
 
-			--format "BeamObject: %\n" BeamObject
-			append BeamObjects[pointer_A] BeamObject
-			append BeamObjects[pointer_B] BeamObject
-
-			append all_beams beam_in_scene
+			append BeamObjects BeamObject
 		)
 
-		bindBeamOnDeleteCallback(all_beams)
-
+		bindBeamOnDeleteCallback( for BeamObject in BeamObjects collect BeamObject.beam  )
 	),
-
 
 	/**
 	*/

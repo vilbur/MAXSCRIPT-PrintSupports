@@ -33,6 +33,6 @@ function bindBeamOnDeleteCallback beams =
 		--format "beam: %\n" beam
 		--for beam in BEAMS_TRANSFORM_CHANGED do
 			--beam.wirecolor = ( color ( random 1 255) ( random 1 255) ( random 1 255) )
-		SUPPORT_MANAGER.onBeamDeleted( beam )
+		SUPPORT_MANAGER.onObjectDeleted( beam )
 	)
 )
