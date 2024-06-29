@@ -37,6 +37,7 @@ struct VertexColors_v
 	/* properties */
 	obj_mesh = obj.mesh,
 
+	verts_by_colors	=  Dictionary #STRING, -- KEY:color as string VALUE:#{ verts of color }
 	/* private */
 	/* dependency */
 
@@ -84,19 +85,19 @@ struct VertexColors_v
 		if verts.numberSet == 0 then
 			verts = #{1..(getNumVerts obj_mesh)}
 
-		--format "verts: %\n" verts
-		colors_of_verts = this._getColorsAndVerts (verts) exclude:exclude
+		this._setVertsByColors (verts) exclude:exclude
+		format "verts_by_colors: %\n" verts_by_colors
 
 		if flat then
 		(
 			colored_verts = #{}
 
-			for vertex_color in verts_by_colors.keys where vertex_color != "(color 255 255 255)" do colored_verts +=  vertex_colors[vertex_color]
+			for vertex_color in verts_by_colors.keys where findItem exclude ( vertex_color as string ) do colored_verts +=  vertex_colors[vertex_color]
 
 			colored_verts --return
 		)
 		else
-			colors_of_verts --return
+			verts_by_colors --return
 
 	),
 
@@ -106,15 +107,17 @@ struct VertexColors_v
 	  *
 	  * @return BitArray of vertex indexes
 	 */
-	function getColoredVerts exclude:#( white as string ) =
+	function getColoredVerts exclude:#() =
 	(
 		--format "\n"; print "VertexColors_v.getVertsByLors()"
 
-		verts_by_colors.getVertsAndColors()
+		appendIfUnique exclude ( white as string )
+
+		this._setVertsByColors (verts) exclude:exclude
 
 		colored_verts = #{}
 
-		for vertex_color in verts_by_colors.keys where vertex_color != "(color 255 255 255)" do colored_verts +=  verts_by_colors[vertex_color]
+		for vertex_color in verts_by_colors.keys where indItem exclude ( vertex_color as string )  do colored_verts +=  verts_by_colors[vertex_color]
 
 		colored_verts --return
 	),
@@ -126,7 +129,7 @@ struct VertexColors_v
 		--format "\n"; print "VertexColors_v.getVertsWithSameColors()"
 		verts_by_colors_flat = #{}
 
-		verts_by_colors = this._getColorsAndVerts (verts)
+		this._setVertsByColors (verts)
 
 		for color_verts in verts_by_colors do verts_by_colors_flat += color_verts.value
 
@@ -157,10 +160,6 @@ struct VertexColors_v
 		CPV_verts 	= getNumCPVVerts obj_mesh
 
 		verts_get_colors = #{1..obj_mesh.numverts}
-		--verts_get_colors = #{1..$.numverts}
-
-		--format "CPV_verts: %\n" CPV_verts
-		--format "vertex_count: %\n" vertex_count
 
 		colors = Dictionary #STRING
 
@@ -171,7 +170,6 @@ struct VertexColors_v
 		/* IF VERTEX COLORS EXISTS */
 		if  (getNumCPVVerts obj_mesh != 0) then
 		(
-
 			while not verts_get_colors.isEmpty do
 			(
 				mesh_vert = ( verts_get_colors as Array )[1]
@@ -194,8 +192,6 @@ struct VertexColors_v
 					colors[white_clr] -= colors[clr]
 		)
 
-
-
 		colors --return
 	),
 
@@ -203,9 +199,9 @@ struct VertexColors_v
 
 	/** Get colors of verts
 	 */
-	function _getColorsAndVerts verts_get_colors exclude: =
+	function _setVertsByColors verts_get_colors exclude: =
 	(
-		--format "\n"; print "VertexColors_v._getColorsAndVerts()"
+		--format "\n"; print "VertexColors_v._setVertsByColors()"
 		--format "verts_get_colors: %\n" verts_get_colors
 		pointer = (getHandleByAnim  obj) as string
 		--format "pointer: %\n" pointer
@@ -231,17 +227,17 @@ struct VertexColors_v
 
 		--if verts_get_colors.numberSet != obj_mesh.numverts  then
 		--(
-			colors_of_verts = Dictionary #STRING
+			verts_by_colors = Dictionary #STRING
 
 			for colors_data in colors where not (verts_of_color = (colors_data.value * verts_get_colors)).isEmpty do
 				if findItem exclude colors_data.key == 0 then
-					colors_of_verts[ colors_data.key ] = (all_verts_empty + verts_of_color)
+					verts_by_colors[ colors_data.key ] = (all_verts_empty + verts_of_color)
 
 
 		--format "-------------\nCACHE UPDATED\n"
 		--for colors_data in colors do format "COLOR: %	VERTS: %\n" colors_data.key colors_data.value
 
-			colors_of_verts --return
+			verts_by_colors --return
 		--)
 		--else
 		--	colors --return

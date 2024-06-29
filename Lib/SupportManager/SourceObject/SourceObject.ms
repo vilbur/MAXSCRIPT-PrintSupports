@@ -25,7 +25,7 @@ struct SourceObject_v
 	/* dependency */
 
 	--SupportObject, --"./SupportObject/SupportObject.ms"
-	--VertexColors, --"./../../VertexColors/VertexColors.ms"
+	VertexColors, --"./../../VertexColors/VertexColors.ms"
 
 
 	/* reference */
@@ -35,14 +35,16 @@ struct SourceObject_v
 	 */
 	function generateSupports raft_mode:false =
 	(
-		--format "\n"; print "SourceObject_v.generateSupports()"
+		format "\n"; print "SourceObject_v.generateSupports()"
 		--format "Supports.keys: %\n" Supports.keys
 
 		this._removeDeletedNodes()
 		--format "Supports.keys: %\n" Supports.keys
 
 		--colored_verts = (VertexColors_v(obj)).getColoredVerts()
-		verts_by_colors = (VertexColors_v(obj)).getVertsAndColors exclude:#(white as string )
+		verts_by_colors = VertexColors.getVertsAndColors exclude:#( white as string )
+
+		for vertex_color in verts_by_colors.keys do format "vertex_color: % \nverts: %\n\n" vertex_color verts_by_colors[vertex_color]
 
 		colored_verts = this._flatternDictionary(verts_by_colors)
 
@@ -52,21 +54,24 @@ struct SourceObject_v
 
 		direction_down = [0,0,-1]
 
-		if use_normals then
+		timer__getVertsNormals = timeStamp()
+		--if use_normals then
 			verts_normals = this._getVertsNormals(colored_verts)
+		format "_getVertsNormals: % ms\n" (( timeStamp()) - timer__getVertsNormals)
 
 		--format "verts_by_colors: %\n" verts_by_colors
 		--format "colored_verts: %\n" colored_verts
 		--format "verts_pos: %\n" verts_pos
 		--format "verts_normals: %\n" verts_normals
 
-		for vertex_color in verts_by_colors.keys where vertex_color != white as string do
+		for vertex_color in verts_by_colors.keys do
 		(
-			--format "\nVERTEX_COLOR: %\n" vertex_color
+			format "\n\n----------------- generateSupports by VERTEX_COLOR: % -----------------\n\n" vertex_color
 			--format "VERTS: %\n" verts_by_colors[vertex_color]
 
 			for vert in verts_by_colors[vertex_color] where Supports[vert] == undefined do
 			(
+				format "vert: %\n" vert
 				second_point_direction = if use_normals then normalize (verts_normals[vert] * obj.transform - obj.pos) else direction_down
 
 				RaftOrSupport = if raft_mode then RaftObject_v(obj) else SupportObject_v(obj)
@@ -164,7 +169,8 @@ struct SourceObject_v
 	 */
 	function _getVertsNormals verts =
 	(
-		--format "\n"; print "MeshDataGetter_v._getVertsNormals()"
+		format "\n"; print "MeshDataGetter_v._getVertsNormals()"
+		format "verts.numberSet: %\n" verts.numberSet
 		obj_mesh = obj.mesh
 
 		vertex_normals = this.all_verts as Array
@@ -195,7 +201,7 @@ struct SourceObject_v
 	 */
 	function _getVertsPositions =
 	(
-		--format "\n"; print "VertDataGetter_v._getVertsPositions()"
+		format "\n"; print "VertDataGetter_v._getVertsPositions()"
 		in coordsys world  meshop.getVerts obj.mesh all_verts node:obj
 	),
 

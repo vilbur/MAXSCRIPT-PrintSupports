@@ -135,7 +135,7 @@ struct SupportModifiers_v
 	 */
 	function _copyModifiers =
 	(
-		--format "\n"; print "SupportModifiers_v._copyModifiers()"
+		format "\n"; print "SupportModifiers_v._copyModifiers()"
 
 		/* DIRTY CODE - TIME RPOEASSURE */
 
@@ -144,6 +144,7 @@ struct SupportModifiers_v
 
 		modifiers_of_supports	= support_with_modifiers.modifiers
 
+		max create mode
 		for support_no_modifiers in supports_no_modifiers do
 			for i = modifiers_of_supports.count to 1 by -1 do
 				addModifierWithLocalData support_no_modifiers modifiers_of_supports[i] support_with_modifiers modifiers_of_supports[i] -- instance the modifier

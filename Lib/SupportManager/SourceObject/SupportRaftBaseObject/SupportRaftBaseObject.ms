@@ -16,10 +16,10 @@
 
 	knots_positions = Array (2),
 
-	--private
+	private
 
 	_spline_index = 1, -- each support line has ony 1 spline
-
+	collision_with_source_obj,
 	/*------------------------------------------------------------------------------
 		METHODS
 	--------------------------------------------------------------------------------*/
@@ -34,7 +34,7 @@
 	 */
 	function _setNewKnots pos normal =
 	(
-		format "\n"; print "RaftObject_v._setNewRaftKnots()"
+		format "\n"; print "RaftObject_v._setNewKnots()"
 		format "NORMAL: %\n" normal
 
 		/** Set second point by normal of vertex
@@ -46,7 +46,7 @@
 			/** Get ray to ground
 			 */
 			--function getRayToGround second_vert_pos = Ray second_vert_pos [0,0,-1]
-			collision_with_source_obj = this._intersectRaySourceObject pos _normal
+			this.collision_with_source_obj = this._intersectRaySourceObject pos _normal
 
 			second_vert_pos = if collision_with_source_obj == undefined then
 			(
@@ -71,7 +71,7 @@
 			/* KEEP SECOND POINT BELLOW FIRST OF GIVEN AMOUNT */
 			--if SUPPORT_OPTIONS.keep_down and ( second_vert_pos.z - second_vert_pos.z ) < 0 then
 				--second_vert_pos.z = pos.z - SUPPORT_OPTIONS.keep_down_limit
-
+			format "second_vert_pos: %\n" second_vert_pos
 			second_vert_pos --return
 		)
 

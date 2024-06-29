@@ -229,20 +229,29 @@ struct SupportManager_v
 	 */
 	function onObjectDeleted obj =
 	(
-		format "\n"; print "SupportManager_v.onBeamDeleted()"
-		format "obj: %\n" obj
-		format "BeamObjects.count: %\n" BeamObjects.count
-
-		BeamObjects = for BeamObject in BeamObjects where isValidNode BeamObject.beam collect BeamObject
+		--format "\n"; print "SupportManager_v.onBeamDeleted()"
+		--format "obj: %\n" obj
+		--format "BeamObjects.count: %\n" BeamObjects.count
 
 
-		if ( getUserPropVal obj "RAFT" ) != undefined then
+		if ( getUserPropVal obj "SUPPORT_SYNC_SOURCE" ) != undefined then
+		(
+				delete (obj.children as Array)
+
+
+		)
+
+		else if ( getUserPropVal obj "RAFT" ) != undefined then
 			for i = BeamObjects.count to 1 by -1 where BeamObjects[i].support_A == obj or BeamObjects[i].support_B == obj do
 				delete BeamObjects[i].beam
 
 		--else if ( getUserPropVal obj "support_A" ) != undefined then
 		--	for i = 1 to BeamObjects.count where BeamObjects[i].beam == obj do
 		--		deleteItem BeamObjects i
+
+		BeamObjects = for BeamObject in BeamObjects where isValidNode BeamObject.beam collect BeamObject
+
+		for pointer in SourceObjects.keys where not isValidNode SourceObjects[pointer].obj do RemoveDictKey SourceObjects pointer
 	),
 
 	private
