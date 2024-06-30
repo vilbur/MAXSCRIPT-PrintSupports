@@ -37,7 +37,7 @@ struct RaftObject_v
 
 		this._alignObjectToVector knots_positions[1]
 
-		this._createRaftLine(support_obj)
+		this._createRaftLine()
 
 		--support.parent = helpers_chain[helpers_chain.count]
 		--
@@ -72,26 +72,26 @@ struct RaftObject_v
 
 	/** Create line netween point helpers
 	  */
-	function _createRaftLine spline_shape =
+	function _createRaftLine =
 	(
 		--format "\n"; print "RaftObject_v._createSupportLine()"
 
 		direction_down = [0,0,-1]
 
-		addNewSpline spline_shape
+		addNewSpline support_obj
 
 		/*------------------------------------------------------------------------------
 			ADD KNOTS BY POINTS FROM TOP TO BOTTOM
 		--------------------------------------------------------------------------------*/
 		for pos in knots_positions do
-			addKnot spline_shape _spline_index #corner #line pos
+			addKnot support_obj _spline_index #corner #line pos
 
 		/*------------------------------------------------------------------------------
 			RESULT
 		--------------------------------------------------------------------------------*/
-		updateShape spline_shape
+		updateShape support_obj
 
-		spline_shape --return
+		support_obj --return
 	),
 
 	/**

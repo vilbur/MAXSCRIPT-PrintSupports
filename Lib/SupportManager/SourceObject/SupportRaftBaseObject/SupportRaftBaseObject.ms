@@ -19,7 +19,8 @@
 	private
 
 	_spline_index = 1, -- each support line has ony 1 spline
-	collision_with_source_obj,
+
+	hit_source_object,
 	/*------------------------------------------------------------------------------
 		METHODS
 	--------------------------------------------------------------------------------*/
@@ -34,28 +35,26 @@
 	 */
 	function _setNewKnots pos normal =
 	(
-		format "\n"; print "RaftObject_v._setNewKnots()"
+		format "\n"; print "SupportRaftBaseObject._setNewKnots()"
 		format "NORMAL: %\n" normal
 
 		/** Set second point by normal of vertex
 		 */
 		function setSecondByNormal pos _normal =
 		(
-			format "\n"; print "HelperObject_v.setSecondByNormal()"
+			format "\n"; print "SupportRaftBaseObject.setSecondByNormal()"
 
 			/** Get ray to ground
 			 */
 			--function getRayToGround second_vert_pos = Ray second_vert_pos [0,0,-1]
-			this.collision_with_source_obj = this._intersectRaySourceObject pos _normal
+			this.hit_source_object = this._intersectRaySourceObject pos _normal
 
-			second_vert_pos = if collision_with_source_obj == undefined then
-			(
+			second_vert_pos = if hit_source_object == undefined then
 				/* MOVE SECOND POINT ALONG NORMAL OF FIRST POINT */
 				pos + SUPPORT_OPTIONS.normal_length * _normal
 
-			)
 			else
-				collision_with_source_obj.pos
+				hit_source_object.pos
 
 			--local second_vert_pos = copy pos
 
@@ -79,7 +78,7 @@
 		 */
 		function setSecondDown pos =
 		(
-			--format "\n"; print "HelperObject_v.setSecondDown()"
+			--format "\n"; print "SupportRaftBaseObject.setSecondDown()"
 			pos.z -= SUPPORT_OPTIONS.normal_length
 
 			--append this.knots_positions pos
@@ -112,9 +111,9 @@
 
 		last_knot_pos = getKnotPoint support_obj _spline_index 2
 
-		collision_with_source_obj = this._intersectRaySourceObject pos ( normalize (last_knot_pos - pos))
+		hit_source_object = this._intersectRaySourceObject pos ( normalize (last_knot_pos - pos))
 
-		second_vert_pos = if collision_with_source_obj != undefined then collision_with_source_obj.pos else last_knot_pos
+		second_vert_pos = if hit_source_object != undefined then hit_source_object.pos else last_knot_pos
 
 		append knots_positions second_vert_pos
 	),
@@ -123,7 +122,7 @@
 	 */
 	function _alignObjectToVector point_to_rotate =
 	(
-		--format "\n"; print "HelperObject_v._alignObjectToVector()"
+		--format "\n"; print "SupportRaftBaseObject._alignObjectToVector()"
 		--format "obj	= % \n" obj
 		--format "% %\n" point_to_rotate obj_pos
 
@@ -159,7 +158,7 @@
 	 */
 	function _setPivotToSecondPoint =
 	(
-		--format "\n"; print "HelperObject_v._alignObjectToVector()"
+		--format "\n"; print "SupportRaftBaseObject._alignObjectToVector()"
 		support_obj.pivot = knots_positions[2]
 	),
 
@@ -167,7 +166,7 @@
 	 */
 	function _intersectRaySourceObject pos direction =
 	(
-		--format "\n"; print "SupportObject_v.testCollision()"
+		--format "\n"; print "SupportRaftBaseObject.testCollision()"
 		--format "pos: %\n" pos
 		/** Modify pos
 		 */
@@ -213,7 +212,7 @@
 	 */
 	function _getName vertex_index =
 	(
-		--format "\n"; print "HelperObject_v._getName()"
+		--format "\n"; print "SupportRaftBaseObject._getName()"
 
 		support_name = substituteString source_obj.name "-source" ""
 
@@ -230,7 +229,7 @@
 	  */
 	function _shiftWirecolor wirecolor i =
 	(
-		--format "\n"; print "PlatformGenerator_v.shiftWirecolor()"
+		--format "\n"; print "SupportRaftBaseObject.shiftWirecolor()"
 		--format "wirecolor:	% \n" wirecolor
 		wirecolor_shifted = copy wirecolor
 

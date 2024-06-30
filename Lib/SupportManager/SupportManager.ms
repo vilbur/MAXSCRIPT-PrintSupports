@@ -19,14 +19,6 @@ global SUPPORT_MANAGER
 global SUPPORT_OPTIONS
 global SUPPORT_MODIFIERS
 
-
-
---delete helpers
---delete shapes
---
-
-
-
 /** Support manager
   *
   *  DESCRIPTION OF SUPPORT SYSTEM:

@@ -35,14 +35,7 @@ struct SupportObject_v
 		this._setNewKnots(pos)(normal)
 		format "knots_positions.count: %\n" knots_positions.count
 
-		if knots_positions.count > 1 then
-		(
-			this._setPivotToSecondPoint()
-
-			this._alignObjectToVector knots_positions[1]
-
-			this._createSupportLine(support_obj)
-		)
+		this._drawSupportSegments()
 
 		--point_helpers = (HelperObject_v()).generatePoints(knots_positions)
 		--
@@ -72,106 +65,111 @@ struct SupportObject_v
 
 		this._setUpdatedKnots(pos)
 
-		this._setPivotToSecondPoint ()
-
-		deleteSpline support_obj 1
-
-		this._createSupportLine(support_obj)
+		this._drawSupportSegments update:true
 	),
 
 
 	private
 
 
-	/** Create line netween point helpers
-	  */
-	function _createSupportLine spline_shape =
+	/** Draw segments support
+	 */
+	function _drawSupportSegments update:false =
 	(
-		--format "\n"; print "SupportObject_v._createSupportLine()"
-		--format "HELPERS_TREE: %\n" helpers_chain
-		direction_down = [0,0,-1]
+		format "\n"; print "SupportObject_v._drawSupportSegments()"
+		if knots_positions.count > 1 then
+		(
+			this._setPivotToSecondPoint()
 
-		addNewSpline spline_shape
+			if update then
+				deleteSpline support_obj 1
+			else
+				this._alignObjectToVector knots_positions[1]
+
+			this._drawNeckLine()
+
+			if hit_source_object == undefined then
+				this._drawLegLine()
+
+			this._setMaterialsToLineSegments()
+
+			updateShape support_obj
+		)
+	),
+
+	/** Create line
+	  */
+	function _drawNeckLine =
+	(
+		format "\n"; print "SupportObject_v._drawNeckLine()"
+		--format "HELPERS_TREE: %\n" helpers_chain
+
+		addNewSpline support_obj
 
 		/*------------------------------------------------------------------------------
 			ADD KNOTS BY POINTS FROM TOP TO BOTTOM
 		--------------------------------------------------------------------------------*/
 		for pos in knots_positions do
-			addKnot spline_shape _spline_index #corner #line pos
+			addKnot support_obj _spline_index #corner #line pos
+	),
 
-		format "ADD KNOT: %\n" (numKnots spline_shape)
-
-		if collision_with_source_obj == undefined then
-		(
-			/*------------------------------------------------------------------------------
-				GET POSITION OF LAST POINT ABOVE GROUND
-			--------------------------------------------------------------------------------*/
-			pos = copy knots_positions[knots_positions.count] -- copy to avoid modifing of value in array
-
-
-			/*------------------------------------------------------------------------------
-				TEST COLLISION WITH OBJECT
-			--------------------------------------------------------------------------------*/
-
-
-			this.collision_with_source_obj = this._intersectRaySourceObject pos direction_down
-
-			this.is_on_ground = collision_with_source_obj == undefined
-
-
-			/* IF SUPPORT IS GOING TO GROUND */
-			if is_on_ground then
-			(
-				/*------------------------------------------------------------------------------
-					ABOVE POINT ABOVE GROUND - NOT IF RAFT MODE
-				--------------------------------------------------------------------------------*/
-				pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
-
-				addKnot spline_shape _spline_index #corner #line pos
-
-				pos.z = 0 -- set spline_shape to ground
-
-				/*------------------------------------------------------------------------------
-					ADD GROUND POINT
-				--------------------------------------------------------------------------------*/
-				addKnot spline_shape _spline_index #corner #line pos
-
-			)
-			else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
-			(
-				--format "collision_with_source_obj: %\n" collision_with_source_obj
-				--pos.z = collision_with_source_obj.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
-
-				--addKnot spline_shape _spline_index #corner #line pos
-				addKnot spline_shape _spline_index #corner #line collision_with_source_obj.pos
-			)
-
-		)
-
-
+	/** Draw leg line
+	 */
+	function _drawLegLine =
+	(
+		format "\n"; print "SupportObject_v._drawLegLine()"
+		/*------------------------------------------------------------------------------
+			GET POSITION OF LAST POINT ABOVE GROUND
+		--------------------------------------------------------------------------------*/
+		pos = copy knots_positions[knots_positions.count] -- copy to avoid modifing of value in array
 
 		/*------------------------------------------------------------------------------
-			SET MATERIALS TO SEGMENTS
+			TEST COLLISION WITH OBJECT on straight down direction
 		--------------------------------------------------------------------------------*/
-		num_of_segments = numSegments spline_shape ( numSplines spline_shape)
+		this.hit_source_object = this._intersectRaySourceObject pos [0,0,-1]
+
+		this.is_on_ground = hit_source_object == undefined
+
+		/* IF SUPPORT IS GOING TO GROUND */
+		if is_on_ground then
+		(
+			/*------------------------------------------------------------------------------
+				ABOVE POINT ABOVE GROUND - NOT IF RAFT MODE
+			--------------------------------------------------------------------------------*/
+			pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
+
+			addKnot support_obj _spline_index #corner #line pos
+
+			pos.z = 0 -- set support_obj to ground
+
+			/*------------------------------------------------------------------------------
+				ADD GROUND POINT
+			--------------------------------------------------------------------------------*/
+			addKnot support_obj _spline_index #corner #line pos
+		)
+		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
+		(
+			--format "hit_source_object: %\n" hit_source_object
+			--pos.z = hit_source_object.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
+
+			--addKnot support_obj _spline_index #corner #line pos
+			addKnot support_obj _spline_index #corner #line hit_source_object.pos
+		)
+	),
+
+	/** Set materials to line segments
+	 */
+	function _setMaterialsToLineSegments =
+	(
+		--format "\n"; print "SupportObject_v._setMaterialsToLineSegments()"
+		num_of_segments = numSegments support_obj ( numSplines support_obj)
 
 		for segment_i = 1 to num_of_segments do
-			setMaterialID spline_shape _spline_index segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
-
+			setMaterialID support_obj _spline_index segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
 
 		/*------ SET MATERIAL TO GROUND SEGMENT ------*/
 		if is_on_ground then
-			setMaterialID spline_shape _spline_index num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
-
-
-		/*------------------------------------------------------------------------------
-			RESULT
-		--------------------------------------------------------------------------------*/
-		updateShape spline_shape
-
-		format "IS_ON_GROUND: %\n" is_on_ground
-		format "NUMKNOTS: %\n" (numKnots spline_shape)
-		spline_shape --return
+			setMaterialID support_obj _spline_index num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
 	),
 
 	/**
