@@ -15,8 +15,8 @@ icon:	"across:2|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\
 	on execute do
 		undo "Generate Supports" on
 		(
-			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
+			--clearListener(); print("Cleared in:\n"+getSourceFileName())
+			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
 
 			_selection = for o in selection collect o
 
@@ -38,7 +38,7 @@ icon:	"across:2|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE RAFTS.\n\nWO
 	on execute do
 		undo "Generate Rafts" on
 		(
-			clearListener(); print("Cleared in:\n"+getSourceFileName())
+			--clearListener(); print("Cleared in:\n"+getSourceFileName())
 
 			_selection = for o in selection collect o
 

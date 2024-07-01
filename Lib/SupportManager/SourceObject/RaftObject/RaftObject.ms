@@ -9,7 +9,7 @@ struct RaftObject_v
 
 
 	/* properties */
-	--support,
+	is_raft	= true,
 
 	--knots_positions = #(),
 	--knots_positions = Array (2),

@@ -78,6 +78,7 @@ struct SupportOptions_v
 	  */
 	function getValuesFroUi =
 	(
+		format "\n"; print "SupportOptions_v.getValuesFroUi()"
 		/** Reg ex replace
 		 */
 		function regExReplace _string search _replace = ( dotNetObject "System.Text.RegularExpressions.Regex" search ).Replace ( _string as string ) _replace
@@ -95,8 +96,6 @@ struct SupportOptions_v
 		  ROLLOUT_export.SPIN_export_size.value
 
 
-		--SupportManager = SupportManager_v export_size:export_size --use_every_nth_vert_of_spline:ROLLOUT_print_3d.SPIN_use_nth_vertex.value
-
 		control_type_to_fetch_values = "SPIN|CBX|RB"
 
 		/** FILL SupportManager PROPERTIES WITH DATA FROM UI
@@ -104,14 +103,12 @@ struct SupportOptions_v
 		  * Perform kind of this in loop:
 		  *   Options.base_extrude	= roll.SPIN_base_width.value
 		  */
-		for ctrl in _rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
+		--for ctrl in ROLLOUT_supports.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
+		for ctrl in this._rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
+		--for ctrl in _rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
 			this.setOptionValue prop_key ( if classOf ctrl == CheckBoxControl or classOf ctrl == RadioControl  then ctrl.state else ctrl.value )
 
-		--SupportManager.BeamGenerator.same_height	= _rollout.CBX_same_height.state
-
 		this.init()
-
-		--SupportManager --return
 	),
 
 	/** Init
@@ -125,7 +122,6 @@ struct SupportOptions_v
 		this._setDimensions()
 
 		this._setChamferValues()
-		--format "chamfer_top_divider	= % \n" chamfer_top_divider
 	),
 
 	/** Set property value of this struct
@@ -133,12 +129,10 @@ struct SupportOptions_v
 	function setOptionValue prop_key val =
 	(
 		--format "\n"; print "SupportOptions_v.setOptionValue()"
-		--format "prop_key: %\n" prop_key
+		--format "key: %\n" prop_key
 		--format "val: %\n" val
 
 		setProperty this prop_key val
-
-		this.init()
 	),
 
 	/** Get node prop data
@@ -263,11 +257,6 @@ struct SupportOptions_v
 		--format "\n"; print "SupportOptions_v.create()"
 		--format "\nIMPORTANT\n"
 		--format "EXPORT_SIZE:	% \n" export_size
-		this.getValuesFroUi()
+		--this.getValuesFroUi()
 	)
 )
-
-
-
-
-

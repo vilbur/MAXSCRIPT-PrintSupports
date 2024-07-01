@@ -38,52 +38,54 @@
 		format "\n"; print "SupportRaftBaseObject._setNewKnots()"
 		format "NORMAL: %\n" normal
 
-		/** Set second point by normal of vertex
-		 */
-		function setSecondByNormal pos _normal =
-		(
-			format "\n"; print "SupportRaftBaseObject.setSecondByNormal()"
-
-			/** Get ray to ground
-			 */
-			--function getRayToGround second_vert_pos = Ray second_vert_pos [0,0,-1]
-			this.hit_source_object = this._intersectRaySourceObject pos _normal
-
-			second_vert_pos = if hit_source_object == undefined then
-				/* MOVE SECOND POINT ALONG NORMAL OF FIRST POINT */
-				pos + SUPPORT_OPTIONS.normal_length * _normal
-
-			else
-				hit_source_object.pos
-
-			--local second_vert_pos = copy pos
-
-
-			/* EXTEND SECOND POINT ALONG NORMAL IF INTERSECT WITH OBJECT ON ITS WAY TO TTHE GROUND */
-			--while (intersection = intersectRay source_obj (getRayToGround(second_vert_pos))) != undefined do
-			--	second_vert_pos += SUPPORT_OPTIONS.bar_width * _normal
-			--
-			--/* MOVE SECOND POINT LITTLE MORE TO MAKE SURE THAT IT NOT COLLIDE WITH OBJECT */
-			--second_vert_pos += SUPPORT_OPTIONS.bar_width * _normal
-
-
-			/* KEEP SECOND POINT BELLOW FIRST OF GIVEN AMOUNT */
-			--if SUPPORT_OPTIONS.keep_down and ( second_vert_pos.z - second_vert_pos.z ) < 0 then
-				--second_vert_pos.z = pos.z - SUPPORT_OPTIONS.keep_down_limit
-			format "second_vert_pos: %\n" second_vert_pos
-			second_vert_pos --return
-		)
-
-		/** Set second down
-		 */
-		function setSecondDown pos =
-		(
-			--format "\n"; print "SupportRaftBaseObject.setSecondDown()"
-			pos.z -= SUPPORT_OPTIONS.normal_length
-
-			--append this.knots_positions pos
-			pos --return
-		)
+		--/** Set second point by normal of vertex
+		-- */
+		--function setSecondByNormal pos _normal =
+		--(
+		--	format "\n"; print "SupportRaftBaseObject.setSecondByNormal()"
+		--
+		--	/** Get ray to ground
+		--	 */
+		--	this.hit_source_object = this._intersectRaySourceObject pos _normal
+		--
+		--	second_vert_pos = if hit_source_object != undefined -- if source object has been intersected
+		--					  and ( this.is_raft               -- if raft, then use position of hit always
+		--					  or distance hit_source_object.pos knots_positions[1] < normal_length ) -- if support, then distance between 1st knot and hit must be greather then normlal length
+		--	then
+		--		hit_source_object.pos
+		--
+		--	else
+		--		/* MOVE SECOND POINT ALONG NORMAL OF FIRST POINT */
+		--		pos + SUPPORT_OPTIONS.normal_length * _normal
+		--
+		--	--local second_vert_pos = copy pos
+		--
+		--
+		--	/* EXTEND SECOND POINT ALONG NORMAL IF INTERSECT WITH OBJECT ON ITS WAY TO TTHE GROUND */
+		--	--while (intersection = intersectRay source_obj (getRayToGround(second_vert_pos))) != undefined do
+		--	--	second_vert_pos += SUPPORT_OPTIONS.bar_width * _normal
+		--	--
+		--	--/* MOVE SECOND POINT LITTLE MORE TO MAKE SURE THAT IT NOT COLLIDE WITH OBJECT */
+		--	--second_vert_pos += SUPPORT_OPTIONS.bar_width * _normal
+		--
+		--
+		--	/* KEEP SECOND POINT BELLOW FIRST OF GIVEN AMOUNT */
+		--	--if SUPPORT_OPTIONS.keep_down and ( second_vert_pos.z - second_vert_pos.z ) < 0 then
+		--		--second_vert_pos.z = pos.z - SUPPORT_OPTIONS.keep_down_limit
+		--	format "second_vert_pos: %\n" second_vert_pos
+		--	second_vert_pos --return
+		--)
+		--
+		--/** Set second down
+		-- */
+		--function setSecondDown pos =
+		--(
+		--	--format "\n"; print "SupportRaftBaseObject.setSecondDown()"
+		--	pos.z -= SUPPORT_OPTIONS.normal_length
+		--
+		--	--append this.knots_positions pos
+		--	pos --return
+		--)
 
 		/* ADD FIRST POINT */
 		knots_positions[1] = pos

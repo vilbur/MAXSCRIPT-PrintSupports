@@ -8,8 +8,9 @@ struct SupportObject_v
 	/*------ EXTENDS  ------*/
 	include "MAXSCRIPT-PrintSupports/Lib/SupportManager/SourceObject/SupportRaftBaseObject/SupportRaftBaseObject.ms" --"./../SupportRaftBaseObject/SupportRaftBaseObject.ms"
 
-
-	is_on_ground = false,
+	/* properties */
+	is_on_ground	= false,
+	is_raft	= false,
 
 	--knots_positions = #(),
 	--knots_positions = Array (2),
@@ -17,6 +18,7 @@ struct SupportObject_v
 	--Beams = #(),
 
 	/* private */
+	direction_down = [0,0,-1],
 
 	/* dependency */
 
@@ -32,8 +34,8 @@ struct SupportObject_v
 		--this.support_obj = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vertex_index) ) pos:knots_positions[1]
 		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr pos:pos
 
-		this._setNewKnots(pos)(normal)
-		format "knots_positions.count: %\n" knots_positions.count
+		this._setNewKnotsSupport(pos)(normal)
+		--format "knots_positions.count: %\n" knots_positions.count
 
 		this._drawSupportSegments()
 
@@ -59,24 +61,69 @@ struct SupportObject_v
 	function updateSupport pos: normal: =
 	(
 		--format "\n"; print "SupportObject_v.updateSupport()"
+
 		this._resetKnots()
 
 		this.is_on_ground = false
 
-		this._setUpdatedKnots(pos)
+		this._setUpdatedKnotsSupport(pos)
 
 		this._drawSupportSegments update:true
 	),
 
 
 	private
+	/** Set knots positions
+	 */
+	function _setNewKnotsSupport pos normal =
+	(
+		format "\n"; print "SupportRaftBaseObject._setNewKnots()"
+		format "NORMAL: %\n" normal
 
+		/* ADD FIRST POINT */
+		knots_positions[1] = pos
+		knots_positions[2] = pos
+
+		direction = if SUPPORT_OPTIONS.second_point_direction == 2 then direction_down else normal
+
+		hit_source_object = this._intersectRaySourceObject (pos) (direction_down)
+
+		/* ADD SECOND POINT */
+		if hit_source_object != undefined and distance hit_source_object.pos knots_positions[1] < normal_length
+		then
+			knots_positions[2] = hit_source_object.pos
+
+		else
+			knots_positions[2] = knots_positions[2] + SUPPORT_OPTIONS.normal_length * direction
+
+		--/* CHECK POSITION ABOVE GROUND, POINT IS NOT CRETED IF BOTTOM SPACE IS NOT 2x BASE HEIGH */
+		--if second_point_pos != undefined and second_point_pos.z >= SUPPORT_OPTIONS.base_height * 2 then
+		--	knots_positions[2] = second_point_pos
+
+		--format "knots_positions: %\n" knots_positions
+	),
+
+	/** Set update support knots
+	 */
+	function _setUpdatedKnotsSupport pos =
+	(
+		--function getNumKnots = numKnots support_obj _spline_index
+		knots_positions = #(pos) -- set first knot of spline to vertex position
+
+		last_knot_pos = getKnotPoint support_obj _spline_index 2
+
+		hit_source_object = this._intersectRaySourceObject pos ( normalize (last_knot_pos - pos))
+
+		second_vert_pos = if hit_source_object != undefined then hit_source_object.pos else last_knot_pos
+
+		append knots_positions second_vert_pos
+	),
 
 	/** Draw segments support
 	 */
 	function _drawSupportSegments update:false =
 	(
-		format "\n"; print "SupportObject_v._drawSupportSegments()"
+		--format "\n"; print "SupportObject_v._drawSupportSegments()"
 		if knots_positions.count > 1 then
 		(
 			this._setPivotToSecondPoint()
@@ -101,7 +148,7 @@ struct SupportObject_v
 	  */
 	function _drawNeckLine =
 	(
-		format "\n"; print "SupportObject_v._drawNeckLine()"
+		--format "\n"; print "SupportObject_v._drawNeckLine()"
 		--format "HELPERS_TREE: %\n" helpers_chain
 
 		addNewSpline support_obj
@@ -117,7 +164,7 @@ struct SupportObject_v
 	 */
 	function _drawLegLine =
 	(
-		format "\n"; print "SupportObject_v._drawLegLine()"
+		--format "\n"; print "SupportObject_v._drawLegLine()"
 		/*------------------------------------------------------------------------------
 			GET POSITION OF LAST POINT ABOVE GROUND
 		--------------------------------------------------------------------------------*/
@@ -126,7 +173,8 @@ struct SupportObject_v
 		/*------------------------------------------------------------------------------
 			TEST COLLISION WITH OBJECT on straight down direction
 		--------------------------------------------------------------------------------*/
-		this.hit_source_object = this._intersectRaySourceObject pos [0,0,-1]
+		this.hit_source_object = this._intersectRaySourceObject pos direction_down
+
 
 		this.is_on_ground = hit_source_object == undefined
 

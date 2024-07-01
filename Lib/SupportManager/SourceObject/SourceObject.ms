@@ -169,8 +169,8 @@ struct SourceObject_v
 	 */
 	function _getVertsNormals verts =
 	(
-		format "\n"; print "MeshDataGetter_v._getVertsNormals()"
-		format "verts.numberSet: %\n" verts.numberSet
+		--format "\n"; print "SourceObject_v._getVertsNormals()"
+		--format "verts.numberSet: %\n" verts.numberSet
 		obj_mesh = obj.mesh
 
 		vertex_normals = this.all_verts as Array
@@ -201,7 +201,7 @@ struct SourceObject_v
 	 */
 	function _getVertsPositions =
 	(
-		format "\n"; print "VertDataGetter_v._getVertsPositions()"
+		--format "\n"; print "SourceObject_v._getVertsPositions()"
 		in coordsys world  meshop.getVerts obj.mesh all_verts node:obj
 	),
 

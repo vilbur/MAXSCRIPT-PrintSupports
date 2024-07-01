@@ -15,10 +15,6 @@ filein( getFilenamePath(getSourceFileName()) + "/BeamObject/BeamObject.ms" )	--"
 filein( getFilenamePath(getSourceFileName()) + "/SupportModifiers/SupportModifiers.ms" )	--"./SupportModifiers/SupportModifiers.ms"
 
 
-global SUPPORT_MANAGER
-global SUPPORT_OPTIONS
-global SUPPORT_MODIFIERS
-
 /** Support manager
   *
   *  DESCRIPTION OF SUPPORT SYSTEM:
@@ -91,10 +87,12 @@ struct SupportManager_v
 	 */
 	function generateSupports source_object raft_mode:false =
 	(
-		format "\n"; print "SupportManager_v.generatePointHelpers()"
-		format "source_object: %\n" source_object
+		format "\n"; print "SupportManager_v.generateSupports()"
+		--format "source_object: %\n" source_object
+		SUPPORT_OPTIONS.getValuesFroUi()
 
-		pointer = (getHandleByAnim source_object)	as string
+		pointer = (getHandleByAnim source_object) as string
+
 		sync_key = getUserPropVal source_object "SUPPORT_SYNC_SOURCE" asString:true
 
 		if sync_key == undefined then
@@ -110,13 +108,11 @@ struct SupportManager_v
 
 		SourceObject = SourceObjects[sync_key]
 
-		--existing_support_and_rafts = this._getExistingSupportAndRafts(sync_key)
-		--format "existing_support_and_rafts: %\n" existing_support_and_rafts
 
 		/*------------------------------------------------------------------------------
 			DEV
 		------------------------------------------------------------------------------*/
-		delete helpers
+		--existing_support_and_rafts = this._getExistingSupportAndRafts(sync_key)
 		--delete existing_support_and_rafts
 
 		SourceObject.generateSupports raft_mode:raft_mode
@@ -372,11 +368,11 @@ struct SupportManager_v
 
 	),
 
-	/** Load source objects from scene
+	/** Load beam objects from scene
 	 */
 	function _loadBeamsFromScene =
 	(
-		format "\n"; print "SupportManager_v._loadSourceObjectsFromScene()"
+		format "\n"; print "SupportManager_v._loadBeamsFromScene()"
 
 		BeamObjects = for BeamObject in BeamObjects where isValidNode BeamObject.beam collect BeamObject
 
@@ -401,18 +397,11 @@ struct SupportManager_v
 	*/
 	on create do
 	(
-		format "\n"; print "SourceObject.onCreate()"
+		format "\n"; print "SupportManager_v.onCreate()"
 		this._loadSourceObjectsFromScene()
 
 		this._loadBeamsFromScene()
 	)
 )
 
-/*------------------------------------------------------------------------------
-	INIT GLOBAL CLASSES
---------------------------------------------------------------------------------*/
-SUPPORT_OPTIONS = SupportOptions_v(ROLLOUT_supports)
 
-SUPPORT_MODIFIERS = SupportModifiers_v()
-
-SUPPORT_MANAGER = SupportManager_v()

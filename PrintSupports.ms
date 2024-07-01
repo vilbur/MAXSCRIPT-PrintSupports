@@ -2,12 +2,22 @@ clearListener(); print("Cleared in:"+getSourceFileName())
 
 filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/ContentLoader/ContentLoader.ms" )	--"./../MAXSCRIPT-UI-framework/Lib/ContentLoader/ContentLoader.ms"
 
+
+
+/* UI GLOBALS */
+global DIALOG_content
+global ROLLOUT_supports
+
+/* STRUCT GLOBALS - before import SupportManager */
+global SUPPORT_OPTIONS -- global SUPPORT_OPTIONS must be defined before SUPPORT_MANAGER
+global SUPPORT_MANAGER
+global SUPPORT_MODIFIERS
+
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManager.ms" )	--"./Lib/SupportManager/SupportManager.ms"
+
 
 current_dir = getFilenamePath(getSourceFileName())
 
-global DIALOG_content
-global ROLLOUT_supports
 
 /*------------------------------------------------------------------------------
 	START VilTools
@@ -32,6 +42,14 @@ try(
 
 	--MaxToPrint.register()
 
+	/*------------------------------------------------------------------------------
+		INIT GLOBAL CLASSES when ui exists
+	--------------------------------------------------------------------------------*/
+	SUPPORT_OPTIONS = SupportOptions_v(ROLLOUT_supports)
+
+	SUPPORT_MODIFIERS = SupportModifiers_v()
+
+	SUPPORT_MANAGER = SupportManager_v()
 
 )catch(
 	format "\n——————————————— ERROR IN FILE ———————————————\n\n%\n" (getSourceFileName())
