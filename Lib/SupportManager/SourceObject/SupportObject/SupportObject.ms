@@ -58,7 +58,7 @@ struct SupportObject_v
 
 	/** Update support
 	 */
-	function updateSupport pos: normal: =
+	function updateSupport vertex_pos: normal: =
 	(
 		--format "\n"; print "SupportObject_v.updateSupport()"
 
@@ -66,34 +66,39 @@ struct SupportObject_v
 
 		this.is_on_ground = false
 
-		this._setUpdatedKnotsSupport(pos)
+		this._setUpdatedKnotsSupport(vertex_pos)
 
 		this._drawSupportSegments update:true
 	),
 
 
 	private
+
 	/** Set knots positions
 	 */
-	function _setNewKnotsSupport pos normal =
+	function _setNewKnotsSupport vertex_pos normal =
 	(
 		format "\n"; print "SupportRaftBaseObject._setNewKnots()"
 		format "NORMAL: %\n" normal
 
 		/* ADD FIRST POINT */
-		knots_positions[1] = pos
-		knots_positions[2] = pos
+		knots_positions[1] = vertex_pos
+		knots_positions[2] = vertex_pos
 
 		direction = if SUPPORT_OPTIONS.second_point_direction == 2 then direction_down else normal
 
-		hit_source_object = this._intersectRaySourceObject (pos) (direction_down)
+		hit_source_object = this._intersectRaySourceObject (vertex_pos) (direction)
+
+		if hit_source_object != undefined and distance knots_positions[1] hit_source_object.pos > SUPPORT_OPTIONS.normal_length then
+			hit_source_object = undefined
+
 
 		/* ADD SECOND POINT */
-		if hit_source_object != undefined and distance hit_source_object.pos knots_positions[1] < normal_length
-		then
+		if hit_source_object != undefined
+		then /* SECOND POINT IS POINT OF COLLISION */
 			knots_positions[2] = hit_source_object.pos
 
-		else
+		else /* EXTEND SECOND POINT ALONG NORMAL */
 			knots_positions[2] = knots_positions[2] + SUPPORT_OPTIONS.normal_length * direction
 
 		--/* CHECK POSITION ABOVE GROUND, POINT IS NOT CRETED IF BOTTOM SPACE IS NOT 2x BASE HEIGH */
@@ -105,18 +110,22 @@ struct SupportObject_v
 
 	/** Set update support knots
 	 */
-	function _setUpdatedKnotsSupport pos =
+	function _setUpdatedKnotsSupport vertex_pos =
 	(
 		--function getNumKnots = numKnots support_obj _spline_index
-		knots_positions = #(pos) -- set first knot of spline to vertex position
+		knots_positions[1] = vertex_pos
+		knots_positions[2] = getKnotPoint support_obj _spline_index 2
 
-		last_knot_pos = getKnotPoint support_obj _spline_index 2
+		direction = normalize (knots_positions[2] - vertex_pos)
 
-		hit_source_object = this._intersectRaySourceObject pos ( normalize (last_knot_pos - pos))
+		hit_source_object = this._intersectRaySourceObject (vertex_pos) ( direction )
 
-		second_vert_pos = if hit_source_object != undefined then hit_source_object.pos else last_knot_pos
+		if hit_source_object != undefined and distance knots_positions[1] hit_source_object.pos > distance knots_positions[1] knots_positions[2] then
+			hit_source_object = undefined
 
-		append knots_positions second_vert_pos
+		/* ADD SECOND POINT */
+		if hit_source_object != undefined then
+			knots_positions[2] = hit_source_object.pos
 	),
 
 	/** Draw segments support
@@ -130,10 +139,11 @@ struct SupportObject_v
 
 			if update then
 				deleteSpline support_obj 1
-			else
-				this._alignObjectToVector knots_positions[1]
+			--else
 
 			this._drawNeckLine()
+
+				--this._alignObjectToVector knots_positions[1]
 
 			if hit_source_object == undefined then
 				this._drawLegLine()

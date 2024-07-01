@@ -111,16 +111,17 @@ struct SourceObject_v
 
 	/** Update support
 	 */
-	function updateSupports support_nodes =
+	function updateSupport support_node =
 	(
 		--format "\n"; print "SourceObject_v.updateSupports()"
 
 		--if verts_pos == undefined then
-			verts_pos = this._getVertsPositions()
+		verts_pos = this._getVertsPositions()
 
-		for support_node in support_nodes do
-			if ( index = getUserPropVal support_node "INDEX") != undefined then
-				Supports[index].updateSupport pos:verts_pos[index]
+		--for support_node in support_nodes do
+		if ( index = getUserPropVal support_node "INDEX") != undefined then
+			Supports[index].updateSupport vertex_pos:verts_pos[index]
+
 	),
 
 	/** Get support nodes of given type

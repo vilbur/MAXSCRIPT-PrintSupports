@@ -167,7 +167,7 @@ struct SupportManager_v
 
 		sync_key = getUserPropVal support "SUPPORT_SYNC"
 
-		SourceObjects[sync_key].updateSupports #(support)
+		SourceObjects[sync_key].updateSupport (support)
 
 		for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
 			BeamObject.updateBeam()

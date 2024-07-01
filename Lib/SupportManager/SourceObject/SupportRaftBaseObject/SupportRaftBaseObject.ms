@@ -150,10 +150,15 @@
 
 		rtm = AngleAxis (angle_vectors) ( axis_of_plane_defined_by_vectors )
 
-		support_obj.transform = Translate ( Rotate ( ScaleMatrix tm.scale) (tm.rotation*rtm)) tm.pos
+		--support_obj.transform = Translate ( Rotate ( ScaleMatrix tm.scale) (tm.rotation*rtm)) tm.pos
+		--
+		--if pos == true then
+		--	support_obj.pos = point_to_rotate
+		support_obj.pivot = Translate ( Rotate ( ScaleMatrix tm.scale) (tm.rotation*rtm)) tm.pos
 
-		if pos == true then
-			support_obj.pos = point_to_rotate
+		--if pos == true then
+			--support_obj.pos = point_to_rotate
+
 	),
 
 	/** Set pivot to position
