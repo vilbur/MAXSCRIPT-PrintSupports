@@ -85,7 +85,7 @@ struct SupportManager_v
 
 	/** Generate points
 	 */
-	function generateSupports source_object raft_mode:false =
+	function generateSupports source_object is_raft:false =
 	(
 		format "\n"; print "SupportManager_v.generateSupports()"
 		--format "source_object: %\n" source_object
@@ -115,7 +115,7 @@ struct SupportManager_v
 		--existing_support_and_rafts = this._getExistingSupportAndRafts(sync_key)
 		--delete existing_support_and_rafts
 
-		SourceObject.generateSupports raft_mode:raft_mode
+		SourceObject.generateSupports is_raft:is_raft
 
 		bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
 
@@ -224,8 +224,7 @@ struct SupportManager_v
 
 		if ( getUserPropVal obj "SUPPORT_SYNC_SOURCE" ) != undefined then
 		(
-				delete (obj.children as Array)
-
+				delete ( obj.children as Array )
 
 		)
 

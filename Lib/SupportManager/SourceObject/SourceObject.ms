@@ -1,6 +1,6 @@
 
 filein( getFilenamePath(getSourceFileName()) + "/SupportObject/SupportObject.ms" )	--"./SupportObject/SupportObject.ms"
-filein( getFilenamePath(getSourceFileName()) + "/RaftObject/RaftObject.ms" )	--"./RaftObject/RaftObject.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/RaftObject/RaftObject.ms" )	--"./RaftObject/RaftObject.ms"
 
 --filein( getFilenamePath(getSourceFileName()) + "/SupportGenerator/SupportGenerator.ms" )	--"./SupportGenerator/SupportGenerator.ms"
 
@@ -33,15 +33,12 @@ struct SourceObject_v
 
 	/** Generate supports
 	 */
-	function generateSupports raft_mode:false =
+	function generateSupports is_raft:false =
 	(
 		format "\n"; print "SourceObject_v.generateSupports()"
 		--format "Supports.keys: %\n" Supports.keys
-
 		this._removeDeletedNodes()
-		--format "Supports.keys: %\n" Supports.keys
 
-		--colored_verts = (VertexColors_v(obj)).getColoredVerts()
 		verts_by_colors = VertexColors.getVertsAndColors exclude:#( white as string )
 
 		for vertex_color in verts_by_colors.keys do format "vertex_color: % \nverts: %\n\n" vertex_color verts_by_colors[vertex_color]
@@ -54,15 +51,7 @@ struct SourceObject_v
 
 		direction_down = [0,0,-1]
 
-		timer__getVertsNormals = timeStamp()
-		--if use_normals then
-			verts_normals = this._getVertsNormals(colored_verts)
-		format "_getVertsNormals: % ms\n" (( timeStamp()) - timer__getVertsNormals)
-
-		--format "verts_by_colors: %\n" verts_by_colors
-		--format "colored_verts: %\n" colored_verts
-		--format "verts_pos: %\n" verts_pos
-		--format "verts_normals: %\n" verts_normals
+		verts_normals = this._getVertsNormals(colored_verts)
 
 		for vertex_color in verts_by_colors.keys do
 		(
@@ -74,28 +63,28 @@ struct SourceObject_v
 				format "vert: %\n" vert
 				second_point_direction = if use_normals then normalize (verts_normals[vert] * obj.transform - obj.pos) else direction_down
 
-				RaftOrSupport = if raft_mode then RaftObject_v(obj) else SupportObject_v(obj)
+				SupportObject = SupportObject_v(obj)(is_raft)
 
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				RaftOrSupport.generateSupport vert pos:verts_pos[vert] clr:(execute vertex_color) normal:second_point_direction --"./SupportObject/SupportObject.ms"
+				SupportObject.generateSupport vert pos:verts_pos[vert] clr:(execute vertex_color) normal:second_point_direction --"./SupportObject/SupportObject.ms"
 
-				RaftOrSupport.support_obj.parent = obj
+				SupportObject.support_obj.parent = obj
 
-				support_poiter = (getHandleByAnim RaftOrSupport.support_obj) as string
+				support_poiter = (getHandleByAnim SupportObject.support_obj) as string
 
-				setUserPropVal RaftOrSupport.support_obj "SUPPORT_SYNC"	sync_key
-				setUserPropVal RaftOrSupport.support_obj "THIS"	support_poiter
-				setUserPropVal RaftOrSupport.support_obj "INDEX"	vert
-				setUserPropVal RaftOrSupport.support_obj "RAFT"	raft_mode
+				setUserPropVal SupportObject.support_obj "SUPPORT_SYNC"	sync_key
+				setUserPropVal SupportObject.support_obj "THIS"	support_poiter
+				setUserPropVal SupportObject.support_obj "INDEX"	vert
+				setUserPropVal SupportObject.support_obj "RAFT"	is_raft
 
-				this.Supports[vert] = RaftOrSupport
+				this.Supports[vert] = SupportObject
 			)
 		)
 
 
-		SUPPORT_MODIFIERS.addModifiers( this.getSupportNodes type:( if raft_mode then #RAFT else #SUPPORT ) ) raft_mode:raft_mode
+		SUPPORT_MODIFIERS.addModifiers( this.getSupportNodes is_raft:is_raft ) raft_mode:is_raft
 
 		bindSupportToTransformEvent( this.getSupportNodes() )
 
@@ -113,7 +102,7 @@ struct SourceObject_v
 	 */
 	function updateSupport support_node =
 	(
-		--format "\n"; print "SourceObject_v.updateSupports()"
+		--format "\n"; print "SourceObject_v.updateSupport()"
 
 		--if verts_pos == undefined then
 		verts_pos = this._getVertsPositions()
@@ -130,22 +119,19 @@ struct SourceObject_v
 	  *
 	  * @return array of nodes
 	 */
-	function getSupportNodes type: =
+	function getSupportNodes is_raft: =
 	(
-		format "\n"; print "SourceObject_v.getSupportNodes()"
-
+		--format "\n"; print "SourceObject_v.getSupportNodes()"
+		--format "is_raft: %\n" is_raft
 		/** Struct name
 		 */
-		function structName _struct = (filterString( classof _struct as string ) "(:")[2]
+		--function structName _struct = (filterString( classof _struct as string ) "(:")[2]
 
-		if type != unsupplied then
-		(
-			type = toLower( type as string + "Object_v" )
-			format "TYPE: %\n" TYPE
-			for RaftOrSupport in Supports where toLower (structName(RaftOrSupport.value)) == type collect RaftOrSupport.value.support_obj --return
-		)
+		if is_raft != unsupplied then
+			for SupportObjectData in Supports where SupportObjectData.value.is_raft == is_raft collect SupportObjectData.value.support_obj --return
+
 		else
-			for RaftOrSupport in Supports collect RaftOrSupport.value.support_obj --return
+			for SupportObjectData in Supports collect SupportObjectData.value.support_obj --return
 
 	),
 

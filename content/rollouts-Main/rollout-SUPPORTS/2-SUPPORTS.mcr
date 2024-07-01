@@ -43,7 +43,7 @@ icon:	"across:2|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE RAFTS.\n\nWO
 			_selection = for o in selection collect o
 
 			if _selection.count > 0 then
-				SUPPORT_MANAGER.generateSupports( _selection[1] ) raft_mode:true
+				SUPPORT_MANAGER.generateSupports( _selection[1] ) is_raft:true
 
 			if _selection.count > 0 then
 				select _selection[1]

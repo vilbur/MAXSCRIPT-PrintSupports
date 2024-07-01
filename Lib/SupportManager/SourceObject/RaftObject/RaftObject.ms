@@ -7,66 +7,57 @@ struct RaftObject_v
 	/*------ EXTENDS  ------*/
 	include "MAXSCRIPT-PrintSupports/Lib/SupportManager/SourceObject/SupportRaftBaseObject/SupportRaftBaseObject.ms" --"./../SupportRaftBaseObject/SupportRaftBaseObject.ms"
 
-
 	/* properties */
 	is_raft	= true,
-
-	--knots_positions = #(),
-	--knots_positions = Array (2),
-
-	PointHelpers = #(),
-
-	Beams = #(),
 
 	/* private */
 	/* dependency */
 	/* reference */
 	/* inhered */
 
-	/** Generate support
-	 */
-	function generateSupport vert pos: clr: normal:[0,0,-1] =
-	(
-		format "\n"; print "RaftObject_v.generateSupport()"
-
-		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr pos:pos
-
-		this._setNewKnots(pos)(normal)
-
-		this._setPivotToSecondPoint()
-
-		--this._alignObjectToVector knots_positions[1]
-
-		this._createRaftLine()
-
-		--support.parent = helpers_chain[helpers_chain.count]
-		--
-		--Options.setProp support #this (getHandleByAnim support)
-		--
-		--Options.setProp support #raft_mode raft_mode
-		--
-		this --return
-	),
-
-	/** Update support
-	 */
-	function updateSupport vertex_pos: normal: =
-	(
-		--format "\n-----------------------------------------\n"
-		--format "\n"; print "RaftObject_v.updateSupport()"
-		--format "support_obj: %\n" support_obj
-		--format "pos: %\n" pos
-		--format "normal: %\n" normal
-		this._resetKnots()
-
-		this._setUpdatedKnots(vertex_pos)
-
-		this._setPivotToSecondPoint()
-
-		--deleteSpline support_obj 1
-
-		this._createRaftLine update:true
-	),
+	--/** Generate support
+	-- */
+	--function generateSupport vert pos: clr: normal:[0,0,-1] =
+	--(
+	--	format "\n"; print "RaftObject_v.generateSupport()"
+	--
+	--	this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr pos:pos
+	--
+	--	this._setNewKnots(pos)(normal)
+	--
+	--
+	--	--this._alignObjectToVector knots_positions[1]
+	--
+	--	this._createSupportObject()
+	--
+	--	--support.parent = helpers_chain[helpers_chain.count]
+	--	--
+	--	--Options.setProp support #this (getHandleByAnim support)
+	--	--
+	--	--Options.setProp support #raft_mode raft_mode
+	--	--
+	--	this --return
+	--),
+	--
+	--/** Update support
+	-- */
+	--function updateSupport vertex_pos: normal: =
+	--(
+	--	--format "\n-----------------------------------------\n"
+	--	--format "\n"; print "RaftObject_v.updateSupport()"
+	--	--format "support_obj: %\n" support_obj
+	--	--format "pos: %\n" pos
+	--	--format "normal: %\n" normal
+	--	this._resetKnots()
+	--
+	--	this._setUpdatedKnots(vertex_pos)
+	--
+	--	this._setPivotToSecondPoint()
+	--
+	--	--deleteSpline support_obj 1
+	--
+	--	this._createSupportObject update:true
+	--),
 
 	private
 
@@ -124,31 +115,31 @@ struct RaftObject_v
 			knots_positions[2] = hit_source_object.pos
 	),
 
-	/** Create line netween point helpers
-	  */
-	function _createRaftLine update:false =
-	(
-		--format "\n"; print "RaftObject_v._createSupportLine()"
-
-		if knots_positions.count > 1 then
-		(
-			this._setPivotToSecondPoint()
-
-			if update then
-				deleteSpline support_obj 1
-			--else
-				--this._alignObjectToVector knots_positions[1]
-
-			this._drawNeckLine()
-
-			--if hit_source_object == undefined then
-				--this._drawLegLine()
-
-			this._setMaterialsToLineSegments()
-
-			updateShape support_obj
-		)
-	),
+	--/** Create line netween point helpers
+	--  */
+	--function _createRaftLine update:false =
+	--(
+	--	--format "\n"; print "RaftObject_v._createSupportLine()"
+	--
+	--	if knots_positions.count > 1 then
+	--	(
+	--		this._setPivotToSecondPoint()
+	--
+	--		if update then
+	--			deleteSpline support_obj 1
+	--		--else
+	--			--this._alignObjectToVector knots_positions[1]
+	--
+	--		this._drawNeckLine()
+	--
+	--		--if hit_source_object == undefined then
+	--			--this._drawLegLine()
+	--
+	--		this._setMaterialsToLineSegments()
+	--
+	--		updateShape support_obj
+	--	)
+	--),
 
 	/**
 	 */
@@ -157,3 +148,39 @@ struct RaftObject_v
 		--format "\n"; print "RaftObject.onCreate()"
 	)
 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

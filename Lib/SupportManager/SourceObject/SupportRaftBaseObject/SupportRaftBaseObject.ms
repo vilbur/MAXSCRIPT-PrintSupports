@@ -23,6 +23,64 @@
 	_spline_index = 1, -- each support line has ony 1 spline
 
 	hit_source_object,
+
+	direction_down = [0,0,-1],
+
+
+	public
+
+
+	/** Generate support
+	 */
+	function generateSupport vertex_index pos: clr: normal: =
+	(
+		--format "\n"; print "SupportObject_v.generateSupport()"
+
+		--this.support_obj = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vertex_index) ) pos:knots_positions[1]
+		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr pos:pos
+
+		this._setNewKnots(pos)(normal)
+		--format "knots_positions.count: %\n" knots_positions.count
+
+		this._createSupportObject()
+
+		--point_helpers = (HelperObject_v()).generatePoints(knots_positions)
+		--
+		--point_helpers[1].parent = source_obj
+		--support_obj.parent = point_helpers[point_helpers.count]
+
+
+		--support.parent = helpers_chain[helpers_chain.count]
+		--
+		--Options.setProp support #this (getHandleByAnim support)
+		--
+		--Options.setProp support #raft_mode raft_mode
+		--
+		--this.support_obj --return
+
+		this --return
+	),
+
+	/** Update support
+	 */
+	function updateSupport vertex_pos: normal: =
+	(
+		--format "\n"; print "SupportObject_v.updateSupport()"
+
+		this._resetKnots()
+
+		this.is_on_ground = false
+		this.hit_source_object = undefined
+
+		this._setUpdatedKnots(vertex_pos)
+
+		this._createSupportObject update:true
+	),
+
+
+	private
+
+
 	/*------------------------------------------------------------------------------
 		METHODS
 	--------------------------------------------------------------------------------*/
@@ -34,6 +92,30 @@
 	),
 
 
+	/** Draw segments support
+	 */
+	function _createSupportObject update:false =
+	(
+		format "\n"; print "SupportObject_v._createSupportObject()"
+		if knots_positions.count > 1 then
+		(
+			this._setPivotToSecondPoint()
+
+			if update then
+				deleteSpline support_obj 1
+			--else
+				--this._alignObjectToVector knots_positions[1]
+
+			this._drawNeckLine()
+
+			if hit_source_object == undefined and is_raft == undefined then
+				this._drawLegLine()
+
+			this._setMaterialsToLineSegments()
+
+			updateShape support_obj
+		)
+	),
 
 	/** Create line
 	  */
