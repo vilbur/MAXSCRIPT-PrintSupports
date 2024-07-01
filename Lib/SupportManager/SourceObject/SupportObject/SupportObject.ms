@@ -9,7 +9,6 @@ struct SupportObject_v
 	include "MAXSCRIPT-PrintSupports/Lib/SupportManager/SourceObject/SupportRaftBaseObject/SupportRaftBaseObject.ms" --"./../SupportRaftBaseObject/SupportRaftBaseObject.ms"
 
 	/* properties */
-	is_on_ground	= false,
 	is_raft	= false,
 
 	--knots_positions = #(),
@@ -34,7 +33,7 @@ struct SupportObject_v
 		--this.support_obj = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vertex_index) ) pos:knots_positions[1]
 		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr pos:pos
 
-		this._setNewKnotsSupport(pos)(normal)
+		this._setNewKnots(pos)(normal)
 		--format "knots_positions.count: %\n" knots_positions.count
 
 		this._drawSupportSegments()
@@ -66,7 +65,7 @@ struct SupportObject_v
 
 		this.is_on_ground = false
 
-		this._setUpdatedKnotsSupport(vertex_pos)
+		this._setUpdatedKnots(vertex_pos)
 
 		this._drawSupportSegments update:true
 	),
@@ -76,7 +75,7 @@ struct SupportObject_v
 
 	/** Set knots positions
 	 */
-	function _setNewKnotsSupport vertex_pos normal =
+	function _setNewKnots vertex_pos normal =
 	(
 		format "\n"; print "SupportRaftBaseObject._setNewKnots()"
 		format "NORMAL: %\n" normal
@@ -110,7 +109,7 @@ struct SupportObject_v
 
 	/** Set update support knots
 	 */
-	function _setUpdatedKnotsSupport vertex_pos =
+	function _setUpdatedKnots vertex_pos =
 	(
 		--function getNumKnots = numKnots support_obj _spline_index
 		knots_positions[1] = vertex_pos
@@ -140,10 +139,9 @@ struct SupportObject_v
 			if update then
 				deleteSpline support_obj 1
 			--else
+				--this._alignObjectToVector knots_positions[1]
 
 			this._drawNeckLine()
-
-				--this._alignObjectToVector knots_positions[1]
 
 			if hit_source_object == undefined then
 				this._drawLegLine()
@@ -154,21 +152,21 @@ struct SupportObject_v
 		)
 	),
 
-	/** Create line
-	  */
-	function _drawNeckLine =
-	(
-		--format "\n"; print "SupportObject_v._drawNeckLine()"
-		--format "HELPERS_TREE: %\n" helpers_chain
-
-		addNewSpline support_obj
-
-		/*------------------------------------------------------------------------------
-			ADD KNOTS BY POINTS FROM TOP TO BOTTOM
-		--------------------------------------------------------------------------------*/
-		for pos in knots_positions do
-			addKnot support_obj _spline_index #corner #line pos
-	),
+	--/** Create line
+	--  */
+	--function _drawNeckLine =
+	--(
+	--	--format "\n"; print "SupportObject_v._drawNeckLine()"
+	--	--format "HELPERS_TREE: %\n" helpers_chain
+	--
+	--	addNewSpline support_obj
+	--
+	--	/*------------------------------------------------------------------------------
+	--		ADD KNOTS BY POINTS FROM TOP TO BOTTOM
+	--	--------------------------------------------------------------------------------*/
+	--	for pos in knots_positions do
+	--		addKnot support_obj _spline_index #corner #line pos
+	--),
 
 	/** Draw leg line
 	 */
@@ -215,20 +213,20 @@ struct SupportObject_v
 		)
 	),
 
-	/** Set materials to line segments
-	 */
-	function _setMaterialsToLineSegments =
-	(
-		--format "\n"; print "SupportObject_v._setMaterialsToLineSegments()"
-		num_of_segments = numSegments support_obj ( numSplines support_obj)
-
-		for segment_i = 1 to num_of_segments do
-			setMaterialID support_obj _spline_index segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
-
-		/*------ SET MATERIAL TO GROUND SEGMENT ------*/
-		if is_on_ground then
-			setMaterialID support_obj _spline_index num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
-	),
+	--/** Set materials to line segments
+	-- */
+	--function _setMaterialsToLineSegments =
+	--(
+	--	--format "\n"; print "SupportObject_v._setMaterialsToLineSegments()"
+	--	num_of_segments = numSegments support_obj ( numSplines support_obj)
+	--
+	--	for segment_i = 1 to num_of_segments do
+	--		setMaterialID support_obj _spline_index segment_i SUPPORT_OPTIONS.mat_ids[#MIDDLE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
+	--
+	--	/*------ SET MATERIAL TO GROUND SEGMENT ------*/
+	--	if is_on_ground then
+	--		setMaterialID support_obj _spline_index num_of_segments SUPPORT_OPTIONS.mat_ids[#BASE] -- setMaterialID <splineShape> <_spline_index> <seg_index> <matID>
+	--),
 
 	/**
 	 */
