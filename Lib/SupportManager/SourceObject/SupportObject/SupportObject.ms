@@ -1,5 +1,3 @@
-filein( getFilenamePath(getSourceFileName()) + "/../PointHelper/PointHelper.ms" )	--"./../PointHelper/PointHelper.ms"
-
 /** Support object
  */
 struct SupportObject_v
