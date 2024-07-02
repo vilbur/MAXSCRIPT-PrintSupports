@@ -36,29 +36,11 @@ struct SupportObject_v
 	function generateSupport vertex_index pos: clr: direction: =
 	(
 		--format "\n"; print "SupportObject_v.generateSupport()"
-		--this.is_raft = is_raft
-
-		--this.support_obj = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vertex_index) ) pos:knots_positions[1]
 		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr pos:pos
 
 		this._setNewKnots(pos)(direction)
-		--format "knots_positions.count: %\n" knots_positions.count
 
 		this._createSupportObject()
-
-		--point_helpers = (HelperObject_v()).generatePoints(knots_positions)
-		--
-		--point_helpers[1].parent = source_obj
-		--support_obj.parent = point_helpers[point_helpers.count]
-
-
-		--support.parent = helpers_chain[helpers_chain.count]
-		--
-		--Options.setProp support #this (getHandleByAnim support)
-		--
-		--Options.setProp support #raft_mode raft_mode
-		--
-		--this.support_obj --return
 
 		this --return
 	),
@@ -84,19 +66,22 @@ struct SupportObject_v
 	 */
 	function _setNewKnots vertex_pos direction =
 	(
-		format "\n"; print "SupportRaftBaseObject._setNewKnots()"
-		format "DIRECTION: %\n" direction
-		format "normal_length: %\n" SUPPORT_OPTIONS.normal_length
+		--format "\n"; print "SupportRaftBaseObject._setNewKnots()"
+		--format "DIRECTION: %\n" direction
+		--format "normal_length: %\n" SUPPORT_OPTIONS.normal_length
+
+		limit_height_to_base = SUPPORT_OPTIONS.base_height * 1.3 -- z pozition preserved for base points
 
 		/* ADD FIRST POINT */
 		knots_positions[1] = vertex_pos
-		--second_point_pos = vertex_pos
 
-		--direction = if SUPPORT_OPTIONS.second_point_direction == 2 then direction_down else normal
 
+		/* TEST COLLISTION WITH SOURCE OBJECT FOR 2nd POINT */
 		hit_source_object = this._intersectRaySourceObject (vertex_pos) (direction)
 
-		if hit_source_object != undefined and distance knots_positions[1] hit_source_object.pos > SUPPORT_OPTIONS.normal_length then
+
+		/* RESET COLLISION IF DISTANCE TO HIT IS GRTEATER THEN NORMAL - only for support */
+		if not is_raft and hit_source_object != undefined and distance knots_positions[1] hit_source_object.pos > SUPPORT_OPTIONS.normal_length then
 			hit_source_object = undefined
 
 
@@ -108,32 +93,18 @@ struct SupportObject_v
 		else /* EXTEND SECOND POINT ALONG NORMAL */
 			second_point_pos = vertex_pos +( SUPPORT_OPTIONS.normal_length * direction)
 
-		/* CHECK POSITION ABOVE GROUND, POINT IS NOT CRETED IF BOTTOM SPACE IS NOT 2x BASE HEIGH */
-		if second_point_pos.z < SUPPORT_OPTIONS.base_height * 2 then
+
+		/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
+		if not this.is_raft and second_point_pos.z < limit_height_to_base then
 		(
-			--temp_length = (vertex_pos.z - 4 ) / direction.z
-			--second_point_pos = vertex_pos + ( abs temp_length * direction)
+			normal_length = abs ((vertex_pos.z - limit_height_to_base ) / direction.z)
 
-			format "vertex_pos.z: %\n" vertex_pos.z
-			format "direction.z: %\n" direction.z
-
-			temp_length = abs ((vertex_pos.z - 4 ) / direction.z)
-
-			second_point_pos = vertex_pos + ( temp_length * direction)
-
-
-			format "TEMP_LENGTH: %\n" temp_length
-
+			second_point_pos = vertex_pos + ( normal_length * direction)
 		)
 
+
+		/* ADD 2nd POINT */
 		knots_positions[2] = second_point_pos
-
-
-
-		--if second_point_pos != undefined and second_point_pos.z >= SUPPORT_OPTIONS.base_height * 2 then
-		--	knots_positions[2] = second_point_pos
-
-		--format "knots_positions: %\n" knots_positions
 	),
 
 	/** Set update support knots
@@ -172,9 +143,6 @@ struct SupportObject_v
 
 			this._drawRaftLine()
 
-			--format "IS_RAFT: %\n" is_raft
-			--format "HIT_SOURCE_OBJECT: %\n" hit_source_object
-
 			if is_raft == false and hit_source_object == undefined then
 				this._drawSupportLine()
 
@@ -182,17 +150,6 @@ struct SupportObject_v
 
 			updateShape support_obj
 		)
-	),
-
-	/** Reset knots
-	 */
-	function _resetThisObject=
-	(
-		this.knots_positions = Array (2)
-
-		this.is_on_ground = false
-
-		this.hit_source_object = undefined
 	),
 
 	/** Create line
@@ -359,6 +316,17 @@ struct SupportObject_v
 
 
 		hit_result --return
+	),
+
+	/** Reset knots
+	 */
+	function _resetThisObject=
+	(
+		this.knots_positions = Array (2)
+
+		this.is_on_ground = false
+
+		this.hit_source_object = undefined
 	),
 
 	/*------------------------------------------------------------------------------
