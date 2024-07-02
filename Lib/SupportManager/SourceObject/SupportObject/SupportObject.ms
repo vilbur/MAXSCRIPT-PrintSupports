@@ -84,12 +84,13 @@ struct SupportObject_v
 	 */
 	function _setNewKnots vertex_pos direction =
 	(
-		--format "\n"; print "SupportRaftBaseObject._setNewKnots()"
-		--format "NORMAL: %\n" direction
+		format "\n"; print "SupportRaftBaseObject._setNewKnots()"
+		format "DIRECTION: %\n" direction
+		format "normal_length: %\n" SUPPORT_OPTIONS.normal_length
 
 		/* ADD FIRST POINT */
 		knots_positions[1] = vertex_pos
-		knots_positions[2] = vertex_pos
+		--second_point_pos = vertex_pos
 
 		--direction = if SUPPORT_OPTIONS.second_point_direction == 2 then direction_down else normal
 
@@ -102,12 +103,33 @@ struct SupportObject_v
 		/* ADD SECOND POINT */
 		if hit_source_object != undefined
 		then /* SECOND POINT IS POINT OF COLLISION */
-			knots_positions[2] = hit_source_object.pos
+			second_point_pos = hit_source_object.pos
 
 		else /* EXTEND SECOND POINT ALONG NORMAL */
-			knots_positions[2] = knots_positions[2] + SUPPORT_OPTIONS.normal_length * direction
+			second_point_pos = vertex_pos +( SUPPORT_OPTIONS.normal_length * direction)
 
-		--/* CHECK POSITION ABOVE GROUND, POINT IS NOT CRETED IF BOTTOM SPACE IS NOT 2x BASE HEIGH */
+		/* CHECK POSITION ABOVE GROUND, POINT IS NOT CRETED IF BOTTOM SPACE IS NOT 2x BASE HEIGH */
+		if second_point_pos.z < SUPPORT_OPTIONS.base_height * 2 then
+		(
+			--temp_length = (vertex_pos.z - 4 ) / direction.z
+			--second_point_pos = vertex_pos + ( abs temp_length * direction)
+
+			format "vertex_pos.z: %\n" vertex_pos.z
+			format "direction.z: %\n" direction.z
+
+			temp_length = abs ((vertex_pos.z - 4 ) / direction.z)
+
+			second_point_pos = vertex_pos + ( temp_length * direction)
+
+
+			format "TEMP_LENGTH: %\n" temp_length
+
+		)
+
+		knots_positions[2] = second_point_pos
+
+
+
 		--if second_point_pos != undefined and second_point_pos.z >= SUPPORT_OPTIONS.base_height * 2 then
 		--	knots_positions[2] = second_point_pos
 

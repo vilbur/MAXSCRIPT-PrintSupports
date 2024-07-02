@@ -113,8 +113,7 @@ struct SupportManager_v
 		/*------------------------------------------------------------------------------
 			DEV
 		------------------------------------------------------------------------------*/
-		--existing_support_and_rafts = this._getExistingSupportAndRafts(sync_key)
-		--delete existing_support_and_rafts
+		delete (SourceObject.getSupportNodes())
 
 		SourceObject.generateSupports is_raft:is_raft
 
