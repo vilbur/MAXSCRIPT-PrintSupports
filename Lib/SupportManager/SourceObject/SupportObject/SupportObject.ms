@@ -9,10 +9,10 @@ struct SupportObject_v
 
 	is_raft,
 
-	/* required */
+	/* required on load from scene */
+	support_obj,
 
 	/* properties */
-	support_obj,
 
 	knots_positions = Array (2),
 
@@ -33,7 +33,7 @@ struct SupportObject_v
 
 	/** Generate support
 	 */
-	function generateSupport vertex_index pos: clr: normal: =
+	function generateSupport vertex_index pos: clr: direction: =
 	(
 		--format "\n"; print "SupportObject_v.generateSupport()"
 		--this.is_raft = is_raft
@@ -41,7 +41,7 @@ struct SupportObject_v
 		--this.support_obj = SplineShape name:(this._getName()) wirecolor:(this._shiftWirecolor(clr)(vertex_index) ) pos:knots_positions[1]
 		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr pos:pos
 
-		this._setNewKnots(pos)(normal)
+		this._setNewKnots(pos)(direction)
 		--format "knots_positions.count: %\n" knots_positions.count
 
 		this._createSupportObject()
@@ -65,7 +65,7 @@ struct SupportObject_v
 
 	/** Update support
 	 */
-	function updateSupport vertex_pos: normal: =
+	function updateSupport vertex_pos: =
 	(
 		--format "\n"; print "SupportObject_v.updateSupport()"
 
@@ -82,16 +82,16 @@ struct SupportObject_v
 
 	/** Set knots positions
 	 */
-	function _setNewKnots vertex_pos normal =
+	function _setNewKnots vertex_pos direction =
 	(
-		format "\n"; print "SupportRaftBaseObject._setNewKnots()"
-		format "NORMAL: %\n" normal
+		--format "\n"; print "SupportRaftBaseObject._setNewKnots()"
+		--format "NORMAL: %\n" direction
 
 		/* ADD FIRST POINT */
 		knots_positions[1] = vertex_pos
 		knots_positions[2] = vertex_pos
 
-		direction = if SUPPORT_OPTIONS.second_point_direction == 2 then direction_down else normal
+		--direction = if SUPPORT_OPTIONS.second_point_direction == 2 then direction_down else normal
 
 		hit_source_object = this._intersectRaySourceObject (vertex_pos) (direction)
 
@@ -138,7 +138,7 @@ struct SupportObject_v
 	 */
 	function _createSupportObject update:false =
 	(
-		format "\n"; print "SupportObject_v._createSupportObject()"
+		--format "\n"; print "SupportObject_v._createSupportObject()"
 		if knots_positions.count > 1 then
 		(
 			this._setPivotToSecondPoint()
@@ -150,8 +150,8 @@ struct SupportObject_v
 
 			this._drawRaftLine()
 
-			format "IS_RAFT: %\n" is_raft
-			format "HIT_SOURCE_OBJECT: %\n" hit_source_object
+			--format "IS_RAFT: %\n" is_raft
+			--format "HIT_SOURCE_OBJECT: %\n" hit_source_object
 
 			if is_raft == false and hit_source_object == undefined then
 				this._drawSupportLine()
@@ -164,7 +164,7 @@ struct SupportObject_v
 
 	/** Reset knots
 	 */
-	function _resetThisObject =
+	function _resetThisObject=
 	(
 		this.knots_positions = Array (2)
 
@@ -177,7 +177,7 @@ struct SupportObject_v
 	  */
 	function _drawRaftLine =
 	(
-		format "\n"; print "SupportObject_v._drawRaftLine()"
+		--format "\n"; print "SupportObject_v._drawRaftLine()"
 		--format "HELPERS_TREE: %\n" helpers_chain
 
 		addNewSpline support_obj
@@ -187,6 +187,51 @@ struct SupportObject_v
 		--------------------------------------------------------------------------------*/
 		for pos in knots_positions do
 			addKnot support_obj _spline_index #corner #line pos
+	),
+
+	/** Draw leg line
+	 */
+	function _drawSupportLine =
+	(
+		--format "\n"; print "SupportObject_v._drawSupportLine()"
+		/*------------------------------------------------------------------------------
+			GET POSITION OF LAST POINT ABOVE GROUND
+		--------------------------------------------------------------------------------*/
+		pos = copy knots_positions[knots_positions.count] -- copy to avoid modifing of value in array
+
+		/*------------------------------------------------------------------------------
+			TEST COLLISION WITH OBJECT on straight down direction
+		--------------------------------------------------------------------------------*/
+		this.hit_source_object = this._intersectRaySourceObject pos direction_down
+
+
+		this.is_on_ground = hit_source_object == undefined
+
+		/* IF SUPPORT IS GOING TO GROUND */
+		if is_on_ground then
+		(
+			/*------------------------------------------------------------------------------
+				ABOVE POINT ABOVE GROUND - NOT IF RAFT MODE
+			--------------------------------------------------------------------------------*/
+			pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
+
+			addKnot support_obj _spline_index #corner #line pos
+
+			pos.z = 0 -- set support_obj to ground
+
+			/*------------------------------------------------------------------------------
+				ADD GROUND POINT
+			--------------------------------------------------------------------------------*/
+			addKnot support_obj _spline_index #corner #line pos
+		)
+		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
+		(
+			--format "hit_source_object: %\n" hit_source_object
+			--pos.z = hit_source_object.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
+
+			--addKnot support_obj _spline_index #corner #line pos
+			addKnot support_obj _spline_index #corner #line hit_source_object.pos
+		)
 	),
 
 	/** Set materials to line segments
@@ -333,52 +378,6 @@ struct SupportObject_v
 
 		wirecolor_shifted --return
 	),
-
-	/** Draw leg line
-	 */
-	function _drawSupportLine =
-	(
-		format "\n"; print "SupportObject_v._drawSupportLine()"
-		/*------------------------------------------------------------------------------
-			GET POSITION OF LAST POINT ABOVE GROUND
-		--------------------------------------------------------------------------------*/
-		pos = copy knots_positions[knots_positions.count] -- copy to avoid modifing of value in array
-
-		/*------------------------------------------------------------------------------
-			TEST COLLISION WITH OBJECT on straight down direction
-		--------------------------------------------------------------------------------*/
-		this.hit_source_object = this._intersectRaySourceObject pos direction_down
-
-
-		this.is_on_ground = hit_source_object == undefined
-
-		/* IF SUPPORT IS GOING TO GROUND */
-		if is_on_ground then
-		(
-			/*------------------------------------------------------------------------------
-				ABOVE POINT ABOVE GROUND - NOT IF RAFT MODE
-			--------------------------------------------------------------------------------*/
-			pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
-
-			addKnot support_obj _spline_index #corner #line pos
-
-			pos.z = 0 -- set support_obj to ground
-
-			/*------------------------------------------------------------------------------
-				ADD GROUND POINT
-			--------------------------------------------------------------------------------*/
-			addKnot support_obj _spline_index #corner #line pos
-		)
-		else /* IF SUPPORT IS INTERSECTING SOURCE OBJECT, THEN ADD POINT TO INETSECTION */
-		(
-			--format "hit_source_object: %\n" hit_source_object
-			--pos.z = hit_source_object.pos.z -- set knot above ground to set base height and keep last segment straight for extrude
-
-			--addKnot support_obj _spline_index #corner #line pos
-			addKnot support_obj _spline_index #corner #line hit_source_object.pos
-		)
-	),
-
 
 	/**
 	 */

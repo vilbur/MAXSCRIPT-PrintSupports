@@ -13,10 +13,9 @@ struct SourceObject_v
 	sync_key,
 
 	/* required */
-
-
 	/* properties */
 	all_verts,
+	verts_process,
 	verts_pos,
 
 	Supports = Dictionary #INTEGER, -- KEY: vertex_index VALUE: SupportObject|RaftObject
@@ -39,36 +38,39 @@ struct SourceObject_v
 		--format "Supports.keys: %\n" Supports.keys
 		this._removeDeletedNodes()
 
-		verts_by_colors = VertexColors.getVertsAndColors exclude:#( white as string )
+		--this._setVertsToProcess()
+		verts_sel	= getVertSelection obj.mesh
 
-		for vertex_color in verts_by_colors.keys do format "vertex_color: % \nverts: %\n\n" vertex_color verts_by_colors[vertex_color]
+		verts_by_colors = VertexColors.getVertsAndColors exclude:#( white as string )
 
 		colored_verts = this._flatternDictionary(verts_by_colors)
 
+		verts_by_colors[ (obj.wirecolor) as string ] = all_verts - colored_verts
+
+		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
+
 		verts_pos = this._getVertsPositions()
 
+		verts_normals = this._getVertsNormals(verts_process)
+
 		use_normals = SUPPORT_OPTIONS.second_point_direction == 1
-
-		direction_down = [0,0,-1]
-
-		verts_normals = this._getVertsNormals(colored_verts)
 
 		for vertex_color in verts_by_colors.keys do
 		(
 			format "\n\n----------------- generateSupports by VERTEX_COLOR: % -----------------\n\n" vertex_color
 			--format "VERTS: %\n" verts_by_colors[vertex_color]
 
-			for vert in verts_by_colors[vertex_color] where Supports[vert] == undefined do
+			for vert in verts_by_colors[vertex_color] where verts_process[vert] and Supports[vert] == undefined do
 			(
 				format "vert: %\n" vert
-				second_point_direction = if use_normals then normalize (verts_normals[vert] * obj.transform - obj.pos) else direction_down
+				second_point_direction = if use_normals then normalize (verts_normals[vert] * obj.transform - obj.pos) else [0,0,-1] -- direction down
 
 				SupportObject = SupportObject_v(obj)(is_raft)
 
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				SupportObject.generateSupport vert pos:verts_pos[vert] clr:(execute vertex_color) normal:second_point_direction --"./SupportObject/SupportObject.ms"
+				SupportObject.generateSupport vert pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
 				SupportObject.support_obj.parent = obj
 
@@ -146,7 +148,7 @@ struct SourceObject_v
 
 			is_raft = getUserPropVal obj_in_scene "RAFT"
 
-			this.Supports[ vert ] = if is_raft then RaftObject_v(obj)(obj_in_scene) else SupportObject_v(obj)(obj_in_scene)
+			this.Supports[ vert ] = SupportObject_v(obj)(is_raft)(obj_in_scene)
 		)
 	),
 
@@ -200,7 +202,7 @@ struct SourceObject_v
 		--format "\n"; print "SourceObject_v._flatternDictionary()"
 		flattern_dict = #{}
 
-		for key in dict.keys do flattern_dict +=  dict[key]
+		for key in dict.keys do flattern_dict += dict[key]
 
 		flattern_dict --return
 	),

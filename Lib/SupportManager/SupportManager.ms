@@ -1,4 +1,5 @@
 filein( getFilenamePath(getSourceFileName()) + "/../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms" )	--"./../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms"
+
 filein( getFilenamePath(getSourceFileName()) + "/../VertexColors/VertexColors.ms" )	--"./../VertexColors/VertexColors.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onSupportTransformCallback/onSupportTransformCallback.ms" -- MUST BE BEFORE SourceObject.ms
@@ -89,7 +90,7 @@ struct SupportManager_v
 	(
 		format "\n"; print "SupportManager_v.generateSupports()"
 		--format "source_object: %\n" source_object
-		SUPPORT_OPTIONS.getValuesFroUi()
+		--SUPPORT_OPTIONS.getValuesFroUi()
 
 		pointer = (getHandleByAnim source_object) as string
 
@@ -400,6 +401,9 @@ struct SupportManager_v
 		this._loadSourceObjectsFromScene()
 
 		this._loadBeamsFromScene()
+
+		SUPPORT_OPTIONS.getValuesFroUi()
+
 	)
 )
 
