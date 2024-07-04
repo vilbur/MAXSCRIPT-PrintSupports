@@ -61,23 +61,28 @@ struct SourceObject_v
 				format "vert: %\n" vert
 				second_point_direction = if use_normals then normalize (verts_normals[vert] * obj.transform - obj.pos) else [0,0,-1] -- direction down
 
-				SupportObject = SupportObject_v(obj)(is_raft)
+				if second_point_direction.z < 0 then
+				(
 
-				/*------------------------------------------------------------------------------
-					GENERATE SUPPORT OR RAFT
-				--------------------------------------------------------------------------------*/
-				SupportObject.generateSupport vert pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
+					SupportObject = SupportObject_v(obj)(is_raft)
 
-				SupportObject.support_obj.parent = obj
+					/*------------------------------------------------------------------------------
+						GENERATE SUPPORT OR RAFT
+					--------------------------------------------------------------------------------*/
+					SupportObject.generateSupport vert pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
-				support_poiter = (getHandleByAnim SupportObject.support_obj) as string
+					SupportObject.support_obj.parent = obj
 
-				setUserPropVal SupportObject.support_obj "SUPPORT_SYNC"	sync_key
-				setUserPropVal SupportObject.support_obj "THIS"	support_poiter
-				setUserPropVal SupportObject.support_obj "INDEX"	vert
-				setUserPropVal SupportObject.support_obj "RAFT"	is_raft
+					support_poiter = (getHandleByAnim SupportObject.support_obj) as string
 
-				this.Supports[vert] = SupportObject
+					setUserPropVal SupportObject.support_obj "SUPPORT_SYNC"	sync_key
+					setUserPropVal SupportObject.support_obj "THIS"	support_poiter
+					setUserPropVal SupportObject.support_obj "INDEX"	vert
+					setUserPropVal SupportObject.support_obj "RAFT"	is_raft
+
+					this.Supports[vert] = SupportObject
+				)
+
 			)
 		)
 
@@ -101,9 +106,9 @@ struct SourceObject_v
 	function updateSupport support_node =
 	(
 		--format "\n"; print "SourceObject_v.updateSupport()"
-
+		format "support_node.name: %\n" support_node.name
 		--if verts_pos == undefined then
-		verts_pos = this._getVertsPositions()
+			verts_pos = this._getVertsPositions()
 
 		--for support_node in support_nodes do
 		if ( index = getUserPropVal support_node "INDEX") != undefined then

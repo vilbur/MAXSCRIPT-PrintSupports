@@ -48,7 +48,7 @@ struct SupportObject_v
 	function updateSupport vertex_pos: =
 	(
 		--format "\n"; print "SupportObject_v.updateSupport()"
-
+	
 		this._resetThisObject()
 
 		this._setUpdatedKnots(vertex_pos)

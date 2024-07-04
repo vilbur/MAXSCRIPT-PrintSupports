@@ -7,7 +7,7 @@
 macroscript	_print_support_generator
 category:	"_3D-Print"
 buttontext:	"SUPPORTS"
-icon:	"across:2|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT - All supports of object\n\t2) POINTS\n\t3) SUPPORTS - Rebuild selected supports\n\t4) LAST OBJECT IS USED IF NOTHING SELECTED"
+icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT - All supports of object\n\t2) POINTS\n\t3) SUPPORTS - Rebuild selected supports\n\t4) LAST OBJECT IS USED IF NOTHING SELECTED"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-4104-898B-9313D1AAECD4 */
 	on isEnabled return selection.count > 0
@@ -33,7 +33,7 @@ icon:	"across:2|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\
 macroscript	_print_support_generator_rafts
 category:	"_3D-Print"
 buttontext:	"RAFTS"
-icon:	"across:2|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE RAFTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS - Turn support into raft"
+icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE RAFTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS - Turn support into raft"
 (
 	on execute do
 		undo "Generate Rafts" on
@@ -47,5 +47,36 @@ icon:	"across:2|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE RAFTS.\n\nWO
 
 			if _selection.count > 0 then
 				select _selection[1]
+		)
+)
+
+
+/*
+*/
+macroscript	_print_support_generator_live_update
+category:	"_3D-Print"
+buttontext:	"UPDATE"
+tooltip:	"Live update supports on their transfrom"
+icon:	"control:#checkbutton|across:3|offset:[0, 6]|height:32|width:128|tooltip:"
+(
+	on execute do
+		--undo "Generate Rafts" on
+		(
+			SUPPORT_OPTIONS.live_update_supports = EventFired.val
+		)
+)
+/*
+*/
+macroscript	_print_support_generator_update
+category:	"_3D-Print"
+buttontext:	"UPDATE"
+tooltip:	"Update selected supports"
+icon:	"control:#checkbutton"
+(
+	on execute do
+		--undo "Generate Rafts" on
+		(
+			--SUPPORT_OPTIONS.live_update_supports = EventFired.val
+			print "update"
 		)
 )
