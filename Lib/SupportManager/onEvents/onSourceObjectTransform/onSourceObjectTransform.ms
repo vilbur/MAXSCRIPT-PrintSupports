@@ -15,7 +15,7 @@ function onObjectTransformTimeoutCallback sender evt =
 	 */
 	fn removeTimeout sender =
 	(
-		format "\n"; print ".removeTimeout()"
+		--format "\n"; print ".removeTimeout()"
 		SOURCE_OBJECT_POSITION = undefined
 
 		sender.enabled = false
@@ -29,16 +29,19 @@ function onObjectTransformTimeoutCallback sender evt =
 
 	if SOURCE_OBJECT_POSITION[#POS_Z] != SOURCE_OBJECT_POSITION[#OBJECT].position.z then
 	(
-		print "Z POZITION CHANGED"
+		--print "Z POZITION CHANGED"
+		SUPPORT_MANAGER.updateSupports( selection as Array ) only_legs:true
+
 		removeTimeout sender
 	)
 	else if selection.count > 0 and ( roundFloat saved_rotation.x != roundFloat current_rotation.x or roundFloat saved_rotation.y != roundFloat current_rotation.y ) then
 	(
-		print "ROTATION CHANGED"
+		--print "ROTATION CHANGED"
+		SUPPORT_MANAGER.updateSupports( selection as Array )
 
 		removeTimeout sender
 	)
-	else if selection.count == 0
+	else if selection.count == 0 then
 		removeTimeout sender
 
 )
@@ -67,13 +70,15 @@ function startObjectTransformTimeout =
  */
 function bindSourceObjectTransformEvent source_obj =
 (
+	--format "\n"; print ".bindSourceObjectTransformEvent()"
 	SOURCE_OBJECTS_BINDED = for obj in SOURCE_OBJECTS_BINDED where isValidNode obj collect obj
 
-	if classOf supports == Array then
+	if classOf source_obj == Array then
 		join SOURCE_OBJECTS_BINDED source_obj
 
 	else
 		append SOURCE_OBJECTS_BINDED source_obj
+
 
 	deleteAllChangeHandlers id:#onSourceObjectTransform
 
@@ -88,5 +93,5 @@ function bindSourceObjectTransformEvent source_obj =
 	)
 )
 
-clearListener(); print("Cleared in:\n"+getSourceFileName())
-bindSourceObjectTransformEvent ( selection[1] )
+--clearListener(); print("Cleared in:\n"+getSourceFileName())
+--bindSourceObjectTransformEvent ( selection[1] )

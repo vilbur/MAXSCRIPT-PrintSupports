@@ -118,7 +118,7 @@ struct SupportManager_v
 
 		bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
 
-		 bindSourceObjectTransformEvent (source_obj)
+		bindSourceObjectTransformEvent (source_obj)
 		--format "SourceObject.getSupportNodes(): %\n" (SourceObject.getSupportNodes())
 		--format "SourceObject.Supports: %\n" SourceObject.Supports
 
@@ -159,17 +159,20 @@ struct SupportManager_v
 	),
 	/** Update supports
 	 */
-	function updateSupports supports =
+	function updateSupports source_objects only_legs:false =
 	(
-		--format "\n"; print "SupportManager_v.updateSupports()"
-		--format "support_nodes: %\n" support_nodes
+		format "\n"; print "SupportManager_v.updateSupports()"
 
-		sync_key = getUserPropVal support "SUPPORT_SYNC"
+		for obj in source_objects where (sync_key = this._getSyncKey (obj) ) != undefined do
+			SourceObjects[sync_key as string ].updateSupports only_legs:only_legs
 
-		SourceObjects[sync_key].updateSupport (support)
+		--format "source_objects: %\n" source_objects
 
-		for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
-			BeamObject.updateBeam()
+		--for source_obj in source_objects do
+
+
+		--for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
+		--	BeamObject.updateBeam()
 	),
 
 	/** Update supports
@@ -236,7 +239,7 @@ struct SupportManager_v
 		--format "BeamObjects.count: %\n" BeamObjects.count
 
 
-		if ( getUserPropVal obj "SUPPORT_SYNC_SOURCE" ) != undefined then
+		if ( this._getSyncKey (obj) ) != undefined then
 		(
 				delete ( obj.children as Array )
 
@@ -306,7 +309,7 @@ struct SupportManager_v
 	function _getSourceObjects _objects =
 	(
 		--format "\n"; print "SupportManager_v._getSourceObject()"
-		sync_keys = for obj in _objects where (sync_key = getUserPropVal obj "SUPPORT_SYNC_SOURCE") != undefined collect sync_key
+		sync_keys = for obj in _objects where (sync_key = this._getSyncKey (obj)) != undefined collect sync_key
 
 		for sync_key in sync_keys collect SourceObjects[sync_key]
 	),
@@ -364,20 +367,26 @@ struct SupportManager_v
 
 		--unindSupportToTransformEvent()
 
-		for obj_in_scene in objects where (sync_key = getUserPropVal obj_in_scene "SUPPORT_SYNC_SOURCE") != undefined do
+		for obj_in_scene in objects where (sync_key = this._getSyncKey (obj_in_scene) ) != undefined do
 		(
+
 			SourceObject = SourceObject_v(obj_in_scene) (sync_key)
 
 			SourceObject.loadSupportsAndRaftsFromScene()
 
 			supports = SourceObject.getSupportNodes()
 
+			/* BIND TO EVENTS */
+
 			bindSupportToTransformEvent( supports )
 
 			bindBeamOnDeleteCallback( supports )
 
 			SourceObjects[sync_key] = SourceObject
+
 		)
+
+		bindSourceObjectTransformEvent ( for sync_key in SourceObjects.keys collect SourceObjects[sync_key].obj )
 
 	),
 
@@ -404,6 +413,14 @@ struct SupportManager_v
 		)
 
 		--bindBeamOnDeleteCallback( for BeamObject in BeamObjects collect BeamObject.beam  )
+	),
+
+	/** Get sync key
+	 */
+	function _getSyncKey obj =
+	(
+		--format "\n"; print "SupportManager_v.getSyncKey()"
+		getUserPropVal obj "SUPPORT_SYNC_SOURCE"
 	),
 
 	/**

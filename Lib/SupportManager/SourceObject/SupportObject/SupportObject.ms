@@ -45,15 +45,15 @@ struct SupportObject_v
 
 	/** Update support
 	 */
-	function updateSupport vertex_pos: =
+	function updateSupport vertex_pos: only_leg:false =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
-	
+		format "\n"; print "SupportObject_v.updateSupport()"
+
 		this._resetThisObject()
 
-		this._setUpdatedKnots(vertex_pos)
+		--this._setUpdatedKnots(vertex_pos)
 
-		this._createSupportObject update:true
+		--this._createSupportObject update:true
 	),
 
 

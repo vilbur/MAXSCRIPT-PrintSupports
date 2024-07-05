@@ -91,6 +91,7 @@ struct SourceObject_v
 
 		bindSupportToTransformEvent( this.getSupportNodes() )
 
+		bindSourceObjectTransformEvent ( obj )
 
 		--for support in (this.getSupportNodes()) do
 		--	support.parent = obj
@@ -102,12 +103,26 @@ struct SourceObject_v
 		--Supports + Rafts --return
 	),
 
+	/** Update supports
+	 */
+	function updateSupports only_legs:false =
+	(
+		format "\n"; print "SourceObject_v.updateSupports()"
+		--format "support_nodes: %\n" support_nodes
+
+		for SupportData in Supports where not SupportData.value.is_raft do
+			SupportData.value.updateSupport only_leg:only_legs
+
+		--for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
+		--	BeamObject.updateBeam()
+	),
+
 	/** Update support
 	 */
 	function updateSupport support_node =
 	(
-		--format "\n"; print "SourceObject_v.updateSupport()"
-		format "support_node.name: %\n" support_node.name
+		format "\n"; print "SourceObject_v.updateSupport()"
+		--format "support_node.name: %\n" support_node.name
 		--if verts_pos == undefined then
 			verts_pos = this._getVertsPositions()
 
