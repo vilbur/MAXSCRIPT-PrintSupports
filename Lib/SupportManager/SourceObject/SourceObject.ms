@@ -91,6 +91,7 @@ struct SourceObject_v
 
 		bindSupportToTransformEvent( this.getSupportNodes() )
 
+
 		--for support in (this.getSupportNodes()) do
 		--	support.parent = obj
 

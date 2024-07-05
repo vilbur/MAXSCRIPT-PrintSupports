@@ -1,0 +1,92 @@
+
+global SOURCE_OBJECTS_BINDED = #()
+global SOURCE_OBJECT_POSITION
+
+
+/** On timeout callback
+ */
+function onObjectTransformTimeoutCallback sender evt =
+(
+	--format "\n"; print ".onObjectTransformTimeoutCallback()"
+
+	fn roundFloat val = ( local mult = 10.0 ^ 3; (floor ((val * mult) + 0.5)) / mult )
+
+	/** Remove timeout
+	 */
+	fn removeTimeout sender =
+	(
+		format "\n"; print ".removeTimeout()"
+		SOURCE_OBJECT_POSITION = undefined
+
+		sender.enabled = false
+		-- for sanity and cleanup
+		dotNet.removeEventHandler sender "Elapsed" onObjectTransformTimeoutCallback
+	)
+
+	saved_rotation = SOURCE_OBJECT_POSITION[#ROTATION]
+
+	current_rotation = quatToEuler2 SOURCE_OBJECT_POSITION[#OBJECT].rotation.controller.value
+
+	if SOURCE_OBJECT_POSITION[#POS_Z] != SOURCE_OBJECT_POSITION[#OBJECT].position.z then
+	(
+		print "Z POZITION CHANGED"
+		removeTimeout sender
+	)
+	else if selection.count > 0 and ( roundFloat saved_rotation.x != roundFloat current_rotation.x or roundFloat saved_rotation.y != roundFloat current_rotation.y ) then
+	(
+		print "ROTATION CHANGED"
+
+		removeTimeout sender
+	)
+	else if selection.count == 0
+		removeTimeout sender
+
+)
+
+/** Start timeout
+ */
+function startObjectTransformTimeout =
+(
+	--format "\n"; print ".startObjectTransformTimeout()"
+	--delay_ms = 3000
+	delay_ms = 1000
+	--delay_ms = 100
+
+	delay_timer = dotNetObject "Windows.Forms.Timer"
+
+	delay_timer.Interval = delay_ms
+
+	dotNet.addEventHandler delay_timer "Tick" onObjectTransformTimeoutCallback
+
+	delay_timer.enabled = true
+
+)
+
+
+/** Bind source object transform event
+ */
+function bindSourceObjectTransformEvent source_obj =
+(
+	SOURCE_OBJECTS_BINDED = for obj in SOURCE_OBJECTS_BINDED where isValidNode obj collect obj
+
+	if classOf supports == Array then
+		join SOURCE_OBJECTS_BINDED source_obj
+
+	else
+		append SOURCE_OBJECTS_BINDED source_obj
+
+	deleteAllChangeHandlers id:#onSourceObjectTransform
+
+	when transform SOURCE_OBJECTS_BINDED changes id:#onSourceObjectTransform handleAt:#redrawViews obj do
+	(
+		if SOURCE_OBJECT_POSITION == undefined then
+		(
+			SOURCE_OBJECT_POSITION = Dictionary #( #OBJECT, obj ) #( #POS_Z, obj.position.z ) #( #ROTATION, quatToEuler2 obj.rotation.controller.value )
+
+			startObjectTransformTimeout()
+		)
+	)
+)
+
+clearListener(); print("Cleared in:\n"+getSourceFileName())
+bindSourceObjectTransformEvent ( selection[1] )

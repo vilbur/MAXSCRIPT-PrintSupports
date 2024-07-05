@@ -4,6 +4,7 @@ filein( getFilenamePath(getSourceFileName()) + "/../VertexColors/VertexColors.ms
 
 filein( getFilenamePath(getSourceFileName()) + "/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onSupportTransformCallback/onSupportTransformCallback.ms" -- MUST BE BEFORE SourceObject.ms
 filein( getFilenamePath(getSourceFileName()) + "/onBeamDeletedCallback/onBeamDeletedCallback.ms" )	--"./onBeamDeletedCallback/onBeamDeletedCallback.ms" -- MUST BE BEFORE SourceObject.ms
+filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSourceObjectTransform/onSourceObjectTransform.ms" )	--"./onEvents/onSourceObjectTransform/onSourceObjectTransform.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/../SupportOptions/SupportOptions.ms" )	--"./../SupportOptions/SupportOptions.ms"
 
@@ -117,6 +118,7 @@ struct SupportManager_v
 
 		bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
 
+		 bindSourceObjectTransformEvent (source_obj)
 		--format "SourceObject.getSupportNodes(): %\n" (SourceObject.getSupportNodes())
 		--format "SourceObject.Supports: %\n" SourceObject.Supports
 
@@ -154,6 +156,20 @@ struct SupportManager_v
 				append BeamObjects BeamObject
 			)
 		)
+	),
+	/** Update supports
+	 */
+	function updateSupports supports =
+	(
+		--format "\n"; print "SupportManager_v.updateSupports()"
+		--format "support_nodes: %\n" support_nodes
+
+		sync_key = getUserPropVal support "SUPPORT_SYNC"
+
+		SourceObjects[sync_key].updateSupport (support)
+
+		for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
+			BeamObject.updateBeam()
 	),
 
 	/** Update supports
