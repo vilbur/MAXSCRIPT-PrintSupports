@@ -9,6 +9,10 @@ function onObjectTransformTimeoutCallback sender evt =
 (
 	--format "\n"; print ".onObjectTransformTimeoutCallback()"
 
+	/* Round position or rotation of object to 3 deciamls
+	 *
+	 * Coordinates are changing little bit on unchaged axises beacause of "high precision" of Max values
+	*/
 	fn roundFloat val = ( local mult = 10.0 ^ 3; (floor ((val * mult) + 0.5)) / mult )
 
 	/** Remove timeout
@@ -27,7 +31,7 @@ function onObjectTransformTimeoutCallback sender evt =
 
 	current_rotation = quatToEuler2 SOURCE_OBJECT_POSITION[#OBJECT].rotation.controller.value
 
-	if SOURCE_OBJECT_POSITION[#POS_Z] != SOURCE_OBJECT_POSITION[#OBJECT].position.z then
+	if roundFloat SOURCE_OBJECT_POSITION[#POS_Z] != roundFloat SOURCE_OBJECT_POSITION[#OBJECT].position.z then
 	(
 		--print "Z POZITION CHANGED"
 		SUPPORT_MANAGER.updateSupports( selection as Array ) only_legs:true

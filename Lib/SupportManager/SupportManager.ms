@@ -85,26 +85,26 @@ struct SupportManager_v
 
 	/** Generate points
 	 */
-	function generateSupports source_object is_raft:false =
+	function generateSupports source_obj is_raft:false =
 	(
 		format "\n"; print "SupportManager_v.generateSupports()"
-		--format "source_object: %\n" source_object
+		--format "source_obj: %\n" source_obj
 		--SUPPORT_OPTIONS.getValuesFroUi()
 
-		pointer = (getHandleByAnim source_object) as string
+		pointer = (getHandleByAnim source_obj) as string
 
-		sync_key = getUserPropVal source_object "SUPPORT_SYNC_SOURCE" asString:true
+		sync_key = getUserPropVal source_obj "SUPPORT_SYNC_SOURCE" asString:true
 
 		if sync_key == undefined then
 		(
 			sync_key = pointer
 
-			setUserPropVal source_object "SUPPORT_SYNC_SOURCE" sync_key
+			setUserPropVal source_obj "SUPPORT_SYNC_SOURCE" sync_key
 		)
 
 
 		if SourceObjects[sync_key] == undefined then
-			SourceObjects[sync_key] = SourceObject_v(source_object) (sync_key)
+			SourceObjects[sync_key] = SourceObject_v(source_obj) (sync_key)
 
 		SourceObject = SourceObjects[sync_key]
 

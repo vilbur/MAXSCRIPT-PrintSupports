@@ -31,12 +31,12 @@ struct SupportObject_v
 
 	/** Generate support
 	 */
-	function generateSupport vertex_index pos: clr: direction: =
+	function generateSupport vertex_index vertex_pos: clr: direction: =
 	(
 		--format "\n"; print "SupportObject_v.generateSupport()"
-		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr pos:pos
+		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr vertex_pos:vertex_pos
 
-		this._setNewKnots(pos)(direction)
+		this._setNewKnots(vertex_pos)(direction)
 
 		this._createSupportObject()
 
@@ -51,9 +51,9 @@ struct SupportObject_v
 
 		this._resetThisObject()
 
-		--this._setUpdatedKnots(vertex_pos)
+		this._setUpdatedKnots(vertex_pos)
 
-		--this._createSupportObject update:true
+		this._createSupportObject update:true
 	),
 
 

@@ -69,7 +69,7 @@ struct SourceObject_v
 					/*------------------------------------------------------------------------------
 						GENERATE SUPPORT OR RAFT
 					--------------------------------------------------------------------------------*/
-					SupportObject.generateSupport vert pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
+					SupportObject.generateSupport vert vertex_pos:(verts_pos[vert] * obj.transform) clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
 					SupportObject.support_obj.parent = obj
 
@@ -110,8 +110,13 @@ struct SourceObject_v
 		format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 
+		--if verts_pos == undefined then
+			verts_pos = this._getVertsPositions()
+
 		for SupportData in Supports where not SupportData.value.is_raft do
-			SupportData.value.updateSupport only_leg:only_legs
+			--format "INDEX: %\n" (getUserPropVal SupportData.value.support_obj "INDEX")
+
+			SupportData.value.updateSupport only_leg:only_legs vertex_pos:(verts_pos[getUserPropVal SupportData.value.support_obj "INDEX" ] * obj.transform )
 
 		--for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
 		--	BeamObject.updateBeam()
@@ -128,7 +133,7 @@ struct SourceObject_v
 
 		--for support_node in support_nodes do
 		if ( index = getUserPropVal support_node "INDEX") != undefined then
-			Supports[index].updateSupport vertex_pos:verts_pos[index]
+			Supports[index].updateSupport vertex_pos:(verts_pos[index] * obj.transform )
 
 	),
 
@@ -208,7 +213,9 @@ struct SourceObject_v
 	function _getVertsPositions =
 	(
 		--format "\n"; print "SourceObject_v._getVertsPositions()"
-		in coordsys world  meshop.getVerts obj.mesh all_verts node:obj
+		--in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+		in coordsys local meshop.getVerts obj.mesh all_verts node:obj
+		--meshop.getVerts obj.mesh all_verts node:obj
 	),
 
 
