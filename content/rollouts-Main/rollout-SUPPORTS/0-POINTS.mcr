@@ -18,7 +18,7 @@ icon:	"across:2|align:#LEFT|control:radiobuttons|items:#( 'NORMAL', 'DOWN' )|col
 	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
 
 	--DosCommand ("explorer \""+export_dir+"\"")
-	format "EventFired	= % \n" EventFired
+	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )
 
 
@@ -43,7 +43,7 @@ buttontext:	"Normal Length"
 tooltip:	"Length of first segment of platform facing to vertex normal"
 icon:	"across:2|control:spinner|offset:[ 0, 14]|fieldwidth:24|range:[ 1, 999, 3 ]"
 (
-	format "EventFired:	% \n" EventFired
+	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )
 
 --/** CHECKBOX

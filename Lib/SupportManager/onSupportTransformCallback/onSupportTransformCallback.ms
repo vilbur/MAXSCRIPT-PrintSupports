@@ -84,7 +84,7 @@ function bindSupportToTransformEvent supports =
 
 			--if support.isSelected and SUPPORT_OPTIONS.live_update_supports then
 			if support.isSelected then
-				SUPPORT_MANAGER.updateSupportPosition( support )
+				SUPPORT_MANAGER.updateSupport( support )
 	)
 )
 

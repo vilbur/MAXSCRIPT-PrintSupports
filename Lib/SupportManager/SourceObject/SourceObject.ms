@@ -17,6 +17,8 @@ struct SourceObject_v
 	Supports = Dictionary #INTEGER, -- KEY: vertex_index VALUE: SupportObject|RaftObject
 
 	/* private */
+	normals_local, -- store vertex normals in object space
+
 	/* dependency */
 
 	--SupportObject, --"./SupportObject/SupportObject.ms"
@@ -36,41 +38,39 @@ struct SourceObject_v
 		this._removeDeletedNodes()
 
 		--this._setVertsToProcess()
-		verts_sel	= getVertSelection obj.mesh
-
-		verts_by_colors = VertexColors.getVertsAndColors exclude:#( white as string )
-
-		colored_verts = this._flatternDictionary(verts_by_colors)
-
-		verts_by_colors[ (obj.wirecolor) as string ] = all_verts - colored_verts
-
-		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
-
 		verts_pos = this._getVertsPositions()
 
-		verts_normals = this._getVertsNormals(verts_process)
-
-		use_normals = SUPPORT_OPTIONS.second_point_direction == 1
+		verts_sel	= getVertSelection obj.mesh
 
 		supports_exists = Supports.keys as BitArray
 
-		/* FILTER ONLY VERTS WHICH SUPPORT NOT EXISTS AND NORMAL IS POINTING DOWN OR TO SIDE */
-		verts_process = ( for vert in verts_process where not supports_exists[vert] and verts_normals[vert].z < 0 collect vert ) as BitArray
+		verts_by_colors = this._getVertsByColors()
 
-		/* FILTER ONLY VERTS TO PROCESS */
+		colored_verts = this._getColoredVerts(verts_by_colors)
+
+		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
+
+		verts_process -= supports_exists -- remove verts which supports exists aleready
+
+		verts_normals = this._getWorldSpaceVertexNormals()
+
+		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE */
+		verts_process = ( for vert in verts_process where verts_normals[vert].z < 0 collect vert ) as BitArray
+
+		/* FILTER ONLY VERTS TO PROCESS FROM COLORED ARRAYS */
 		for vertex_color in verts_by_colors.keys do verts_by_colors[vertex_color] *= verts_process
 
 		/* CREATE SUPPORTS FOR EACH COLOR */
 		for vertex_color in verts_by_colors.keys do
 			for vert in verts_by_colors[vertex_color] do
 			(
-				--format "vert: %\n" vert
+				format "create support for vert: %\n" vert
 				SupportObject = SupportObject_v(obj)(is_raft)
 
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				second_point_direction = if use_normals then verts_normals[vert] else [0,0,-1] -- direction down
+				second_point_direction = if SUPPORT_OPTIONS.second_point_direction == 1 then verts_normals[vert] else [0,0,-1] -- direction down
 
 				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
@@ -105,7 +105,7 @@ struct SourceObject_v
 
 	/** Update whole supports objects
 	 */
-	function updateSupportsRotation =
+	function updateSupports =
 	(
 		format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
@@ -113,7 +113,7 @@ struct SourceObject_v
 		verts_pos = this._getVertsPositions()
 
 		for SupportObjectData in Supports where not SupportObjectData.value.is_raft  do
-			SupportObjectData.value.updateRotation first_knot_pos:( this._getVertexPosBySupport(SupportObjectData.value.support_obj) )
+			SupportObjectData.value.updateSupport first_knot_pos:( this._getVertexPosBySupport(SupportObjectData.value.support_obj) )
 
 
 		--for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
@@ -132,7 +132,7 @@ struct SourceObject_v
 
 	/** Update support
 	 */
-	function updateSupportPosition support_node =
+	function updateSupport support_node =
 	(
 		--format "\n"; print "SourceObject_v.updateSupport()"
 		--format "support_node.name: %\n" support_node.name
@@ -141,7 +141,7 @@ struct SourceObject_v
 
 		index = getUserPropVal support_node "INDEX"
 
-		Supports[index].updatePosition first_knot_pos:verts_pos[index]
+		Supports[index].updateSupport first_knot_pos:verts_pos[index]
 	),
 
 	/** Get support nodes of given type
@@ -177,39 +177,47 @@ struct SourceObject_v
 
 	private
 
+
 	/** Get verts normals
 	 */
-	function _getVertsNormals verts =
+	function _setLocalVertexNormals =
 	(
-		--format "\n"; print "SourceObject_v._getVertsNormals()"
+		--format "\n"; print "SourceObject_v._setLocalVertexNormals()"
 		--format "verts.numberSet: %\n" verts.numberSet
 		obj_mesh = obj.mesh
 
-		obj_pos	= obj.pos
-		obj_transform	= obj.transform
-
-		vertex_normals = this.all_verts as Array
-
-		for i = 1 to vertex_normals.count do
-			vertex_normals[i] = point3 0 0 0
-
-		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts
+		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts_process
 
 		for face_of_vert in faces_of_verts do
 		(
 			face_verts = getFace	obj_mesh face_of_vert
 			face_normal = getFaceNormal	obj_mesh face_of_vert
 
-
-			vertex_normals[face_verts.x] += face_normal
-			vertex_normals[face_verts.y] += face_normal
-			vertex_normals[face_verts.z] += face_normal
+			normals_local[face_verts.x] += face_normal
+			normals_local[face_verts.y] += face_normal
+			normals_local[face_verts.z] += face_normal
 		)
 
-		--for vert in verts collect normalize vertex_normals[vert]
-		for vert in verts do vertex_normals[vert] = normalize (vertex_normals[vert] * obj_transform - obj_pos)
+		for vert in verts_process do normals_local[vert] = normalize normals_local[vert]
 
-		vertex_normals --return
+		normals_local --return
+	),
+
+	/** Get world space vertex normals
+	 */
+	function _getWorldSpaceVertexNormals =
+	(
+		--format "\n"; print "SourceObject_v._getWorldSpaceVertexNormals()"
+		obj_pos	= obj.pos
+		obj_transform	= obj.transform
+
+		this._setLocalVertexNormals()
+
+		world_space_normals = deepCopy normals_local
+
+		for vert in verts_process do world_space_normals[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
+
+		world_space_normals -- return
 	),
 
 	/** Set verts positions
@@ -230,18 +238,32 @@ struct SourceObject_v
 		verts_pos[index] --return
 	),
 
+	/** Get verts by colors
+	 */
+	function _getVertsByColors =
+	(
+		--format "\n"; print "SourceObject_v._getVertsByColors()"
+		verts_by_colors = VertexColors.getVertsAndColors()
+
+		/* REPLACE WHITE WITH OBJECT WIRECOLOR */
+		verts_by_colors[ obj.wirecolor as string ] = verts_by_colors[ white as string ]
+
+		RemoveDictValue verts_by_colors ( white as string )
+
+		verts_by_colors --return
+	),
+
 	/** Flattern dictionary
 	 */
-	function _flatternDictionary dict =
+	function _getColoredVerts verts_by_colors =
 	(
-		--format "\n"; print "SourceObject_v._flatternDictionary()"
+		--format "\n"; print "SourceObject_v._getColoredVerts()"
 		flattern_dict = #{}
 
-		for key in dict.keys do flattern_dict += dict[key]
+		for key in verts_by_colors.keys where key != obj.wirecolor as string do flattern_dict += verts_by_colors[key]
 
 		flattern_dict --return
 	),
-
 
 	/** Remove deleted nodes
 	 */
@@ -249,6 +271,21 @@ struct SourceObject_v
 	(
 		--format "\n"; print "SourceObject_v._removeDeletedNodes()"
 		for key in Supports.keys where not isValidNode Supports[key].support_obj do removeDictValue Supports key
+	),
+
+
+	/** Set vertex normals empty array
+	 */
+	function _initNormalsLocalArray =
+	(
+		--format "\n"; print "SourceObject_v._initNormalsLocalArray()"
+		--if normals_local == undefined or normals_local.count != all_verts.numberSet then
+		--(
+		--)
+		normals_local = this.all_verts as Array
+
+		for i = 1 to normals_local.count do
+			normals_local[i] = point3 0 0 0
 	),
 
 	/**
@@ -259,5 +296,7 @@ struct SourceObject_v
 		VertexColors = VertexColors_v(obj)
 
 		all_verts = #{1..(getNumVerts obj.mesh)}
+
+		this._initNormalsLocalArray()
 	)
 )

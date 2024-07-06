@@ -159,12 +159,12 @@ struct SupportManager_v
 	),
 	/** Update supports
 	 */
-	function updateSupportsRotation source_objects reset_verts_positions:false =
+	function updateSupports source_objects reset_verts_positions:false =
 	(
 		--format "\n"; print "SupportManager_v.updateSupports()"
 
 		for obj in source_objects where (sync_key = this._getSyncKey (obj) ) != undefined do
-			SourceObjects[sync_key as string ].updateSupportsRotation reset_verts_positions:reset_verts_positions
+			SourceObjects[sync_key as string ].updateSupports reset_verts_positions:reset_verts_positions
 
 		--format "source_objects: %\n" source_objects
 
@@ -186,14 +186,14 @@ struct SupportManager_v
 
 	/** Update supports
 	 */
-	function updateSupportPosition support_node =
+	function updateSupport support_node =
 	(
 		--format "\n"; print "SupportManager_v.updateSupportPosition()"
 		--format "support_nodes: %\n" support_nodes
 
 		sync_key = getUserPropVal support_node "SUPPORT_SYNC"
 
-		SourceObjects[sync_key].updateSupportPosition (support_node)
+		SourceObjects[sync_key].updateSupport(support_node)
 
 		--for BeamObject in BeamObjects where BeamObject.support_A == support_node or BeamObject.support_B == support_node do
 		--	BeamObject.updateBeam()
@@ -375,7 +375,6 @@ struct SupportManager_v
 
 		for obj_in_scene in objects where (sync_key = this._getSyncKey (obj_in_scene) ) != undefined do
 		(
-
 			SourceObject = SourceObject_v(obj_in_scene) (sync_key)
 
 			SourceObject.loadSupportsAndRaftsFromScene()
