@@ -82,8 +82,9 @@ function bindSupportToTransformEvent supports =
 		--for support in SUPPORTS_TRANSFORM_CHANGED do
 			--support.wirecolor = ( color ( random 1 255) ( random 1 255) ( random 1 255) )
 
-			if support.isSelected and SUPPORT_OPTIONS.live_update_supports then
-				SUPPORT_MANAGER.updateSupport( support )
+			--if support.isSelected and SUPPORT_OPTIONS.live_update_supports then
+			if support.isSelected then
+				SUPPORT_MANAGER.updateSupportPosition( support )
 	)
 )
 

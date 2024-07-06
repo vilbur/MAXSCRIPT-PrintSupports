@@ -45,9 +45,9 @@ struct SupportObject_v
 
 	/** Update support
 	 */
-	function updateSupport first_knot_pos: =
+	function updateRotation first_knot_pos: =
 	(
-		--format "\n"; print "SupportObject_v.updateSupport()"
+		format "\n"; print "SupportObject_v.updateRotation()"
 
 		this._resetThisObject()
 
@@ -56,11 +56,24 @@ struct SupportObject_v
 		this._createSupportObject update:true
 	),
 
+	/** Update supports position
+	 */
+	function updatePosition first_knot_pos: =
+	(
+		--format "\n"; print "SupportObject_v.updatePosition()"
+		this._resetThisObject()
+
+		this._setUpdatedKnots(first_knot_pos)
+
+		this._createSupportObject update:true
+
+	),
+
 	/** Update support height
 	 */
-	function updateSupportHeight =
+	function updateHeight =
 	(
-		format "\n"; print "SupportObject_v.updateSupportHeight()"
+		format "\n"; print "SupportObject_v.updateHeight()"
 		ground_knot	= numKnots support_obj _spline_index
 		base_knot	= ground_knot - 1
 

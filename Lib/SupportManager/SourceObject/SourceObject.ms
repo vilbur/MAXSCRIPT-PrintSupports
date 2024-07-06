@@ -69,7 +69,9 @@ struct SourceObject_v
 					/*------------------------------------------------------------------------------
 						GENERATE SUPPORT OR RAFT
 					--------------------------------------------------------------------------------*/
-					SupportObject.generateSupport vert first_knot_pos:(verts_pos[vert] * obj.transform) clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
+					--SupportObject.generateSupport vert first_knot_pos:(verts_pos[vert] * obj.transform) clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
+					SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
+					--SupportObject.generateSupport vert first_knot_pos:(verts_pos[vert]) clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
 					SupportObject.support_obj.parent = obj
 
@@ -79,6 +81,7 @@ struct SourceObject_v
 					setUserPropVal SupportObject.support_obj "THIS"	support_poiter
 					setUserPropVal SupportObject.support_obj "INDEX"	vert
 					setUserPropVal SupportObject.support_obj "RAFT"	is_raft
+					setUserPropVal SupportObject.support_obj "USE_NORMAL"	use_normals
 
 					this.Supports[vert] = SupportObject
 				)
@@ -103,18 +106,17 @@ struct SourceObject_v
 		--Supports + Rafts --return
 	),
 
-	/** Update supports
+	/** Update whole supports objects
 	 */
-	function updateSupports =
+	function updateSupportsRotation =
 	(
-		--format "\n"; print "SourceObject_v.updateSupports()"
+		format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 
-		--if verts_pos == undefined then
-			verts_pos = this._getVertsPositions()
+		verts_pos = this._getVertsPositions()
 
-		for SupportObjectData in Supports where SupportObjectData.value.is_raft  do
-			SupportObjectData.value.updateSupport first_knot_pos:( this._getVertexPosBySupport(SupportObjectData.value.support_obj) )
+		for SupportObjectData in Supports where not SupportObjectData.value.is_raft  do
+			SupportObjectData.value.updateRotation first_knot_pos:( this._getVertexPosBySupport(SupportObjectData.value.support_obj) )
 
 
 		--for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
@@ -128,19 +130,21 @@ struct SourceObject_v
 		format "\n"; print "SourceObject_v.updateSupportsHeight()"
 		--for SupportObjectData in Supports where SupportObjectData.value.is_on_ground do
 		for SupportObjectData in Supports do
-			SupportObjectData.value.updateSupportHeight()
+			SupportObjectData.value.updateHeight()
 	),
 
 	/** Update support
 	 */
-	function updateSupport support_node =
+	function updateSupportPosition support_node =
 	(
 		--format "\n"; print "SourceObject_v.updateSupport()"
 		--format "support_node.name: %\n" support_node.name
-		--if verts_pos == undefined then
+		if verts_pos == undefined then
 			verts_pos = this._getVertsPositions()
 
-		Supports[index].updateSupport first_knot_pos:( this._getVertexPosBySupport(support_node) )
+		index = getUserPropVal support_node "INDEX"
+
+		Supports[index].updatePosition first_knot_pos:verts_pos[index]
 	),
 
 	/** Get support nodes of given type
@@ -218,9 +222,13 @@ struct SourceObject_v
 	 */
 	function _getVertsPositions =
 	(
-		--format "\n"; print "SourceObject_v._getVertsPositions()"
-		--in coordsys world meshop.getVerts obj.mesh all_verts node:obj
-		in coordsys local meshop.getVerts obj.mesh all_verts node:obj
+		format "\n"; print "SourceObject_v._getVertsPositions()"
+		in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+
+		--in coordsys obj meshop.getVerts obj.mesh all_verts --node:obj
+
+		--in coordsys local meshop.getVerts obj.mesh all_verts node:obj
+
 		--meshop.getVerts obj.mesh all_verts node:obj
 	),
 
@@ -231,7 +239,7 @@ struct SourceObject_v
 		--format "\n"; print "SourceObject_v._getVertexPosBySupport()"
 		index = getUserPropVal support_obj "INDEX"
 
-		verts_pos[index] * obj.transform --return
+		verts_pos[index] --return
 	),
 
 	/** Flattern dictionary

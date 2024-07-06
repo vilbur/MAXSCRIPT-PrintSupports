@@ -159,12 +159,12 @@ struct SupportManager_v
 	),
 	/** Update supports
 	 */
-	function updateSupports source_objects =
+	function updateSupportsRotation source_objects reset_verts_positions:false =
 	(
 		--format "\n"; print "SupportManager_v.updateSupports()"
 
 		for obj in source_objects where (sync_key = this._getSyncKey (obj) ) != undefined do
-			SourceObjects[sync_key as string ].updateSupports()
+			SourceObjects[sync_key as string ].updateSupportsRotation reset_verts_positions:reset_verts_positions
 
 		--format "source_objects: %\n" source_objects
 
@@ -186,17 +186,17 @@ struct SupportManager_v
 
 	/** Update supports
 	 */
-	function updateSupport support =
+	function updateSupportPosition support_node =
 	(
-		--format "\n"; print "SupportManager_v.updateSupports()"
+		--format "\n"; print "SupportManager_v.updateSupportPosition()"
 		--format "support_nodes: %\n" support_nodes
 
-		sync_key = getUserPropVal support "SUPPORT_SYNC"
+		sync_key = getUserPropVal support_node "SUPPORT_SYNC"
 
-		SourceObjects[sync_key].updateSupport (support)
+		SourceObjects[sync_key].updateSupportPosition (support_node)
 
-		for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
-			BeamObject.updateBeam()
+		--for BeamObject in BeamObjects where BeamObject.support_A == support_node or BeamObject.support_B == support_node do
+		--	BeamObject.updateBeam()
 	),
 
 	/** Update modifiers by control value
@@ -249,10 +249,7 @@ struct SupportManager_v
 
 
 		if ( this._getSyncKey (obj) ) != undefined then
-		(
-				delete ( obj.children as Array )
-
-		)
+			delete ( obj.children as Array )
 
 		else if ( getUserPropVal obj "RAFT" ) != undefined then
 			for i = BeamObjects.count to 1 by -1 where BeamObjects[i].support_A == obj or BeamObjects[i].support_B == obj do

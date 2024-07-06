@@ -31,19 +31,27 @@ function onObjectTransformTimeoutCallback sender evt =
 
 	current_rotation = quatToEuler2 SOURCE_OBJECT_POSITION[#OBJECT].rotation.controller.value
 
-	if roundFloat SOURCE_OBJECT_POSITION[#POS_Z] != roundFloat SOURCE_OBJECT_POSITION[#OBJECT].position.z then
+	if selection.count > 0 then
 	(
-		--print "Z POZITION CHANGED"
-		SUPPORT_MANAGER.updateSupportsHeight( selection as Array )
+		--format "saved_rotation.x:   %\n" (roundFloat saved_rotation.x)
+		--format "current_rotation.x: %\n" (roundFloat current_rotation.x)
+		--format "saved_rotation.y:   %\n" (roundFloat saved_rotation.y)
+		--format "current_rotation.y: %\n" (roundFloat current_rotation.y)
 
-		removeTimeout sender
-	)
-	else if selection.count > 0 and ( roundFloat saved_rotation.x != roundFloat current_rotation.x or roundFloat saved_rotation.y != roundFloat current_rotation.y ) then
-	(
-		--print "ROTATION CHANGED"
-		SUPPORT_MANAGER.updateSupports( selection as Array )
+		if roundFloat saved_rotation.x != roundFloat current_rotation.x or roundFloat saved_rotation.y != roundFloat current_rotation.y then
+		(
+			print "ROTATION CHANGED"
+			SUPPORT_MANAGER.updateSupportsRotation( selection as Array )
 
-		removeTimeout sender
+			removeTimeout sender
+		)
+		else if roundFloat SOURCE_OBJECT_POSITION[#POS_Z] != roundFloat SOURCE_OBJECT_POSITION[#OBJECT].position.z then
+		(
+			print "Z POZITION CHANGED"
+			SUPPORT_MANAGER.updateSupportsHeight( selection as Array )
+
+			removeTimeout sender
+		)
 	)
 	else if selection.count == 0 then
 		removeTimeout sender
