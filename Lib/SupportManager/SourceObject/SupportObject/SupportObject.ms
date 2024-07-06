@@ -38,7 +38,7 @@ struct SupportObject_v
 
 		this._setNewKnots(first_knot_pos)(direction)
 
-		this._createSupportObject()
+		this._createSupportLeg()
 
 		this --return
 	),
@@ -53,7 +53,7 @@ struct SupportObject_v
 
 		this._setUpdatedKnots(first_knot_pos)
 
-		this._createSupportObject update:true
+		this._createSupportLeg update:true
 	),
 
 	/** Update supports position
@@ -65,7 +65,7 @@ struct SupportObject_v
 
 		this._setUpdatedKnots(first_knot_pos)
 
-		this._createSupportObject update:true
+		this._createSupportLeg update:true
 
 	),
 
@@ -162,9 +162,9 @@ struct SupportObject_v
 
 	/** Draw segments support
 	 */
-	function _createSupportObject update:false =
+	function _createSupportLeg update:false =
 	(
-		--format "\n"; print "SupportObject_v._createSupportObject()"
+		--format "\n"; print "SupportObject_v._createSupportLeg()"
 		if knots_positions.count > 1 then
 		(
 			this._setPivotToSecondPoint()

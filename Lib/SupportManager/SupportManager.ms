@@ -112,7 +112,7 @@ struct SupportManager_v
 		/*------------------------------------------------------------------------------
 			DEV
 		------------------------------------------------------------------------------*/
-		delete (SourceObject.getSupportNodes())
+		--delete (SourceObject.getSupportNodes())
 
 		SourceObject.generateSupports is_raft:is_raft
 
@@ -442,5 +442,3 @@ struct SupportManager_v
 
 	)
 )
-
-

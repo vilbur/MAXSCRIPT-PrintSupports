@@ -32,6 +32,7 @@ struct SourceObject_v
 	(
 		format "\n"; print "SourceObject_v.generateSupports()"
 		--format "Supports.keys: %\n" Supports.keys
+		--format "Supports.keys: %\n" Supports.keys
 		this._removeDeletedNodes()
 
 		--this._setVertsToProcess()
@@ -51,43 +52,39 @@ struct SourceObject_v
 
 		use_normals = SUPPORT_OPTIONS.second_point_direction == 1
 
+		supports_exists = Supports.keys as BitArray
+
+		/* FILTER ONLY VERTS WHICH SUPPORT NOT EXISTS AND NORMAL IS POINTING DOWN OR TO SIDE */
+		verts_process = ( for vert in verts_process where not supports_exists[vert] and verts_normals[vert].z < 0 collect vert ) as BitArray
+
+		/* FILTER ONLY VERTS TO PROCESS */
+		for vertex_color in verts_by_colors.keys do verts_by_colors[vertex_color] *= verts_process
+
+		/* CREATE SUPPORTS FOR EACH COLOR */
 		for vertex_color in verts_by_colors.keys do
-		(
-			format "\n\n----------------- generateSupports by VERTEX_COLOR: % -----------------\n\n" vertex_color
-			--format "VERTS: %\n" verts_by_colors[vertex_color]
-
-			for vert in verts_by_colors[vertex_color] where verts_process[vert] and Supports[vert] == undefined do
+			for vert in verts_by_colors[vertex_color] do
 			(
-				format "vert: %\n" vert
-				second_point_direction = if use_normals then normalize (verts_normals[vert] * obj.transform - obj.pos) else [0,0,-1] -- direction down
+				--format "vert: %\n" vert
+				SupportObject = SupportObject_v(obj)(is_raft)
 
-				if second_point_direction.z < 0 then
-				(
+				/*------------------------------------------------------------------------------
+					GENERATE SUPPORT OR RAFT
+				--------------------------------------------------------------------------------*/
+				second_point_direction = if use_normals then verts_normals[vert] else [0,0,-1] -- direction down
 
-					SupportObject = SupportObject_v(obj)(is_raft)
+				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
-					/*------------------------------------------------------------------------------
-						GENERATE SUPPORT OR RAFT
-					--------------------------------------------------------------------------------*/
-					--SupportObject.generateSupport vert first_knot_pos:(verts_pos[vert] * obj.transform) clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
-					SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
-					--SupportObject.generateSupport vert first_knot_pos:(verts_pos[vert]) clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
-					SupportObject.support_obj.parent = obj
+				setUserPropVal SupportObject.support_obj "SUPPORT_SYNC"	sync_key
+				setUserPropVal SupportObject.support_obj "THIS"	((getHandleByAnim SupportObject.support_obj) as string )
+				setUserPropVal SupportObject.support_obj "INDEX"	vert
+				setUserPropVal SupportObject.support_obj "RAFT"	is_raft
+				setUserPropVal SupportObject.support_obj "DIRECTION"	second_point_direction
 
-					support_poiter = (getHandleByAnim SupportObject.support_obj) as string
+				SupportObject.support_obj.parent = obj
 
-					setUserPropVal SupportObject.support_obj "SUPPORT_SYNC"	sync_key
-					setUserPropVal SupportObject.support_obj "THIS"	support_poiter
-					setUserPropVal SupportObject.support_obj "INDEX"	vert
-					setUserPropVal SupportObject.support_obj "RAFT"	is_raft
-					setUserPropVal SupportObject.support_obj "USE_NORMAL"	use_normals
-
-					this.Supports[vert] = SupportObject
-				)
-
+				this.Supports[vert] = SupportObject
 			)
-		)
 
 
 		SUPPORT_MODIFIERS.addModifiers( this.getSupportNodes is_raft:is_raft ) raft_mode:is_raft
@@ -156,20 +153,14 @@ struct SourceObject_v
 	function getSupportNodes is_raft: =
 	(
 		--format "\n"; print "SourceObject_v.getSupportNodes()"
-		--format "is_raft: %\n" is_raft
-		/** Struct name
-		 */
-		--function structName _struct = (filterString( classof _struct as string ) "(:")[2]
-
 		if is_raft != unsupplied then
 			for SupportObjectData in Supports where SupportObjectData.value.is_raft == is_raft collect SupportObjectData.value.support_obj --return
 
 		else
 			for SupportObjectData in Supports collect SupportObjectData.value.support_obj --return
-
 	),
 
-	/** Get existing support and rafts
+	/** Get existing support and rafts from scene
 	 */
 	function loadSupportsAndRaftsFromScene =
 	(
@@ -180,7 +171,7 @@ struct SourceObject_v
 
 			is_raft = getUserPropVal obj_in_scene "RAFT"
 
-			this.Supports[ vert ] = SupportObject_v(obj)(is_raft)(obj_in_scene)
+			this.Supports[vert] = SupportObject_v source_obj:obj support_obj:obj_in_scene is_raft:is_raft
 		)
 	),
 
@@ -193,6 +184,9 @@ struct SourceObject_v
 		--format "\n"; print "SourceObject_v._getVertsNormals()"
 		--format "verts.numberSet: %\n" verts.numberSet
 		obj_mesh = obj.mesh
+
+		obj_pos	= obj.pos
+		obj_transform	= obj.transform
 
 		vertex_normals = this.all_verts as Array
 
@@ -213,7 +207,7 @@ struct SourceObject_v
 		)
 
 		--for vert in verts collect normalize vertex_normals[vert]
-		for vert in verts do vertex_normals[vert] = normalize vertex_normals[vert]
+		for vert in verts do vertex_normals[vert] = normalize (vertex_normals[vert] * obj_transform - obj_pos)
 
 		vertex_normals --return
 	),
@@ -224,12 +218,6 @@ struct SourceObject_v
 	(
 		format "\n"; print "SourceObject_v._getVertsPositions()"
 		in coordsys world meshop.getVerts obj.mesh all_verts node:obj
-
-		--in coordsys obj meshop.getVerts obj.mesh all_verts --node:obj
-
-		--in coordsys local meshop.getVerts obj.mesh all_verts node:obj
-
-		--meshop.getVerts obj.mesh all_verts node:obj
 	),
 
 	/** Get vertex pos by support
