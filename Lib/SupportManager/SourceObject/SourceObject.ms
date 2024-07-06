@@ -69,7 +69,7 @@ struct SourceObject_v
 					/*------------------------------------------------------------------------------
 						GENERATE SUPPORT OR RAFT
 					--------------------------------------------------------------------------------*/
-					SupportObject.generateSupport vert vertex_pos:(verts_pos[vert] * obj.transform) clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
+					SupportObject.generateSupport vert first_knot_pos:(verts_pos[vert] * obj.transform) clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
 					SupportObject.support_obj.parent = obj
 
@@ -105,36 +105,42 @@ struct SourceObject_v
 
 	/** Update supports
 	 */
-	function updateSupports only_legs:false =
+	function updateSupports =
 	(
-		format "\n"; print "SourceObject_v.updateSupports()"
+		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 
 		--if verts_pos == undefined then
 			verts_pos = this._getVertsPositions()
 
-		for SupportData in Supports where not SupportData.value.is_raft do
-			--format "INDEX: %\n" (getUserPropVal SupportData.value.support_obj "INDEX")
+		for SupportObjectData in Supports where SupportObjectData.value.is_raft  do
+			SupportObjectData.value.updateSupport first_knot_pos:( this._getVertexPosBySupport(SupportObjectData.value.support_obj) )
 
-			SupportData.value.updateSupport only_leg:only_legs vertex_pos:(verts_pos[getUserPropVal SupportData.value.support_obj "INDEX" ] * obj.transform )
 
 		--for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
 		--	BeamObject.updateBeam()
+	),
+
+	/** Update supports height
+	 */
+	function updateSupportsHeight =
+	(
+		format "\n"; print "SourceObject_v.updateSupportsHeight()"
+		--for SupportObjectData in Supports where SupportObjectData.value.is_on_ground do
+		for SupportObjectData in Supports do
+			SupportObjectData.value.updateSupportHeight()
 	),
 
 	/** Update support
 	 */
 	function updateSupport support_node =
 	(
-		format "\n"; print "SourceObject_v.updateSupport()"
+		--format "\n"; print "SourceObject_v.updateSupport()"
 		--format "support_node.name: %\n" support_node.name
 		--if verts_pos == undefined then
 			verts_pos = this._getVertsPositions()
 
-		--for support_node in support_nodes do
-		if ( index = getUserPropVal support_node "INDEX") != undefined then
-			Supports[index].updateSupport vertex_pos:(verts_pos[index] * obj.transform )
-
+		Supports[index].updateSupport first_knot_pos:( this._getVertexPosBySupport(support_node) )
 	),
 
 	/** Get support nodes of given type
@@ -218,6 +224,15 @@ struct SourceObject_v
 		--meshop.getVerts obj.mesh all_verts node:obj
 	),
 
+	/** Get vertex pos by support
+	 */
+	function _getVertexPosBySupport support_obj =
+	(
+		--format "\n"; print "SourceObject_v._getVertexPosBySupport()"
+		index = getUserPropVal support_obj "INDEX"
+
+		verts_pos[index] * obj.transform --return
+	),
 
 	/** Flattern dictionary
 	 */

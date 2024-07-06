@@ -31,12 +31,12 @@ struct SupportObject_v
 
 	/** Generate support
 	 */
-	function generateSupport vertex_index vertex_pos: clr: direction: =
+	function generateSupport vertex_index first_knot_pos: clr: direction: =
 	(
 		--format "\n"; print "SupportObject_v.generateSupport()"
-		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr vertex_pos:vertex_pos
+		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr first_knot_pos:first_knot_pos
 
-		this._setNewKnots(vertex_pos)(direction)
+		this._setNewKnots(first_knot_pos)(direction)
 
 		this._createSupportObject()
 
@@ -45,15 +45,37 @@ struct SupportObject_v
 
 	/** Update support
 	 */
-	function updateSupport vertex_pos: only_leg:false =
+	function updateSupport first_knot_pos: =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 
 		this._resetThisObject()
 
-		this._setUpdatedKnots(vertex_pos)
+		this._setUpdatedKnots(first_knot_pos)
 
 		this._createSupportObject update:true
+	),
+
+	/** Update support height
+	 */
+	function updateSupportHeight =
+	(
+		format "\n"; print "SupportObject_v.updateSupportHeight()"
+		ground_knot	= numKnots support_obj _spline_index
+		base_knot	= ground_knot - 1
+
+		ground_knot_pos	= getKnotPoint support_obj _spline_index ground_knot
+		base_knot_pos	= getKnotPoint support_obj _spline_index base_knot
+
+
+		ground_knot_pos.z	= 0
+		base_knot_pos.z	= SUPPORT_OPTIONS.base_height
+
+
+		setKnotPoint support_obj _spline_index ground_knot	ground_knot_pos
+		setKnotPoint support_obj _spline_index base_knot	base_knot_pos
+
+		updateShape support_obj
 	),
 
 
@@ -188,7 +210,7 @@ struct SupportObject_v
 		if is_on_ground then
 		(
 			/*------------------------------------------------------------------------------
-				ABOVE POINT ABOVE GROUND - NOT IF RAFT MODE
+				POINT ABOVE GROUND - NOT IF RAFT MODE
 			--------------------------------------------------------------------------------*/
 			pos.z = SUPPORT_OPTIONS.base_height -- set knot above ground to set base height and keep last segment straight for extrude
 

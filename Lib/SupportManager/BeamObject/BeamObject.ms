@@ -71,8 +71,11 @@ struct BeamObject_v
 		setUserPropVal beam "support_B" ( getUserPropVal support_B "THIS" )
 
 		/* COPY MODIFIERS OF PARENT SUPPORT NAME WHICH NAME IS MATCHING: "*BAR*" */
-		for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
-			addModifier beam support_A.modifiers[i]
+		--for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
+			--addModifier beam support_A.modifiers[i]
+
+		addModifier beam support_A.modifiers[#BAR_WIDTH]
+
 
 		/* GET DISTANCE BETWEEN POINTS */
 		--distance_between_points = this.getPointDistance (copy beam_start) (copy beam_end_top )

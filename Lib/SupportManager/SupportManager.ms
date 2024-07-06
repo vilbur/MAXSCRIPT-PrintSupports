@@ -159,12 +159,12 @@ struct SupportManager_v
 	),
 	/** Update supports
 	 */
-	function updateSupports source_objects only_legs:false =
+	function updateSupports source_objects =
 	(
-		format "\n"; print "SupportManager_v.updateSupports()"
+		--format "\n"; print "SupportManager_v.updateSupports()"
 
 		for obj in source_objects where (sync_key = this._getSyncKey (obj) ) != undefined do
-			SourceObjects[sync_key as string ].updateSupports only_legs:only_legs
+			SourceObjects[sync_key as string ].updateSupports()
 
 		--format "source_objects: %\n" source_objects
 
@@ -173,6 +173,15 @@ struct SupportManager_v
 
 		--for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
 		--	BeamObject.updateBeam()
+	),
+
+	/** Update supports height
+	 */
+	function updateSupportsHeight source_objects =
+	(
+		format "\n"; print "SupportManager_v.updateSupportsHeight()"
+		for obj in source_objects where (sync_key = this._getSyncKey (obj) ) != undefined do
+			SourceObjects[sync_key as string ].updateSupportsHeight()
 	),
 
 	/** Update supports

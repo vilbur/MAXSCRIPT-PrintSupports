@@ -27,14 +27,9 @@ struct SupportModifiers_v
 	function addModifiers supports raft_mode:false =
 	(
 		--format "\n-----------------------------------------\n"
-		format "\n"; print "SupportModifiers_v.addModifiers()"
-		format "supports	= % \n" supports
-		format "supports.count	= % \n" supports.count
-		format "raft_mode: %\n" raft_mode
-		format "SUPPORT_OPTIONS: %\n" SUPPORT_OPTIONS
-		--if raft_mode == unsupplied then
-		_selection = for o in selection  collect o
+		--format "\n"; print "SupportModifiers_v.addModifiers()"
 
+		_selection = for o in selection  collect o
 
 		if supports.count == 0 then
 			return false
@@ -43,10 +38,7 @@ struct SupportModifiers_v
 
 		this.raft_mode = raft_mode
 
-		--supports_with_modifiers = for support_input in supports_input where support_input.modifiers.count == 0 collect support_input
-
 		this.supports = supports
-
 
 		if not this._modifiersAdded() then
 		(
@@ -54,11 +46,8 @@ struct SupportModifiers_v
 
 			this._sanitizeMaxChamferValue()
 
-
 			this._sweep("Bar Width") ( if raft_mode then this._getOption #RAFT_WIDTH else this._getOption #BAR_WIDTH )
 
-			--format "RAFT_MODE	= % \n" raft_mode
-			--format "not raft_mode	= % \n" (not raft_mode)
 			if not raft_mode then
 			(
 				this._selectFace("Select Base") (this._getOption #MAT_IDS dict_key:#BASE)
@@ -74,7 +63,6 @@ struct SupportModifiers_v
 			this._selectFace("Select Top Face")( this._getOption #MAT_IDS dict_key:( if raft_mode then #MIDDLE else #TOP )) invert_sel:raft_mode
 
 			this._extrude("Extrude Top")(this._getOption #EXTRUDE_TOP)
-
 		)
 		else
 			this._copyModifiers()
@@ -117,8 +105,6 @@ struct SupportModifiers_v
 				)
 				default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" mod_name -- this should never happen
 			)
-
-
 	),
 
 	private
@@ -149,15 +135,12 @@ struct SupportModifiers_v
 			for i = modifiers_of_supports.count to 1 by -1 do
 				addModifierWithLocalData support_no_modifiers modifiers_of_supports[i] support_with_modifiers modifiers_of_supports[i] -- instance the modifier
 
-
 		--for i = modifiers_of_supports.count to 1 by -1 do
 		--	try(
 		--			addModifier supports_no_modifiers modifiers_of_supports[i]
 		--	)catch()
 
 	),
-
-
 
 	/** SWEEP Modifier
 	  *
@@ -244,7 +227,6 @@ struct SupportModifiers_v
 
 	/** Chamfer
 	  *
-	  *
 	  * @param #DIFFERENT|#OFF materialoption
 	  */
 	function _chamfer mod_or_name amount selection_option:#STACK materialoption:#OFF material_ID: /* minangle:  */ =
@@ -296,11 +278,9 @@ struct SupportModifiers_v
 
 			*/
 				modPanel.addModToSelection ( chamfer_mod ) --ui:on
-
 		)
 		else
 			mod_or_name.amount = amount
-
 	),
 
 	/** Add extrude modifier
@@ -309,7 +289,6 @@ struct SupportModifiers_v
 	function _extrude mod_or_name amount scale: =
 	(
 		--format "\n"; print "SupportModifiers_v._extrudeBase()"
-
 		extrude_mod = if superClassOf mod_or_name == modifier then mod_or_name else Face_Extrude name:mod_or_name
 
 		extrude_mod.amount	= amount
@@ -340,7 +319,6 @@ struct SupportModifiers_v
 	function _sanitizeMaxChamferValue =
 	(
 		--format "\n"; print "PlatformModifiers_v._sanitizeMaxChamferValue()"
-
 		if SUPPORT_OPTIONS.bar_width / 2 == SUPPORT_OPTIONS.chamfer_bar then
 			SUPPORT_OPTIONS.chamfer_bar -= 0.05
 	),

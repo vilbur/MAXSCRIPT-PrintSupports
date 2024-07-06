@@ -34,7 +34,7 @@ function onObjectTransformTimeoutCallback sender evt =
 	if roundFloat SOURCE_OBJECT_POSITION[#POS_Z] != roundFloat SOURCE_OBJECT_POSITION[#OBJECT].position.z then
 	(
 		--print "Z POZITION CHANGED"
-		SUPPORT_MANAGER.updateSupports( selection as Array ) only_legs:true
+		SUPPORT_MANAGER.updateSupportsHeight( selection as Array )
 
 		removeTimeout sender
 	)
