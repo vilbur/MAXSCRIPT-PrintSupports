@@ -221,6 +221,10 @@ struct SupportObject_v
 		knots_positions[1] = vertex_pos
 		knots_positions[2] = getKnotPoint support_obj _spline_index 2
 
+		/* KEEP SECOND POINT BELOW FIRST */
+		if knots_positions[2].z > knots_positions[1].z then
+			knots_positions[2] = knots_positions[1] - 1
+
 		direction = normalize (knots_positions[2] - vertex_pos)
 
 		hit_support = this._intersectRaySourceObject (vertex_pos) ( direction )

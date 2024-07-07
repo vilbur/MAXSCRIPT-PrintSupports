@@ -62,7 +62,7 @@ struct SourceObject_v
 		this._setWorldSpaceVertexNormals(verts_process)
 
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE */
-		verts_process = ( for vert in verts_process where normals_world[vert].z < 0 collect vert ) as BitArray
+		verts_process = ( for vert in verts_process where this._isNormalValid(vert) collect vert ) as BitArray
 
 		/* FILTER ONLY VERTS TO PROCESS FROM COLORED ARRAYS */
 		for vertex_color in verts_by_colors.keys do verts_by_colors[vertex_color] *= verts_process
@@ -118,13 +118,8 @@ struct SourceObject_v
 		--format "support_nodes: %\n" support_nodes
 		verts_pos = this._getVertsPositions()
 
-		verts = for vert in Supports.keys where not Supports[vert].is_raft collect vert
-
-		this._setWorldSpaceVertexNormals(verts)
-
-		for vert in verts do
-			Supports[vert].updateSupport first_knot_pos:( verts_pos[vert])
-
+		for key in Supports.keys where not Supports[key].is_raft do
+			Supports[key].updateSupport first_knot_pos:( verts_pos[key])
 
 		--for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
 		--	BeamObject.updateBeam()
@@ -181,6 +176,20 @@ struct SourceObject_v
 		verts_process = Supports.keys as BitArray
 
 		this._setLocalVertexNormals(verts_process)
+	),
+
+	/** Delete support
+	  UNUSED
+	 */
+	function _deleteSupport key =
+	(
+		--format "\n"; print "SourceObject_v._deleteSupport()"
+
+		delete Supports[key].support_obj
+
+		removeDictValue Supports key
+
+		/* TODO: DELETE BEAMS ? */
 	),
 
 	private
@@ -278,7 +287,6 @@ struct SourceObject_v
 		for key in Supports.keys where not isValidNode Supports[key].support_obj do removeDictValue Supports key
 	),
 
-
 	/** Set vertex normals empty array
 	 */
 	function _initNormalsLocalArray =
@@ -341,6 +349,14 @@ struct SourceObject_v
 		rounded_rotation.y = roundFloat rot.y
 
 		rounded_rotation --return
+	),
+
+	/** Is vertex normal pointing DOWN or SIDE but not UP
+	 */
+	function _isNormalValid vert =
+	(
+		--format "\n"; print "SourceObject_v._isNormalValid()"
+		normals_world[vert].z < 0 --return
 	),
 
 	/** Save object rounded rotation in X and Y axis
