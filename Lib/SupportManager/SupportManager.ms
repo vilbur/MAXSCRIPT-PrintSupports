@@ -159,12 +159,12 @@ struct SupportManager_v
 	),
 	/** Update supports
 	 */
-	function updateSupports source_objects reset_verts_positions:false =
+	function updateSupports source_objects =
 	(
 		--format "\n"; print "SupportManager_v.updateSupports()"
 
 		for obj in source_objects where (sync_key = this._getSyncKey (obj) ) != undefined do
-			SourceObjects[sync_key as string ].updateSupports reset_verts_positions:reset_verts_positions
+			SourceObjects[sync_key as string ].updateSupports()
 
 		--format "source_objects: %\n" source_objects
 
@@ -377,7 +377,7 @@ struct SupportManager_v
 		(
 			SourceObject = SourceObject_v(obj_in_scene) (sync_key)
 
-			SourceObject.loadSupportsAndRaftsFromScene()
+			SourceObject.initObjectsFromScene()
 
 			supports = SourceObject.getSupportNodes()
 

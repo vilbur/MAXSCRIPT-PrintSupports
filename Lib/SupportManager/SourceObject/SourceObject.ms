@@ -11,13 +11,18 @@ struct SourceObject_v
 	/* required */
 	/* properties */
 	all_verts,
-	verts_process,
-	verts_pos,
 
 	Supports = Dictionary #INTEGER, -- KEY: vertex_index VALUE: SupportObject|RaftObject
 
 	/* private */
+	verts_process,
+
+	verts_pos,
+
 	normals_local, -- store vertex normals in object space
+	normals_world,
+
+	obj_rotation, -- store object rotation to find if world normals needs to be recount
 
 	/* dependency */
 
@@ -52,10 +57,12 @@ struct SourceObject_v
 
 		verts_process -= supports_exists -- remove verts which supports exists aleready
 
-		verts_normals = this._getWorldSpaceVertexNormals()
+		this._setLocalVertexNormals(verts_process)
+
+		this._setWorldSpaceVertexNormals(verts_process)
 
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE */
-		verts_process = ( for vert in verts_process where verts_normals[vert].z < 0 collect vert ) as BitArray
+		verts_process = ( for vert in verts_process where normals_world[vert].z < 0 collect vert ) as BitArray
 
 		/* FILTER ONLY VERTS TO PROCESS FROM COLORED ARRAYS */
 		for vertex_color in verts_by_colors.keys do verts_by_colors[vertex_color] *= verts_process
@@ -70,7 +77,7 @@ struct SourceObject_v
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				second_point_direction = if SUPPORT_OPTIONS.second_point_direction == 1 then verts_normals[vert] else [0,0,-1] -- direction down
+				second_point_direction = if SUPPORT_OPTIONS.second_point_direction == 1 then normals_world[vert] else [0,0,-1] -- direction down
 
 				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
@@ -109,11 +116,14 @@ struct SourceObject_v
 	(
 		format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
-
 		verts_pos = this._getVertsPositions()
 
-		for SupportObjectData in Supports where not SupportObjectData.value.is_raft  do
-			SupportObjectData.value.updateSupport first_knot_pos:( this._getVertexPosBySupport(SupportObjectData.value.support_obj) )
+		verts = for vert in Supports.keys where not Supports[vert].is_raft collect vert
+
+		this._setWorldSpaceVertexNormals(verts)
+
+		for vert in verts do
+			Supports[vert].updateSupport first_knot_pos:( verts_pos[vert])
 
 
 		--for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
@@ -160,19 +170,17 @@ struct SourceObject_v
 			for SupportObjectData in Supports collect SupportObjectData.value.support_obj --return
 	),
 
-	/** Get existing support and rafts from scene
+
+	/** Init objects from scene
 	 */
-	function loadSupportsAndRaftsFromScene =
+	function initObjectsFromScene =
 	(
-		format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
-		for obj_in_scene in objects where superClassOf obj_in_scene.baseobject == shape and getUserPropVal obj_in_scene "SUPPORT_SYNC" == sync_key do
-		(
-			vert = getUserPropVal obj_in_scene "INDEX"
+		--format "\n"; print "SourceObject_v.initObjectsFromScene()"
+		this._loadSupportsAndRaftsFromScene()
 
-			is_raft = getUserPropVal obj_in_scene "RAFT"
+		verts_process = Supports.keys as BitArray
 
-			this.Supports[vert] = SupportObject_v source_obj:obj support_obj:obj_in_scene is_raft:is_raft
-		)
+		this._setLocalVertexNormals(verts_process)
 	),
 
 	private
@@ -180,13 +188,13 @@ struct SourceObject_v
 
 	/** Get verts normals
 	 */
-	function _setLocalVertexNormals =
+	function _setLocalVertexNormals verts =
 	(
 		--format "\n"; print "SourceObject_v._setLocalVertexNormals()"
 		--format "verts.numberSet: %\n" verts.numberSet
 		obj_mesh = obj.mesh
 
-		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts_process
+		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts
 
 		for face_of_vert in faces_of_verts do
 		(
@@ -198,26 +206,23 @@ struct SourceObject_v
 			normals_local[face_verts.z] += face_normal
 		)
 
-		for vert in verts_process do normals_local[vert] = normalize normals_local[vert]
+		for vert in verts do normals_local[vert] = normalize normals_local[vert]
 
-		normals_local --return
+		--normals_local --return
 	),
 
-	/** Get world space vertex normals
+	/** Set world space vertex normals
 	 */
-	function _getWorldSpaceVertexNormals =
+	function _setWorldSpaceVertexNormals verts =
 	(
-		--format "\n"; print "SourceObject_v._getWorldSpaceVertexNormals()"
+		--format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
 
-		this._setLocalVertexNormals()
+		if normals_world == undefined then
+			normals_world = deepCopy normals_local
 
-		world_space_normals = deepCopy normals_local
-
-		for vert in verts_process do world_space_normals[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
-
-		world_space_normals -- return
+		for vert in verts do normals_world[vert] = normalize (normals_local[vert] * obj_transform - obj_pos)
 	),
 
 	/** Set verts positions
@@ -228,15 +233,15 @@ struct SourceObject_v
 		in coordsys world meshop.getVerts obj.mesh all_verts node:obj
 	),
 
-	/** Get vertex pos by support
-	 */
-	function _getVertexPosBySupport support_obj =
-	(
-		--format "\n"; print "SourceObject_v._getVertexPosBySupport()"
-		index = getUserPropVal support_obj "INDEX"
-
-		verts_pos[index] --return
-	),
+	--/** Get vertex pos by support
+	-- */
+	--function _getVertexPosBySupport support_obj =
+	--(
+	--	--format "\n"; print "SourceObject_v._getVertexPosBySupport()"
+	--	index = getUserPropVal support_obj "INDEX"
+	--
+	--	verts_pos[index] --return
+	--),
 
 	/** Get verts by colors
 	 */
@@ -288,6 +293,64 @@ struct SourceObject_v
 			normals_local[i] = point3 0 0 0
 	),
 
+	/** Get existing support and rafts from scene
+	 */
+	function _loadSupportsAndRaftsFromScene =
+	(
+		format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
+		for obj_in_scene in objects where superClassOf obj_in_scene.baseobject == shape and getUserPropVal obj_in_scene "SUPPORT_SYNC" == sync_key do
+		(
+			vert = getUserPropVal obj_in_scene "INDEX"
+
+			is_raft = getUserPropVal obj_in_scene "RAFT"
+
+			this.Supports[vert] = SupportObject_v source_obj:obj support_obj:obj_in_scene is_raft:is_raft
+		)
+	),
+
+	/** test if obj rotation changed in X and Y axises
+	 */
+	function _isObjRotationChanged =
+	(
+		--format "\n"; print "SourceObject_v._isObjRotationChanged()"
+
+		current_rotation = this._getRoundedObjectRotation ( quatToEuler2 obj.rotation.controller.value )
+
+		rotation_changed = current_rotation != obj_rotation
+
+		obj_rotation = current_rotation
+
+		rotation_changed --return
+	),
+
+	/** Get rounded object rotation
+	 *
+	 * Coordinates are changing little bit on unchaged axises beacause of "high precision" of Max values
+	 */
+	function _getRoundedObjectRotation rot =
+	(
+		--format "\n"; print "SourceObject_v._getRoundedObjectRotation()"
+		/* Round number to 3 deciamls
+		*/
+		--fn roundFloat val = ( local mult = 10.0 ^ 3; (floor ((val * mult) + 0.5)) / mult )
+		fn roundFloat val = ( local mult = 1000.0; (floor ((val * mult) + 0.5)) / mult )
+
+		rounded_rotation = Point2 0 0
+
+		rounded_rotation.x = roundFloat rot.x
+		rounded_rotation.y = roundFloat rot.y
+
+		rounded_rotation --return
+	),
+
+	/** Save object rounded rotation in X and Y axis
+	 */
+	function _saveObjectRotation =
+	(
+		--format "\n"; print "SourceObject_v._saveObjectRotation()"
+		obj_rotation = this._getRoundedObjectRotation ( quatToEuler2 obj.rotation.controller.value )
+	),
+
 	/**
 	 */
 	on create do
@@ -296,6 +359,8 @@ struct SourceObject_v
 		VertexColors = VertexColors_v(obj)
 
 		all_verts = #{1..(getNumVerts obj.mesh)}
+
+		this._saveObjectRotation()
 
 		this._initNormalsLocalArray()
 	)

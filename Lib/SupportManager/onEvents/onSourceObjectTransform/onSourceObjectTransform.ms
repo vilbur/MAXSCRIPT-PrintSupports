@@ -41,7 +41,7 @@ function onObjectTransformTimeoutCallback sender evt =
 		if roundFloat saved_rotation.x != roundFloat current_rotation.x or roundFloat saved_rotation.y != roundFloat current_rotation.y then
 		(
 			print "ROTATION CHANGED"
-			SUPPORT_MANAGER.updateSupports( selection as Array )
+			SUPPORT_MANAGER.updateSupports( selection as Array ) reset_normals:true
 
 			removeTimeout sender
 		)
