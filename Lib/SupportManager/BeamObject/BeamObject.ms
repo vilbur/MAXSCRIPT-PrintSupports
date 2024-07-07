@@ -39,7 +39,7 @@ struct BeamObject_v
 	 */
 	function updateBeam =
 	(
-		--format "\n"; print "BeamObject_v.updateBeam()"
+		format "\n"; print "BeamObject_v.updateBeam()"
 
 		points_of_lines = this._getBeamsEndPoints()
 		--format "END_POINTS: %\n" points_of_lines

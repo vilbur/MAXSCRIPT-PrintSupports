@@ -120,9 +120,6 @@ struct SourceObject_v
 
 		for key in Supports.keys where not Supports[key].is_raft do
 			Supports[key].updateSupport first_knot_pos:( verts_pos[key])
-
-		--for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
-		--	BeamObject.updateBeam()
 	),
 
 	/** Update supports height
@@ -200,7 +197,7 @@ struct SourceObject_v
 	function _setLocalVertexNormals verts =
 	(
 		--format "\n"; print "SourceObject_v._setLocalVertexNormals()"
-		--format "verts.numberSet: %\n" verts.numberSet
+
 		obj_mesh = obj.mesh
 
 		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts
@@ -305,12 +302,12 @@ struct SourceObject_v
 	 */
 	function _loadSupportsAndRaftsFromScene =
 	(
-		format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
-		for obj_in_scene in objects where superClassOf obj_in_scene.baseobject == shape and getUserPropVal obj_in_scene "SUPPORT_SYNC" == sync_key do
+		--format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
+		for obj_in_scene in objects	where superClassOf obj_in_scene.baseobject == shape \
+					  and  getUserPropVal obj_in_scene "SUPPORT_SYNC" == sync_key \
+					  and  (is_raft = getUserPropVal obj_in_scene "RAFT") != undefined do -- BEAMS DOES NOT HAS is_raft raft property
 		(
 			vert = getUserPropVal obj_in_scene "INDEX"
-
-			is_raft = getUserPropVal obj_in_scene "RAFT"
 
 			this.Supports[vert] = SupportObject_v source_obj:obj support_obj:obj_in_scene is_raft:is_raft
 		)
@@ -371,7 +368,8 @@ struct SourceObject_v
 	 */
 	on create do
 	(
-		format "\n"; print "SourceObject.onCreate()"
+		--format "\n"; print "SourceObject.onCreate()"
+		--format "obj: %\n" obj
 		VertexColors = VertexColors_v(obj)
 
 		all_verts = #{1..(getNumVerts obj.mesh)}

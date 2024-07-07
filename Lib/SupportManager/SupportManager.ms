@@ -151,8 +151,13 @@ struct SupportManager_v
 				pointer_A = getUserPropVal support_A "THIS" asString:true
 				pointer_B = getUserPropVal support_B "THIS" asString:true
 
+				/* GENERATE BEAM */
 				BeamObject = (BeamObject_v support_A support_B ).generateBeam()
 
+				/* SAVE SYNC KEY */
+				setUserPropVal BeamObject.beam "SUPPORT_SYNC" ( getUserPropVal support_A "SUPPORT_SYNC" )
+
+				/* ADD TO BEAMS */
 				append BeamObjects BeamObject
 			)
 		)
@@ -163,16 +168,17 @@ struct SupportManager_v
 	(
 		--format "\n"; print "SupportManager_v.updateSupports()"
 
-		for obj in source_objects where (sync_key = this._getSyncKey (obj) ) != undefined do
-			SourceObjects[sync_key as string ].updateSupports()
+		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
+		format "sync_keys: %\n" sync_keys
 
-		--format "source_objects: %\n" source_objects
+		/* UPDATE SUPPORTS */
+		for sync_key in sync_keys do
+			SourceObjects[sync_key].updateSupports()
 
-		--for source_obj in source_objects do
+		/* UPDATE BEAMS */
+		for BeamObject in BeamObjects where findItem sync_keys (this._getSyncKey (BeamObject.beam)) > 0 do
+			BeamObject.updateBeam()
 
-
-		--for BeamObject in BeamObjects where BeamObject.support_A == support or BeamObject.support_B == support do
-		--	BeamObject.updateBeam()
 	),
 
 	/** Update supports height
@@ -190,13 +196,15 @@ struct SupportManager_v
 	(
 		--format "\n"; print "SupportManager_v.updateSupportPosition()"
 		--format "support_nodes: %\n" support_nodes
-
 		sync_key = getUserPropVal support_node "SUPPORT_SYNC"
 
+		/* UPDATE SUPPORT */
 		SourceObjects[sync_key].updateSupport(support_node)
 
-		--for BeamObject in BeamObjects where BeamObject.support_A == support_node or BeamObject.support_B == support_node do
-		--	BeamObject.updateBeam()
+
+		/* UPDATE BEAMS OF SUPPORT */
+		for BeamObject in BeamObjects where BeamObject.support_A == support_node or BeamObject.support_B == support_node do
+			BeamObject.updateBeam()
 	),
 
 	/** Update modifiers by control value
@@ -373,7 +381,7 @@ struct SupportManager_v
 
 		--unindSupportToTransformEvent()
 
-		for obj_in_scene in objects where (sync_key = this._getSyncKey (obj_in_scene) ) != undefined do
+		for obj_in_scene in objects where (sync_key = this._getSyncSourceKey (obj_in_scene) ) != undefined do
 		(
 			SourceObject = SourceObject_v(obj_in_scene) (sync_key)
 
@@ -420,19 +428,27 @@ struct SupportManager_v
 		--bindBeamOnDeleteCallback( for BeamObject in BeamObjects collect BeamObject.beam  )
 	),
 
-	/** Get sync key
+	/** Get sync key from source object
+	 */
+	function _getSyncSourceKey source_obj =
+	(
+		--format "\n"; print "SupportManager_v.getSyncKey()"
+		getUserPropVal source_obj "SUPPORT_SYNC_SOURCE" asString:true
+	),
+
+	/** Get sync key from object
 	 */
 	function _getSyncKey obj =
 	(
 		--format "\n"; print "SupportManager_v.getSyncKey()"
-		getUserPropVal obj "SUPPORT_SYNC_SOURCE"
+		getUserPropVal obj "SUPPORT_SYNC" asString:true
 	),
 
 	/**
 	*/
 	on create do
 	(
-		format "\n"; print "SupportManager_v.onCreate()"
+		--format "\n"; print "SupportManager_v.onCreate()"
 		this._loadSourceObjectsFromScene()
 
 		this._loadBeamsFromScene()
