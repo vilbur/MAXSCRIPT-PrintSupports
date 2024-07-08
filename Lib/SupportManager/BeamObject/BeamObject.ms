@@ -39,7 +39,7 @@ struct BeamObject_v
 	 */
 	function updateBeam =
 	(
-		format "\n"; print "BeamObject_v.updateBeam()"
+		--format "\n"; print "BeamObject_v.updateBeam()"
 
 		points_of_lines = this._getBeamsEndPoints()
 		--format "END_POINTS: %\n" points_of_lines
@@ -57,7 +57,7 @@ struct BeamObject_v
 	 */
 	function _createBeam =
 	(
-		--format "\n"; print "BeamObject_v._createBeam()"
+		format "\n"; print "BeamObject_v._createBeam()"
 		this.beam = SplineShape name:(support_A.name + "-beam") wirecolor:(this._shiftWirecolor(support_A.wirecolor) )
 
 		this._addToGroup (beam) (support_A)
@@ -104,18 +104,17 @@ struct BeamObject_v
 
 		beams_created = #()
 
-		if ( support_A == undefined or support_B == undefined ) or  distance support_A.pos support_B.pos > SUPPORT_OPTIONS.max_distance  then
-			return beams_created
+		--if ( support_A == undefined or support_B == undefined ) or  distance support_A.pos support_B.pos > SUPPORT_OPTIONS.max_distance  then
+		--	return beams_created
 
 		point_data_A = this._getSegmentEndPoints(support_A)
 		point_data_B = this._getSegmentEndPoints(support_B)
 
-
-		height_A = distance point_data_A[#BOTTOM] point_data_A[#TOP]
-		height_B = distance point_data_B[#BOTTOM] point_data_B[#TOP]
-
-		if height_A < SUPPORT_OPTIONS.min_height and height_B < SUPPORT_OPTIONS.min_height then
-			return beams_created
+		--height_A = distance point_data_A[#BOTTOM] point_data_A[#TOP]
+		--height_B = distance point_data_B[#BOTTOM] point_data_B[#TOP]
+		--
+		--if height_A < SUPPORT_OPTIONS.min_height and height_B < SUPPORT_OPTIONS.min_height then
+		--	return beams_created
 
 		/* BEAM 1 */
 		bottom_A  	= point_data_A[#BOTTOM]
@@ -160,8 +159,6 @@ struct BeamObject_v
 
 		for i = 1 to SUPPORT_OPTIONS.beams_count do
 			append points_of_beams (deepCopy points_of_supports[i])
-
-
 
 		for support = 1 to SUPPORT_OPTIONS.beams_count do
 		(
@@ -226,17 +223,23 @@ struct BeamObject_v
 	function _getSegmentEndPoints support =
 	(
 		--format "\n"; print "BeamObject_v.getSegmentEnds()"
+		offset_from_ends = SUPPORT_OPTIONS.bar_width / 2
+
 		num_knots	= ( numKnots support )
 
 		/* GET INDEX OF USED POINTS */
-		index_bottom	= if ( numSegments support 1) == 1 then 2 else num_knots - 1 -- get second point or second point from end ( above ground point )
+		index_bottom	= if ( numSegments support 1) <= 2 then num_knots else num_knots - 1 -- get second point or second point from end ( above ground point )
 		index_top	= index_bottom - 1
 
 		/* GET POSITIONS OF POINTS */
 		point_bottom	= getKnotPoint support	1 index_bottom	-- get 2. point from bottom
 		point_top	= getKnotPoint support	1 index_top	-- get 1. or 2. point from top
 
+		point_bottom.z	+= offset_from_ends
+		point_top.z	-= offset_from_ends
+
 		Dictionary #( #BOTTOM, point_bottom ) #( #TOP, point_top ) #( #VECTOR, normalize (point_bottom - point_top) ) --return
+
 	),
 
 	--/** Get distance between points in 2D FROM TOP VIEW

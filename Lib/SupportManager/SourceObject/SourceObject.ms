@@ -167,12 +167,19 @@ struct SourceObject_v
 	 */
 	function initObjectsFromScene =
 	(
-		--format "\n"; print "SourceObject_v.initObjectsFromScene()"
+		format "\n"; print "SourceObject_v.initObjectsFromScene()"
 		this._loadSupportsAndRaftsFromScene()
 
 		verts_process = Supports.keys as BitArray
 
-		this._setLocalVertexNormals(verts_process)
+		if ( normals_local_loaded = getUserPropVal obj "normals_local" ) != undefined then
+		(
+			normals_local = normals_local_loaded
+
+			format "normals_local_loaded: %\n" normals_local_loaded
+		)
+		else
+			this._setLocalVertexNormals(verts_process)
 	),
 
 	/** Delete support
@@ -196,11 +203,13 @@ struct SourceObject_v
 	 */
 	function _setLocalVertexNormals verts =
 	(
-		--format "\n"; print "SourceObject_v._setLocalVertexNormals()"
-
+		format "\n"; print "SourceObject_v._setLocalVertexNormals()"
+		--format "verts.numberSet: %\n" verts.numberSet
+		--timer_get_normals = timeStamp()
 		obj_mesh = obj.mesh
 
 		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts
+		--format "faces_of_verts.numberSet: %\n" faces_of_verts.numberSet
 
 		for face_of_vert in faces_of_verts do
 		(
@@ -214,7 +223,9 @@ struct SourceObject_v
 
 		for vert in verts do normals_local[vert] = normalize normals_local[vert]
 
-		--normals_local --return
+		--format "get_normals: % seconds\n" ((( timeStamp()) - timer_get_normals) / 1000.0)
+		setUserPropVal obj "normals_local"	normals_local
+
 	),
 
 	/** Set world space vertex normals
@@ -302,7 +313,7 @@ struct SourceObject_v
 	 */
 	function _loadSupportsAndRaftsFromScene =
 	(
-		--format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
+		format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
 		for obj_in_scene in objects	where superClassOf obj_in_scene.baseobject == shape \
 					  and  getUserPropVal obj_in_scene "SUPPORT_SYNC" == sync_key \
 					  and  (is_raft = getUserPropVal obj_in_scene "RAFT") != undefined do -- BEAMS DOES NOT HAS is_raft raft property

@@ -34,7 +34,7 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: clr: direction: =
 	(
-		format "\n"; print "SupportObject_v.generateSupport()"
+		--format "\n"; print "SupportObject_v.generateSupport()"
 		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr first_knot_pos:first_knot_pos
 
 		this._setRaftKnots(first_knot_pos)(direction)
@@ -85,7 +85,7 @@ struct SupportObject_v
 	 */
 	function updateRotation first_knot_pos: =
 	(
-		format "\n"; print "SupportObject_v.updateRotation()"
+		--format "\n"; print "SupportObject_v.updateRotation()"
 
 		this._resetThisObject()
 
@@ -98,7 +98,7 @@ struct SupportObject_v
 	 */
 	function updateHeight =
 	(
-		format "\n"; print "SupportObject_v.updateHeight()"
+		--format "\n"; print "SupportObject_v.updateHeight()"
 		ground_knot	= numKnots support_obj _spline_index
 		base_knot	= ground_knot - 1
 
@@ -188,7 +188,7 @@ struct SupportObject_v
 	 */
 	function _setSupportKnots =
 	(
-		format "\n"; print "SupportObject_v._setSupportKnots()"
+		--format "\n"; print "SupportObject_v._setSupportKnots()"
 		hit_support = this._intersectRaySourceObject (knots_positions[2]) (direction_down)
 
 		is_on_ground = hit_support == undefined

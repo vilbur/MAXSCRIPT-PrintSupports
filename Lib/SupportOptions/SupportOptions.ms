@@ -54,8 +54,8 @@ struct SupportOptions_v
 
 	/* BEAMS OPTIONS */
 	beams_count = 2,
-	max_distance	= 20,	-- max distance between platforms
-	min_height	= 10,	-- generate beams only if platform is higher than this number=
+	max_distance	= 20,	-- max distance between supports
+	min_height	= 10,	-- generate beams only if support is higher than this number=
 	max_height	= 20,	-- gmax height between of beam split
 	--same_height	= false,
 
@@ -222,7 +222,7 @@ struct SupportOptions_v
 			if val != undefined and findItem _DO_NOT_MODIFY_PROPERTIES prop == 0  then
 			(
 				--format "\n\n"
-				--format "val: %\n" val
+				format "%: %\n" prop val
 				modified_val = (val / display_units	/ export_size)
 				--format "modified_val: %\n" modified_val
 				setProperty this prop modified_val

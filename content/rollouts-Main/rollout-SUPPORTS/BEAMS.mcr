@@ -14,7 +14,8 @@ buttontext:	"Max Distance"
 --tooltip:	""
 icon:	"across:3|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:64|offset:[ 36, 6 ]|tooltip:Max distance in mm between supports to generate beam."
 (
-	format "EventFired:	% \n" EventFired
+	--format "EventFired:	% \n" EventFired
+	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )
 
 /**
@@ -26,7 +27,8 @@ buttontext:	"Min Height"
 tooltip:	"Min Height of supports where beam is created"
 icon:	"across:3|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:64|offset:[ 0, 6 ]"
 (
-	format "EventFired:	% \n" EventFired
+	--format "EventFired:	% \n" EventFired
+	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )
 
 /**
@@ -38,10 +40,8 @@ buttontext:	"[Beams Count]"
 toolTip:	"Beams Count"
 icon:	"control:radiobuttons|across:3|align:#CENTER|items:#('1', '2')|offset:[ 0, 0 ]"
 (
-	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
-
-	--DosCommand ("explorer \""+export_dir+"\"")
 	--format "EventFired	= % \n" EventFired
+	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )
 
 

@@ -129,17 +129,28 @@ struct SupportManager_v
 	function generateBeams supports =
 	(
 		format "\n"; print "SupportManager_v.generateBeams()"
-		all_supports = Dictionary #STRING
+		--all_supports = Dictionary #STRING
+
+		/** if support height is greater then min height option
+		 */
+		function isTallEnough obj =
+		(
+			bbox = nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+
+			bbox[2].z - bbox[1].z > SUPPORT_OPTIONS.min_height
+		)
+
 		new_beams = #()
 
-		supports = for support in supports where superClassOf support.baseobject == shape collect support
+		supports = for support in supports where this._isSupport(support) and isTallEnough(support) collect support
 
-		for support in supports where ( pointer = getUserPropVal support "THIS") != undefined do all_supports[pointer] = support
 
 		if supports.count >= 2 then
 		(
 			--format "supports IN: %\n" supports
-			supports = this._sortSupportsByDistance(supports)
+			if supports.count > 2 then
+				supports = this._sortSupportsByDistance(supports)
+
 			format "supports IN: %\n" supports
 			--
 			----for i = 1 to supports.count where supports[i + 1] != undefined do
@@ -169,7 +180,7 @@ struct SupportManager_v
 		--format "\n"; print "SupportManager_v.updateSupports()"
 
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
-		format "sync_keys: %\n" sync_keys
+		--format "sync_keys: %\n" sync_keys
 
 		/* UPDATE SUPPORTS */
 		for sync_key in sync_keys do
@@ -257,7 +268,8 @@ struct SupportManager_v
 
 
 		if ( this._getSyncKey (obj) ) != undefined then
-			delete ( obj.children as Array )
+			for child in obj.children do
+				delete child
 
 		else if ( getUserPropVal obj "RAFT" ) != undefined then
 			for i = BeamObjects.count to 1 by -1 where BeamObjects[i].support_A == obj or BeamObjects[i].support_B == obj do
@@ -333,7 +345,7 @@ struct SupportManager_v
 	function _getSupportNodes _objects =
 	(
 		--format "\n"; print "SupportManager_v._getSupports()"
-		for obj in _objects where superClassOf obj.baseobject == shape and getUserPropVal obj "RAFT" != undefined collect obj
+		for obj in _objects where this._isSupport(obj) collect obj
 	),
 
 
@@ -426,6 +438,14 @@ struct SupportManager_v
 		)
 
 		--bindBeamOnDeleteCallback( for BeamObject in BeamObjects collect BeamObject.beam  )
+	),
+
+	/** Is support
+	 */
+	function _isSupport obj =
+	(
+		--format "\n"; print "SupportManager_v._isSupport()"
+		superClassOf obj.baseobject == shape and getUserPropVal obj "RAFT" != undefined
 	),
 
 	/** Get sync key from source object
