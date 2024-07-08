@@ -57,7 +57,7 @@ struct BeamObject_v
 	 */
 	function _createBeam =
 	(
-		format "\n"; print "BeamObject_v._createBeam()"
+		--format "\n"; print "BeamObject_v._createBeam()"
 		this.beam = SplineShape name:(support_A.name + "-beam") wirecolor:(this._shiftWirecolor(support_A.wirecolor) )
 
 		this._addToGroup (beam) (support_A)

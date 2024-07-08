@@ -126,7 +126,7 @@ struct SupportManager_v
 
 	/** Generate beams
 	 */
-	function generateBeams supports =
+	function generateBeams supports_in =
 	(
 		format "\n"; print "SupportManager_v.generateBeams()"
 		--all_supports = Dictionary #STRING
@@ -142,37 +142,46 @@ struct SupportManager_v
 
 		new_beams = #()
 
-		supports = for support in supports where this._isSupport(support) and isTallEnough(support) collect support
+		supports_in = for support in supports_in where this._isSupport(support) and isTallEnough(support) collect support
 
 
-		if supports.count >= 2 then
+		if supports_in.count >= 2 then
 		(
-			--format "supports IN: %\n" supports
-			if supports.count > 2 then
-				supports = this._sortSupportsByDistance(supports)
+			--format "supports_in IN: %\n" supports_in
+			sorted_supports = if supports_in.count > 2 then
+							this._sortSupportsByDistance(supports_in)
+						else
+							#(supports_in)
 
-			format "supports IN: %\n" supports
-			--
-			----for i = 1 to supports.count where supports[i + 1] != undefined do
-			for i = 1 to supports.count - 1 do
-			(
-				support_A = supports[i]
-				support_B = supports[i + 1]
 
-				pointer_A = getUserPropVal support_A "THIS" asString:true
-				pointer_B = getUserPropVal support_B "THIS" asString:true
+			format "supports IN: %\n" supports_in
+			print "------------------------"
+			for supports in sorted_supports do
+				format "supports: %\n" supports
 
-				/* GENERATE BEAM */
-				BeamObject = (BeamObject_v support_A support_B ).generateBeam()
 
-				/* SAVE SYNC KEY */
-				setUserPropVal BeamObject.beam "SUPPORT_SYNC" ( getUserPropVal support_A "SUPPORT_SYNC" )
 
-				/* ADD TO BEAMS */
-				append BeamObjects BeamObject
-			)
+			for supports in sorted_supports do
+				for i = 1 to supports.count - 1 do
+				(
+					support_A = supports[i]
+					support_B = supports[i + 1]
+
+					pointer_A = getUserPropVal support_A "THIS" asString:true
+					pointer_B = getUserPropVal support_B "THIS" asString:true
+
+					/* GENERATE BEAM */
+					BeamObject = (BeamObject_v support_A support_B ).generateBeam()
+
+					/* SAVE SYNC KEY */
+					setUserPropVal BeamObject.beam "SUPPORT_SYNC" ( getUserPropVal support_A "SUPPORT_SYNC" )
+
+					/* ADD TO BEAMS */
+					append BeamObjects BeamObject
+				)
 		)
 	),
+
 	/** Update supports
 	 */
 	function updateSupports source_objects =
@@ -287,47 +296,82 @@ struct SupportManager_v
 	private
 
 	/** Sort supports by distance
+	  * Return arrays of supports sorted by closest distance.
+	  * Each array contains supports which are close enought to thmeselfs.
+	  *
+	  * Max distance of supports is set in SUPPORT_OPTIONS.max_distance
+	  *
+	  * @return 2D array
 	 */
 	function _sortSupportsByDistance supports =
 	(
 		--format "\n"; print "SupportManager_v.sortSupportsByDistance()"
+        sorted_all = #()
+		cluster    = #()
 
-        supports_positions	= for support in supports collect support.pos
-        proccessed_supports	= #{1..supports.count} * #{}
+        proccessed_supports	= #{}
 
-        next_support_i	= 1
-        supports_sorted	= #(supports[next_support_i])
+        /* SET FIRST SUPPORT INDEX */
+        support_i	= 1
 
-		while next_support_i != undefined do
+		while support_i != undefined do
 		(
-			min_distance = 9999999
+			min_distance_found = 9999999
 
-            next_support	= supports[next_support_i]
-            next_support_pos	= next_support.pos
+			/* GET SUPPORT NODE AND POSITION */
+            support     = supports[support_i]
+            support_pos = support.pos
 
-            proccessed_supports[next_support_i]	= true
+			/* AVOID TESTING SUPPORT AGAIN */
+            proccessed_supports[support_i] = true
 
+			support_i      = undefined
 			next_support_i = undefined
 
+			/*------------------------------------------------------------------------------
+				LOOP SUPPORTS AND FIND CLOSEST SUPPORT
+			--------------------------------------------------------------------------------*/
 			for i = 1 to supports.count where not proccessed_supports[i] do
-			--if supports_to_search.count > 0 then
-			(
-				--for i in supports_to_search do
-				if (dist = distance next_support_pos supports_positions[i] ) < min_distance then
+				if (current_distance = distance support_pos supports[i].pos ) < min_distance_found and current_distance <= SUPPORT_OPTIONS.beams_count then
 				(
-					min_distance = dist
+					min_distance_found = current_distance
 
 					next_support_i = i
 				)
-			)
-			--else
-				--next_support_i = undefined
 
+			/*------------------------------------------------------------------------------
+				ADD SUPPORTS TO CLUSTER IF NEXT SUPPORT FOUND
+			--------------------------------------------------------------------------------*/
 			if next_support_i != undefined then
-				append supports_sorted supports[next_support_i]
+			(
+				if cluster.count == 0 then -- create new cluster
+					cluster = #(support)
+
+				append cluster supports[next_support_i]
+
+				support_i = next_support_i
+			)
+			/*------------------------------------------------------------------------------
+				IF NEXT SUPPORT CLOSE ENOUGHT IS NOT FOUND
+			--------------------------------------------------------------------------------*/
+			else
+			(
+				/* ADD CLUSTER TO SORTED SUPPORTS */
+				if cluster.count > 0 then
+					append sorted_all cluster
+
+				cluster = #()
+			)
+
+			/*------------------------------------------------------------------------------
+				GET NEXT NOT TESTED SUPPORT
+			--------------------------------------------------------------------------------*/
+			for i = 1 to supports.count where not proccessed_supports[i] do
+				if support_i == undefined then
+					support_i = i
 		)
 
-		supports_sorted
+		sorted_all -- return
 	),
 
 	/** Get source object
