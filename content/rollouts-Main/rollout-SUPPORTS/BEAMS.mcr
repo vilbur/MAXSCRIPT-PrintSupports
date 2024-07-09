@@ -67,6 +67,7 @@ icon:	"control:radiobuttons|across:3|align:#CENTER|items:#('1', '2')|offset:[ 0,
 macroscript	_print_support_generator_beams
 category:	"_3D-Print"
 buttontext:	"BEAMS"
+tooltip:	"Generate beams with AUTOSORT and MAX DISTANCE"
 icon:	"across:1|offset:[ 0, 6 ]|width:242|height:32|tooltip:GEENERATE BEAMS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
 (
 	on execute do
@@ -84,6 +85,28 @@ icon:	"across:1|offset:[ 0, 6 ]|width:242|height:32|tooltip:GEENERATE BEAMS betw
 		)
 )
 
+/*
+*/
+macroscript	_print_support_generator_beams_max_distance_off
+category:	"_3D-Print"
+buttontext:	"BEAMS"
+tooltip:	"Generate beams SORTED BY SELECTION WITHOUT MAX DISTANCE"
+icon:	"across:1|offset:[ 0, 6 ]|width:242|height:32|tooltip:GEENERATE BEAMS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
+(
+	on execute do
+		undo "Generate Beams" on
+		(
+			clearListener(); print("Cleared in:\n"+getSourceFileName())
+			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\BEAMS.mcr"
+			_selection = for o in selection collect o
+
+			if _selection.count > 0 then
+				new_nodes = SUPPORT_MANAGER.generateBeams( _selection) auto_sort:false use_max_distance:false
+
+			select (if new_nodes.count > 0 then new_nodes else _selection)
+
+		)
+)
 
 
 

@@ -135,7 +135,7 @@ struct SupportManager_v
 
 	/** Generate beams
 	 */
-	function generateBeams supports_in =
+	function generateBeams supports_in auto_sort:true use_max_distance:true =
 	(
 		format "\n"; print "SupportManager_v.generateBeams()"
 		--format "supports_in: %\n" supports_in
@@ -160,8 +160,8 @@ struct SupportManager_v
 		if supports_in.count >= 2 then
 		(
 			--format "supports_in IN: %\n" supports_in
-			sorted_supports = if supports_in.count > 2 then
-							this._sortSupportsByDistance(supports_in)
+			sorted_supports = if supports_in.count > 2 and auto_sort then
+							this._sortSupportsByDistance(supports_in) (use_max_distance)
 						else
 							#(supports_in)
 
@@ -360,7 +360,7 @@ struct SupportManager_v
 	  *
 	  * @return 2D array
 	 */
-	function _sortSupportsByDistance supports =
+	function _sortSupportsByDistance supports use_max_distance =
 	(
 		format "\n"; print "SupportManager_v.sortSupportsByDistance()"
         sorted_all = #()
@@ -392,14 +392,14 @@ struct SupportManager_v
 			for i = 1 to supports.count where not proccessed_supports[i] do
 			(
 				--format "distance: %\n" (distance support_pos supports[i].pos)
-				if (current_distance = distance support_pos supports[i].pos ) < min_distance_found and current_distance <= SUPPORT_OPTIONS.max_distance then
-				--if (current_distance = distance support_pos supports[i].pos ) < min_distance_found then
-				(
+				if (current_distance = distance support_pos supports[i].pos ) < min_distance_found then
+					if not use_max_distance or current_distance <= SUPPORT_OPTIONS.max_distance  then
+					(
+		
+						min_distance_found = current_distance
 
-					min_distance_found = current_distance
-
-					next_support_i = i
-				)
+						next_support_i = i
+					)
 			)
 
 			/*------------------------------------------------------------------------------
