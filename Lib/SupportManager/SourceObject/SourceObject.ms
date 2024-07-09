@@ -114,7 +114,7 @@ struct SourceObject_v
 	 */
 	function updateSupports =
 	(
-		format "\n"; print "SourceObject_v.updateSupports()"
+		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
 		verts_pos = this._getVertsPositions()
 
@@ -126,10 +126,15 @@ struct SourceObject_v
 	 */
 	function updateSupportsHeight =
 	(
-		format "\n"; print "SourceObject_v.updateSupportsHeight()"
+		--format "\n"; print "SourceObject_v.updateSupportsHeight()"
 		--for SupportObjectData in Supports where SupportObjectData.value.is_on_ground do
-		for SupportObjectData in Supports do
-			SupportObjectData.value.updateHeight()
+		--for SupportObjectData in Supports do
+			--SupportObjectData.value.updateHeight()
+
+		--for key in Supports.keys where not Supports[key].is_raft do
+		for key in Supports.keys do
+			Supports[key].updateHeight()
+
 	),
 
 	/** Update support

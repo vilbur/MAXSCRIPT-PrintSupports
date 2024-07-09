@@ -79,6 +79,8 @@ struct SupportManager_v
 
 	BeamObjects = #(),
 
+	shapes_to_update = #(), -- sore shape for mass updating
+
 	/* dependency */
 	/* reference */
 	/* inhered */
@@ -121,7 +123,7 @@ struct SupportManager_v
 		bindSourceObjectTransformEvent (source_obj)
 		--format "SourceObject.getSupportNodes(): %\n" (SourceObject.getSupportNodes())
 		--format "SourceObject.Supports: %\n" SourceObject.Supports
-
+		this.updateShapes()
 	),
 
 	/** Generate beams
@@ -154,7 +156,12 @@ struct SupportManager_v
 							#(supports_in)
 
 
-			format "supports IN: %\n" supports_in
+			format "supports_in: %\n" supports_in.count
+			format "supports_in: %\n" supports_in
+
+			format "sorted_supports: %\n" sorted_supports.count
+			format "sorted_supports: %\n" sorted_supports
+
 			print "------------------------"
 			for supports in sorted_supports do
 				format "supports: %\n" supports
@@ -180,6 +187,8 @@ struct SupportManager_v
 					append BeamObjects BeamObject
 				)
 		)
+
+		this.updateShapes()
 	),
 
 	/** Update supports
@@ -199,15 +208,18 @@ struct SupportManager_v
 		for BeamObject in BeamObjects where findItem sync_keys (this._getSyncKey (BeamObject.beam)) > 0 do
 			BeamObject.updateBeam()
 
+		this.updateShapes()
 	),
 
 	/** Update supports height
 	 */
 	function updateSupportsHeight source_objects =
 	(
-		format "\n"; print "SupportManager_v.updateSupportsHeight()"
-		for obj in source_objects where (sync_key = this._getSyncKey (obj) ) != undefined do
+		--format "\n"; print "SupportManager_v.updateSupportsHeight()"
+		for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined do
 			SourceObjects[sync_key as string ].updateSupportsHeight()
+
+		this.updateShapes()
 	),
 
 	/** Update supports
@@ -225,6 +237,8 @@ struct SupportManager_v
 		/* UPDATE BEAMS OF SUPPORT */
 		for BeamObject in BeamObjects where BeamObject.support_A == support_node or BeamObject.support_B == support_node do
 			BeamObject.updateBeam()
+
+		this.updateShapes()
 	),
 
 	/** Update modifiers by control value
@@ -293,6 +307,30 @@ struct SupportManager_v
 		for pointer in SourceObjects.keys where not isValidNode SourceObjects[pointer].obj do RemoveDictKey SourceObjects pointer
 	),
 
+
+	/** Update shape add
+	 */
+	function updateShapeAdd _shape =
+	(
+		--format "\n"; print "SupportManager_v.updateShapeAdd()"
+		appendIfUnique shapes_to_update _shape
+	),
+
+	/** Update shapes
+	 */
+	function updateShapes =
+	(
+		--format "\n"; print "SupportManager_v.updateShapes()"
+
+		with redraw off
+			for _shape in shapes_to_update do
+				updateShape _shape
+
+		redrawViews()
+
+		shapes_to_update = #()
+	),
+
 	private
 
 	/** Sort supports by distance
@@ -305,7 +343,7 @@ struct SupportManager_v
 	 */
 	function _sortSupportsByDistance supports =
 	(
-		--format "\n"; print "SupportManager_v.sortSupportsByDistance()"
+		format "\n"; print "SupportManager_v.sortSupportsByDistance()"
         sorted_all = #()
 		cluster    = #()
 
@@ -328,16 +366,22 @@ struct SupportManager_v
 			support_i      = undefined
 			next_support_i = undefined
 
+			format "SUPPORT_OPTIONS.max_distance: %\n" SUPPORT_OPTIONS.max_distance
 			/*------------------------------------------------------------------------------
 				LOOP SUPPORTS AND FIND CLOSEST SUPPORT
 			--------------------------------------------------------------------------------*/
 			for i = 1 to supports.count where not proccessed_supports[i] do
-				if (current_distance = distance support_pos supports[i].pos ) < min_distance_found and current_distance <= SUPPORT_OPTIONS.beams_count then
+			(
+				--format "distance: %\n" (distance support_pos supports[i].pos)
+				if (current_distance = distance support_pos supports[i].pos ) < min_distance_found and current_distance <= SUPPORT_OPTIONS.max_distance then
+				--if (current_distance = distance support_pos supports[i].pos ) < min_distance_found then
 				(
+
 					min_distance_found = current_distance
 
 					next_support_i = i
 				)
+			)
 
 			/*------------------------------------------------------------------------------
 				ADD SUPPORTS TO CLUSTER IF NEXT SUPPORT FOUND
@@ -366,9 +410,11 @@ struct SupportManager_v
 			/*------------------------------------------------------------------------------
 				GET NEXT NOT TESTED SUPPORT
 			--------------------------------------------------------------------------------*/
-			for i = 1 to supports.count where not proccessed_supports[i] do
-				if support_i == undefined then
-					support_i = i
+
+			if support_i == undefined then
+				for i = 1 to supports.count where not proccessed_supports[i] do
+					if support_i == undefined then
+						support_i = i
 		)
 
 		sorted_all -- return
@@ -379,7 +425,7 @@ struct SupportManager_v
 	function _getSourceObjects _objects =
 	(
 		--format "\n"; print "SupportManager_v._getSourceObject()"
-		sync_keys = for obj in _objects where (sync_key = this._getSyncKey (obj)) != undefined collect sync_key
+		sync_keys = for obj in _objects where (sync_key = this._getSyncSourceKey (obj)) != undefined collect sync_key
 
 		for sync_key in sync_keys collect SourceObjects[sync_key]
 	),

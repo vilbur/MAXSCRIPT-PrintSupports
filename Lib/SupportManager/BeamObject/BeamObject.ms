@@ -32,6 +32,8 @@ struct BeamObject_v
 
 		this._drawLines(points_of_lines)
 
+		SUPPORT_MANAGER.updateShapeAdd (this.beam)
+
 		this --return
 	),
 
@@ -49,6 +51,9 @@ struct BeamObject_v
 			deleteSpline beam i
 
 		this._drawLines(points_of_lines)
+
+		--SUPPORT_MANAGER.updateShapeAdd (this.beam.baseobject)
+		SUPPORT_MANAGER.updateShapeAdd (this.beam)
 	),
 
 	private
@@ -196,8 +201,7 @@ struct BeamObject_v
 		--if SUPPORT_OPTIONS.cross_beams then
 			--this._drawLine  (end_points[2][1]) (end_points[2][2]) 2
 
-		updateShape this.beam
-
+		--updateShape this.beam
 	),
 
 	/** Draw line

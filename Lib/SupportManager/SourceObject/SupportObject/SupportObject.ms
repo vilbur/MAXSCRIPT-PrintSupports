@@ -77,7 +77,8 @@ struct SupportObject_v
 
 		this._updateLineKnots()
 
-		updateShape support_obj
+		--updateShape support_obj
+		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
 	),
 
@@ -113,6 +114,7 @@ struct SupportObject_v
 		setKnotPoint support_obj _spline_index ground_knot	ground_knot_pos
 		setKnotPoint support_obj _spline_index base_knot	base_knot_pos
 
+		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
 		updateShape support_obj
 	),
 
@@ -298,7 +300,7 @@ struct SupportObject_v
 		for pos in knots_positions do
 			addKnot support_obj _spline_index #corner #line pos
 
-		updateShape support_obj
+		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 	),
 
 	/** Update line
