@@ -60,9 +60,10 @@ struct SourceObject_v
 		this._setLocalVertexNormals(verts_process)
 
 		this._setWorldSpaceVertexNormals(verts_process)
-
+		format "VERTS_PROCESS A: %\n" verts_process
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE */
 		verts_process = ( for vert in verts_process where this._isNormalValid(vert) collect vert ) as BitArray
+		format "VERTS_PROCESS B: %\n" verts_process
 
 		/* FILTER ONLY VERTS TO PROCESS FROM COLORED ARRAYS */
 		for vertex_color in verts_by_colors.keys do verts_by_colors[vertex_color] *= verts_process
@@ -83,7 +84,8 @@ struct SourceObject_v
 
 
 				setUserPropVal SupportObject.support_obj "SUPPORT_SYNC"	sync_key
-				setUserPropVal SupportObject.support_obj "THIS"	((getHandleByAnim SupportObject.support_obj) as string )
+				setUserPropVal SupportObject.support_obj "SUPPORT_KEY"	SupportObject.support_key asString:true
+				setUserPropVal SupportObject.support_obj "THIS"	((getHandleByAnim SupportObject.support_obj) as string ) -- REMOVE THIS LINNE
 				setUserPropVal SupportObject.support_obj "INDEX"	vert
 				setUserPropVal SupportObject.support_obj "RAFT"	is_raft
 				setUserPropVal SupportObject.support_obj "DIRECTION"	second_point_direction

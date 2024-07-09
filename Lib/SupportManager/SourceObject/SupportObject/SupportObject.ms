@@ -9,6 +9,7 @@ struct SupportObject_v
 
 	/* required on load from scene */
 	support_obj,
+	support_key, -- pointer of support when node is created
 
 	/* properties */
 
@@ -47,6 +48,8 @@ struct SupportObject_v
 		this._setMaterialsToLineSegments()
 
 		this._setPivotToSecondPoint()
+
+		support_key = (getHandleByAnim support_obj) as string
 
 		this --return
 	),

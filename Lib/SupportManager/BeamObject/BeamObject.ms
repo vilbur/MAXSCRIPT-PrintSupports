@@ -9,6 +9,7 @@ struct BeamObject_v
 	/* required */
 	/* properties */
 	beam,
+	beam_key,
 
 	/* private */
 	/* dependency */
@@ -31,6 +32,8 @@ struct BeamObject_v
 		bindBeamOnDeleteCallback( beam )
 
 		this._drawLines(points_of_lines)
+
+		beam_key = this.getBeamKey()
 
 		SUPPORT_MANAGER.updateShapeAdd (this.beam)
 
@@ -55,6 +58,20 @@ struct BeamObject_v
 		--SUPPORT_MANAGER.updateShapeAdd (this.beam.baseobject)
 		SUPPORT_MANAGER.updateShapeAdd (this.beam)
 	),
+
+	/** Get beam key
+	 */
+	function getBeamKey =
+	(
+		--format "\n"; print "SupportManager_v.getBeamKey()"
+		pointer_A = getUserPropVal support_A "THIS" asString:true
+		pointer_B = getUserPropVal support_B "THIS" asString:true
+
+		pointers = sort #( pointer_A , pointer_B )
+
+		( pointers[1] + "x" + pointers[2] ) as name --return
+	),
+
 
 	private
 
@@ -377,7 +394,6 @@ struct BeamObject_v
 	on create do
 	(
 		--format "\n"; print "BeamObject.onCreate()"
-
 	)
 
 )
