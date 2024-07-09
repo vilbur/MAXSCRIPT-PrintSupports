@@ -44,7 +44,7 @@ struct BeamObject_v
 	 */
 	function updateBeam =
 	(
-		--format "\n"; print "BeamObject_v.updateBeam()"
+		format "\n"; print "BeamObject_v.updateBeam()"
 
 		points_of_lines = this._getBeamsEndPoints()
 		--format "END_POINTS: %\n" points_of_lines
@@ -89,8 +89,8 @@ struct BeamObject_v
 
 		--setUserPropVal beam "THIS"	(getHandleByAnim beam)
 
-		setUserPropVal beam "support_A" ( getUserPropVal support_A "THIS" )
-		setUserPropVal beam "support_B" ( getUserPropVal support_B "THIS" )
+		setUserPropVal beam "SUPPORT_A" ( getUserPropVal support_A "THIS" )
+		setUserPropVal beam "SUPPORT_B" ( getUserPropVal support_B "THIS" )
 
 		/* COPY MODIFIERS OF PARENT SUPPORT NAME WHICH NAME IS MATCHING: "*BAR*" */
 		--for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
