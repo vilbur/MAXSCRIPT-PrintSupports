@@ -69,7 +69,7 @@ struct BeamObject_v
 
 		pointers = sort #( pointer_A , pointer_B )
 
-		( pointers[1] + "x" + pointers[2] ) as name --return
+		( pointers[1] + "x" + pointers[2] ) --return
 	),
 
 
@@ -87,7 +87,7 @@ struct BeamObject_v
 		beam.parent	= support_A
 		beam.pivot  = beam.center
 
-		setUserPropVal beam "THIS"	(getHandleByAnim beam)
+		--setUserPropVal beam "THIS"	(getHandleByAnim beam)
 
 		setUserPropVal beam "support_A" ( getUserPropVal support_A "THIS" )
 		setUserPropVal beam "support_B" ( getUserPropVal support_B "THIS" )

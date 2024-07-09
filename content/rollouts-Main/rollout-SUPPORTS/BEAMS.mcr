@@ -77,10 +77,10 @@ icon:	"across:1|offset:[ 0, 6 ]|width:242|height:32|tooltip:GEENERATE BEAMS betw
 			_selection = for o in selection collect o
 
 			if _selection.count > 0 then
-				SUPPORT_MANAGER.generateBeams( _selection)
+				new_nodes = SUPPORT_MANAGER.generateBeams( _selection)
 
-			if _selection.count > 0 then
-				select _selection[1]
+			select (if new_nodes.count > 0 then new_nodes else _selection)
+
 		)
 )
 

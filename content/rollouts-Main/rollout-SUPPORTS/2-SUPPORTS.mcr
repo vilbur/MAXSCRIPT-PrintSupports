@@ -21,10 +21,10 @@ icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\
 			_selection = for o in selection collect o
 
 			if _selection.count > 0 then
-				SUPPORT_MANAGER.generateSupports( _selection[1] )
+				new_nodes = SUPPORT_MANAGER.generateSupports( _selection[1] )
 
-			if _selection.count > 0 then
-				select _selection[1]
+			select (if new_nodes.count > 0 then new_nodes else _selection)
+
 		)
 )
 
@@ -43,10 +43,10 @@ icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE RAFTS.\n\nWO
 			_selection = for o in selection collect o
 
 			if _selection.count > 0 then
-				SUPPORT_MANAGER.generateSupports( _selection[1] ) is_raft:true
+				new_nodes = SUPPORT_MANAGER.generateSupports( _selection[1] ) is_raft:true
 
-			if _selection.count > 0 then
-				select _selection[1]
+			select (if new_nodes.count > 0 then new_nodes else _selection)
+
 		)
 )
 

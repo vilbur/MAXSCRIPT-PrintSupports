@@ -40,6 +40,8 @@ struct SourceObject_v
 		format "\n"; print "SourceObject_v.generateSupports()"
 		--format "Supports.keys: %\n" Supports.keys
 		--format "Supports.keys: %\n" Supports.keys
+		new_nodes = #()
+
 		this._removeDeletedNodes()
 
 		--this._setVertsToProcess()
@@ -60,10 +62,10 @@ struct SourceObject_v
 		this._setLocalVertexNormals(verts_process)
 
 		this._setWorldSpaceVertexNormals(verts_process)
-		format "VERTS_PROCESS A: %\n" verts_process
+		--format "VERTS_PROCESS A: %\n" verts_process
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE */
 		verts_process = ( for vert in verts_process where this._isNormalValid(vert) collect vert ) as BitArray
-		format "VERTS_PROCESS B: %\n" verts_process
+		--format "VERTS_PROCESS B: %\n" verts_process
 
 		/* FILTER ONLY VERTS TO PROCESS FROM COLORED ARRAYS */
 		for vertex_color in verts_by_colors.keys do verts_by_colors[vertex_color] *= verts_process
@@ -83,7 +85,7 @@ struct SourceObject_v
 				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
 
-				setUserPropVal SupportObject.support_obj "SUPPORT_SYNC"	sync_key
+				setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
 				setUserPropVal SupportObject.support_obj "SUPPORT_KEY"	SupportObject.support_key asString:true
 				setUserPropVal SupportObject.support_obj "THIS"	((getHandleByAnim SupportObject.support_obj) as string ) -- REMOVE THIS LINNE
 				setUserPropVal SupportObject.support_obj "INDEX"	vert
@@ -93,6 +95,8 @@ struct SourceObject_v
 				SupportObject.support_obj.parent = obj
 
 				this.Supports[vert] = SupportObject
+
+				append new_nodes SupportObject.support_obj
 			)
 
 
@@ -109,7 +113,7 @@ struct SourceObject_v
 		--for RaftSupport in (Supports + Rafts) do
 			--format "RaftSupport: %\n" RaftSupport
 
-		--Supports + Rafts --return
+		new_nodes --return
 	),
 
 	/** Update whole supports objects
@@ -175,8 +179,8 @@ struct SourceObject_v
 	function initObjectsFromScene =
 	(
 		format "\n"; print "SourceObject_v.initObjectsFromScene()"
-		this._loadSupportsAndRaftsFromScene()
-
+		--this._loadSupportsAndRaftsFromScene()
+--
 		verts_process = Supports.keys as BitArray
 
 		if ( normals_local_loaded = getUserPropVal obj "normals_local" ) != undefined then
@@ -316,20 +320,20 @@ struct SourceObject_v
 			normals_local[i] = point3 0 0 0
 	),
 
-	/** Get existing support and rafts from scene
-	 */
-	function _loadSupportsAndRaftsFromScene =
-	(
-		format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
-		for obj_in_scene in objects	where superClassOf obj_in_scene.baseobject == shape \
-					  and  getUserPropVal obj_in_scene "SUPPORT_SYNC" == sync_key \
-					  and  (is_raft = getUserPropVal obj_in_scene "RAFT") != undefined do -- BEAMS DOES NOT HAS is_raft raft property
-		(
-			vert = getUserPropVal obj_in_scene "INDEX"
-
-			this.Supports[vert] = SupportObject_v source_obj:obj support_obj:obj_in_scene is_raft:is_raft
-		)
-	),
+	--/** Get existing support and rafts from scene
+	-- */
+	--function _loadSupportsAndRaftsFromScene =
+	--(
+	--	format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
+	--	for obj_in_scene in objects	where superClassOf obj_in_scene.baseobject == shape \
+	--				  and  getUserPropVal obj_in_scene "SYNC_KEY" == sync_key \
+	--				  and  (is_raft = getUserPropVal obj_in_scene "RAFT") != undefined do -- BEAMS DOES NOT HAS is_raft raft property
+	--	(
+	--		vert = getUserPropVal obj_in_scene "INDEX"
+	--
+	--		this.Supports[vert] = SupportObject_v source_obj:obj support_obj:obj_in_scene is_raft:is_raft
+	--	)
+	--),
 
 	/** test if obj rotation changed in X and Y axises
 	 */
