@@ -3,13 +3,14 @@
 struct BeamObject_v
 (
 	/* construct */
-	support_A,
-	support_B,
+	support_A, -- support node
+	support_B, -- support node
 
 	/* required */
 	/* properties */
 	beam,
 	beam_key,
+	sync_key,
 
 	/* private */
 	/* dependency */
@@ -64,10 +65,7 @@ struct BeamObject_v
 	function getBeamKey =
 	(
 		--format "\n"; print "SupportManager_v.getBeamKey()"
-		pointer_A = getUserPropVal support_A "SUPPORT_KEY" asString:true
-		pointer_B = getUserPropVal support_B "SUPPORT_KEY" asString:true
-
-		pointers = sort #( pointer_A , pointer_B )
+		pointers = sort #( this._getSupportKey(support_A) , this._getSupportKey(support_B) )
 
 		( pointers[1] + "x" + pointers[2] ) --return
 	),
@@ -89,8 +87,8 @@ struct BeamObject_v
 
 		--setUserPropVal beam "THIS"	(getHandleByAnim beam)
 
-		setUserPropVal beam "SUPPORT_A" ( getUserPropVal support_A "SUPPORT_KEY" )
-		setUserPropVal beam "SUPPORT_B" ( getUserPropVal support_B "SUPPORT_KEY" )
+		setUserPropVal beam "SUPPORT_A" ( this._getSupportKey(support_A) )
+		setUserPropVal beam "SUPPORT_B" ( this._getSupportKey(support_B) )
 
 		/* COPY MODIFIERS OF PARENT SUPPORT NAME WHICH NAME IS MATCHING: "*BAR*" */
 		--for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
@@ -273,6 +271,15 @@ struct BeamObject_v
 	--	distance point_1 point_2 --return
 	--),
 
+	/** Get support key
+	 */
+	function _getSupportKey support =
+	(
+		--format "\n"; print "BeamObject_v._getSupportKey()"
+		getUserPropVal support "SUPPORT_KEY"
+	),
+
+
 	/** Filter edit spline objects
 	  *
 	  */
@@ -394,7 +401,5 @@ struct BeamObject_v
 	on create do
 	(
 		--format "\n"; print "BeamObject.onCreate()"
-		format "support_A: %\n" support_A
 	)
-
 )

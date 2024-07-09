@@ -356,6 +356,66 @@ struct SupportManager_v
 		shapes_to_update = #()
 	),
 
+
+	/** Set visibility
+	 */
+	function setVisibility type: visibility:true =
+	(
+		format "\n"; print "SupportManager_v.setVisibility()"
+
+        source_keys = #()
+        supports	= #()
+        beams   	= #()
+
+        objects_to_process = #()
+
+		_objects = if selection.count > 0 then selection as Array else objects
+
+		for obj in _objects do
+			case of
+			(
+                ((sync_key = this._isSourceObject  obj) != false): append source_keys sync_key
+                ((this._isType #SUPPORT obj) != false): append supports obj
+                ((this._isType #BEAM    obj) != false): append beams obj
+                --default:
+			)
+			
+		format "source_keys: %\n" source_keys.count
+		format "supports: %\n" supports.count
+		format "beams: %\n" beams.count
+
+
+		if source_keys.count > 0 then
+		(
+			/* GET BEAMS OF SOURCE OBJECT */
+			for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
+				append objects_to_process BeamObjects[key].beam
+
+			/* GET SUPPORTS OF SOURCE OBJECT */
+			if type == #SUPPORT then
+				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 do
+					append objects_to_process SupportObjects[key].support_obj
+
+		)
+		else if supports.count > 0 then
+		(
+			/* GET BEAMS OF SOURCE OBJECT */
+			for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
+				append objects_to_process BeamObjects[key].beam
+
+			if type == #SUPPORT then
+				objects_to_process += supports
+
+		)
+		else if beams.count > 0 then
+			objects_to_process = beams
+
+
+		for obj in objects_to_process do
+			obj.isHidden = not visibility
+	),
+
+
 	private
 
 	/** Sort supports by distance
@@ -542,9 +602,8 @@ struct SupportManager_v
 		(
 		    index       = getUserPropVal obj_in_scene "INDEX"
 		    sync_key    = getUserPropVal obj_in_scene "SYNC_KEY"
-		    --support_key = getUserPropVal obj_in_scene "SUPPORT_KEY"
 
-			SupportObject = SupportObject_v source_obj:SourceObjects[sync_key].obj support_obj:obj_in_scene support_key:support_key is_raft:is_raft
+			SupportObject = SupportObject_v source_obj:SourceObjects[sync_key].obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key is_raft:is_raft
 
 			SupportObjects[SupportObject.support_key] = SupportObject
 
@@ -569,13 +628,16 @@ struct SupportManager_v
 			--format "beam_key: %\n" beam_key
 			key_A = getUserPropVal obj_in_scene "SUPPORT_A"
 			key_B = getUserPropVal obj_in_scene "SUPPORT_B"
-			format "key_A: %\n" key_A
-			format "key_B: %\n" key_B
+
+		    sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
+
+			--format "key_A: %\n" key_A
+			--format "key_B: %\n" key_B
 
 			support_A = SupportObjects[key_A].support_obj
 			support_B = SupportObjects[key_B].support_obj
 
-			BeamObject = BeamObject_v support_A:support_A support_B:support_B beam:obj_in_scene beam_key:beam_key
+			BeamObject = BeamObject_v support_A:support_A support_B:support_B beam:obj_in_scene beam_key:beam_key sync_key:sync_key
 
 			/* ADD TO BEAMS */
 			BeamObjects[beam_key] = BeamObject

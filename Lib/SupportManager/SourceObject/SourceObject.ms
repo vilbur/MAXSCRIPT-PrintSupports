@@ -75,7 +75,7 @@ struct SourceObject_v
 			for vert in verts_by_colors[vertex_color] do
 			(
 				--format "create support for vert: %\n" vert
-				SupportObject = SupportObject_v(obj)(is_raft)
+				SupportObject = SupportObject_v source_obj:obj is_raft:is_raft sync_key:sync_key
 
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT

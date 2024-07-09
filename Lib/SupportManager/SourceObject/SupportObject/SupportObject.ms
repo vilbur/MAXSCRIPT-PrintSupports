@@ -10,7 +10,8 @@ struct SupportObject_v
 	/* required on load from scene */
 	support_obj,
 	support_key, -- pointer of support when node is created
-
+	sync_key,
+	
 	/* properties */
 
 	knots_positions = Array (2),
