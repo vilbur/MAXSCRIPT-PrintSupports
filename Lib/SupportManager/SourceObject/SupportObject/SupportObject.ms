@@ -150,7 +150,7 @@ struct SupportObject_v
 	 */
 	function _setRaftKnots vertex_pos direction =
 	(
-		format "\n"; print "SupportRaftBaseObject._setRaftKnots()"
+		--format "\n"; print "SupportRaftBaseObject._setRaftKnots()"
 
 		limit_height_to_base = SUPPORT_OPTIONS.base_height * 1.3 -- z pozition preserved for base points
 

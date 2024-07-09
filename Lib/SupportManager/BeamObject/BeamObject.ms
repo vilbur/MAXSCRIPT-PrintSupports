@@ -29,11 +29,11 @@ struct BeamObject_v
 
 		this._createBeam()
 
-		bindBeamOnDeleteCallback( beam )
-
 		this._drawLines(points_of_lines)
 
 		beam_key = this.getBeamKey()
+
+		bindBeamOnDeleteCallback( beam )
 
 		SUPPORT_MANAGER.updateShapeAdd (this.beam)
 
@@ -44,7 +44,7 @@ struct BeamObject_v
 	 */
 	function updateBeam =
 	(
-		format "\n"; print "BeamObject_v.updateBeam()"
+		--format "\n"; print "BeamObject_v.updateBeam()"
 
 		points_of_lines = this._getBeamsEndPoints()
 		--format "END_POINTS: %\n" points_of_lines
@@ -64,8 +64,8 @@ struct BeamObject_v
 	function getBeamKey =
 	(
 		--format "\n"; print "SupportManager_v.getBeamKey()"
-		pointer_A = getUserPropVal support_A "THIS" asString:true
-		pointer_B = getUserPropVal support_B "THIS" asString:true
+		pointer_A = getUserPropVal support_A "SUPPORT_KEY" asString:true
+		pointer_B = getUserPropVal support_B "SUPPORT_KEY" asString:true
 
 		pointers = sort #( pointer_A , pointer_B )
 
@@ -89,8 +89,8 @@ struct BeamObject_v
 
 		--setUserPropVal beam "THIS"	(getHandleByAnim beam)
 
-		setUserPropVal beam "SUPPORT_A" ( getUserPropVal support_A "THIS" )
-		setUserPropVal beam "SUPPORT_B" ( getUserPropVal support_B "THIS" )
+		setUserPropVal beam "SUPPORT_A" ( getUserPropVal support_A "SUPPORT_KEY" )
+		setUserPropVal beam "SUPPORT_B" ( getUserPropVal support_B "SUPPORT_KEY" )
 
 		/* COPY MODIFIERS OF PARENT SUPPORT NAME WHICH NAME IS MATCHING: "*BAR*" */
 		--for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
@@ -394,6 +394,7 @@ struct BeamObject_v
 	on create do
 	(
 		--format "\n"; print "BeamObject.onCreate()"
+		format "support_A: %\n" support_A
 	)
 
 )

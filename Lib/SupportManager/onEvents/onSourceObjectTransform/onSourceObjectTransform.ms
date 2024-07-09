@@ -41,14 +41,14 @@ function onObjectTransformTimeoutCallback sender evt =
 		if roundFloat saved_rotation.x != roundFloat current_rotation.x or roundFloat saved_rotation.y != roundFloat current_rotation.y then
 		(
 			print "ROTATION CHANGED"
-			SUPPORT_MANAGER.updateSupports( selection as Array )
+			SUPPORT_MANAGER.updateSupportsBySourceObject( selection as Array )
 
 			removeTimeout sender
 		)
 		else if roundFloat SOURCE_OBJECT_POSITION[#POS_Z] != roundFloat SOURCE_OBJECT_POSITION[#OBJECT].position.z then
 		(
 			print "Z POZITION CHANGED"
-			SUPPORT_MANAGER.updateSupportsHeight( selection as Array )
+			SUPPORT_MANAGER.updateSupportsBySourceObject( selection as Array ) only_height:true
 
 			removeTimeout sender
 		)
@@ -104,6 +104,3 @@ function bindSourceObjectTransformEvent source_obj =
 		)
 	)
 )
-
---clearListener(); print("Cleared in:\n"+getSourceFileName())
---bindSourceObjectTransformEvent ( selection[1] )

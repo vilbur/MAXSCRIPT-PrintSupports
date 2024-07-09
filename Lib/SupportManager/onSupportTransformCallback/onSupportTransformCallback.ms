@@ -1,51 +1,60 @@
-
-
-
 global SUPPORTS_BINDED = #()
 
---global SUPPORTS_TRANSFORM_CHANGED = #()
---
---/**
--- * https://help.autodesk.com/view/3DSMAX/2015/ENU/?guid=__files_GUID_C1F6495F_5831_4FC8_A00C_667C5F2EAE36_htm
--- */
---function waitForSupportDeselectCallbackStart =
---(
---	--print "Start: waitForSupportDeselectCallbackStart()"
---	try( callbacks.addScript #selectionSetChanged "onSupportSelectionChanged()" id:#waitForSupportSelectionChangedCallback )catch()
---)
---
---
---/**
--- */
---function waitForwaitForDeselectkKill =
---(
---	--print "Kill: waitForSupportSelectionChangedCallback()"
---	try( callbacks.removeScripts #selectionSetChanged id:#waitForSupportSelectionChangedCallback )catch()
---
---	deleteAllChangeHandlers id:#updateSupportsEvent
---)
---
---/**
--- */
---function onSupportSelectionChanged =
---(
---	--print "onSupportSelectionChanged()"
---	param = callbacks.notificationParam()
---
---	--if selection.count == 0 and SUPPORTS_TRANSFORM_CHANGED.count > 0 then
---	if SUPPORTS_TRANSFORM_CHANGED.count > 0 then
---	(
---
---		--SupportGenerator = SupportGenerator_v()
---
---		--for support in SUPPORTS_TRANSFORM_CHANGED do
---			--support.wirecolor = ( color ( random 1 255) ( random 1 255) ( random 1 255) )
---
---		SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED )
---
---		free SUPPORTS_TRANSFORM_CHANGED -- empty array for nett selection
---	)
---)
+global SUPPORTS_TRANSFORM_CHANGED = #()
+
+/** On timeout callback
+ */
+function onSupportTransformTimeoutCallback sender evt =
+(
+	--format "\n"; print ".onSupportTransformTimeoutCallback()"
+
+	/** Remove timeout
+	 */
+	fn removeTimeout sender =
+	(
+		format "\n"; print ".removeTimeout()"
+		SUPPORTS_TRANSFORM_CHANGED = #()
+
+		sender.enabled = false
+		-- for sanity and cleanup
+		dotNet.removeEventHandler sender "Elapsed" onSupportTransformTimeoutCallback
+	)
+
+	--if selection.count > 0 then
+	--(
+	--	print "\nTIMER"
+	--
+	--	removeTimeout sender
+	--)
+
+
+	if selection.count > 0 then
+	(
+		SUPPORT_MANAGER.updateSupports( SUPPORTS_TRANSFORM_CHANGED )
+
+		removeTimeout sender
+	)
+	else if selection.count == 0 then
+		removeTimeout sender
+)
+
+/** Start timeout
+ */
+function startSupportTransformTimeout =
+(
+	format "\n"; print ".startSupportTransformTimeout()"
+	--delay_ms = 3000
+	delay_ms = 1000
+	--delay_ms = 100
+
+	delay_timer = dotNetObject "Windows.Forms.Timer"
+
+	delay_timer.Interval = delay_ms
+
+	dotNet.addEventHandler delay_timer "Tick" onSupportTransformTimeoutCallback
+
+	delay_timer.enabled = true
+)
 
 /** Bind transform event
  */
@@ -62,42 +71,23 @@ function bindSupportToTransformEvent supports =
 	else
 		append SUPPORTS_BINDED supports
 
-	----for i = SUPPORTS_BINDED.count to 1 by -1 where not isValidNode SUPPORTS_BINDED[i] do deleteItem SUPPORTS_BINDED i
-	--
-	----SUPPORTS_BINDED = makeUniqueArray SUPPORTS_BINDED
-	--
-	--/* GET ONLY VALID NODES */
-	--SUPPORTS_BINDED = for i = (makeUniqueArray SUPPORTS_BINDED).count to 1 by -1 where isValidNode SUPPORTS_BINDED[i] collect SUPPORTS_BINDED[i]
-	--format "SUPPORTS_BINDED: %\n" SUPPORTS_BINDED
-	--format "COUNT: %\n" SUPPORTS_BINDED.count
-
 	deleteAllChangeHandlers id:#updateSupportsEvent
 
 	when transform SUPPORTS_BINDED changes id:#updateSupportsEvent support do
 	(
-		--appendIfUnique SUPPORTS_TRANSFORM_CHANGED support
-		--
-		--waitForSupportDeselectCallbackStart()
-		--format "support: %\n" support
-		--for support in SUPPORTS_TRANSFORM_CHANGED do
-			--support.wirecolor = ( color ( random 1 255) ( random 1 255) ( random 1 255) )
 
-			--if support.isSelected and SUPPORT_OPTIONS.live_update_supports then
-			if support.isSelected then
-				SUPPORT_MANAGER.updateSupport( support )
+		--if selection.count > 2 then
+		if selection.count > 1 then
+		(
+
+			if  SUPPORTS_TRANSFORM_CHANGED.count == 0 then
+				startSupportTransformTimeout()
+
+			appendIfUnique SUPPORTS_TRANSFORM_CHANGED support
+
+		)
+		else if support.isSelected then
+				SUPPORT_MANAGER.updateSupports #( support )
+
 	)
 )
-
---/** Unind support to transform event
--- */
---function resetSupportToTransformEvent =
---(
---	--format "\n"; print ".resetSupportToTransformEvent()"
---	deleteAllChangeHandlers id:#updateSupportsEvent
---
---	SUPPORTS_BINDED = #()
---
---	SUPPORTS_TRANSFORM_CHANGED = #()
---)
---
---resetSupportToTransformEvent() -- unbind in case of restart tools

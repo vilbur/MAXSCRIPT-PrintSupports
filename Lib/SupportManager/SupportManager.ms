@@ -204,35 +204,20 @@ struct SupportManager_v
 
 	/** Update supports
 	 */
-	function updateSupports source_objects =
+	function updateSupportsBySourceObject source_objects only_height:false =
 	(
-		format "\n"; print "SupportManager_v.updateSupports()"
+		format "\n"; print "SupportManager_v.updateSupportsBySourceObject()"
 
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
 		format "sync_keys: %\n" sync_keys
 
 		/* UPDATE SUPPORTS */
 		for sync_key in sync_keys do
-			SourceObjects[sync_key].updateSupports()
+			if only_height then
+				SourceObjects[sync_key].updateSupportsHeight()
 
-		/* UPDATE BEAMS */
-		for key in BeamObjects.keys where findItem sync_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
-			BeamObjects[key].updateBeam()
-
-		this.updateShapes()
-	),
-
-	/** Update supports height
-	 */
-	function updateSupportsHeight source_objects =
-	(
-		format "\n"; print "SupportManager_v.updateSupportsHeight()"
-
-		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
-		format "sync_keys: %\n" sync_keys
-
-		for obj in source_objects where (sync_key = this._isSourceObject obj) != false do
-			SourceObjects[sync_key].updateSupportsHeight()
+			else
+				SourceObjects[sync_key].updateSupports()
 
 		/* UPDATE BEAMS */
 		for key in BeamObjects.keys where findItem sync_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
@@ -243,19 +228,27 @@ struct SupportManager_v
 
 	/** Update supports
 	 */
-	function updateSupport support_node =
+	function updateSupports support_nodes =
 	(
 		--format "\n"; print "SupportManager_v.updateSupportPosition()"
 		--format "support_nodes: %\n" support_nodes
-		sync_key = getUserPropVal support_node "SYNC_KEY"
 
-		/* UPDATE SUPPORT */
-		SourceObjects[sync_key].updateSupport(support_node)
+		sync_keys = #()
 
+		for support_node in support_nodes do
+		(
+			sync_key = getUserPropVal support_node "SYNC_KEY"
 
-		--/* UPDATE BEAMS OF SUPPORT */
-		--for BeamObject in BeamObjects where BeamObject.support_A == support_node or BeamObject.support_B == support_node do
-		--	BeamObject.updateBeam()
+			appendIfUnique sync_keys sync_key
+
+			/* UPDATE SUPPORT */
+			SourceObjects[sync_key].updateSupport(support_node)
+		)
+
+		/* UPDATE BEAMS */
+		for key in BeamObjects.keys where findItem sync_keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
+			BeamObjects[key].updateBeam()
+
 
 		this.updateShapes()
 	),
@@ -573,14 +566,14 @@ struct SupportManager_v
 
 		for obj_in_scene in objects where (beam_key = this._isType #BEAM obj_in_scene) != false do
 		(
-			format "beam_key: %\n" beam_key
+			--format "beam_key: %\n" beam_key
 			key_A = getUserPropVal obj_in_scene "SUPPORT_A"
 			key_B = getUserPropVal obj_in_scene "SUPPORT_B"
 			format "key_A: %\n" key_A
 			format "key_B: %\n" key_B
 
-			support_A = SupportObjects[key_A].support
-			support_B = SupportObjects[key_B].support
+			support_A = SupportObjects[key_A].support_obj
+			support_B = SupportObjects[key_B].support_obj
 
 			BeamObject = BeamObject_v support_A:support_A support_B:support_B beam:obj_in_scene beam_key:beam_key
 

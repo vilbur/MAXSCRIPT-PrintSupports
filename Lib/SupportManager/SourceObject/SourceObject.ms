@@ -37,7 +37,7 @@ struct SourceObject_v
 	 */
 	function generateSupports is_raft:false =
 	(
-		format "\n"; print "SourceObject_v.generateSupports()"
+		--format "\n"; print "SourceObject_v.generateSupports()"
 		--format "Supports.keys: %\n" Supports.keys
 		--format "Supports.keys: %\n" Supports.keys
 		new_nodes = #()
@@ -74,7 +74,7 @@ struct SourceObject_v
 		for vertex_color in verts_by_colors.keys do
 			for vert in verts_by_colors[vertex_color] do
 			(
-				format "create support for vert: %\n" vert
+				--format "create support for vert: %\n" vert
 				SupportObject = SupportObject_v(obj)(is_raft)
 
 				/*------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ struct SourceObject_v
 
 				setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
 				setUserPropVal SupportObject.support_obj "SUPPORT_KEY"	SupportObject.support_key asString:true
-				setUserPropVal SupportObject.support_obj "THIS"	((getHandleByAnim SupportObject.support_obj) as string ) -- REMOVE THIS LINNE
+				--setUserPropVal SupportObject.support_obj "THIS"	((getHandleByAnim SupportObject.support_obj) as string ) -- REMOVE THIS LINNE
 				setUserPropVal SupportObject.support_obj "INDEX"	vert
 				setUserPropVal SupportObject.support_obj "RAFT"	is_raft
 				setUserPropVal SupportObject.support_obj "DIRECTION"	second_point_direction
@@ -178,7 +178,7 @@ struct SourceObject_v
 	 */
 	function initObjectsFromScene =
 	(
-		format "\n"; print "SourceObject_v.initObjectsFromScene()"
+		--format "\n"; print "SourceObject_v.initObjectsFromScene()"
 		--this._loadSupportsAndRaftsFromScene()
 --
 		verts_process = Supports.keys as BitArray
@@ -187,7 +187,7 @@ struct SourceObject_v
 		(
 			normals_local = normals_local_loaded
 
-			format "normals_local_loaded: %\n" normals_local_loaded
+			--format "normals_local_loaded: %\n" normals_local_loaded
 		)
 		else
 			this._setLocalVertexNormals(verts_process)
@@ -214,7 +214,7 @@ struct SourceObject_v
 	 */
 	function _setLocalVertexNormals verts =
 	(
-		format "\n"; print "SourceObject_v._setLocalVertexNormals()"
+		--format "\n"; print "SourceObject_v._setLocalVertexNormals()"
 		--format "verts.numberSet: %\n" verts.numberSet
 		--timer_get_normals = timeStamp()
 		obj_mesh = obj.mesh
