@@ -5,13 +5,13 @@ struct SupportObject_v
 	/* construct */
 	source_obj,
 
-	is_raft,
+	is_raft = false,
 
 	/* required on load from scene */
 	support_obj,
 	support_key, -- pointer of support when node is created
 	sync_key,
-	
+
 	/* properties */
 
 	knots_positions = Array (2),

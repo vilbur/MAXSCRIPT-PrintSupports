@@ -12,10 +12,28 @@ macroscript	_print_generator_beams_max_distance
 category:	"_3D-Print"
 buttontext:	"Max Distance"
 --tooltip:	""
-icon:	"across:3|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:64|offset:[ 36, 6 ]|tooltip:Max distance in mm between supports to generate beam."
+icon:	"across:3|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:64|offset:[ 36, 6 ]|tooltip:Max distance in mm between supports to generate beam."
 (
 	--format "EventFired:	% \n" EventFired
-	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+
+	/** Get size
+	 */
+	function getSize obj = (bbox	= nodeGetBoundingBox obj ( Matrix3 1))[2].z - bbox[1].z
+
+
+	--bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+
+	if EventFired.inSpin and EventFired.Control.value == EventFired.Control.range[1] and selection.count >= 2 then
+	(
+		--sizes = for obj in selection collect  getSize obj
+
+		EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue(distance selection[1].pos selection[2].pos )
+	)
+	else
+		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.Control.value)
+
+
+
 )
 
 /**
@@ -25,10 +43,31 @@ macroscript	_print_generator_beams_max_length
 category:	"_3D-Print"
 buttontext:	"Min Height"
 tooltip:	"Min Height of supports where beam is created"
-icon:	"across:3|control:spinner|type:#integer|range:[ 1, 999, 5 ]|width:64|offset:[ 0, 6 ]"
+icon:	"across:3|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:64|offset:[ 0, 6 ]"
 (
-	--format "EventFired:	% \n" EventFired
-	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+	format "EventFired:	% \n" EventFired
+
+	/** Get size
+	 */
+	function getSize obj = (bbox	= nodeGetBoundingBox obj ( Matrix3 1))[2].z - bbox[1].z
+
+
+	--bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+
+	if EventFired.inSpin and EventFired.Control.value == EventFired.Control.range[1] and selection.count > 0 then
+	(
+		sizes = for obj in selection collect  getSize obj
+
+		EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue(amax sizes)
+	)
+	else
+		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.Control.value)
+
+
+		--print "\nSpinner test #rightclick or spinner RESETED\n\n3Ds Max BUG ?\n\nArgument inCancel DOESN'T WORK"
+	--else
+	--	print "Spinner test #entered"
+
 )
 
 /**

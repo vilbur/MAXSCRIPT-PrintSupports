@@ -189,6 +189,15 @@ struct SupportOptions_v
 	),
 
 
+
+	/** Get milimeter value
+	 */
+	function getMilimeterValue val =
+	(
+		--format "\n"; print "SupportOptions_v.getMilimeterValue()"
+		val / display_units	/ export_size --return
+	),
+
 	private
 
 	/** Set units muliplier

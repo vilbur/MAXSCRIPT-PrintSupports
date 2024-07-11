@@ -46,6 +46,7 @@ icon:	"across:2|control:spinner|offset:[ 0, 14]|fieldwidth:24|range:[ 1, 999, 3 
 	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )
 
+
 --/** CHECKBOX
 --  */
 --macroscript	_print_platform_generator_normal_use
