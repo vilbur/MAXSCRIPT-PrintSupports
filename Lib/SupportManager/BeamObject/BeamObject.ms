@@ -32,7 +32,6 @@ struct BeamObject_v
 
 		this._drawLines(points_of_lines)
 
-		beam_key = this.getBeamKey()
 
 		bindBeamOnDeleteCallback( beam )
 
@@ -401,5 +400,7 @@ struct BeamObject_v
 	on create do
 	(
 		--format "\n"; print "BeamObject.onCreate()"
+		beam_key = this.getBeamKey()
+
 	)
 )

@@ -59,7 +59,7 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: =
 	(
-		--format "\n"; print "SupportObject_v.updatePosition()"
+		format "\n"; print "SupportObject_v.updateSupport()"
 
 		this._setUpdatedKnots(first_knot_pos)
 

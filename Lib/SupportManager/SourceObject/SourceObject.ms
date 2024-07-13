@@ -37,7 +37,7 @@ struct SourceObject_v
 	 */
 	function generateSupports is_raft:false =
 	(
-		--format "\n"; print "SourceObject_v.generateSupports()"
+		format "\n"; print "SourceObject_v.generateSupports()"
 		--format "Supports.keys: %\n" Supports.keys
 		--format "Supports.keys: %\n" Supports.keys
 		new_nodes = #()
@@ -50,14 +50,14 @@ struct SourceObject_v
 		verts_sel	= getVertSelection obj.mesh
 
 		supports_exists = Supports.keys as BitArray
+		format "SUPPORTS_EXISTS: %\n" supports_exists
 
 		verts_by_colors = this._getVertsByColors()
 
 		colored_verts = this._getColoredVerts(verts_by_colors)
 
 		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
-
-		verts_process -= supports_exists -- remove verts which supports exists aleready
+		--verts_process -= supports_exists -- remove verts which supports exists aleready
 
 		this._setLocalVertexNormals(verts_process)
 
@@ -73,6 +73,8 @@ struct SourceObject_v
 		/* CREATE SUPPORTS FOR EACH COLOR */
 		for vertex_color in verts_by_colors.keys do
 			for vert in verts_by_colors[vertex_color] do
+
+			if not supports_exists[vert] then
 			(
 				--format "create support for vert: %\n" vert
 				SupportObject = SupportObject_v source_obj:obj is_raft:is_raft sync_key:sync_key
@@ -98,6 +100,8 @@ struct SourceObject_v
 
 				append new_nodes SupportObject.support_obj
 			)
+			else
+				this.Supports[vert].updateSupport first_knot_pos:verts_pos[vert]
 
 
 		SUPPORT_MODIFIERS.addModifiers( this.getSupportNodes is_raft:is_raft ) raft_mode:is_raft

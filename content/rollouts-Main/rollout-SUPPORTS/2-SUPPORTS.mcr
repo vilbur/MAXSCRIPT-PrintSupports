@@ -20,10 +20,34 @@ icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\
 
 			_selection = for o in selection collect o
 
-			if _selection.count > 0 then
-				new_nodes = SUPPORT_MANAGER.generateSupports( _selection[1] )
+			source_objects  = SUPPORT_MANAGER.getObjectsByType _selection type:#SOURCE
 
-			select (if new_nodes.count > 0 then new_nodes else _selection)
+			supports_exists = for obj in _selection where findItem source_objects obj == 0 collect obj
+
+			if source_objects.count > 0 then
+				SUPPORT_MANAGER.generateSupports source_objects[1]
+
+
+			
+			(
+				supports_exists = SUPPORT_MANAGER.getObjectsByType supports_exists type:#SUPPORT
+
+				if supports_exists.count > 0 then
+					SUPPORT_MANAGER.updateSupports(supports_exists)
+
+			)
+
+			format "SUPPORTS_EXISTS: %\n" supports_exists
+			--format "COUNT: %\n" supports_exists.count
+			format "\n"
+			format "SOURCE_OBJECTS: %\n" source_objects
+			--format "COUNT: %\n" source_objects.count
+
+
+			--if _selection.count > 0 then
+			--	new_nodes = SUPPORT_MANAGER.generateSupports( _selection[1] )
+			--
+			--select (if new_nodes.count > 0 then new_nodes else _selection)
 
 		)
 )

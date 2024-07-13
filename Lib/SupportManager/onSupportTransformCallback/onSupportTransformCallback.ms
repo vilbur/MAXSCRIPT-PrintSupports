@@ -6,7 +6,7 @@ global SUPPORTS_TRANSFORM_CHANGED = #()
  */
 function onSupportTransformTimeoutCallback sender evt =
 (
-	--format "\n"; print ".onSupportTransformTimeoutCallback()"
+	format "\n"; print ".onSupportTransformTimeoutCallback()"
 
 	/** Remove timeout
 	 */

@@ -4,6 +4,7 @@
 function selectHideUnhideSupports type: state: =
 (
 	format "\n"; print ".selectHideUnhideSupports()"
+	format "type: %\n" type
 
 	ctrl = keyboard.controlPressed;
 	alt = keyboard.altPressed;
@@ -14,19 +15,31 @@ function selectHideUnhideSupports type: state: =
 	nodes = SUPPORT_MANAGER.getObjectsByType _objects type:type hierarchy:shift
 	--format "NODES: %\n" nodes
 	--select nodes
-
-
-	case of
+	timer_select = timeStamp()
+	with redraw off
 	(
-		--( ctrl and shift ): selectmore nodes
-		--( alt  and shift):
-		--( ctrl and alt ):
-		--( shift ): selectmore nodes
-		( ctrl ): for obj in nodes do obj.isHidden = not state
-		--( alt ):
+		max create mode
+		case of
+		(
+			--( ctrl and shift ): selectmore nodes
+			--( alt  and shift):
+			--( ctrl and alt ):
+			--( shift ): selectmore nodes
+			( ctrl ): for obj in nodes do obj.isHidden = not state
+			--( alt ):
 
-		default: ( clearSelection(); select nodes )
+			default: ( if not shift then
+						select nodes
+					   else
+						   --selectmore nodes
+						select (nodes +_objects  )
+
+					)
+		)
 	)
+	format "select: % ms\n" (( timeStamp()) - timer_select)
+	redrawViews()
+
 
 )
 

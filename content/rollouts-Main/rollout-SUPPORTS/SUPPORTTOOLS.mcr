@@ -74,6 +74,7 @@ icon:	"across:4|height:32|width:96|tooltip:GENERATE POINTS From selected object.
 	on execute do
 		undo "Show\Hide Points" on
 		--undo off
+		for i = 1 to 3 do
 		(
 			clearListener(); print("Cleared in:\n"+getSourceFileName())
 			actionMan.executeAction 0 "470"  -- Views: Selection/Preview Highlights Toggle

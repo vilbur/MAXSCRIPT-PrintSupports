@@ -1,6 +1,10 @@
-filein( getFilenamePath(getSourceFileName()) + "/../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms" )	--"./../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms" )	--"./../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/../VertexColors/VertexColors.ms" )	--"./../VertexColors/VertexColors.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColors/VertexColors.ms" )	--"./../../content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColors/VertexColors.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/../VertexColors/VertexColors.ms" )	--"./../VertexColors/VertexColors.ms"
+
+--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-VERTEX COLORS\Lib\VertexColorProcessor.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms" )	--"./../../content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onSupportTransformCallback/onSupportTransformCallback.ms" -- MUST BE BEFORE SourceObject.ms
 filein( getFilenamePath(getSourceFileName()) + "/onBeamDeletedCallback/onBeamDeletedCallback.ms" )	--"./onBeamDeletedCallback/onBeamDeletedCallback.ms" -- MUST BE BEFORE SourceObject.ms
@@ -153,10 +157,23 @@ struct SupportManager_v
 
 			bbox[2].z - bbox[1].z > SUPPORT_OPTIONS.min_height
 		)
+		/** Get beam key
+		 */
+		function getBeamKey =
+		(
+			--format "\n"; print "SupportManager_v.getBeamKey()"
+			pointers = sort #( this._getSupportKey(support_A) , this._getSupportKey(support_B) )
 
+			( pointers[1] + "x" + pointers[2] ) --return
+		)
 		new_beams = #()
 
-		supports_in = for support in supports_in where this._isType #SUPPORT (support) != false and isTallEnough(support) collect support
+		supports_in = for support in supports_in where this._isType #SUPPORT (support) != false  collect support
+
+		if supports_in.count > 2 then
+			supports_in = for support in supports_in where isTallEnough(support)  collect support
+
+
 		--supports_in = for support in supports_in where this._isType #SUPPORT support != false collect support
 
 		format "supports_in: %\n" supports_in.count
@@ -184,16 +201,22 @@ struct SupportManager_v
 					support_B = supports[i + 1]
 
 					/* GENERATE BEAM */
-					BeamObject = (BeamObject_v support_A support_B ).generateBeam()
+					BeamObject = (BeamObject_v support_A support_B )
+					format "TEST: %\n" BeamObjects[BeamObject.beam_key]
+					if BeamObjects[BeamObject.beam_key]  == undefined then
+					(
+						BeamObject.generateBeam()
 
-					/* SAVE SYNC KEY */
-					setUserPropVal BeamObject.beam "SYNC_KEY" ( getUserPropVal support_A "SYNC_KEY" )
-					setUserPropVal BeamObject.beam "BEAM_KEY"  BeamObject.beam_key
+						/* SAVE SYNC KEY */
+						setUserPropVal BeamObject.beam "SYNC_KEY" ( getUserPropVal support_A "SYNC_KEY" )
+						setUserPropVal BeamObject.beam "BEAM_KEY"  BeamObject.beam_key
 
-					/* ADD TO BEAMS */
-					BeamObjects[BeamObject.beam_key] = BeamObject
+						/* ADD TO BEAMS */
+						BeamObjects[BeamObject.beam_key] = BeamObject
 
-					append new_beams BeamObject.beam
+						append new_beams BeamObject.beam
+					)
+
 				)
 		)
 
@@ -359,9 +382,9 @@ struct SupportManager_v
 
 	/** get objects by type
 	 */
-	function getObjectsByType _objects type: visibility:true hierarchy:false =
+	function getObjectsByType _objects type: hierarchy:false =
 	(
-		format "\n"; print "SupportManager_v.setVisibility()"
+		format "\n"; print "SupportManager_v.getObjectsByType()"
 
         source_keys = #()
         supports	= #()
@@ -373,7 +396,7 @@ struct SupportManager_v
 		for obj in _objects do
 			case of
 			(
-                ((sync_key = this._isSourceObject  obj) != false): append source_keys sync_key
+                ((sync_key = this._isSourceObject obj) != false): append source_keys sync_key
                 --((this._isType #SOURCE  obj) != false): append source_keys obj
                 ((this._isType #SUPPORT obj) != false): append supports obj
                 ((this._isType #BEAM    obj) != false): append beams obj
@@ -384,42 +407,49 @@ struct SupportManager_v
 		format "supports: %\n" supports.count
 		format "beams: %\n" beams.count
 
-
 		if type == #SOURCE then
 		(
 			--for source_key in source_keys do append objects_to_process SourceObjects[source_key]
-			sync_keys_of_objs = for obj in supports + beams collect this._getSyncKey(obj)
-			format "sync_keys_of_objs: %\n" sync_keys_of_objs
-			format "source_keys: %\n" source_keys
+			--if hierarchy then
+			--(
+				sync_keys_of_objs = for obj in supports + beams collect this._getSyncKey(obj)
+			--	format "sync_keys_of_objs: %\n" sync_keys_of_objs
+			--	format "source_keys: %\n" source_keys
+			--
+				source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
+			--	--objects_to_process = for key in  collect SourceObjects[key].obj
+			--
+			--	source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
+			--)
 
-			--source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
-			objects_to_process = for key in makeUniqueArray (source_keys + sync_keys_of_objs) collect SourceObjects[key].obj
+
+			objects_to_process = for key in source_keys collect SourceObjects[key].obj
 		)
 
 		else if source_keys.count > 0 then
 		(
-
-			/* GET BEAMS OF SOURCE OBJECT */
-			if hierarchy or type == #BEAM  then
-				for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
-					append objects_to_process BeamObjects[key].beam
 
 			/* GET SUPPORTS OF SOURCE OBJECT */
 			if hierarchy or type == #SUPPORT  then
 				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 do
 					append objects_to_process SupportObjects[key].support_obj
 
+			/* GET BEAMS OF SOURCE OBJECT */
+			if hierarchy or type == #BEAM  then
+				for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
+					append objects_to_process BeamObjects[key].beam
+
 		)
 		else if supports.count > 0 then
 		(
-			/* GET BEAMS OF SOURCE OBJECT */
-
-			if hierarchy or type == #BEAM  then
-				for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
-					append objects_to_process BeamObjects[key].beam
 
 			if  hierarchy or type == #SUPPORT then
 				objects_to_process += supports
+
+			/* GET BEAMS OF SOURCE OBJECT */
+				if hierarchy or type == #BEAM  then
+					for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
+						append objects_to_process BeamObjects[key].beam
 
 		)
 		else if beams.count > 0 then
@@ -665,13 +695,17 @@ struct SupportManager_v
 			--format "key_A: %\n" key_A
 			--format "key_B: %\n" key_B
 
-			support_A = SupportObjects[key_A].support_obj
-			support_B = SupportObjects[key_B].support_obj
+			if SupportObjects[key_A] != undefined and SupportObjects[key_B] != undefiand then
+			(
+				support_A = SupportObjects[key_A].support_obj
+				support_B = SupportObjects[key_B].support_obj
 
-			BeamObject = BeamObject_v support_A:support_A support_B:support_B beam:obj_in_scene beam_key:beam_key sync_key:sync_key
+				BeamObject = BeamObject_v support_A:support_A support_B:support_B beam:obj_in_scene beam_key:beam_key sync_key:sync_key
 
-			/* ADD TO BEAMS */
-			BeamObjects[beam_key] = BeamObject
+				/* ADD TO BEAMS */
+				BeamObjects[beam_key] = BeamObject
+			)
+
 		)
 
 		bindBeamOnDeleteCallback( for key in BeamObjects.keys collect BeamObjects[key].beam )
