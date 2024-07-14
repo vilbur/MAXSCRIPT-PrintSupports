@@ -1,6 +1,59 @@
 
 --DEV
+print("DEV IMPORT in:\n"+getSourceFileName())
 --filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
+
+/** Generate support or raft
+ */
+function generateSupportsOrRafts raft_mode:false =
+(
+	--format "\n"; print ".generateSupportsOrRafts()"
+
+	--new_nodes = #()
+
+	_selection = for obj in selection collect obj
+
+	--source_objects  = SUPPORT_MANAGER.searchObjectsByType _selection type:#SOURCE
+	source_objects = for obj in _selection where SUPPORT_MANAGER.isType #SOURCE obj != false collect obj
+
+	if source_objects.count == 0 then
+		source_objects = for obj in _selection where not SUPPORT_MANAGER.isManaged(obj) collect obj
+	--supports_exists = for obj in _selection where findItem source_objects obj == 0 collect obj
+
+	if source_objects.count > 0 then
+		SUPPORT_MANAGER.generateSupports source_objects[1] is_raft:raft_mode
+
+
+	(
+		selected_supports_and_rafts = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+
+		selected_supports = for obj in selected_supports_and_rafts where not SUPPORT_MANAGER.isRaft(obj) collect obj
+		selected_rafts    = for obj in selected_supports_and_rafts where    SUPPORT_MANAGER.isRaft(obj) collect obj
+
+
+		if raft_mode and selected_supports.count > 0 then
+			SUPPORT_MANAGER.convertSupportsToRafts(selected_supports)
+
+
+	)
+
+	select (if new_nodes != undefined and new_nodes.count > 0 then new_nodes else _selection)
+
+	--format "SOURCE_OBJECTS: %\n" source_objects
+	----format "COUNT: %\n" source_objects.count
+	--format "\n"
+	--format "SELECTED_SUPPORTS: %\n" selected_supports
+	--format "COUNT: %\n" selected_supports.count
+	--format "\n"
+	--format "SUPPORTS_EXISTS: %\n" supports_exists
+	--format "COUNT: %\n" supports_exists.count
+
+
+	--if _selection.count > 0 then
+	--	new_nodes = SUPPORT_MANAGER.generateSupports( _selection[1] )
+	--
+
+)
 
 /*
 */
@@ -15,40 +68,8 @@ icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\
 	on execute do
 		undo "Generate Supports" on
 		(
-			--clearListener(); print("Cleared in:\n"+getSourceFileName())
-			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
-
-			_selection = for o in selection collect o
-
-			source_objects  = SUPPORT_MANAGER.getObjectsByType _selection type:#SOURCE
-
-			supports_exists = for obj in _selection where findItem source_objects obj == 0 collect obj
-
-			if source_objects.count > 0 then
-				SUPPORT_MANAGER.generateSupports source_objects[1]
-
-
-			
-			(
-				supports_exists = SUPPORT_MANAGER.getObjectsByType supports_exists type:#SUPPORT
-
-				if supports_exists.count > 0 then
-					SUPPORT_MANAGER.updateSupports(supports_exists)
-
-			)
-
-			format "SUPPORTS_EXISTS: %\n" supports_exists
-			--format "COUNT: %\n" supports_exists.count
-			format "\n"
-			format "SOURCE_OBJECTS: %\n" source_objects
-			--format "COUNT: %\n" source_objects.count
-
-
-			--if _selection.count > 0 then
-			--	new_nodes = SUPPORT_MANAGER.generateSupports( _selection[1] )
-			--
-			--select (if new_nodes.count > 0 then new_nodes else _selection)
-
+			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
+			generateSupportsOrRafts()
 		)
 )
 
@@ -62,15 +83,9 @@ icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE RAFTS.\n\nWO
 	on execute do
 		undo "Generate Rafts" on
 		(
-			--clearListener(); print("Cleared in:\n"+getSourceFileName())
 
-			_selection = for o in selection collect o
-
-			if _selection.count > 0 then
-				new_nodes = SUPPORT_MANAGER.generateSupports( _selection[1] ) is_raft:true
-
-			select (if new_nodes.count > 0 then new_nodes else _selection)
-
+			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
+			generateSupportsOrRafts raft_mode:true
 		)
 )
 

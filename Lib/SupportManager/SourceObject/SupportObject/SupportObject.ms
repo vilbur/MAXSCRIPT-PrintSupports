@@ -41,7 +41,7 @@ struct SupportObject_v
 
 		this._setRaftKnots(first_knot_pos)(direction)
 
-		if hit_raft == undefined then
+		if not is_raft and hit_raft == undefined then
 			this._setSupportKnots()
 
 		this._drawLine()
@@ -60,29 +60,115 @@ struct SupportObject_v
 	function updateSupport first_knot_pos: =
 	(
 		format "\n"; print "SupportObject_v.updateSupport()"
+		format "SUPPORT: %\n" support_obj.name
+		format "first_knot_pos: %\n" first_knot_pos
+		--deleteAllChangeHandlers id:#updateSupportsEvent
 
-		this._setUpdatedKnots(first_knot_pos)
 
-		is_on_ground = hit_support == undefined
+		if first_knot_pos == unsupplied then
+			this._getKnotsFromLine()
+
+		else
+			this._setUpdatedKnots(first_knot_pos)
+
+		is_on_ground = not is_raft and hit_support == undefined
 
 		num_knots = numKnots support_obj _spline_index
 
-		if hit_raft == undefined then
+		if not is_raft and hit_raft == undefined then
 			this._setSupportKnots()
 
-
+		/* ADD KNOTS FOR SUPPORT */
 		if num_knots < knots_positions.count then
 			this._addKnots()
 
+		/* REMOVE REDUNTANT KNOTS FROM SUPPORT */
 		else if num_knots > knots_positions.count then
 			this._removeKnots()
 
+
+		this._updateLine()
+
+		this._setMaterialsToLineSegments()
+
 		this._setPivotToSecondPoint()
-
-		this._updateLineKnots()
-
 		--updateShape support_obj
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
+
+	),
+
+	/** Get knots from line
+	 */
+	function _getKnotsFromLine =
+	(
+		--format "\n"; print "SupportObject_v._getKnotsFromLine()"
+		knots_positions = Array (2)
+
+		knots_positions[1] = getKnotPoint support_obj _spline_index 1
+		knots_positions[2] = getKnotPoint support_obj _spline_index 2
+
+	),
+
+	/** ,
+	 */
+	function convertToRaft =
+	(
+		format "\n"; print "SupportObject_v.convertToRaft()"
+		this.is_raft  = true
+
+		setUserPropVal support_obj "RAFT" true
+
+		this.updateSupport()
+		--is_on_ground = false
+		--
+		--knots_positions = Array (2)
+		--
+		--knots_positions[1] = getKnotPoint support_obj _spline_index 1
+		--knots_positions[2] = getKnotPoint support_obj _spline_index 2
+		--
+		--num_knots = numKnots support_obj _spline_index
+		--
+		--if not is_raft and hit_raft == undefined then
+		--	this._setSupportKnots()
+		--
+		--/* ADD KNOTS FOR SUPPORT */
+		--if num_knots < knots_positions.count then
+		--	this._addKnots()
+		--
+		--/* REMOVE REDUNTANT KNOTS FROM SUPPORT */
+		--else if num_knots > knots_positions.count then
+		--	this._removeKnots()
+		--
+		--
+		--this._updateLine()
+		--
+		--this._setMaterialsToLineSegments()
+		--
+		--this._setPivotToSecondPoint()
+		----updateShape support_obj
+		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
+
+
+		--for i = knots_positions.count to 3 by -1 do
+			--deleteItem knots_positions i
+
+		--this._setRaftKnots(knots_positions[1])( normalize knots_positions[2])
+
+
+
+		--if num_knots < knots_positions.count then
+		--	this._addKnots()
+		--
+		--else if num_knots > knots_positions.count then
+		--	this._removeKnots()
+		--
+		--this._updateLine()
+		--
+		--this._setMaterialsToLineSegments()
+		--
+		--this._setPivotToSecondPoint()
+		----updateShape support_obj
+		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
 	),
 
@@ -309,9 +395,9 @@ struct SupportObject_v
 
 	/** Update line
 	 */
-	function _updateLineKnots =
+	function _updateLine =
 	(
-		--format "\n"; print "SupportObject_v._updateLineKnots()"
+		--format "\n"; print "SupportObject_v._updateLine()"
 		for knot_i = 1 to knots_positions.count do
 			setKnotPoint support_obj _spline_index knot_i	knots_positions[knot_i]
 	),

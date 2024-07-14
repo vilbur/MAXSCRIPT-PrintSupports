@@ -79,7 +79,7 @@ struct SupportOptions_v
 	  */
 	function getValuesFroUi =
 	(
-		format "\n"; print "SupportOptions_v.getValuesFroUi()"
+		--format "\n"; print "SupportOptions_v.getValuesFroUi()"
 		/** Reg ex replace
 		 */
 		function regExReplace _string search _replace = ( dotNetObject "System.Text.RegularExpressions.Regex" search ).Replace ( _string as string ) _replace
@@ -231,7 +231,7 @@ struct SupportOptions_v
 			if val != undefined and findItem _DO_NOT_MODIFY_PROPERTIES prop == 0  then
 			(
 				--format "\n\n"
-				format "%: %\n" prop val
+				--format "%: %\n" prop val
 				modified_val = (val / display_units	/ export_size)
 				--format "modified_val: %\n" modified_val
 				setProperty this prop modified_val

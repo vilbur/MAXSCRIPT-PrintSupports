@@ -14,19 +14,12 @@ function setSlicePlaneModifier mode state layer_index_or_z_pos cap_state =
 
 	mod_name = "SLICE_PLANE_" + toUpper (mode as string )
 
-
 	mods_in_scene = for mod_in_scene in ( getClassInstances ( SliceModifier )) where mod_in_scene.name == mod_name collect mod_in_scene
 
-	--local slice_mod
-
-	--if mods_in_scene.count == 0 then
 	if ( slice_mod = mods_in_scene[1] ) == undefined then
 		return false
 
-
-
 	z_pos = if classOf layer_index_or_z_pos == integer then getPlaneZpozition (layer_index_or_z_pos) else layer_index_or_z_pos
-	format "Z_POS:	% \n" z_pos
 
 	/* SET SLICE PLANE POSITION */
 	final_TM = Matrix3 1

@@ -30,7 +30,7 @@ struct VertexColorProcessor_v
 	 */
 	function _initObject =
 	(
-		format "\n"; print "VertexColorProcessor_v._initObject()"
+		--format "\n"; print "VertexColorProcessor_v._initObject()"
 		--format "TEST: %\n" ( polyop.getMapSupport obj 0)
 
 		if obj != undefined or classOf obj.baseobject != Editable_Poly then
@@ -55,9 +55,9 @@ struct VertexColorProcessor_v
 	 */
 	function setVertexColor verts clr =
 	(
-		format "4) --------------- SET VERTEX COLOR\n"
+		--format "4) --------------- SET VERTEX COLOR\n"
 
-		format "\n"; print "VertexColorProcessor_v.setVertexColor()"
+		--format "\n"; print "VertexColorProcessor_v.setVertexColor()"
 		--format "obj: %\n" obj
 		--format "verts: %\n" verts
 		--format "clr: %\n" clr
@@ -65,7 +65,7 @@ struct VertexColorProcessor_v
 		VertexColors.MeshVertToColorVertexConvert.get_single_vert = true
 
 		verts_base = this._getBaseObjectVerts(verts)
-		format "VERTS_BASE: %\n" verts_base
+		--format "VERTS_BASE: %\n" verts_base
 
 		start_map_verts = timeStamp()
 		--format "start_map_verts()\n"
@@ -74,8 +74,8 @@ struct VertexColorProcessor_v
 		vertex_count	= getNumVerts obj.mesh
 		CPV_verts 	= getNumCPVVerts obj.mesh
 
-		format "vertex_count: %\n" vertex_count
-		format "CPV_verts: %\n" CPV_verts
+		--format "vertex_count: %\n" vertex_count
+		--format "CPV_verts: %\n" CPV_verts
 
 		 if getNumVerts obj.baseobject.mesh != getNumCPVVerts obj.baseobject.mesh then
 			this.resetCPVVerts()
@@ -133,8 +133,8 @@ struct VertexColorProcessor_v
 	 */
 	function resetCPVVerts =
 	(
-		format "\n"; print "VertexColorProcessor_v.resetCPVVerts()"
-		format "\n----------\nRESET CPV VERTS\n"
+		--format "\n"; print "VertexColorProcessor_v.resetCPVVerts()"
+		--format "\n----------\nRESET CPV VERTS\n"
 		/* GET ALL VERTS SORTED BY COLORS */
 		colors = VertexColors.getVertsAndColors()
 
@@ -193,7 +193,7 @@ struct VertexColorProcessor_v
 	 */
 	function _unhideVerts verts_unhide =
 	(
-		format "\n"; print "VertexColorProcessor_v._unhideVerts()"
+		--format "\n"; print "VertexColorProcessor_v._unhideVerts()"
 
 		if classOf curr_mod == Edit_Poly then
 		(
@@ -251,7 +251,6 @@ struct VertexColorProcessor_v
 		local rp3Arr = for c in tempArr collect ((floor ((c * mult)+0.5)) / mult)
 		point3 rp3Arr[1] rp3Arr[2] rp3Arr[3]
 	),
---round [111.1589,12.856,85.5896] 3
 
 	/** Pass vertex selection to editable poly
 	  *
@@ -262,7 +261,7 @@ struct VertexColorProcessor_v
 	 */
 	function _getBaseObjectVerts verts =
 	(
-		format "\n"; print ".getBaseObjectVerts ()"
+		--format "\n"; print ".getBaseObjectVerts ()"
 
 		if classof curr_mod != Editable_Poly then
 		(
@@ -271,30 +270,20 @@ struct VertexColorProcessor_v
 			verts_mesh_all	= #{1..( getNumVerts obj.mesh  )} as Array
 			verts_base_all	= #{1..( polyop.getNumVerts obj)} as Array
 
-			format "verts_mesh_all.count: %\n" verts_mesh_all.count
-			format "verts_base_all.count: %\n" verts_base_all.count
-			--verts_sel_pos = #()
-
-
 			verts_pos_baseobjects = polyop.getVerts obj.baseobject verts_base_all --node:obj
-
 			--verts_pos_baseobjects = in coordsys world (for vert_pos in verts_pos_baseobjects collect round(vert_pos) 3)
 
-			format "VERTS_POS_BASEOBJECTS: %\n" verts_pos_baseobjects
+			--format "VERTS_POS_BASEOBJECTS: %\n" verts_pos_baseobjects
 
 			if verts.count > 0 then
 			(
-				--verts_sel_pos  = polyop.getVerts obj verts node:obj
-
-				--verts_sel_pos  = for vert in verts collect round (getVert obj.mesh vert) 3
 				verts_sel_pos  = for vert in verts collect getVert obj.mesh vert
-				--format "VERTS_SEL_POS	= % \n" VERTS_SEL_POS
-
+				--verts_sel_pos  = for vert in verts collect round (getVert obj.mesh vert) 3
 
 				for vert_pos in verts_sel_pos where (index = findItem verts_pos_baseobjects (vert_pos)) > 0 do
 					append verts_baseobject index
 			)
-			format "VERTS_BASEOBJECT: %\n" verts_baseobject
+			--format "VERTS_BASEOBJECT: %\n" verts_baseobject
 
 			verts_baseobject --return
 		)
@@ -358,10 +347,10 @@ struct VertexColorProcessor_v
 	 */
 	on create do
 	(
-		format "1) --------------- VERTEXCOLOR\n"
-		format "obj: %\n" obj
+		--format "1) --------------- VERTEXCOLOR\n"
+		--format "obj: %\n" obj
 		curr_mod	= modPanel.getCurrentObject()
-		format "curr_mod: %\n" curr_mod
+		--format "curr_mod: %\n" curr_mod
 
 		if this._initObject() then
 			VertexColors	= VertexColors_v(obj)

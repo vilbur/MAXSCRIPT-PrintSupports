@@ -7,6 +7,8 @@
 </livefolder>
 <livefolder id="7d5a7047-ae9d-4137-858a-3d04d09ca224" idref="d1b807d7-900d-4aec-93be-8641730fb7ab" name="Lib" url="Lib/">
 </livefolder>
+<livefolder id="b686bd95-13c9-41d5-8e29-3c85bf7b6903" idref="d1b807d7-900d-4aec-93be-8641730fb7ab" name="rollout-SLICER" url="content/rollouts-Main/rollout-SLICER/">
+</livefolder>
 <preference-set idref="d1b807d7-900d-4aec-93be-8641730fb7ab" id="project" preftype="project">
   <long id="prefs_version">1</long>
 </preference-set>

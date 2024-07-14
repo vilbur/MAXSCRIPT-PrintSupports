@@ -53,6 +53,7 @@ struct SourceObject_v
 		format "SUPPORTS_EXISTS: %\n" supports_exists
 
 		verts_by_colors = this._getVertsByColors()
+		format "VERTS_BY_COLORS: %\n" verts_by_colors
 
 		colored_verts = this._getColoredVerts(verts_by_colors)
 
@@ -100,8 +101,8 @@ struct SourceObject_v
 
 				append new_nodes SupportObject.support_obj
 			)
-			else
-				this.Supports[vert].updateSupport first_knot_pos:verts_pos[vert]
+			--else
+				--this.Supports[vert].updateSupport first_knot_pos:verts_pos[vert]
 
 
 		SUPPORT_MODIFIERS.addModifiers( this.getSupportNodes is_raft:is_raft ) raft_mode:is_raft
@@ -218,7 +219,7 @@ struct SourceObject_v
 	 */
 	function _setLocalVertexNormals verts =
 	(
-		--format "\n"; print "SourceObject_v._setLocalVertexNormals()"
+		format "\n"; print "SourceObject_v._setLocalVertexNormals()"
 		--format "verts.numberSet: %\n" verts.numberSet
 		--timer_get_normals = timeStamp()
 		obj_mesh = obj.mesh
@@ -247,7 +248,7 @@ struct SourceObject_v
 	 */
 	function _setWorldSpaceVertexNormals verts =
 	(
-		--format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
+		format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
 

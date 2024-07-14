@@ -69,6 +69,7 @@ function updateSlicePlaneSystem layer_index incremental:false =
 	--try(
 		--DisableSceneRedraw()
 
+
 		/* ADD MODIFIERS */
 		if slice_top then
 			setSlicePlaneModifier (#TOP) (#TRUE) (layer_index) (cap_slice)

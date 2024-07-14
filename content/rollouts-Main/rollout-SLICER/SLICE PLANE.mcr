@@ -50,6 +50,8 @@ icon:	"across:2|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 
 			slice_modes = Dictionary #( #SLICE_PLANE_TOP, ROLLOUT_slicer.CBX_slice_top.state ) #( #SLICE_PLANE_BOTTOM, ROLLOUT_slicer.CBX_slice_bottom.state )
 
+
+
 			/* SET DETAFULT SLICE TOP IF NOTHINK SET */
 			if not (slice_modes[ #SLICE_PLANE_TOP ]and slice_modes[ #SLICE_PLANE_BOTTOM ])  then
 				slice_modes[ #SLICE_PLANE_TOP ] = true
@@ -71,7 +73,11 @@ icon:	"across:2|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 
 				/* ADD MODIIFER WHERE IS NOT */
 				for obj in selection where superClassOf obj == GeometryClass and findItem objects_with_modifier obj == 0 do
+				(
+					addModifier obj  (Poly_Select name:"SLICE_SELECT_OBJ" )
+
 					addSliceMod (obj)	(slice_modifier)
+				)
 			)
 
 

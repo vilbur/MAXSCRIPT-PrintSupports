@@ -62,6 +62,12 @@ function createElevationSliderDialog =
 		  */
 		function removeSlicePlaneModifier _objects  =
 		(
+			format "\n"; print ".removeSlicePlaneModifier()"
+
+			if (  select_mod = obj.modifiers[#SLICE_SELECT_OBJ] ) != undefined then
+				deleteModifier obj modifiers[#SLICE_SELECT_OBJ]
+
+
 			for mod_name in #( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM, #SELECT_LAYER ) do
 				for obj in geometry where obj.modifiers[mod_name] != undefined do
 					deleteModifier obj obj.modifiers[mod_name]
@@ -99,7 +105,7 @@ function createElevationSliderDialog =
 		/** Toggle slice plane position
 		  * @param #TOP|BOTTOM|CENTER pos
 		 */
-		function toggleSlicepPlanePosition pos: =
+		function toggleSlicePlanePosition pos: =
 		(
 			--format "\n"; print ".toggleIcepPlanePosition()"
 			--print "createElevationSliderDialog SLIDER_elevation rightClick"
@@ -251,7 +257,7 @@ function createElevationSliderDialog =
 
 
 		on SLIDER_elevation RIGHTCLICK do
-			toggleSlicepPlanePosition()
+			toggleSlicePlanePosition()
 
 		on SLIDER_elevation BUTTONDOWN do
 		(
@@ -292,7 +298,7 @@ function createElevationSliderDialog =
 
 		--/* ON DIALOG OPEN */
 		on DIALOG_elevation_slider OPEN do
-			toggleSlicepPlanePosition pos:#CENTER
+			toggleSlicePlanePosition pos:#CENTER
 			--updateSlicePlaneSystem (DIALOG_elevation_slider.SPIN_layer_current.value)
 
 		/* ON DIALOG CLOSE */
