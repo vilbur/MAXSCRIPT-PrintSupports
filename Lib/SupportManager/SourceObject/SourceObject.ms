@@ -38,8 +38,8 @@ struct SourceObject_v
 	function generateSupports obj_type:#SUPPORT =
 	(
 		format "\n"; print "SourceObject_v.generateSupports()"
-		--format "Supports.keys: %\n" Supports.keys
-		--format "Supports.keys: %\n" Supports.keys
+		format "OBJ_TYPE: %\n" obj_type
+
 		new_nodes = #()
 
 		--obj_type =  if is_raft then #RAFT else #SUPPORT
@@ -97,7 +97,10 @@ struct SourceObject_v
 
 				SupportObject.support_obj.parent = obj
 
+				/* ADD TO ARRAYS */
 				this.Supports[vert] = SupportObject
+
+				SUPPORT_MANAGER.SupportObjects[SupportObject.support_key] = SupportObject
 
 				append new_nodes SupportObject.support_obj
 			)
@@ -105,7 +108,7 @@ struct SourceObject_v
 				--this.Supports[vert].updateSupport first_knot_pos:verts_pos[vert]
 
 
-		SUPPORT_MODIFIERS.addModifiers( this.getSupportNodes obj_type:obj_type ) raft_mode:(obj_type == #RAFT)
+		MODIFIERS_MANAGER.addModifiers( this.getSupportNodes obj_type:obj_type ) obj_type:obj_type
 
 		bindSupportToTransformEvent( this.getSupportNodes() )
 
@@ -119,6 +122,31 @@ struct SourceObject_v
 			--format "RaftSupport: %\n" RaftSupport
 
 		new_nodes --return
+	),
+
+	/** Convert support to raft or vice versa
+	  *
+	  * @param #SUPPORT|#RAFT to_type of obejct to covert
+	  *
+	 */
+	function convert support_nodes to_type:#RAFT  =
+	(
+		format "\n"; print "SupportManager_v.convertSupportsToRafts()"
+
+		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
+
+		for support_node in support_nodes do
+			(this._getSupportByNode (support_node)).convert(to_type)
+
+
+		--MODIFIERS_MANAGER.switchSupportType( SourceObjects[sync_key].getSupportNodes obj_type:to_type ) to_type:to_type
+
+		--for sync_key in supports_by_source.keys do
+		--	for support_node in supports_by_source[sync_key] do
+		--		SourceObjects[sync_key].convertToRaft(support_node)
+
+
+		--resumeSupportToTransformEvent()
 	),
 
 	/** Update whole supports objects
@@ -157,9 +185,17 @@ struct SourceObject_v
 		if verts_pos == undefined then
 			verts_pos = this._getVertsPositions()
 
+		(this._getSupportByNode (support_node)).updateSupport first_knot_pos:verts_pos[index]
+	),
+
+	/** Get support by node
+	 */
+	function _getSupportByNode support_node =
+	(
+		--format "\n"; print "SourceObject_v._getSupportByNode()"
 		index = getUserPropVal support_node "INDEX"
 
-		Supports[index].updateSupport first_knot_pos:verts_pos[index]
+		Supports[index] --return
 	),
 
 	/** Get support nodes of given type

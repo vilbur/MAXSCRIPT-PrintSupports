@@ -5,11 +5,11 @@
 
 /** Generate support or raft
  */
-function generateSupportsOrRafts raft_mode:false =
+function generateSupportsOrRafts obj_type: =
 (
-	--format "\n"; print ".generateSupportsOrRafts()"
+	format "\n"; print ".generateSupportsOrRafts()"
 
-	--new_nodes = #()
+	format "obj_type: %\n" obj_type
 
 	_selection = for obj in selection collect obj
 
@@ -21,7 +21,7 @@ function generateSupportsOrRafts raft_mode:false =
 	--supports_exists = for obj in _selection where findItem source_objects obj == 0 collect obj
 
 	if source_objects.count > 0 then
-		SUPPORT_MANAGER.generateSupports source_objects[1] is_raft:raft_mode
+		new_nodes = SUPPORT_MANAGER.generateSupports source_objects[1] obj_type:obj_type
 
 
 	(
@@ -30,16 +30,16 @@ function generateSupportsOrRafts raft_mode:false =
 
 		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
 		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
-		--format "SELECTED_SUPPORTS: %\n" selected_supports
-		--format "SELECTED_RAFTS:    %\n" selected_rafts
+		format "SELECTED_SUPPORTS: %\n" selected_supports
+		format "SELECTED_RAFTS:    %\n" selected_rafts
 		--format "raft_mode: %\n" raft_mode
 
-		/* CONVERT SELCTED SUPPORTS TO RAFTS */
-		if raft_mode and selected_supports.count > 0 then
+		/* CONVERT SELECTED SUPPORTS TO RAFTS */
+		if obj_type == #RAFT and selected_supports.count > 0 then
 			SUPPORT_MANAGER.convert(selected_supports) to_type:#RAFT
 
-		/* CONVERT SELCTED RAFTS TO SUPPORTS */
-		if not raft_mode and selected_rafts.count > 0 then
+		/* CONVERT SELECTED RAFTS TO SUPPORTS */
+		if obj_type == #SUPPORT and selected_rafts.count > 0 then
 			SUPPORT_MANAGER.convert(selected_rafts) to_type:#SUPPORT
 
 	)
@@ -75,8 +75,8 @@ icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\
 	on execute do
 		undo "Generate Supports" on
 		(
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
-			generateSupportsOrRafts()
+			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
+			generateSupportsOrRafts obj_type:#SUPPORT
 		)
 )
 
@@ -91,8 +91,8 @@ icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE RAFTS.\n\nWO
 		undo "Generate Rafts" on
 		(
 
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
-			generateSupportsOrRafts raft_mode:true
+			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
+			generateSupportsOrRafts obj_type:#RAFT
 		)
 )
 

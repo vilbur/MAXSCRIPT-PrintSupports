@@ -16,8 +16,8 @@ filein( getFilenamePath(getSourceFileName()) + "/SourceObject/SourceObject.ms" )
 
 filein( getFilenamePath(getSourceFileName()) + "/BeamObject/BeamObject.ms" )	--"./BeamObject/BeamObject.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/SupportModifiers/SupportModifiers.ms" )	--"./SupportModifiers/SupportModifiers.ms"
-
+--filein( getFilenamePath(getSourceFileName()) + "/SupportModifiers/SupportModifiers.ms" )	--"./SupportModifiers/SupportModifiers.ms"
+filein( getFilenamePath(getSourceFileName()) + "/ModifiersManager/ModifiersManager.ms" )	--"./ModifiersManager/ModifiersManager.ms"
 
 /** Support manager
   *
@@ -95,6 +95,7 @@ struct SupportManager_v
 	function generateSupports source_obj obj_type:#SUPPORT =
 	(
 		format "\n"; print "SupportManager_v.generateSupports()"
+		--format "obj_type: %\n" obj_type
 		--format "source_obj: %\n" source_obj
 		--SUPPORT_OPTIONS.getValuesFroUi()
 
@@ -279,29 +280,32 @@ struct SupportManager_v
 	(
 		format "\n"; print "SupportManager_v.convertSupportsToRafts()"
 
-		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
-		--format "SupportObjects: %\n" SupportObjects
+		--from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
+		format "SupportObjects: %\n" SupportObjects
 		--format "from_type: %\n" from_type
 		--format "to_type:   %\n" to_type
 		--format "supports_by_source.keys: %\n" supports_by_source.keys
 
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
-		--format "supports_by_source: %\n" supports_by_source
+		format "supports_by_source: %\n" supports_by_source
 
 		pauseSupportToTransformEvent()
 
 		with redraw off
 			for sync_key in supports_by_source.keys do
 			(
-				--SourceObjects[sync_key].updateSupport(support_node)
 
-				for support_node in supports_by_source[sync_key] do
-				   SupportObjects[this._getKey(from_type)(support_node)].convert(to_type)
+				format "sync_key: %\n" sync_key
+				SourceObjects[sync_key].convert(supports_by_source[sync_key] ) to_type:to_type
+
+				--for support_node in supports_by_source[sync_key] do
+				--   SupportObjects[this._getKey(from_type)(support_node)].convert(to_type)
 
 
-				   SUPPORT_MODIFIERS.addModifiers( SourceObjects[sync_key].getSupportNodes obj_type:to_type ) raft_mode:(to_type == #RAFT) delete_old:true
+				MODIFIERS_MANAGER.switchSupportType( SourceObjects[sync_key].getSupportNodes obj_type:to_type ) to_type:to_type
 
 			)
+
 		redrawViews()
 
 
@@ -309,6 +313,7 @@ struct SupportManager_v
 		--	for support_node in supports_by_source[sync_key] do
 		--		SourceObjects[sync_key].convertToRaft(support_node)
 
+		this.updateShapes()
 
 		resumeSupportToTransformEvent()
 	),
@@ -349,7 +354,7 @@ struct SupportManager_v
 
 		SUPPORT_OPTIONS.setOptionValue (prop) (val)
 		--SPIN_base_width
-		SUPPORT_MODIFIERS.updateModifier( makeUniqueArray supports )(prop)
+		MODIFIERS_MANAGER.updateModifier( makeUniqueArray supports )(prop)
 	),
 
 

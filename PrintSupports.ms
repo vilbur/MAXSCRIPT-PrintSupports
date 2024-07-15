@@ -11,7 +11,7 @@ global ROLLOUT_supports
 /* STRUCT GLOBALS - before import SupportManager */
 global SUPPORT_OPTIONS -- global SUPPORT_OPTIONS must be defined before SUPPORT_MANAGER
 global SUPPORT_MANAGER
-global SUPPORT_MODIFIERS
+global MODIFIERS_MANAGER
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManager.ms" )	--"./Lib/SupportManager/SupportManager.ms"
 
@@ -47,7 +47,7 @@ try(
 	--------------------------------------------------------------------------------*/
 	SUPPORT_OPTIONS = SupportOptions_v(ROLLOUT_supports)
 
-	SUPPORT_MODIFIERS = SupportModifiers_v()
+	MODIFIERS_MANAGER = ModifiersManager_v()
 
 	SUPPORT_MANAGER = SupportManager_v()
 

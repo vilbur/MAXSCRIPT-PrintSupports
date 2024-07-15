@@ -267,6 +267,6 @@ struct SupportOptions_v
 		--format "\n"; print "SupportOptions_v.create()"
 		--format "\nIMPORTANT\n"
 		--format "EXPORT_SIZE:	% \n" export_size
-		--this.getValuesFroUi()
+		this.getValuesFroUi()
 	)
 )
