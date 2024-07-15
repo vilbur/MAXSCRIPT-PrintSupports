@@ -59,9 +59,10 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
-		format "SUPPORT: %\n" support_obj.name
-		format "first_knot_pos: %\n" first_knot_pos
+		--format "\n"; print "SupportObject_v.updateSupport()"
+		--format "SUPPORT: %\n" support_obj.name
+		--format "first_knot_pos: %\n" first_knot_pos
+		--format "obj_type: %\n" obj_type
 		--deleteAllChangeHandlers id:#updateSupportsEvent
 
 		if first_knot_pos != unsupplied then
@@ -86,7 +87,7 @@ struct SupportObject_v
 		else if num_knots > knots_positions.count then
 			this._removeKnots()
 
-		format "knots_positions.count: %\n" knots_positions.count
+		--format "knots_positions.count: %\n" knots_positions.count
 
 		this._updateLine()
 
@@ -98,19 +99,6 @@ struct SupportObject_v
 
 	),
 
-	/** Get knots from line
-	 */
-	function _getKnotsFromLine =
-	(
-		--format "\n"; print "SupportObject_v._getKnotsFromLine()"
-		knots_positions = Array (2)
-
-		knots_positions[1] = getKnotPoint support_obj _spline_index 1
-		knots_positions[2] = getKnotPoint support_obj _spline_index 2
-
-	),
-
-
 	/** Convert support to raft or vice versa
 	  *
 	  * @param #SUPPORT|#RAFT to_type type of obejct to covert
@@ -119,8 +107,8 @@ struct SupportObject_v
 	function convert to_type =
 	(
 		format "\n"; print "SupportObject_v.convertToRaft()"
-		hit_raft = false
-		hit_support	= false
+		hit_raft = undefined
+		hit_support	= undefined
 		is_on_ground	= false
 
 		obj_type = to_type
@@ -289,6 +277,17 @@ struct SupportObject_v
 		/* ADD SECOND POINT */
 		if hit_support != undefined then
 			knots_positions[2] = hit_support.pos
+	),
+
+	/** Get knots from line
+	 */
+	function _getKnotsFromLine =
+	(
+		--format "\n"; print "SupportObject_v._getKnotsFromLine()"
+		knots_positions = Array (2)
+
+		knots_positions[1] = getKnotPoint support_obj _spline_index 1
+		knots_positions[2] = getKnotPoint support_obj _spline_index 2
 	),
 
 	/** Draw segments support

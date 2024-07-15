@@ -56,6 +56,7 @@ function startSupportTransformTimeout =
 	delay_timer.enabled = true
 )
 
+
 /** Bind transform event
  */
 function bindSupportToTransformEvent supports =
@@ -94,4 +95,20 @@ function bindSupportToTransformEvent supports =
 		)
 
 	)
+)
+
+
+/** Pause events
+ */
+function pauseSupportToTransformEvent =
+(
+	--format "\n"; print ".pauseSupportToTransformEvent()"
+	deleteAllChangeHandlers id:#updateSupportsEvent
+)
+/** Resume events
+ */
+function resumeSupportToTransformEvent =
+(
+	--format "\n"; print ".resumeSupportToTransformEvent()"
+	bindSupportToTransformEvent #()
 )

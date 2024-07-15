@@ -24,7 +24,7 @@ struct SupportModifiers_v
 	/** Add modifiers
 	  *
 	  */
-	function addModifiers supports raft_mode:false =
+	function addModifiers supports raft_mode:false delete_old:false =
 	(
 		--format "\n-----------------------------------------\n"
 		--format "\n"; print "SupportModifiers_v.addModifiers()"
@@ -39,6 +39,12 @@ struct SupportModifiers_v
 		this.raft_mode = raft_mode
 
 		this.supports = supports
+
+		if delete_old then
+			for support in supports do
+				for i = support.modifiers.count to 1 by -1 do
+					deleteModifier support i
+
 
 		if not this._modifiersAdded() then
 		(
@@ -69,6 +75,7 @@ struct SupportModifiers_v
 
 		select _selection
 	),
+
 
 	/** Update modifier by value in SUPPORT_OPTIONS
 	 */

@@ -232,7 +232,6 @@ struct SupportManager_v
 		format "\n"; print "SupportManager_v.updateSupportsBySourceObject()"
 
 		sync_keys = for obj in source_objects where (sync_key = this._getSyncSourceKey (obj) ) != undefined collect sync_key
-		format "sync_keys: %\n" sync_keys
 
 		/* UPDATE SUPPORTS */
 		for sync_key in sync_keys do
@@ -256,15 +255,15 @@ struct SupportManager_v
 		--format "\n"; print "SupportManager_v.updateSupportPosition()"
 		--format "support_nodes: %\n" support_nodes
 
-		objs_by_source = this._sortObjectsBySourceObject (support_nodes)
+		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
 
-		for sync_key in objs_by_source.keys do
-			for support_node in objs_by_source[sync_key] do
+		for sync_key in supports_by_source.keys do
+			for support_node in supports_by_source[sync_key] do
 				SourceObjects[sync_key].updateSupport(support_node)
 
 		/* UPDATE ALL BEAMS OF SELECTED SUPPORTS */
 		/* !!!!!!!!!!!!! TODO UPDATE ONLY BEAMS OF UPDATED SUPPORTS */
-		for key in BeamObjects.keys where findItem objs_by_source.keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
+		for key in BeamObjects.keys where findItem supports_by_source.keys (this._getSyncKey (BeamObjects[key].beam)) > 0 do
 			BeamObjects[key].updateBeam()
 
 
@@ -281,19 +280,37 @@ struct SupportManager_v
 		format "\n"; print "SupportManager_v.convertSupportsToRafts()"
 
 		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
-		format "from_type: %\n" from_type
-		format "to_type:   %\n" to_type
+		--format "SupportObjects: %\n" SupportObjects
+		--format "from_type: %\n" from_type
+		--format "to_type:   %\n" to_type
+		--format "supports_by_source.keys: %\n" supports_by_source.keys
 
-		objs_by_source = this._sortObjectsBySourceObject (support_nodes)
-		format "objs_by_source.keys: %\n" objs_by_source.keys
+		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
+		--format "supports_by_source: %\n" supports_by_source
 
-		 for support_node in support_nodes do
-			SupportObjects[this._getKey(from_type)(support_node)].convert(to_type)
+		pauseSupportToTransformEvent()
 
-		--for sync_key in objs_by_source.keys do
-		--	for support_node in objs_by_source[sync_key] do
+		with redraw off
+			for sync_key in supports_by_source.keys do
+			(
+				--SourceObjects[sync_key].updateSupport(support_node)
+
+				for support_node in supports_by_source[sync_key] do
+				   SupportObjects[this._getKey(from_type)(support_node)].convert(to_type)
+
+
+				   SUPPORT_MODIFIERS.addModifiers( SourceObjects[sync_key].getSupportNodes obj_type:to_type ) raft_mode:(to_type == #RAFT) delete_old:true
+
+			)
+		redrawViews()
+
+
+		--for sync_key in supports_by_source.keys do
+		--	for support_node in supports_by_source[sync_key] do
 		--		SourceObjects[sync_key].convertToRaft(support_node)
 
+
+		resumeSupportToTransformEvent()
 	),
 
 	/** Update modifiers by control value
@@ -704,19 +721,19 @@ struct SupportManager_v
 	function _sortObjectsBySourceObject _objects =
 	(
 		--format "\n"; print "SupportManager_v.sortObejctsBySourceObject()"
-		objs_by_source =  Dictionary #STRING
+		supports_by_source =  Dictionary #STRING
 
 		for obj in _objects do
 		(
 			sync_key = this._getSyncKey (obj)
 
-			if objs_by_source[sync_key] == undefined then
-				objs_by_source[sync_key] = #()
+			if supports_by_source[sync_key] == undefined then
+				supports_by_source[sync_key] = #()
 
-			append objs_by_source[sync_key] obj
+			append supports_by_source[sync_key] obj
 		)
 
-		objs_by_source --return
+		supports_by_source --return
 	),
 
 	/** Load source objects from scene
@@ -836,11 +853,13 @@ struct SupportManager_v
 	 */
 	function _getKey type obj =
 	(
-		--format "\n"; print "SupportManager_v._getKey()"
+		format "\n"; print "SupportManager_v._getKey()"
 		type_full = toUpper (type as string ) + "_KEY"
-		--format "type_full: %\n" type_full
+		format "type_full: %\n" type_full
 
-		getUserPropVal obj type_full
+		obj_key =  getUserPropVal obj type_full asString:true
+		format "OBJ_KEY: %\n" obj_key
+		obj_key --return
 	),
 
 	/**
