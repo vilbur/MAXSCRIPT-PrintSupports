@@ -95,7 +95,6 @@ struct SupportManager_v
 	function generateSupports source_obj obj_type:#SUPPORT =
 	(
 		format "\n"; print "SupportManager_v.generateSupports()"
-		format "is_raft: %\n" is_raft
 		--format "source_obj: %\n" source_obj
 		--SUPPORT_OPTIONS.getValuesFroUi()
 
@@ -757,11 +756,12 @@ struct SupportManager_v
 	 */
 	function _loadSupportsFromScene =
 	(
-		--format "\n"; print "SupportManager_v.loadSupportsFromScene()"
+		format "\n"; print "SupportManager_v.loadSupportsFromScene()"
 
 		for obj_type in #( #SUPPORT, #RAFT ) do
-			for obj_in_scene in objects where (support_key = this.isType obj_type obj_in_scene) != false do
+			for obj_in_scene in objects where (support_key = this._getKey obj_type obj_in_scene) != undefined do
 			(
+				format "SUPPORT_KEY: %\n" support_key
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
 				--is_raft	 = getUserPropVal obj_in_scene "IS_RAFT"

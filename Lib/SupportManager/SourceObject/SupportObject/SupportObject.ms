@@ -5,8 +5,6 @@ struct SupportObject_v
 	/* construct */
 	source_obj,
 
-	--is_raft = false,
-
 	/* required on load from scene */
 	obj_type = #SUPPORT, -- #SUPPORT|#RAFT
 	support_obj,
@@ -88,6 +86,7 @@ struct SupportObject_v
 		else if num_knots > knots_positions.count then
 			this._removeKnots()
 
+		format "knots_positions.count: %\n" knots_positions.count
 
 		this._updateLine()
 
@@ -128,7 +127,7 @@ struct SupportObject_v
 
 		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
 
-		setUserPropVal support_obj ( toUpper (from_type as string ) + "_KEY") undefined
+		deleteUserProp support_obj ( toUpper (from_type as string ) + "_KEY")
 
 		setUserPropVal support_obj ( toUpper (obj_type as string ) + "_KEY") support_key
 

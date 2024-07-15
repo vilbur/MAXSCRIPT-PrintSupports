@@ -27,7 +27,6 @@ struct SourceObject_v
 
 	/* dependency */
 
-	--SupportObject, --"./SupportObject/SupportObject.ms"
 	VertexColors, --"./../../VertexColors/VertexColors.ms"
 
 
@@ -36,14 +35,14 @@ struct SourceObject_v
 
 	/** Generate supports
 	 */
-	function generateSupports is_raft:false =
+	function generateSupports obj_type:#SUPPORT =
 	(
 		format "\n"; print "SourceObject_v.generateSupports()"
 		--format "Supports.keys: %\n" Supports.keys
 		--format "Supports.keys: %\n" Supports.keys
 		new_nodes = #()
 
-		obj_type =  if is_raft then #RAFT else #SUPPORT
+		--obj_type =  if is_raft then #RAFT else #SUPPORT
 
 		this._removeDeletedNodes()
 
@@ -94,12 +93,7 @@ struct SourceObject_v
 				setUserPropVal SupportObject.support_obj ( toUpper (obj_type as string ) + "_KEY")	SupportObject.support_key asString:true
 
 				setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
-				--setUserPropVal SupportObject.support_obj "THIS"	((getHandleByAnim SupportObject.support_obj) as string ) -- REMOVE THIS LINNE
 				setUserPropVal SupportObject.support_obj "INDEX"	vert
-				--setUserPropVal SupportObject.support_obj "IS_RAFT"	is_raft
-				setUserPropVal SupportObject.support_obj "DIRECTION"	second_point_direction
-
-
 
 				SupportObject.support_obj.parent = obj
 
@@ -111,7 +105,7 @@ struct SourceObject_v
 				--this.Supports[vert].updateSupport first_knot_pos:verts_pos[vert]
 
 
-		SUPPORT_MODIFIERS.addModifiers( this.getSupportNodes is_raft:is_raft ) raft_mode:is_raft
+		SUPPORT_MODIFIERS.addModifiers( this.getSupportNodes obj_type:obj_type ) raft_mode:(obj_type == #RAFT)
 
 		bindSupportToTransformEvent( this.getSupportNodes() )
 
