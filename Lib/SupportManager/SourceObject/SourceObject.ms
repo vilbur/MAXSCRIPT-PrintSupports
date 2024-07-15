@@ -185,7 +185,9 @@ struct SourceObject_v
 		if verts_pos == undefined then
 			verts_pos = this._getVertsPositions()
 
-		(this._getSupportByNode (support_node)).updateSupport first_knot_pos:verts_pos[index]
+		index = getUserPropVal support_node "INDEX"
+
+		Supports[index].updateSupport first_knot_pos:verts_pos[index]
 	),
 
 	/** Get support by node
@@ -194,6 +196,7 @@ struct SourceObject_v
 	(
 		--format "\n"; print "SourceObject_v._getSupportByNode()"
 		index = getUserPropVal support_node "INDEX"
+
 
 		Supports[index] --return
 	),

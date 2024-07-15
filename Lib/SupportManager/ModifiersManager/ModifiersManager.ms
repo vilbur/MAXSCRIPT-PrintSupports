@@ -63,10 +63,43 @@ struct ModifiersManager_v
 			(
 				#BAR_WIDTH:	modi[#Cylinder_Section].radius	= SUPPORT_OPTIONS.bar_width / 2
 				#BASE_WIDTH:	modi.amount	= SUPPORT_OPTIONS.base_width
-				#EXTRUDE_TOP:	modi.amount	= SUPPORT_OPTIONS.extrude_top
-				
+				#EXTRUDE_END:	modi.amount	= SUPPORT_OPTIONS.extrude_end
+
 				default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" mod_name -- this should never happen
 			)
+
+	),
+
+	/** Switch support type
+	 */
+	function switchSupportType supports to_type:#RAFT =
+	(
+		format "\n"; print "SupportModifiers_v.switchSupportType()"
+		--format "supports: %\n" supports
+		--format "to_type: %\n" to_type
+
+		delete_support	= #( "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Top" )
+		delete_raft	= #( "Chamfer Bar", "Select Top" )
+
+
+		modifiers = if obj_type == #SUPPORT then SupportModifiers["default"].mods_support else SupportModifiers["default"].mods_raft
+
+			if to_type == #RAFT then
+			(
+				for support in supports do
+					for mod_name in delete_support do
+						deleteModifier support support.modifiers[mod_name]
+
+				for support in supports do
+				(
+
+					addModifier support modifiers["Chamfer Bar"] before:1
+					addModifier support modifiers["Select Top"] before:1
+
+				)
+			)
+		--	--else
+
 
 	),
 

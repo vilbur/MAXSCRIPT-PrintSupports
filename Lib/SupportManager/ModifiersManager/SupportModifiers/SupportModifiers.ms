@@ -37,16 +37,34 @@ struct SupportModifiers_v
 		mods_support["Chamfer Base"]	= this._chamferSetup	(Chamfer	name:"Chamfer Base")	(this._getChamferVal #BASE )
 		mods_support["Chamfer Bar"]	= this._chamferSetup	(Chamfer	name:"Chamfer Bar")	(this._getChamferVal #TOP )	selection_option:#ALL  materialoption:#DIFFERENT
 		mods_support["Select Top"]	= this._volSelectSetup	(Vol__Select	name:"Select Top")	(this._getMatId  #TOP )	--
-		mods_support["Extrude End"]	= this._extrudeSetup	(Face_Extrude	name:"Extrude End")	(this._getOption #EXTRUDE_TOP )
+		mods_support["Extrude End"]	= this._extrudeSetup	(Face_Extrude	name:"Extrude End")	(this._getOption #EXTRUDE_END )
 
 		/* RAFT MODIFIERS */
 		mods_raft["Bar Width"]	= mods_support["Bar Width"]
 		mods_raft["Extrude End"]	= mods_support["Extrude End"]
 
+		--mods_support["Select Bottom"]	= this._volSelectSetup	(Vol__Select	name:"Select Bottom")	(this._getMatId  #BASE )
+
 		mods_raft["Chamfer Bar"]	= this._chamferSetup	(copy mods_support["Chamfer Bar"])	(this._getChamferVal #TOP )	material_ID:(this._getMatId #MIDDLE ) materialoption:#OFF
-		mods_raft["Select Top"]	= this._volSelectSetup	(copy mods_support["Select Top"])	(this._getMatId #MIDDLE )	--
+		mods_raft["Select Top"]	= this._volSelectSetup	(copy mods_support["Select Top"])	(this._getMatId #MIDDLE )	invert_sel:true
+
+
+		mods_raft["Chamfer Bar"].name = "Chamfer Bar"
+		mods_raft["Select Top"].name = "Select Top"
+
 	),
 
+	/** Copy modifier
+	 */
+	function _copyModifier from_name to_name =
+	(
+		--format "\n"; print "SupportModifiers_v._vopyModifier()"
+		modi = copy mods_support[from_name]
+
+		modi.name = to_name
+
+		modi --return
+	),
 
 	/** SWEEP Modifier
 	  *

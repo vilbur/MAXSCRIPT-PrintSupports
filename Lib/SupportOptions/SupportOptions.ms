@@ -41,7 +41,7 @@ struct SupportOptions_v
 	base_height	= 1.0,
 	base_width	= 4.0,
 
-	extrude_top	= 0.5,
+	extrude_end	= 0.5,
 
 	chamfer_base = 2,
 	chamfer_bar	= 5,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10

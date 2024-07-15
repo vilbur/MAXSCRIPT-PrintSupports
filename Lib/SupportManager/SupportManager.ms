@@ -673,7 +673,7 @@ struct SupportManager_v
 	function _getSupportNodes _objects =
 	(
 		--format "\n"; print "SupportManager_v._getSupports()"
-		for obj in _objects where this.isType #SUPPORT obj != false collect obj
+		for obj in _objects where this.isType #SUPPORT obj != false or this.isType #RAFT obj != false collect obj
 	),
 
 
