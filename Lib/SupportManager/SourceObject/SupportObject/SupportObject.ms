@@ -5,10 +5,12 @@ struct SupportObject_v
 	/* construct */
 	source_obj,
 
-	is_raft = false,
+	--is_raft = false,
 
 	/* required on load from scene */
+	obj_type = #SUPPORT, -- #SUPPORT|#RAFT
 	support_obj,
+
 	support_key, -- pointer of support when node is created
 	sync_key,
 
@@ -41,7 +43,7 @@ struct SupportObject_v
 
 		this._setRaftKnots(first_knot_pos)(direction)
 
-		if not is_raft and hit_raft == undefined then
+		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportKnots()
 
 		this._drawLine()
@@ -64,18 +66,18 @@ struct SupportObject_v
 		format "first_knot_pos: %\n" first_knot_pos
 		--deleteAllChangeHandlers id:#updateSupportsEvent
 
-
-		if first_knot_pos == unsupplied then
-			this._getKnotsFromLine()
-
-		else
+		if first_knot_pos != unsupplied then
 			this._setUpdatedKnots(first_knot_pos)
 
-		is_on_ground = not is_raft and hit_support == undefined
+		else
+			this._getKnotsFromLine()
+
+
+		is_on_ground = obj_type == #SUPPORT and hit_support == undefined
 
 		num_knots = numKnots support_obj _spline_index
 
-		if not is_raft and hit_raft == undefined then
+		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportKnots()
 
 		/* ADD KNOTS FOR SUPPORT */
@@ -109,67 +111,28 @@ struct SupportObject_v
 
 	),
 
-	/** ,
+
+	/** Convert support to raft or vice versa
+	  *
+	  * @param #SUPPORT|#RAFT to_type type of obejct to covert
+	  *
 	 */
-	function convertToRaft =
+	function convert to_type =
 	(
 		format "\n"; print "SupportObject_v.convertToRaft()"
-		this.is_raft  = true
+		hit_raft = false
+		hit_support	= false
+		is_on_ground	= false
 
-		setUserPropVal support_obj "RAFT" true
+		obj_type = to_type
+
+		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
+
+		setUserPropVal support_obj ( toUpper (from_type as string ) + "_KEY") undefined
+
+		setUserPropVal support_obj ( toUpper (obj_type as string ) + "_KEY") support_key
 
 		this.updateSupport()
-		--is_on_ground = false
-		--
-		--knots_positions = Array (2)
-		--
-		--knots_positions[1] = getKnotPoint support_obj _spline_index 1
-		--knots_positions[2] = getKnotPoint support_obj _spline_index 2
-		--
-		--num_knots = numKnots support_obj _spline_index
-		--
-		--if not is_raft and hit_raft == undefined then
-		--	this._setSupportKnots()
-		--
-		--/* ADD KNOTS FOR SUPPORT */
-		--if num_knots < knots_positions.count then
-		--	this._addKnots()
-		--
-		--/* REMOVE REDUNTANT KNOTS FROM SUPPORT */
-		--else if num_knots > knots_positions.count then
-		--	this._removeKnots()
-		--
-		--
-		--this._updateLine()
-		--
-		--this._setMaterialsToLineSegments()
-		--
-		--this._setPivotToSecondPoint()
-		----updateShape support_obj
-		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
-
-
-		--for i = knots_positions.count to 3 by -1 do
-			--deleteItem knots_positions i
-
-		--this._setRaftKnots(knots_positions[1])( normalize knots_positions[2])
-
-
-
-		--if num_knots < knots_positions.count then
-		--	this._addKnots()
-		--
-		--else if num_knots > knots_positions.count then
-		--	this._removeKnots()
-		--
-		--this._updateLine()
-		--
-		--this._setMaterialsToLineSegments()
-		--
-		--this._setPivotToSecondPoint()
-		----updateShape support_obj
-		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
-
 	),
 
 	/** Update support
@@ -250,7 +213,7 @@ struct SupportObject_v
 
 
 		/* RESET COLLISION IF DISTANCE TO HIT IS GRTEATER THEN NORMAL - only for support */
-		if not is_raft and hit_raft != undefined and distance knots_positions[1] hit_raft.pos > SUPPORT_OPTIONS.normal_length then
+		if obj_type == #SUPPORT and hit_raft != undefined and distance knots_positions[1] hit_raft.pos > SUPPORT_OPTIONS.normal_length then
 			hit_raft = undefined
 
 
@@ -264,7 +227,7 @@ struct SupportObject_v
 
 
 		/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
-		if not this.is_raft and second_point_pos.z < limit_height_to_base then
+		if obj_type == #SUPPORT and second_point_pos.z < limit_height_to_base then
 		(
 			normal_length = abs ((vertex_pos.z - limit_height_to_base ) / direction.z)
 
@@ -340,7 +303,7 @@ struct SupportObject_v
 
 			this._drawRaftLine()
 
-			if is_raft == false and hit_support == undefined then
+			if obj_type = #SUPPORT and hit_support == undefined then
 				this._drawSupportLine()
 
 			this._setMaterialsToLineSegments()

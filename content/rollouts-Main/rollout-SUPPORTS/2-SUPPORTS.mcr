@@ -1,7 +1,7 @@
 
 --DEV
 print("DEV IMPORT in:\n"+getSourceFileName())
---filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
 
 /** Generate support or raft
  */
@@ -25,15 +25,22 @@ function generateSupportsOrRafts raft_mode:false =
 
 
 	(
-		selected_supports_and_rafts = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+		--selected_supports_and_rafts = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+		format "SELECTED_SUPPORTS_AND_RAFTS: %\n" selected_supports_and_rafts
 
-		selected_supports = for obj in selected_supports_and_rafts where not SUPPORT_MANAGER.isRaft(obj) collect obj
-		selected_rafts    = for obj in selected_supports_and_rafts where    SUPPORT_MANAGER.isRaft(obj) collect obj
+		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
+		format "SELECTED_SUPPORTS: %\n" selected_supports
+		format "SELECTED_RAFTS:    %\n" selected_rafts
+		format "raft_mode: %\n" raft_mode
 
-
+		/* CONVERT SELCTED SUPPORTS TO RAFTS */
 		if raft_mode and selected_supports.count > 0 then
-			SUPPORT_MANAGER.convertSupportsToRafts(selected_supports)
+			SUPPORT_MANAGER.convert(selected_supports) to_type:#RAFT
 
+		/* CONVERT SELCTED RAFTS TO SUPPORTS */
+		if not raft_mode and selected_rafts.count > 0 then
+			SUPPORT_MANAGER.convert(selected_rafts) to_type:#SUPPORT
 
 	)
 

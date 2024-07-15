@@ -92,7 +92,7 @@ struct SupportManager_v
 
 	/** Generate points
 	 */
-	function generateSupports source_obj is_raft:false =
+	function generateSupports source_obj obj_type:#SUPPORT =
 	(
 		format "\n"; print "SupportManager_v.generateSupports()"
 		format "is_raft: %\n" is_raft
@@ -126,7 +126,7 @@ struct SupportManager_v
 		------------------------------------------------------------------------------*/
 		--delete (SourceObject.getSupportNodes())
 
-		new_nodes = SourceObject.generateSupports is_raft:is_raft
+		new_nodes = SourceObject.generateSupports obj_type:obj_type
 
 		--support_nodes =
 		--
@@ -257,7 +257,7 @@ struct SupportManager_v
 		--format "\n"; print "SupportManager_v.updateSupportPosition()"
 		--format "support_nodes: %\n" support_nodes
 
-		objs_by_source = this._sortObejctsBySourceObject (support_nodes)
+		objs_by_source = this._sortObjectsBySourceObject (support_nodes)
 
 		for sync_key in objs_by_source.keys do
 			for support_node in objs_by_source[sync_key] do
@@ -272,16 +272,24 @@ struct SupportManager_v
 		this.updateShapes()
 	),
 
-	/** Convert support to raft
+	/** Convert support to raft or vice versa
+	  *
+	  * @param #SUPPORT|#RAFT to_type of obejct to covert
+	  *
 	 */
-	function convertSupportsToRafts support_nodes =
+	function convert support_nodes to_type:#RAFT  =
 	(
 		format "\n"; print "SupportManager_v.convertSupportsToRafts()"
 
-		objs_by_source = this._sortObejctsBySourceObject (support_nodes)
+		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
+		format "from_type: %\n" from_type
+		format "to_type:   %\n" to_type
+
+		objs_by_source = this._sortObjectsBySourceObject (support_nodes)
+		format "objs_by_source.keys: %\n" objs_by_source.keys
 
 		 for support_node in support_nodes do
-			SupportObjects[this.getKey(#SUPPORT)(support_node)].convertToRaft()
+			SupportObjects[this._getKey(from_type)(support_node)].convert(to_type)
 
 		--for sync_key in objs_by_source.keys do
 		--	for support_node in objs_by_source[sync_key] do
@@ -532,14 +540,14 @@ struct SupportManager_v
 			false --return
 	),
 
-	/** Test if object is raft
-	  *
-	  * @return string|false
-	 */
-	function isRaft obj =
-	(
-		( is_raft = getUserPropVal obj "RAFT" ) != undefined and is_and == true
-	),
+	--/** Test if object is raft
+	--  *
+	--  * @return string|false
+	-- */
+	--function isRaft obj =
+	--(
+	--	( is_raft = getUserPropVal obj "IS_RAFT" ) != undefined and is_raft == true
+	--),
 
 	/*------------------------------------------------------------------------------*/
 
@@ -694,7 +702,7 @@ struct SupportManager_v
 	  *
 	  * @return Dictionary #STRING -- KEY:"SYNC_KEY" VALUE:#( nodes of source objects )
 	 */
-	function _sortObejctsBySourceObject _objects =
+	function _sortObjectsBySourceObject _objects =
 	(
 		--format "\n"; print "SupportManager_v.sortObejctsBySourceObject()"
 		objs_by_source =  Dictionary #STRING
@@ -750,17 +758,20 @@ struct SupportManager_v
 	function _loadSupportsFromScene =
 	(
 		--format "\n"; print "SupportManager_v.loadSupportsFromScene()"
-		for obj_in_scene in objects where (support_key = this.isType #SUPPORT obj_in_scene) != false do
-		(
-		    index       = getUserPropVal obj_in_scene "INDEX"
-		    sync_key    = getUserPropVal obj_in_scene "SYNC_KEY"
 
-			SupportObject = SupportObject_v source_obj:SourceObjects[sync_key].obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key is_raft:is_raft
+		for obj_type in #( #SUPPORT, #RAFT ) do
+			for obj_in_scene in objects where (support_key = this.isType obj_type obj_in_scene) != false do
+			(
+				index	 = getUserPropVal obj_in_scene "INDEX"
+				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
+				--is_raft	 = getUserPropVal obj_in_scene "IS_RAFT"
 
-			SupportObjects[SupportObject.support_key] = SupportObject
+				SupportObject = SupportObject_v source_obj:SourceObjects[sync_key].obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key obj_type:obj_type
 
-			SourceObjects[sync_key].Supports[index] = SupportObject
-		)
+				SupportObjects[SupportObject.support_key] = SupportObject
+
+				SourceObjects[sync_key].Supports[index] = SupportObject
+			)
 
 		bindSupportToTransformEvent( for key in SupportObjects.keys collect SupportObjects[key].support_obj )
 	),
@@ -823,10 +834,11 @@ struct SupportManager_v
 	  *
 	  * @return string|undefined
 	 */
-	function getKey type obj =
+	function _getKey type obj =
 	(
-		--format "\n"; print "SupportManager_v._isObjectType()"
+		--format "\n"; print "SupportManager_v._getKey()"
 		type_full = toUpper (type as string ) + "_KEY"
+		--format "type_full: %\n" type_full
 
 		getUserPropVal obj type_full
 	),

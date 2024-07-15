@@ -10,6 +10,7 @@ struct SourceObject_v
 
 	/* required */
 	/* properties */
+
 	all_verts,
 
 	Supports = Dictionary #INTEGER, -- KEY: vertex_index VALUE: SupportObject|RaftObject
@@ -41,6 +42,8 @@ struct SourceObject_v
 		--format "Supports.keys: %\n" Supports.keys
 		--format "Supports.keys: %\n" Supports.keys
 		new_nodes = #()
+
+		obj_type =  if is_raft then #RAFT else #SUPPORT
 
 		this._removeDeletedNodes()
 
@@ -78,7 +81,7 @@ struct SourceObject_v
 			if not supports_exists[vert] then
 			(
 				--format "create support for vert: %\n" vert
-				SupportObject = SupportObject_v source_obj:obj is_raft:is_raft sync_key:sync_key
+				SupportObject = SupportObject_v source_obj:obj obj_type:obj_type sync_key:sync_key
 
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
@@ -88,12 +91,15 @@ struct SourceObject_v
 				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
 
+				setUserPropVal SupportObject.support_obj ( toUpper (obj_type as string ) + "_KEY")	SupportObject.support_key asString:true
+
 				setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
-				setUserPropVal SupportObject.support_obj "SUPPORT_KEY"	SupportObject.support_key asString:true
 				--setUserPropVal SupportObject.support_obj "THIS"	((getHandleByAnim SupportObject.support_obj) as string ) -- REMOVE THIS LINNE
 				setUserPropVal SupportObject.support_obj "INDEX"	vert
-				setUserPropVal SupportObject.support_obj "RAFT"	is_raft
+				--setUserPropVal SupportObject.support_obj "IS_RAFT"	is_raft
 				setUserPropVal SupportObject.support_obj "DIRECTION"	second_point_direction
+
+
 
 				SupportObject.support_obj.parent = obj
 
@@ -168,11 +174,11 @@ struct SourceObject_v
 	  *
 	  * @return array of nodes
 	 */
-	function getSupportNodes is_raft: =
+	function getSupportNodes obj_type: =
 	(
 		--format "\n"; print "SourceObject_v.getSupportNodes()"
-		if is_raft != unsupplied then
-			for SupportObjectData in Supports where SupportObjectData.value.is_raft == is_raft collect SupportObjectData.value.support_obj --return
+		if obj_type != unsupplied then
+			for SupportObjectData in Supports where SupportObjectData.value.obj_type == obj_type collect SupportObjectData.value.support_obj --return
 
 		else
 			for SupportObjectData in Supports collect SupportObjectData.value.support_obj --return
