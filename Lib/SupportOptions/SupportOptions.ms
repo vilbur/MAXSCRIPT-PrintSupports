@@ -117,7 +117,7 @@ struct SupportOptions_v
 	  */
 	function init =
 	(
-		--format "\n"; print "SupportOptions_v.init()"
+		format "\n"; print "SupportOptions_v.init()"
 		this._setUnitsMuliplier()
 
 		this._setDimensions()

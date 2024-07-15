@@ -38,7 +38,7 @@ struct SourceObject_v
 	function generateSupports obj_type:#SUPPORT =
 	(
 		format "\n"; print "SourceObject_v.generateSupports()"
-		format "OBJ_TYPE: %\n" obj_type
+		--format "OBJ_TYPE: %\n" obj_type
 
 		new_nodes = #()
 
@@ -52,10 +52,10 @@ struct SourceObject_v
 		verts_sel	= getVertSelection obj.mesh
 
 		supports_exists = Supports.keys as BitArray
-		format "SUPPORTS_EXISTS: %\n" supports_exists
+		--format "SUPPORTS_EXISTS: %\n" supports_exists
 
 		verts_by_colors = this._getVertsByColors()
-		format "VERTS_BY_COLORS: %\n" verts_by_colors
+		--format "VERTS_BY_COLORS: %\n" verts_by_colors
 
 		colored_verts = this._getColoredVerts(verts_by_colors)
 
@@ -131,7 +131,7 @@ struct SourceObject_v
 	 */
 	function convert support_nodes to_type:#RAFT  =
 	(
-		format "\n"; print "SupportManager_v.convertSupportsToRafts()"
+		--format "\n"; print "SupportManager_v.convertSupportsToRafts()"
 
 		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
 
@@ -255,7 +255,7 @@ struct SourceObject_v
 	 */
 	function _setLocalVertexNormals verts =
 	(
-		format "\n"; print "SourceObject_v._setLocalVertexNormals()"
+		--format "\n"; print "SourceObject_v._setLocalVertexNormals()"
 		--format "verts.numberSet: %\n" verts.numberSet
 		--timer_get_normals = timeStamp()
 		obj_mesh = obj.mesh
@@ -284,7 +284,7 @@ struct SourceObject_v
 	 */
 	function _setWorldSpaceVertexNormals verts =
 	(
-		format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
+		--format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
 
@@ -298,7 +298,7 @@ struct SourceObject_v
 	 */
 	function _getVertsPositions =
 	(
-		format "\n"; print "SourceObject_v._getVertsPositions()"
+		--format "\n"; print "SourceObject_v._getVertsPositions()"
 		in coordsys world meshop.getVerts obj.mesh all_verts node:obj
 	),
 

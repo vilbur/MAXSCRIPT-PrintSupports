@@ -86,7 +86,7 @@ struct VertexColors_v
 			verts = #{1..(getNumVerts obj_mesh)}
 
 		this._setVertsByColors (verts) exclude:exclude
-		format "verts_by_colors: %\n" verts_by_colors
+		--format "verts_by_colors: %\n" verts_by_colors
 
 		if flat then
 		(
@@ -153,7 +153,7 @@ struct VertexColors_v
 	 */
 	function getAllVertsAndColors =
 	(
-		format "\n"; print "VertexColors_v.getAllVertsAndColors()"
+		--format "\n"; print "VertexColors_v.getAllVertsAndColors()"
 		local color_of_vert
 
 		vertex_count	= getNumVerts obj_mesh

@@ -47,9 +47,12 @@ try(
 	--------------------------------------------------------------------------------*/
 	SUPPORT_OPTIONS = SupportOptions_v(ROLLOUT_supports)
 
+	--SUPPORT_OPTIONS.getValuesFroUi()
+
 	MODIFIERS_MANAGER = ModifiersManager_v()
 
 	SUPPORT_MANAGER = SupportManager_v()
+
 
 )catch(
 	format "\n——————————————— ERROR IN FILE ———————————————\n\n%\n" (getSourceFileName())

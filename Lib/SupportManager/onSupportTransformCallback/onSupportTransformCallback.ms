@@ -6,13 +6,13 @@ global SUPPORTS_TRANSFORM_CHANGED = #()
  */
 function onSupportTransformTimeoutCallback sender evt =
 (
-	format "\n"; print ".onSupportTransformTimeoutCallback()"
+	--format "\n"; print ".onSupportTransformTimeoutCallback()"
 
 	/** Remove timeout
 	 */
 	fn removeTimeout sender =
 	(
-		format "\n"; print ".removeTimeout()"
+		--format "\n"; print ".removeTimeout()"
 		SUPPORTS_TRANSFORM_CHANGED = #()
 
 		sender.enabled = false
@@ -42,7 +42,7 @@ function onSupportTransformTimeoutCallback sender evt =
  */
 function startSupportTransformTimeout =
 (
-	format "\n"; print ".startSupportTransformTimeout()"
+	--format "\n"; print ".startSupportTransformTimeout()"
 	--delay_ms = 3000
 	delay_ms = 1000
 	--delay_ms = 100
@@ -61,7 +61,7 @@ function startSupportTransformTimeout =
  */
 function bindSupportToTransformEvent supports =
 (
-	format "\n"; print ".bindSupportToTransformEvent()"
+	--format "\n"; print ".bindSupportToTransformEvent()"
 	--format "SUPPORTS: %\n" SUPPORTS
 	--format "COUNT: %\n" SUPPORTS.count
 	SUPPORTS_BINDED = for obj in SUPPORTS_BINDED where isValidNode obj collect obj

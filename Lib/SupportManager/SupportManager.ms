@@ -1,10 +1,10 @@
 --filein( getFilenamePath(getSourceFileName()) + "/../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms" )	--"./../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColors/VertexColors.ms" )	--"./../../content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColors/VertexColors.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rollout-VERTEX-COLORS/Lib/VertexColors/VertexColors.ms" )	--"./../../content/rollouts-Main/rollout-VERTEX-COLORS/Lib/VertexColors/VertexColors.ms"
 --filein( getFilenamePath(getSourceFileName()) + "/../VertexColors/VertexColors.ms" )	--"./../VertexColors/VertexColors.ms"
 
 --filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-VERTEX COLORS\Lib\VertexColorProcessor.ms"
-filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms" )	--"./../../content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rollout-VERTEX-COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms" )	--"./../../content/rollouts-Main/rollout-VERTEX-COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onSupportTransformCallback/onSupportTransformCallback.ms" -- MUST BE BEFORE SourceObject.ms
 filein( getFilenamePath(getSourceFileName()) + "/onBeamDeletedCallback/onBeamDeletedCallback.ms" )	--"./onBeamDeletedCallback/onBeamDeletedCallback.ms" -- MUST BE BEFORE SourceObject.ms
@@ -16,7 +16,6 @@ filein( getFilenamePath(getSourceFileName()) + "/SourceObject/SourceObject.ms" )
 
 filein( getFilenamePath(getSourceFileName()) + "/BeamObject/BeamObject.ms" )	--"./BeamObject/BeamObject.ms"
 
---filein( getFilenamePath(getSourceFileName()) + "/SupportModifiers/SupportModifiers.ms" )	--"./SupportModifiers/SupportModifiers.ms"
 filein( getFilenamePath(getSourceFileName()) + "/ModifiersManager/ModifiersManager.ms" )	--"./ModifiersManager/ModifiersManager.ms"
 
 /** Support manager
@@ -94,7 +93,7 @@ struct SupportManager_v
 	 */
 	function generateSupports source_obj obj_type:#SUPPORT =
 	(
-		format "\n"; print "SupportManager_v.generateSupports()"
+		--format "\n"; print "SupportManager_v.generateSupports()"
 		--format "obj_type: %\n" obj_type
 		--format "source_obj: %\n" source_obj
 		--SUPPORT_OPTIONS.getValuesFroUi()
@@ -278,16 +277,16 @@ struct SupportManager_v
 	 */
 	function convert support_nodes to_type:#RAFT  =
 	(
-		format "\n"; print "SupportManager_v.convertSupportsToRafts()"
+		--format "\n"; print "SupportManager_v.convertSupportsToRafts()"
 
 		--from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
-		format "SupportObjects: %\n" SupportObjects
+		--format "SupportObjects: %\n" SupportObjects
 		--format "from_type: %\n" from_type
 		--format "to_type:   %\n" to_type
 		--format "supports_by_source.keys: %\n" supports_by_source.keys
 
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
-		format "supports_by_source: %\n" supports_by_source
+		--format "supports_by_source: %\n" supports_by_source
 
 		pauseSupportToTransformEvent()
 
@@ -295,7 +294,7 @@ struct SupportManager_v
 			for sync_key in supports_by_source.keys do
 			(
 
-				format "sync_key: %\n" sync_key
+				--format "sync_key: %\n" sync_key
 				SourceObjects[sync_key].convert(supports_by_source[sync_key] ) to_type:to_type
 
 				--for support_node in supports_by_source[sync_key] do
@@ -339,22 +338,17 @@ struct SupportManager_v
 
 		_selection = selection as Array
 
-		prop = removeControlTypePrefix(ctrl)
-
+		prop_key = removeControlTypePrefix(ctrl)
 
 		source_objects = this._getSourceObjects ( _selection )
 		supports       = this._getSupportNodes ( _selection )
-		--format "_selection: %\n" _selection
-		--format "source_objects: %\n" source_objects
-		--format "supports: %\n" supports
-		--join supports supports_sel
 
 		for SourceObject in source_objects do
 			join supports (SourceObject.getSupportNodes())
 
-		SUPPORT_OPTIONS.setOptionValue (prop) (val)
+		SUPPORT_OPTIONS.setOptionValue (prop_key) (val)
 		--SPIN_base_width
-		MODIFIERS_MANAGER.updateModifier( makeUniqueArray supports )(prop)
+		MODIFIERS_MANAGER.updateModifier( makeUniqueArray supports )(prop_key as name )
 	),
 
 
@@ -745,7 +739,7 @@ struct SupportManager_v
 	 */
 	function _loadSourceObjectsFromScene =
 	(
-		format "\n"; print "SupportManager_v._loadSourceObjectsFromScene()"
+		--format "\n"; print "SupportManager_v._loadSourceObjectsFromScene()"
 
 		--unindSupportToTransformEvent()
 		--for obj_in_scene in objects do
@@ -778,7 +772,7 @@ struct SupportManager_v
 	 */
 	function _loadSupportsFromScene =
 	(
-		format "\n"; print "SupportManager_v.loadSupportsFromScene()"
+		--format "\n"; print "SupportManager_v.loadSupportsFromScene()"
 
 		for obj_type in #( #SUPPORT, #RAFT ) do
 			for obj_in_scene in objects where (support_key = this._getKey obj_type obj_in_scene) != undefined do
@@ -802,7 +796,7 @@ struct SupportManager_v
 	 */
 	function _loadBeamsFromScene =
 	(
-		format "\n"; print "SupportManager_v._loadBeamsFromScene()"
+		--format "\n"; print "SupportManager_v._loadBeamsFromScene()"
 
 		/* REMOVE DELETE NODES */
 		for key in BeamObjects.keys where not isValidNode BeamObject[key].beam do
@@ -858,12 +852,12 @@ struct SupportManager_v
 	 */
 	function _getKey type obj =
 	(
-		format "\n"; print "SupportManager_v._getKey()"
+		--format "\n"; print "SupportManager_v._getKey()"
 		type_full = toUpper (type as string ) + "_KEY"
-		format "type_full: %\n" type_full
+		--format "type_full: %\n" type_full
 
 		obj_key =  getUserPropVal obj type_full asString:true
-		format "OBJ_KEY: %\n" obj_key
+		--format "OBJ_KEY: %\n" obj_key
 		obj_key --return
 	),
 
@@ -878,7 +872,7 @@ struct SupportManager_v
 
 		this._loadBeamsFromScene()
 
-		SUPPORT_OPTIONS.getValuesFroUi()
+		--SUPPORT_OPTIONS.getValuesFroUi()
 
 	)
 )

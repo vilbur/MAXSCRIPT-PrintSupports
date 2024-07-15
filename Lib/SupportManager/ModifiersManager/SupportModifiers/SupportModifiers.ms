@@ -2,28 +2,25 @@
  */
 struct SupportModifiers_v
 (
-
 	/* construct */
-	--Options,
-	--mat_ids,
-
 	/* properties */
-	mod_names = #("Bar Width", "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Bottom", "Select Top", "Extrude Top"),
+	mod_names = #("Bar Width", "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Bottom", "Select Top", "Extrude End"),
 
 	mods_support	=  Dictionary #STRING,
 	mods_raft	=  Dictionary #STRING,
 
-	supports,
-	--raft_mode = false,
-	update_mode = false,
-
-
 	/* options */
-	--chamfer_values = Dictionary(),
-
 	/* dependency */
 	/* reference */
 	/* inhered */
+
+	/** Sweep radius must be set when modifier is added to object
+	 */
+	function setSweepRadius =
+	(
+		--format "\n"; print "SupportModifiers_v.setSweepRadius()"
+		mods_support["Bar Width"][#Cylinder_Section].radius = this._getOption #BAR_WIDTH / 2
+	),
 
 	/** Init modifiers
 	 */
@@ -32,7 +29,6 @@ struct SupportModifiers_v
 		format "\n"; print "SupportModifiers_v.initModifiers()"
 		this._sanitizeMaxChamferValue()
 		format "SUPPORT_OPTIONS.chamfer_values: %\n" SUPPORT_OPTIONS.chamfer_values
-		format "CHAMFER_VALUES: %\n" chamfer_values
 
 		/* SUPPORT MODIFIERS */
 		mods_support["Bar Width"]	= this._sweepSetup	(sweep	name:"Bar Width")	(this._getOption #BAR_WIDTH )
@@ -57,9 +53,10 @@ struct SupportModifiers_v
 	  */
 	function _sweepSetup sweep_mod diameter =
 	(
-		--format "\n"; print "SupportModifiers_v._sweep()"
+		format "\n"; print "SupportModifiers_v._sweep()"
+		format "diameter: %\n" diameter
 
-		/** Reset mod prpertis -- sweep mpdofoer keeps its settings if newly created, i dont know why.. oteh modifiers dont do that :D
+		/** Reset mod propertis -- sweep mpdofoer keeps its settings if newly created, i dont know why.. oteh modifiers dont do that :D
 
 			QUICK SOLUTION - FOR MORE MODIFIERS OR PROPERTIES SHOULD COMPLEX SOLUTUION EXISTS
 
@@ -105,14 +102,16 @@ struct SupportModifiers_v
 			--
 			----sweep_mod[#Bar_Section].cornerRadius = 0
 			--/* GENERATE MATERIAL ID */
-			--sweep_mod.UseSectionIDs	= false
-			--sweep_mod.UsePathIDs	= true
+			sweep_mod.UseSectionIDs	= false
+			sweep_mod.UsePathIDs	= true
 		--)
 
 		--sweep_mod[#Cylinder_Section].radius	= diameter / 2
 
 		sweep_mod --return
 	),
+
+
 
 	/** Add edit spline
 	  *
@@ -128,7 +127,7 @@ struct SupportModifiers_v
 	  */
 	function _volSelectSetup vol_sel_mod mat_id invert_sel:false =
 	(
-		format "\n"; print "SupportModifiers_v._selectSetup()"
+		--format "\n"; print "SupportModifiers_v._selectSetup()"
 		--format "Adding Volume Select\n"
 
 		--vol_sel_mod = Vol__Select name:name
@@ -221,6 +220,7 @@ struct SupportModifiers_v
 		--		addModifier support extrude_mod
 
 			--modPanel.addModToSelection ( extrude_mod ) --ui:on
+		extrude_mod --return
 	),
 	/** Make sure that chamfer value is less then radius
 	  */

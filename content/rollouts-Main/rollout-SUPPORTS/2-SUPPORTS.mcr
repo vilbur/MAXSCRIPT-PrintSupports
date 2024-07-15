@@ -1,15 +1,15 @@
 
 --DEV
---print("DEV IMPORT in:\n"+getSourceFileName())
---filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
+
+print("DEV IMPORT in:\n"+getSourceFileName());filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
 
 /** Generate support or raft
  */
 function generateSupportsOrRafts obj_type: =
 (
-	format "\n"; print ".generateSupportsOrRafts()"
+	--format "\n"; print ".generateSupportsOrRafts()"
 
-	format "obj_type: %\n" obj_type
+	--format "obj_type: %\n" obj_type
 
 	_selection = for obj in selection collect obj
 
@@ -30,8 +30,8 @@ function generateSupportsOrRafts obj_type: =
 
 		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
 		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
-		format "SELECTED_SUPPORTS: %\n" selected_supports
-		format "SELECTED_RAFTS:    %\n" selected_rafts
+		--format "SELECTED_SUPPORTS: %\n" selected_supports
+		--format "SELECTED_RAFTS:    %\n" selected_rafts
 		--format "raft_mode: %\n" raft_mode
 
 		/* CONVERT SELECTED SUPPORTS TO RAFTS */
@@ -75,7 +75,7 @@ icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\
 	on execute do
 		undo "Generate Supports" on
 		(
-			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
+			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
 			generateSupportsOrRafts obj_type:#SUPPORT
 		)
 )
