@@ -77,22 +77,25 @@ struct ModifiersManager_v
 
 	/** Switch support type
 	 */
-	function switchSupportType supports to_type:#RAFT =
+	function switchSupportType supports obj_type:#RAFT =
 	(
 		format "\n"; print "ModifiersManager_v.switchSupportType()"
-		format "to_type: %\n" to_type
+		format "obj_type: %\n" obj_type
 		--format "supports: %\n" supports
-		--format "to_type: %\n" to_type
+		--format "obj_type: %\n" obj_type
 
 		mods_support	= #( "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Top" )
-		mods_raft	= #( "Chamfer Bar", "Select Top" )
+		mods_raft	= #( "Chamfer Bar", "Select Ends" )
 
-		mods_delete	= if to_type == #RAFT then mods_support else mods_raft
-		mods_add	= if to_type == #RAFT then mods_raft	else mods_support
-		format "mods_delete: %\n" mods_delete
-		format "mods_add: %\n" mods_add
+		mods_delete	= if obj_type == #RAFT then mods_support else mods_raft
+		mods_add	= if obj_type == #RAFT then mods_raft	else mods_support
+		--format "mods_delete: %\n" mods_delete
+		--format "mods_add: %\n" mods_add
 
 		mods = if obj_type == #RAFT then SupportModifiers["default"].mods_raft else SupportModifiers["default"].mods_support
+
+		for _mod in mods do
+			format "_mod: %\n" _mod
 
 		for support in supports do
 		(

@@ -132,16 +132,16 @@ struct SupportOptions_v
 	 */
 	function getOption prop_key =
 	(
-		--format "\n"; print "SupportOptions_v.getProp()"
-		--prop_key = prop_key as string
+		format "\n"; print "SupportOptions_v.getProp()"
+		format "prop_key: %\n" prop_key
 
 		/* Mutate value for modifier */
-		case expr of
+		case prop_key of
 		(
-			(#BAR_WIDTH):	bar_width / 2 -- get radius value
-			(#BASE_WIDTH):	base_width / 2 -- get radius value
-			(#CHAMFER_BASE):	base_height / 2
-			(#CHAMFER_BAR):	this._getChamfrBarValue()
+			#BAR_WIDTH:	bar_width / 2 -- get radius value
+			#BASE_WIDTH:	base_width / 2 -- get radius value
+			#CHAMFER_BASE:	base_height / 2
+			#CHAMFER_BAR:	this._getChamferBarValue()
 
 			default: getProperty this ( prop_key as string )
 		) --return
@@ -221,9 +221,9 @@ struct SupportOptions_v
 
 	/** Make sure that chamfer value is less then bar radius
 	  */
-	function _getChamfrBarValue =
+	function _getChamferBarValue =
 	(
-		--format "\n"; print "SupportModifiers_v._getChamfrBarValue()"
+		--format "\n"; print "SupportModifiers_v._getChamferBarValue()"
 
 		chamfer_step = (bar_width / 2 / 10) -- get value of single step for 0-10 scale
 

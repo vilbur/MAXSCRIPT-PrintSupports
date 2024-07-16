@@ -270,17 +270,17 @@ struct SupportManager_v
 
 	/** Convert support to raft or vice versa
 	  *
-	  * @param #SUPPORT|#RAFT to_type of obejct to covert
+	  * @param #SUPPORT|#RAFT obj_type of obejct to covert
 	  *
 	 */
-	function convert support_nodes to_type:#RAFT  =
+	function convert support_nodes obj_type:#RAFT  =
 	(
-		format "\n"; print "SupportManager_v.convertSupportsToRafts()"
+		format "\n"; print "SupportManager_v.convert()"
 
-		--from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
+		--from_type =  if obj_type == #RAFT then #SUPPORT else #RAFT
 		--format "SupportObjects: %\n" SupportObjects
 		--format "from_type: %\n" from_type
-		--format "to_type:   %\n" to_type
+		--format "obj_type:   %\n" obj_type
 		--format "supports_by_source.keys: %\n" supports_by_source.keys
 
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
@@ -293,13 +293,13 @@ struct SupportManager_v
 			(
 
 				--format "sync_key: %\n" sync_key
-				SourceObjects[sync_key].convert(supports_by_source[sync_key] ) to_type:to_type
+				SourceObjects[sync_key].convert(supports_by_source[sync_key] ) obj_type:obj_type
 
 				--for support_node in supports_by_source[sync_key] do
-				--   SupportObjects[this._getKey(from_type)(support_node)].convert(to_type)
+				--   SupportObjects[this._getKey(from_type)(support_node)].convert(obj_type)
 
 
-				MODIFIERS_MANAGER.switchSupportType( SourceObjects[sync_key].getSupportNodes obj_type:to_type ) to_type:to_type
+				MODIFIERS_MANAGER.switchSupportType( SourceObjects[sync_key].getSupportNodes obj_type:obj_type ) obj_type:obj_type
 
 			)
 

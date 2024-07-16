@@ -87,9 +87,10 @@ function bindSupportToTransformEvent supports =
 			appendIfUnique SUPPORTS_TRANSFORM_CHANGED support
 
 		)
+		/* ON SINGLE SUPPORT TRANSFORM */
 		else if support.isSelected then
 		(
-			--format "\n"; print "!!!!!!!!! FIRED UPDATE"
+			format "\n"; print "!!!!!!!!! FIRED UPDATE"
 
 			SUPPORT_MANAGER.updateSupports #( support )
 		)

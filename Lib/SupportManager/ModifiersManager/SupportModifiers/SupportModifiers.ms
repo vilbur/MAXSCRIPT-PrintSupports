@@ -4,7 +4,7 @@ struct SupportModifiers_v
 (
 	/* construct */
 	/* properties */
-	mod_names = #("Bar Width", "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Bottom", "Select Top", "Extrude End"),
+	mod_names = #("Bar Width", "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Ends", "Select Top", "Extrude End"),
 
 	mods_support	=  Dictionary #STRING,
 	mods_raft	=  Dictionary #STRING,
@@ -50,7 +50,7 @@ struct SupportModifiers_v
 
 
 		mods_raft["Chamfer Bar"]	= this._chamferSetup	(copy mods_support["Chamfer Bar"])	(OPTIONS.getOption #CHAMFER_BAR )	material_ID:(OPTIONS.getMatId #MIDDLE ) materialoption:#OFF
-		mods_raft["Select Top"]	= this._volSelectSetup	(copy mods_support["Select Top"])	(OPTIONS.getMatId #MIDDLE )	invert_sel:true
+		mods_raft["Select Ends"]	= this._volSelectSetup	(copy mods_support["Select Top"])	(OPTIONS.getMatId #MIDDLE )	invert_sel:true
 		--mods_raft["Select Bottom"]	= this._volSelectSetup	(copy mods_support["Select Bottom"])	(this._getMatId #MIDDLE )	invert_sel:true
 
 		renameSupportsByKey(mods_raft)

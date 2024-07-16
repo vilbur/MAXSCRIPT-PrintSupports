@@ -50,6 +50,8 @@ struct SupportObject_v
 
 		this._setPivotToSecondPoint()
 
+		this._alignPivotToSeconPoint()
+
 		support_key = (getHandleByAnim support_obj) as string
 
 		this --return
@@ -97,6 +99,8 @@ struct SupportObject_v
 		this._setMaterialsToLineSegments()
 
 		this._setPivotToSecondPoint()
+
+		--this._alignPivotToSeconPoint()
 		--updateShape support_obj
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
@@ -215,7 +219,7 @@ struct SupportObject_v
 				second_point_pos = hit_raft.pos
 
 			else /* EXTEND SECOND POINT ALONG NORMAL */
-				second_point_pos = vertex_pos +( SUPPORT_OPTIONS.normal_length * direction)
+				second_point_pos = vertex_pos +( SUPPORT_OPTIONS.normal_length * direction * 10 ) -- make raft longer by multiplying normal length 10x
 
 
 		/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
@@ -430,14 +434,12 @@ struct SupportObject_v
 
 	/** Align to ctor
 	 */
-	function _alignObjectToVector point_to_rotate =
+	function _alignPivotToSeconPoint =
 	(
-		--format "\n"; print "SupportRaftBaseObject._alignObjectToVector()"
-		--format "obj	= % \n" obj
-		--format "% %\n" point_to_rotate obj_pos
+		format "\n"; print "SupportRaftBaseObject._alignPivotToSeconPoint()"
 
-		dir = normalize (support_obj.pos - point_to_rotate)
-		--format "dir: %\n" dir
+		--dir = normalize (support_obj.pos - knots_positions[1])
+		dir = normalize (knots_positions[1] - support_obj.pos)
 
 		axis = #z
 
@@ -448,6 +450,7 @@ struct SupportObject_v
 			#z: support_obj.transform[3]
 		)
 
+		--tm  = Inverse support_obj.transform
 		tm  = support_obj.transform
 		vec = normalize vec
 		dir = normalize dir
@@ -458,22 +461,25 @@ struct SupportObject_v
 
 		rtm = AngleAxis (angle_vectors) ( axis_of_plane_defined_by_vectors )
 
-		--support_obj.transform = Translate ( Rotate ( ScaleMatrix tm.scale) (tm.rotation*rtm)) tm.pos
-		--
-		--if pos == true then
-		--	support_obj.pos = point_to_rotate
-		support_obj.pivot = Translate ( Rotate ( ScaleMatrix tm.scale) (tm.rotation*rtm)) tm.pos
+		tempObjTM = Translate ( Rotate ( ScaleMatrix  tm.scale) (tm.rotation*rtm))  tm.pos
 
-		--if pos == true then
-			--support_obj.pos = point_to_rotate
+		WorldAlignPivot support_obj
 
+		rot = Inverse tempObjTM.rotation
+
+		in coordsys local support_obj.rotation *= rot
+
+		support_obj.objectoffsetrot *= rot
+		support_obj.objectoffsetpos *= rot
+
+		--support_obj.pivot = p1
 	),
 
 	/** Set pivot to position
 	 */
 	function _setPivotToSecondPoint =
 	(
-		--format "\n"; print "SupportRaftBaseObject._alignObjectToVector()"
+		--format "\n"; print "SupportRaftBaseObject._alignPivotToSeconPoint()"
 		support_obj.pivot = knots_positions[2]
 	),
 

@@ -127,20 +127,20 @@ struct SourceObject_v
 
 	/** Convert support to raft or vice versa
 	  *
-	  * @param #SUPPORT|#RAFT to_type of obejct to covert
+	  * @param #SUPPORT|#RAFT obj_type of obejct to covert
 	  *
 	 */
-	function convert support_nodes to_type:#RAFT  =
+	function convert support_nodes obj_type:#RAFT  =
 	(
-		--format "\n"; print "SupportManager_v.convertSupportsToRafts()"
+		format "\n"; print "SourceObject_v.convertSupportsToRafts()"
 
-		from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
+		from_type =  if obj_type == #RAFT then #SUPPORT else #RAFT
 
 		for support_node in support_nodes do
-			(this._getSupportByNode (support_node)).convert(to_type)
+			(this._getSupportByNode (support_node)).convert(obj_type)
 
 
-		--MODIFIERS_MANAGER.switchSupportType( SourceObjects[sync_key].getSupportNodes obj_type:to_type ) to_type:to_type
+		--MODIFIERS_MANAGER.switchSupportType( SourceObjects[sync_key].getSupportNodes obj_type:obj_type ) obj_type:obj_type
 
 		--for sync_key in supports_by_source.keys do
 		--	for support_node in supports_by_source[sync_key] do
