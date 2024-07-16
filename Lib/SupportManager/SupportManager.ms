@@ -81,8 +81,6 @@ struct SupportManager_v
 
 	BeamObjects = Dictionary #STRING, --KEY:#POINTER_SUPORT_AxPOINTER_SUPORT_B VALUE:BeamObject_v
 
-	--BeamObjects = #(),
-
 	shapes_to_update = #(), -- sore shape for mass updating
 
 	/* dependency */
@@ -347,6 +345,9 @@ struct SupportManager_v
 			join supports (SourceObject.getSupportNodes())
 
 		SUPPORT_OPTIONS.setOptionValue (prop_key) (val)
+
+		SUPPORT_OPTIONS.init()
+
 		--SPIN_base_width
 		MODIFIERS_MANAGER.updateModifier( makeUniqueArray supports )(prop_key as name )
 	),
@@ -555,14 +556,95 @@ struct SupportManager_v
 			false --return
 	),
 
-	--/** Test if object is raft
-	--  *
-	--  * @return string|false
-	-- */
-	--function isRaft obj =
-	--(
-	--	( is_raft = getUserPropVal obj "IS_RAFT" ) != undefined and is_raft == true
-	--),
+
+	/** get objects by type
+	 */
+	function getObjectsByType _objects type: visibility:true hierarchy:false =
+	(
+		format "\n"; print "SupportManager_v.setVisibility()"
+
+        source_keys = #()
+        supports	= #()
+        beams   	= #()
+
+        objects_to_process = #()
+
+
+		for obj in _objects do
+			case of
+			(
+                ((sync_key = this._getKey #SOURCE obj) != undefined ): append source_keys sync_key
+                --((this._isType #SOURCE  obj) != undefined ): append source_keys obj
+                ((this._getKey #SUPPORT obj) != undefined ): append supports obj
+                ((this._getKey #BEAM    obj) != undefined ): append beams obj
+                --default:
+			)
+
+		format "source_keys: %\n" source_keys.count
+		format "supports: %\n" supports.count
+		format "beams: %\n" beams.count
+
+
+		if type == #SOURCE then
+		(
+			--for source_key in source_keys do append objects_to_process SourceObjects[source_key]
+			sync_keys_of_objs = for obj in supports + beams collect this._getSyncKey(obj)
+			format "sync_keys_of_objs: %\n" sync_keys_of_objs
+			format "source_keys: %\n" source_keys
+
+			--source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
+			objects_to_process = for key in makeUniqueArray (source_keys + sync_keys_of_objs) collect SourceObjects[key].obj
+		)
+
+		else if source_keys.count > 0 then
+		(
+
+			/* GET BEAMS OF SOURCE OBJECT */
+			if hierarchy or type == #BEAM  then
+				for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
+					append objects_to_process BeamObjects[key].beam
+
+			/* GET SUPPORTS OF SOURCE OBJECT */
+			if hierarchy or type == #SUPPORT  then
+				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 do
+					append objects_to_process SupportObjects[key].support_obj
+
+		)
+		else if supports.count > 0 then
+		(
+			/* GET BEAMS OF SOURCE OBJECT */
+
+			if hierarchy or type == #BEAM  then
+				for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
+					append objects_to_process BeamObjects[key].beam
+
+			if  hierarchy or type == #SUPPORT then
+				objects_to_process += supports
+
+		)
+		else if beams.count > 0 then
+		(
+
+			if type == #BEAM  then
+				objects_to_process = beams
+
+
+			else if type == #SUPPORT then
+				for beam in beams do(
+
+					appendIfUnique objects_to_process SupportObjects[getUserPropVal beam "SUPPORT_A"].support_obj
+					appendIfUnique objects_to_process SupportObjects[getUserPropVal beam "SUPPORT_B"].support_obj
+				)
+
+		)
+
+
+
+		format "OBJECTS_TO_PROCESS: %\n" OBJECTS_TO_PROCESS
+
+		objects_to_process --return
+	),
+
 
 	/*------------------------------------------------------------------------------*/
 
@@ -777,7 +859,7 @@ struct SupportManager_v
 		for obj_type in #( #SUPPORT, #RAFT ) do
 			for obj_in_scene in objects where (support_key = this._getKey obj_type obj_in_scene) != undefined do
 			(
-				format "SUPPORT_KEY: %\n" support_key
+				--format "SUPPORT_KEY: %\n" support_key
 				index	 = getUserPropVal obj_in_scene "INDEX"
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
 				--is_raft	 = getUserPropVal obj_in_scene "IS_RAFT"

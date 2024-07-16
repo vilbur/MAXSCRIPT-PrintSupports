@@ -14,14 +14,9 @@ struct SupportOptions_v
 	_rollout, -- rollout where values are store in UI
 	export_size = 1,
 
-	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #BEAMS_COUNT, #SECOND_POINT_DIRECTION ),
-
-	/* POINT GENERATOR OPTIONS */
+	/* SUPPORT GENERATOR OPTIONS */
 	use_normals	= true,
 	normal_length	= 1,
-	----normal_limit	= false, -- obsolete
-	--keep_down	= true, -- obsolete
-	----keep_down_limit	= 1, -- obsolete
 
 	second_point_direction	= 1,
 
@@ -46,8 +41,6 @@ struct SupportOptions_v
 	chamfer_base = 2,
 	chamfer_bar	= 5,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
 
-	/* support prop */
-	chamfer_values = Dictionary(),
 
 	/* RAFT OPTIONS */
 	raft_width 	= 0.5,
@@ -57,9 +50,6 @@ struct SupportOptions_v
 	max_distance	= 20,	-- max distance between supports
 	min_height	= 10,	-- generate beams only if support is higher than this number=
 	max_height	= 20,	-- gmax height between of beam split
-	--same_height	= false,
-
-
 
 	/* PINS OPTIONS */
 	pin_width	= 3.0, -- outter diametter of outter pin
@@ -74,16 +64,21 @@ struct SupportOptions_v
 
 	mat_ids	= Dictionary #( #TOP, 1 /* READ-ONLY */ ) #( #NORMAL, 7 ) #( #MIDDLE, 3 ) #( #BASE, 4 ) #( #BOTTOM, 2 /* READ-ONLY */ ) #( #CHMAFER, 5 ) #( #BEAM, 6 ), -- #top and #bottom are read-only and they are default by Edit Spline
 
+	_DO_NOT_MODIFY_PROPERTIES = #( #DISPLAY_UNITS, #EXPORT_SIZE, #USE_NTH_VERTEX , #CHAMFER_TOP, #BEAMS_COUNT, #SECOND_POINT_DIRECTION ),
+
 	/** GET INSTANCE OF SUPPORT GENERATOR
 	  *
 	  */
 	function getValuesFroUi =
 	(
-		--format "\n"; print "SupportOptions_v.getValuesFroUi()"
+		format "\n"; print "SupportOptions_v.getValuesFroUi()"
 		/** Reg ex replace
 		 */
 		function regExReplace _string search _replace = ( dotNetObject "System.Text.RegularExpressions.Regex" search ).Replace ( _string as string ) _replace
 
+		/*------------------------------------------------------------------------------
+			HOT FIX - EXPORT SIZE VALUE SHOULD BE CONNECTED TO VilTools3
+		--------------------------------------------------------------------------------*/
 		export_size = if ROLLOUT_export == undefined then
 		(
 			format "\n============= WARNING =============\n"
@@ -96,6 +91,7 @@ struct SupportOptions_v
 		else
 		  ROLLOUT_export.SPIN_export_size.value
 
+		/*--------------------------------------------------------------------------------*/
 
 		control_type_to_fetch_values = "SPIN|CBX|RB"
 
@@ -104,9 +100,7 @@ struct SupportOptions_v
 		  * Perform kind of this in loop:
 		  *   Options.base_extrude	= roll.SPIN_base_width.value
 		  */
-		--for ctrl in ROLLOUT_supports.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
 		for ctrl in this._rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
-		--for ctrl in _rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
 			this.setOptionValue prop_key ( if classOf ctrl == CheckBoxControl or classOf ctrl == RadioControl  then ctrl.state else ctrl.value )
 
 		this.init()
@@ -117,12 +111,10 @@ struct SupportOptions_v
 	  */
 	function init =
 	(
-		format "\n"; print "SupportOptions_v.init()"
+		--format "\n"; print "SupportOptions_v.init()"
 		this._setUnitsMuliplier()
 
-		this._setDimensions()
-
-		this._setChamferValues()
+		this._convertUnitsToMilimeters()
 	),
 
 	/** Set property value of this struct
@@ -130,10 +122,37 @@ struct SupportOptions_v
 	function setOptionValue prop_key val =
 	(
 		--format "\n"; print "SupportOptions_v.setOptionValue()"
-		--format "key: %\n" prop_key
-		--format "val: %\n" val
-
+		--format "%: %\n" prop_key val
 		setProperty this prop_key val
+
+		--this.init()
+	),
+
+	/** Get value of prop mutated for modifier
+	 */
+	function getOption prop_key =
+	(
+		--format "\n"; print "SupportOptions_v.getProp()"
+		--prop_key = prop_key as string
+
+		/* Mutate value for modifier */
+		case expr of
+		(
+			(#BAR_WIDTH):	bar_width / 2 -- get radius value
+			(#BASE_WIDTH):	base_width / 2 -- get radius value
+			(#CHAMFER_BASE):	base_height / 2
+			(#CHAMFER_BAR):	this._getChamfrBarValue()
+
+			default: getProperty this ( prop_key as string )
+		) --return
+	),
+
+	/** Get mat id
+	 */
+	function getMatId mat_key =
+	(
+		--format "\n"; print "SupportModifiers_v._getMatId()"
+		mat_ids[mat_key] --return
 	),
 
 	/** Get node prop data
@@ -188,8 +207,6 @@ struct SupportOptions_v
 		this_pointer
 	),
 
-
-
 	/** Get milimeter value
 	 */
 	function getMilimeterValue val =
@@ -198,7 +215,37 @@ struct SupportOptions_v
 		val / display_units	/ export_size --return
 	),
 
+
 	private
+
+
+	/** Make sure that chamfer value is less then bar radius
+	  */
+	function _getChamfrBarValue =
+	(
+		--format "\n"; print "SupportModifiers_v._getChamfrBarValue()"
+
+		chamfer_step = (bar_width / 2 / 10) -- get value of single step for 0-10 scale
+
+		chamfer_val = chamfer_step * chamfer_bar
+
+		if this.bar_width / 2 == chamfer_val then
+			chamfer_val -= 0.05
+
+		chamfer_val --return
+	),
+
+	/** Convert values of properties to milimeters on export
+	  *
+	  * Current units and export size are get in to the game
+	  */
+	function _convertUnitsToMilimeters =
+	(
+		--format "\n"; print "SupportOptions_v._convertUnitsToMilimeters()"
+		for prop in getPropNames this where ( superClassOf (val = getProperty this prop )) == Number do
+			if val != undefined and findItem _DO_NOT_MODIFY_PROPERTIES prop == 0  then
+				setProperty this prop (this.getMilimeterValue val)
+	),
 
 	/** Set units muliplier
 	  *
@@ -206,9 +253,7 @@ struct SupportOptions_v
 	function _setUnitsMuliplier =
 	(
 		--format "\n"; print "SupportOptions_v.setUnitsMuliplier()"
-
 		display_units = case units.SystemType of -- convert to milimeters
-		--this.display_units = case units.MetricType of -- convert to dispaly units
 		(
 			#millimeters:	1
 			#centimeters:	10
@@ -216,26 +261,6 @@ struct SupportOptions_v
 			#kilometers:	1000000
 			default:	1 -- non metric units
 		)
-	),
-
-	/** Set dimensions
-	  *
-	  */
-	function _setDimensions =
-	(
-		--format "\n"; print "SupportOptions_v._setDimensions()"
-		--format "DISPLAY_UNITS:	% \n" display_units
-		--format "EXPORT_SIZE:	% \n" export_size
-
-		for prop in getPropNames this where ( superClassOf (val = getProperty this prop )) == Number do
-			if val != undefined and findItem _DO_NOT_MODIFY_PROPERTIES prop == 0  then
-			(
-				--format "\n\n"
-				--format "%: %\n" prop val
-				modified_val = (val / display_units	/ export_size)
-				--format "modified_val: %\n" modified_val
-				setProperty this prop modified_val
-			)
 	),
 
 	/** Set base height
@@ -247,26 +272,11 @@ struct SupportOptions_v
 		base_height = this.bottom_layers_count * this.layer_height / export_size
 	),
 
-	/** Set chamfer values, derivated from bar width
-	  *
-	  */
-	function _setChamferValues =
-	(
-		--format "\n"; print "SupportOptions_v._setChamferValues()"
-		this.chamfer_values[#BASE]	= base_height / 2
-		this.chamfer_values[#TOP]	= (bar_width  / 2 / 10) * chamfer_bar -- chamfer in steps between 0-10
-		this.chamfer_values[#RAFT]	= (raft_width / 2 / 10) * chamfer_bar
-		--format "CHAMFER_VALUES: %\n" this.chamfer_values
-	),
-
 	/**
 	 *
 	 */
 	on create do
 	(
 		--format "\n"; print "SupportOptions_v.create()"
-		--format "\nIMPORTANT\n"
-		--format "EXPORT_SIZE:	% \n" export_size
-		this.getValuesFroUi()
 	)
 )

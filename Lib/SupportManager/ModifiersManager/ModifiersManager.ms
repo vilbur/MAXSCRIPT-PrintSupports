@@ -63,10 +63,10 @@ struct ModifiersManager_v
 
 		format "mod_name: %\n" mod_name
 
-		if ( modi = supports[1].modifiers[mod_name] ) != undefined then
+		if supports.count > 0 and ( modi = supports[1].modifiers[mod_name] ) != undefined then
 			case mod_name of
 			(
-				#BAR_WIDTH:	modi[#Cylinder_Section].radius	= SUPPORT_OPTIONS.bar_width / 2
+				#BAR_WIDTH:	modi[#Cylinder_Section].radius	= SUPPORT_OPTIONS.bar_width
 				#BASE_WIDTH:	modi.amount	= SUPPORT_OPTIONS.base_width
 				#EXTRUDE_END:	modi.amount	= SUPPORT_OPTIONS.extrude_end
 
