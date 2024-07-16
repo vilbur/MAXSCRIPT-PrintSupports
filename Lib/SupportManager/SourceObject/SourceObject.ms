@@ -108,7 +108,7 @@ struct SourceObject_v
 				--this.Supports[vert].updateSupport first_knot_pos:verts_pos[vert]
 
 
-		MODIFIERS_MANAGER.addModifiers( this.getSupportNodes obj_type:obj_type ) obj_type:obj_type
+		MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type
 
 		bindSupportToTransformEvent( this.getSupportNodes() )
 

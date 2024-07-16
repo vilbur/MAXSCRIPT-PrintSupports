@@ -277,12 +277,12 @@ struct SupportManager_v
 	 */
 	function convert support_nodes to_type:#RAFT  =
 	(
-		--format "\n"; print "SupportManager_v.convertSupportsToRafts()"
+		format "\n"; print "SupportManager_v.convertSupportsToRafts()"
 
 		--from_type =  if to_type == #RAFT then #SUPPORT else #RAFT
 		--format "SupportObjects: %\n" SupportObjects
 		--format "from_type: %\n" from_type
-		--format "to_type:   %\n" to_type
+		format "to_type:   %\n" to_type
 		--format "supports_by_source.keys: %\n" supports_by_source.keys
 
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)

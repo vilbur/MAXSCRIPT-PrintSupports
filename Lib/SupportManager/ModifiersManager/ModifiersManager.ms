@@ -27,7 +27,8 @@ struct ModifiersManager_v
 	(
 		format "\n-----------------------------------------\n"
 		format "\n"; print "ModifiersManager_v.addModifiers()"
-		format "SupportModifiers: %\n" SupportModifiers["default"].mod_names
+		format "supports: %\n" supports
+		--format "SupportModifiers: %\n" SupportModifiers["default"].mod_names
 
 		this.supports =	supports
 
@@ -38,7 +39,7 @@ struct ModifiersManager_v
 
 		for mod_name in SupportModifiers["default"].mod_names where HasDictValue modifiers mod_name do
 			modPanel.addModToSelection ( modifiers[mod_name] ) --ui:on
-		--
+
 		--modifiers["Bar Width"].CurrentBuiltInShape = 4 -- Set cylinder
 		--redrawViews() -- IMPORTANT TO UPDATE AFTER SETTING SHAPE AND BEFORE EDITING ITS PROPERTIES
 		--classOf supports[1]
@@ -74,32 +75,29 @@ struct ModifiersManager_v
 	 */
 	function switchSupportType supports to_type:#RAFT =
 	(
-		format "\n"; print "SupportModifiers_v.switchSupportType()"
+		format "\n"; print "ModifiersManager_v.switchSupportType()"
+		format "to_type: %\n" to_type
 		--format "supports: %\n" supports
 		--format "to_type: %\n" to_type
 
-		delete_support	= #( "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Top" )
-		delete_raft	= #( "Chamfer Bar", "Select Top" )
+		mods_support	= #( "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Top" )
+		mods_raft	= #( "Chamfer Bar", "Select Top" )
 
+		mods_delete	= if to_type == #RAFT then mods_support else mods_raft
+		mods_add	= if to_type == #RAFT then mods_raft	else mods_support
+		format "mods_delete: %\n" mods_delete
+		format "mods_add: %\n" mods_add
 
-		modifiers = if obj_type == #SUPPORT then SupportModifiers["default"].mods_support else SupportModifiers["default"].mods_raft
+		mods = if obj_type == #RAFT then SupportModifiers["default"].mods_raft else SupportModifiers["default"].mods_support
 
-			if to_type == #RAFT then
-			(
-				for support in supports do
-					for mod_name in delete_support do
-						deleteModifier support support.modifiers[mod_name]
+		for support in supports do
+		(
+			for mod_name in mods_delete do
+				deleteModifier support support.modifiers[mod_name]
 
-				for support in supports do
-				(
-
-					addModifier support modifiers["Chamfer Bar"] before:1
-					addModifier support modifiers["Select Top"] before:1
-
-				)
-			)
-		--	--else
-
+			for mod_name in mods_add do
+				addModifier support mods[mod_name] before:1
+		)
 
 	),
 

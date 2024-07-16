@@ -30,8 +30,8 @@ function generateSupportsOrRafts obj_type: =
 
 		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
 		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
-		--format "SELECTED_SUPPORTS: %\n" selected_supports
-		--format "SELECTED_RAFTS:    %\n" selected_rafts
+		format "SELECTED_SUPPORTS: %\n" selected_supports
+		format "SELECTED_RAFTS:    %\n" selected_rafts
 		--format "raft_mode: %\n" raft_mode
 
 		/* CONVERT SELECTED SUPPORTS TO RAFTS */
