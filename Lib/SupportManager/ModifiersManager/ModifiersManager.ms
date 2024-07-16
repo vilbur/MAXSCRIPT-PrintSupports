@@ -32,22 +32,26 @@ struct ModifiersManager_v
 
 		this.supports =	supports
 
-		select supports
+		if not this._modifiersAdded() then
+		(
+			select supports
 
-		modifiers = if obj_type == #SUPPORT then SupportModifiers["default"].mods_support else SupportModifiers["default"].mods_raft
-		format "modifiers: %\n" modifiers
+			modifiers = if obj_type == #SUPPORT then SupportModifiers["default"].mods_support else SupportModifiers["default"].mods_raft
+			format "modifiers: %\n" modifiers
 
-		for mod_name in SupportModifiers["default"].mod_names where HasDictValue modifiers mod_name do
-			modPanel.addModToSelection ( modifiers[mod_name] ) --ui:on
+			for mod_name in SupportModifiers["default"].mod_names where HasDictValue modifiers mod_name do
+				modPanel.addModToSelection ( modifiers[mod_name] ) --ui:on
 
-		--modifiers["Bar Width"].CurrentBuiltInShape = 4 -- Set cylinder
-		--redrawViews() -- IMPORTANT TO UPDATE AFTER SETTING SHAPE AND BEFORE EDITING ITS PROPERTIES
-		--classOf supports[1]
+			--modifiers["Bar Width"].CurrentBuiltInShape = 4 -- Set cylinder
+			--redrawViews() -- IMPORTANT TO UPDATE AFTER SETTING SHAPE AND BEFORE EDITING ITS PROPERTIES
+			--classOf supports[1]
 
-		SupportModifiers["default"].setSweepRadius()
-		--supports[1].modifiers["Bar Width"][#Cylinder_Section].radius = 1
-		--modifiers["Bar Width"][#Cylinder_Section].radius = 1
-
+			SupportModifiers["default"].setSweepRadius()
+			--supports[1].modifiers["Bar Width"][#Cylinder_Section].radius = 1
+			--modifiers["Bar Width"][#Cylinder_Section].radius = 1
+		)
+		else
+			this._copyModifiers()
 	),
 
 
@@ -104,6 +108,52 @@ struct ModifiersManager_v
 
 	private
 
+	/** Copy modifiers
+	 */
+	function _copyModifiers =
+	(
+		format "\n"; print "SupportModifiers_v._copyModifiers()"
+
+		/* DIRTY CODE - TIME RPOEASSURE */
+
+		support_with_modifiers	= (this._getSupportsWithModfiers())[1]
+		supports_no_modifiers	= this._getSupportsWithoutModfiers()
+
+		modifiers_of_supports	= support_with_modifiers.modifiers
+
+		max create mode
+		for support_no_modifiers in supports_no_modifiers do
+			for i = modifiers_of_supports.count to 1 by -1 do
+				addModifierWithLocalData support_no_modifiers modifiers_of_supports[i] support_with_modifiers modifiers_of_supports[i] -- instance the modifier
+
+		--for i = modifiers_of_supports.count to 1 by -1 do
+		--	try(
+		--			addModifier supports_no_modifiers modifiers_of_supports[i]
+		--	)catch()
+
+	),
+
+	/** Modifiers exists
+	 */
+	function _modifiersAdded =
+	(
+		--format "\n"; print "SupportModifiers_v._modifiersAdded()"
+		(this._getSupportsWithModfiers()).count > 0
+	),
+
+	/** Get obejcts with modfiers
+	 */
+	function _getSupportsWithModfiers =
+	(
+		for obj in supports where obj.modifiers.count > 0 collect obj
+	),
+
+	/** Get obejcts with modfiers
+	 */
+	function _getSupportsWithoutModfiers =
+	(
+		for obj in supports where obj.modifiers.count == 0 collect obj
+	),
 
 	/**
 	 */

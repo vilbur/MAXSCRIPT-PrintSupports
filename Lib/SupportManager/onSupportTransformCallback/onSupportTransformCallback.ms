@@ -89,7 +89,7 @@ function bindSupportToTransformEvent supports =
 		)
 		else if support.isSelected then
 		(
-			format "\n"; print "!!!!!!!!! FIRED UPDATE"
+			--format "\n"; print "!!!!!!!!! FIRED UPDATE"
 
 			SUPPORT_MANAGER.updateSupports #( support )
 		)

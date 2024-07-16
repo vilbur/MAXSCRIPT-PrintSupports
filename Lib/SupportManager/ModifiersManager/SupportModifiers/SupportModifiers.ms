@@ -55,28 +55,13 @@ struct SupportModifiers_v
 		renameSupportsByKey(mods_raft)
 	),
 
-	/** Copy modifier
-	 */
-	function _copyModifier from_name to_name =
-	(
-		--format "\n"; print "SupportModifiers_v._vopyModifier()"
-		modi = copy mods_support[from_name]
-
-		modi.name = to_name
-
-		modi --return
-	),
-
-
-
-
 	/** SWEEP Modifier
 	  *
 	  */
 	function _sweepSetup sweep_mod diameter =
 	(
-		format "\n"; print "SupportModifiers_v._sweep()"
-		format "diameter: %\n" diameter
+		--format "\n"; print "SupportModifiers_v._sweep()"
+		--format "diameter: %\n" diameter
 
 		/** Reset mod propertis -- sweep mpdofoer keeps its settings if newly created, i dont know why.. oteh modifiers dont do that :D
 

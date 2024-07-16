@@ -59,10 +59,10 @@ struct SupportObject_v
 	 */
 	function updateSupport first_knot_pos: =
 	(
-		format "\n"; print "SupportObject_v.updateSupport()"
+		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "SUPPORT: %\n" support_obj.name
 		--format "first_knot_pos: %\n" first_knot_pos
-		format "obj_type: %\n" obj_type
+		--format "obj_type: %\n" obj_type
 		--deleteAllChangeHandlers id:#updateSupportsEvent
 
 		if first_knot_pos != unsupplied then
@@ -75,9 +75,9 @@ struct SupportObject_v
 		is_on_ground = obj_type == #SUPPORT and hit_support == undefined
 
 		num_knots = numKnots support_obj _spline_index
-		format "num_knots: %\n" num_knots
-		format "knots_positions.count: %\n" knots_positions.count
-		format "hit_raft: %\n" hit_raft
+		--format "num_knots: %\n" num_knots
+		--format "knots_positions.count: %\n" knots_positions.count
+		--format "hit_raft: %\n" hit_raft
 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportKnots()
@@ -109,8 +109,8 @@ struct SupportObject_v
 	 */
 	function convert to_type =
 	(
-		format "\n"; print "SupportObject_v.convertToRaft()"
-		format "TO_TYPE: %\n" to_type
+		--format "\n"; print "SupportObject_v.convertToRaft()"
+		--format "TO_TYPE: %\n" to_type
 
 		this.hit_raft = undefined
 		this.hit_support	= undefined
@@ -170,7 +170,7 @@ struct SupportObject_v
 	 */
 	function _addKnots =
 	(
-		format "\n"; print "SupportObject_v._addKnots()"
+		--format "\n"; print "SupportObject_v._addKnots()"
 		num_knots = numKnots support_obj _spline_index
 
 		for knot_i = num_knots + 1 to knots_positions.count do
@@ -181,7 +181,7 @@ struct SupportObject_v
 	 */
 	function _removeKnots =
 	(
-		format "\n"; print "SupportObject_v._removeKnots()"
+		--format "\n"; print "SupportObject_v._removeKnots()"
 		num_knots = numKnots support_obj _spline_index
 
 		for knot_i = num_knots to knots_positions.count + 1 by -1 do
