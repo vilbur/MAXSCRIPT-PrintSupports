@@ -75,11 +75,11 @@ struct ModifiersManager_v
 
 	),
 
-	/** Switch support type
+	/** Convert support type
 	 */
-	function switchSupportType supports obj_type:#RAFT =
+	function convertSupportType supports obj_type:#RAFT modifiers: =
 	(
-		format "\n"; print "ModifiersManager_v.switchSupportType()"
+		format "\n"; print "ModifiersManager_v.convertSupportType()"
 		format "obj_type: %\n" obj_type
 		--format "supports: %\n" supports
 		--format "obj_type: %\n" obj_type
@@ -87,23 +87,24 @@ struct ModifiersManager_v
 		mods_support	= #( "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Top" )
 		mods_raft	= #( "Chamfer Bar", "Select Ends" )
 
-		mods_delete	= if obj_type == #RAFT then mods_support else mods_raft
-		mods_add	= if obj_type == #RAFT then mods_raft	else mods_support
-		--format "mods_delete: %\n" mods_delete
-		--format "mods_add: %\n" mods_add
+		mod_names_delete	= if obj_type == #RAFT then mods_support else mods_raft
+		mod_names_add	= if obj_type == #RAFT then mods_raft	else mods_support
 
-		mods = if obj_type == #RAFT then SupportModifiers["default"].mods_raft else SupportModifiers["default"].mods_support
+		modifiers_add = case of
+		(
+			(modifiers != undefined):	modifiers
+			(obj_type == #SUPPORT):	SupportModifiers["default"].mods_support
+			(obj_type == #RAFT):	SupportModifiers["default"].mods_raft
+		)
 
-		for _mod in mods do
-			format "_mod: %\n" _mod
 
 		for support in supports do
 		(
-			for mod_name in mods_delete do
+			for mod_name in mod_names_delete do
 				deleteModifier support support.modifiers[mod_name]
 
-			for mod_name in mods_add do
-				addModifier support mods[mod_name] before:1
+			for mod_name in mod_names_add do
+				addModifier support modifiers_add[mod_name] before:1
 		)
 
 	),

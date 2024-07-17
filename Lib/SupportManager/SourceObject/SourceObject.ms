@@ -132,7 +132,7 @@ struct SourceObject_v
 	 */
 	function convert support_nodes obj_type:#RAFT  =
 	(
-		format "\n"; print "SourceObject_v.convertSupportsToRafts()"
+		--format "\n"; print "SourceObject_v.convert()"
 
 		from_type =  if obj_type == #RAFT then #SUPPORT else #RAFT
 

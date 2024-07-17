@@ -293,14 +293,15 @@ struct SupportManager_v
 			(
 
 				--format "sync_key: %\n" sync_key
-				SourceObjects[sync_key].convert(supports_by_source[sync_key] ) obj_type:obj_type
 
-				--for support_node in supports_by_source[sync_key] do
-				--   SupportObjects[this._getKey(from_type)(support_node)].convert(obj_type)
+				supports_to_convert = supports_by_source[sync_key]
 
+				SourceObjects[sync_key].convert( supports_to_convert ) obj_type:obj_type
 
-				MODIFIERS_MANAGER.switchSupportType( SourceObjects[sync_key].getSupportNodes obj_type:obj_type ) obj_type:obj_type
+				if (other_supports = SourceObjects[sync_key].getSupportNodes obj_type:obj_type).count > 0 then
+					modifiers = other_supports[1].modifiers
 
+				MODIFIERS_MANAGER.convertSupportType( supports_to_convert ) obj_type:obj_type modifiers:modifiers
 			)
 
 		redrawViews()
