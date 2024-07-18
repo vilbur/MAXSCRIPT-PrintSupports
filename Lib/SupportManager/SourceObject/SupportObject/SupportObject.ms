@@ -270,22 +270,30 @@ struct SupportObject_v
 		knots_positions = Array (2)
 
 		knots_positions[1] = vertex_pos
-		knots_positions[2] = getKnotPoint support_obj _spline_index 2
 
-		/* KEEP SECOND POINT BELOW FIRST */
-		if knots_positions[2].z > knots_positions[1].z then
-			knots_positions[2] = knots_positions[1] - 1
+		second_point = getKnotPoint support_obj _spline_index 2
 
-		direction = normalize (knots_positions[2] - vertex_pos)
+
+		distance_of_points = distance knots_positions[1] second_point
+
+		direction = normalize (second_point - vertex_pos)
 
 		hit_support = this._intersectRaySourceObject (vertex_pos) ( direction )
 
-		if hit_support != undefined and distance knots_positions[1] hit_support.pos > distance knots_positions[1] knots_positions[2] then
+		/* TEST IF HIT IS BETWEEN POINTS, RESET HIT IF HIT IS FURTHER THEN SECOND POINT */
+		if hit_support != undefined and distance knots_positions[1] hit_support.pos > distance_of_points then
 			hit_support = undefined
 
 		/* ADD SECOND POINT */
-		if hit_support != undefined then
-			knots_positions[2] = hit_support.pos
+		knots_positions[2] =  if hit_support != undefined then
+									hit_support.pos
+								else
+									second_point
+
+		/* KEEP SECOND POINT BELOW FIRST */
+		if knots_positions[2].z >= knots_positions[1].z then
+			knots_positions[2]-= SUPPORT_OPTIONS.bar_width
+
 	),
 
 	/** Get knots from line
