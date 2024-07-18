@@ -62,12 +62,81 @@ function generateSupportsOrRafts obj_type: =
 
 )
 
+
+
+
+
+/*==============================================================================
+
+		COTNROLS ROW 1
+
+================================================================================*/
+
+
+
+
+
+/*==============================================================================
+
+		COTNROLS ROW 2
+
+================================================================================*/
+
+
+/** BAR WIDTH
+ */
+macroscript	_print_platform_generator_bar_width
+category:	"_3D-Print"
+buttontext:	"WIDTH"
+tooltip:	"Bar width in mm of printed model.\n\nExported scale is used"
+icon:	"control:spinner|id:SPIN_bar_width|across:3|range:[ 0.8, 99, 1.0 ]|width:64|offset:[ 0, 0 ]"
+(
+		format "EventFired:	% \n" EventFired
+	on execute do
+		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+)
+
+/**
+ */
+macroscript	_print_platform_generator_bar_chamfer
+category:	"_3D-Print"
+buttontext:	"CHAMFER"
+tooltip:	"Chamfer of support`s top.\n\n\nCHAMFER MIN: 0\nCHAMFER MAX: 10\n\nValue is portion of bar radius.\n\nE.EG: 5 == 50% use of radius"
+icon:	"control:spinner|id:SPIN_chamfer_bar|across:3|type:#integer|range:[ 0, 10, 5 ]|width:64|offset:[ 0, 0 ]"
+(
+	--format "EventFired:	% \n" EventFired
+	on execute do
+		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+)
+
+/** EXTRUDE TOP
+ */
+macroscript	_print_platform_generator_extrude_top
+category:	"_3D-Print"
+buttontext:	"EXTEND"
+tooltip:	"Extrude end part in mm of printed model.\n\nExported scale is used"
+icon:	"control:spinner|across:3|width:64|range:[ 0, 99, 0.5 ]|offset:[ 0, 0 ]"
+(
+	--format "EventFired:	% \n" EventFired
+	on execute do
+		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+)
+
+
+
+
+/*==============================================================================
+
+		COTNROLS ROW 3
+
+================================================================================*/
+
 /*
 */
 macroscript	_print_support_generator
 category:	"_3D-Print"
-buttontext:	"SUPPORTS"
-icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT - All supports of object\n\t2) POINTS\n\t3) SUPPORTS - Rebuild selected supports\n\t4) LAST OBJECT IS USED IF NOTHING SELECTED"
+buttontext:	"S U P P O R T"
+icon:	"across:3|height:32|width:96|offset:[ 0, 0 ]"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-4104-898B-9313D1AAECD4 */
 	on isEnabled return selection.count > 0
@@ -80,49 +149,31 @@ icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE SUPPORTS.\n\
 		)
 )
 
-/*
-*/
-macroscript	_print_support_generator_rafts
-category:	"_3D-Print"
-buttontext:	"RAFTS"
-icon:	"across:3|offset:[0, 6]|height:32|width:128|tooltip:GEENERATE RAFTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS - Turn support into raft"
-(
-	on execute do
-		undo "Generate Rafts" on
-		(
 
-			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
-			generateSupportsOrRafts obj_type:#RAFT
-		)
+
+
+/**
+ */
+macroscript	_print_platform_generator_base_width
+category:	"_3D-Print"
+buttontext:	"BASE width"
+tooltip:	"Width of base part"
+icon:	"across:3|control:spinner|range:[ 0.1, 999, 4 ]|width:90|offset:[ 12, 12 ]"
+(
+	--format "EventFired:	% \n" EventFired
+	on execute do
+		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )
 
-
-/*
-*/
-macroscript	_print_support_generator_live_update
+/**
+ */
+macroscript	_print_platform_generator_base_height
 category:	"_3D-Print"
-buttontext:	"UPDATE"
-tooltip:	"Live update supports on their transfrom"
-icon:	"control:#checkbutton|across:3|offset:[0, 6]|height:32|width:128|tooltip:"
+buttontext:	"BASE Height"
+tooltip:	"Height of support base"
+icon:	"across:3|control:spinner|range:[ 0.1, 999, 1 ]|width:72|offset:[ 30, 12 ]"
 (
+	--format "EventFired:	% \n" EventFired
 	on execute do
-		--undo "Generate Rafts" on
-		(
-			SUPPORT_OPTIONS.live_update_supports = EventFired.val
-		)
-)
-/*
-*/
-macroscript	_print_support_generator_update
-category:	"_3D-Print"
-buttontext:	"UPDATE"
-tooltip:	"Update selected supports"
-icon:	"control:#checkbutton"
-(
-	on execute do
-		--undo "Generate Rafts" on
-		(
-			--SUPPORT_OPTIONS.live_update_supports = EventFired.val
-			print "update"
-		)
+		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )

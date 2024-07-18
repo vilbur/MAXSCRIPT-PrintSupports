@@ -4,10 +4,10 @@ struct SupportModifiers_v
 (
 	/* construct */
 	/* properties */
-	mod_names = #("Bar Width", "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Ends", "Select Top", "Extrude End"),
+	--mod_names = #("BAR WITH", "Select Base", "BASE WIDTH", "CHAMFER BASE", "CHAMFER BAR", "Select Ends", "Select Top", "EXTEND"),
 
-	mods_support	=  Dictionary #STRING,
-	mods_raft	=  Dictionary #STRING,
+	mods_support	=  Array (7),
+	mods_raft	=  Array (4),
 
 	/* options */
 	/* dependency */
@@ -19,7 +19,7 @@ struct SupportModifiers_v
 	function setSweepRadius =
 	(
 		--format "\n"; print "SupportModifiers_v.setSweepRadius()"
-		mods_support["Bar Width"][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+		mods_support[1][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
 	),
 
 	/** Init modifiers
@@ -27,33 +27,23 @@ struct SupportModifiers_v
 	function _initModifiers =
 	(
 		--format "\n"; print "SupportModifiers_v.initModifiers()"
-		--format "SUPPORT_OPTIONS.chamfer_values: %\n" SUPPORT_OPTIONS.chamfer_values
-		function renameSupportsByKey mods = for mod_name in mods.keys do mods[mod_name].name = mod_name
 
 		OPTIONS = SUPPORT_OPTIONS
 
-
 		/* SUPPORT MODIFIERS */
-		mods_support["Bar Width"]	= this._sweepSetup	(sweep	())	(OPTIONS.getOption #BAR_WIDTH )
-		mods_support["Select Base"]	= this._volSelectSetup	(Vol__Select	())	(OPTIONS.getMatId  #BASE )
-		mods_support["Base Width"]	= this._extrudeSetup	(Face_Extrude	())	(OPTIONS.getOption #BASE_WIDTH )
-		mods_support["Chamfer Base"]	= this._chamferSetup	(Chamfer	())	(OPTIONS.getOption #CHAMFER_BASE )
-		mods_support["Chamfer Bar"]	= this._chamferSetup	(Chamfer	())	(OPTIONS.getOption #CHAMFER_BAR )	selection_option:#ALL  materialoption:#DIFFERENT
-		mods_support["Select Top"]	= this._volSelectSetup	(Vol__Select	())	(OPTIONS.getMatId  #TOP )
-		mods_support["Extrude End"]	= this._extrudeSetup	(Face_Extrude	())	(OPTIONS.getOption #EXTRUDE_END )
-
-		renameSupportsByKey(mods_support)
+		mods_support[1]	= this._sweepSetup	(sweep	name:"BAR WITH")	(OPTIONS.getOption #BAR_WIDTH )
+		mods_support[2]	= this._volSelectSetup	(Vol__Select	name:"select base")	(OPTIONS.getMatId  #BASE )
+		mods_support[3]	= this._extrudeSetup	(Face_Extrude	name:"BASE WIDTH")	(OPTIONS.getOption #BASE_WIDTH )
+		mods_support[4]	= this._chamferSetup	(Chamfer	name:"chamfer base")	(OPTIONS.getOption #CHAMFER_BASE )
+		mods_support[5]	= this._chamferSetup	(Chamfer	name:"CHAMFER BAR")	(OPTIONS.getOption #CHAMFER_BAR )	selection_option:#ALL  materialoption:#DIFFERENT
+		mods_support[6]	= this._volSelectSetup	(Vol__Select	name:"select top")	(OPTIONS.getMatId  #TOP )
+		mods_support[7]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND")	(OPTIONS.getOption #EXTRUDE_END )
 
 		/* RAFT MODIFIERS */
-		mods_raft["Bar Width"]	= mods_support["Bar Width"]
-		mods_raft["Extrude End"]	= mods_support["Extrude End"]
-
-
-		mods_raft["Chamfer Bar"]	= this._chamferSetup	(copy mods_support["Chamfer Bar"])	(OPTIONS.getOption #CHAMFER_BAR )	material_ID:(OPTIONS.getMatId #MIDDLE ) materialoption:#OFF
-		mods_raft["Select Ends"]	= this._volSelectSetup	(copy mods_support["Select Top"])	(OPTIONS.getMatId #MIDDLE )	invert_sel:true
-		--mods_raft["Select Bottom"]	= this._volSelectSetup	(copy mods_support["Select Bottom"])	(this._getMatId #MIDDLE )	invert_sel:true
-
-		renameSupportsByKey(mods_raft)
+		mods_raft[1]	= this._sweepSetup	(sweep	name:"BAR WITH")	(OPTIONS.getOption #BAR_WIDTH )
+		mods_raft[2]	= this._chamferSetup	(Chamfer	name:"CHAMFER BAR")	(OPTIONS.getOption #CHAMFER_BAR )	material_ID:(OPTIONS.getMatId #MIDDLE ) materialoption:#OFF
+		mods_raft[3]	= this._volSelectSetup	(Vol__Select	name:"select ends")	(OPTIONS.getMatId  #TOP )	invert_sel:true
+		mods_raft[4]	= this._extrudeSetup	(Face_Extrude	name:"EXTEND")	(OPTIONS.getOption #EXTRUDE_END )
 	),
 
 	/** SWEEP Modifier

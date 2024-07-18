@@ -6,20 +6,6 @@
 
 ================================================================================*/
 
-/**  Export format
-  *
- */
-macroscript	_print_generator_normal_mode
-category:	"_Export"
-buttontext:	"Second Point Direction"
-toolTip:	"Where support is connected to beam"
-icon:	"across:2|align:#LEFT|control:radiobuttons|items:#( 'NORMAL', 'DOWN' )|columns:3|offset:[ 4, 2]"
-(
-	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
-
-	--DosCommand ("explorer \""+export_dir+"\"")
-	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
-)
 
 
 --/** CHECKBOX
@@ -34,17 +20,6 @@ icon:	"across:2|align:#LEFT|control:radiobuttons|items:#( 'NORMAL', 'DOWN' )|col
 --)
 
 
-
-/** SPINNER
-  */
-macroscript	_print_platform_generator_normal_length
-category:	"_3D-Print"
-buttontext:	"Normal Length"
-tooltip:	"Length of first segment of platform facing to vertex normal"
-icon:	"across:2|control:spinner|offset:[ 0, 14]|fieldwidth:24|range:[ 1, 999, 3 ]"
-(
-	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
-)
 
 
 --/** CHECKBOX
