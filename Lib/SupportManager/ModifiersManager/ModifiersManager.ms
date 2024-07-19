@@ -58,7 +58,7 @@ struct ModifiersManager_v
 	function _setSweepRadius support =
 	(
 		--format "\n"; print "SupportModifiers_v.setSweepRadius()"
-		support.modifiers[#BAR_WITH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+		support.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
 	),
 
 	/** Update modifier by value in SUPPORT_OPTIONS

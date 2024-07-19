@@ -42,7 +42,7 @@ struct SourceObject_v
 
 		new_nodes = #()
 
-		--obj_type =  if is_raft then #RAFT else #SUPPORT
+		--obj_type =  if isRaft() then #RAFT else #SUPPORT
 
 		this._removeDeletedNodes()
 
@@ -157,7 +157,7 @@ struct SourceObject_v
 		--format "support_nodes: %\n" support_nodes
 		verts_pos = this._getVertsPositions()
 
-		for key in Supports.keys where not Supports[key].is_raft do
+		for key in Supports.keys where not Supports[key].isRaft() do
 			Supports[key].updateSupport first_knot_pos:( verts_pos[key])
 	),
 
@@ -170,7 +170,7 @@ struct SourceObject_v
 		--for SupportObjectData in Supports do
 			--SupportObjectData.value.updateHeight()
 
-		--for key in Supports.keys where not Supports[key].is_raft do
+		--for key in Supports.keys where not Supports[key].isRaft() do
 		for key in Supports.keys where not Supports[key].isRaft() do
 			Supports[key].updateHeight()
 
@@ -372,11 +372,11 @@ struct SourceObject_v
 	--	format "\n"; print "SupportManager_v._loadSupportsAndRaftsFromScene()"
 	--	for obj_in_scene in objects	where superClassOf obj_in_scene.baseobject == shape \
 	--				  and  getUserPropVal obj_in_scene "SYNC_KEY" == sync_key \
-	--				  and  (is_raft = getUserPropVal obj_in_scene "RAFT") != undefined do -- BEAMS DOES NOT HAS is_raft raft property
+	--				  and  (isRaft() = getUserPropVal obj_in_scene "RAFT") != undefined do -- BEAMS DOES NOT HAS isRaft() raft property
 	--	(
 	--		vert = getUserPropVal obj_in_scene "INDEX"
 	--
-	--		this.Supports[vert] = SupportObject_v source_obj:obj support_obj:obj_in_scene is_raft:is_raft
+	--		this.Supports[vert] = SupportObject_v source_obj:obj support_obj:obj_in_scene isRaft():isRaft()
 	--	)
 	--),
 

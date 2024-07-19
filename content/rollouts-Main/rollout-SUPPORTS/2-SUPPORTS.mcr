@@ -158,7 +158,7 @@ macroscript	_print_platform_generator_base_width
 category:	"_3D-Print"
 buttontext:	"BASE width"
 tooltip:	"Width of base part"
-icon:	"across:3|control:spinner|range:[ 0.1, 999, 4 ]|width:90|offset:[ 12, 12 ]"
+icon:	"across:3|control:spinner|range:[ 0.1, 999, 4 ]|width:90|offset:[ -10, 12 ]"
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
