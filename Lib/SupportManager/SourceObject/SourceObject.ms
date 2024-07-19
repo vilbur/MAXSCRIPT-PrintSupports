@@ -219,6 +219,17 @@ struct SourceObject_v
 	),
 
 
+
+	/** Set verts pos by supports
+	 */
+	function setVertsPosBySupports =
+	(
+		--format "\n"; print "SourceObject_v.setVertsPosBySupports()"
+
+		verts_pos = this._getVertsPositions( Supports.keys as BitArray )
+
+	),
+
 	/** Init objects from scene
 	 */
 	function initObjectsFromScene =
@@ -259,8 +270,8 @@ struct SourceObject_v
 	 */
 	function _setLocalVertexNormals verts =
 	(
-		--format "\n"; print "SourceObject_v._setLocalVertexNormals()"
-		--format "verts.numberSet: %\n" verts.numberSet
+		format "\n"; print "SourceObject_v._setLocalVertexNormals()"
+		format "verts.numberSet: %\n" verts.numberSet
 		--timer_get_normals = timeStamp()
 		obj_mesh = obj.mesh
 
@@ -269,6 +280,7 @@ struct SourceObject_v
 
 		for face_of_vert in faces_of_verts do
 		(
+			--format "face_of_vert: %\n" face_of_vert
 			face_verts = getFace	obj_mesh face_of_vert
 			face_normal = getFaceNormal	obj_mesh face_of_vert
 
@@ -288,7 +300,7 @@ struct SourceObject_v
 	 */
 	function _setWorldSpaceVertexNormals verts =
 	(
-		--format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
+		format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
 
@@ -304,30 +316,31 @@ struct SourceObject_v
 	(
 		format "\n"; print "SourceObject_v._getVertsPositions()"
 		format "verts_process: %\n" verts_process
-		format "verts_pos: %\n" verts_pos
+		format "verts: %\n" verts
+		format "verts.numberSet: %\n" verts.numberSet
 
 
 
-		--if verts_pos == undefined then
-		--	verts_pos = all_verts as Array
-		--
-		--verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
-		--format "verts_process_pos: %\n" verts_process_pos
-		--
-		--for i = 1 to verts_process_pos.count do
-		--(
-		--	vert = (verts  as Array )[i]
-		--	format "vert: %\n" vert
-		--
-		--	verts_pos[vert] = verts_process_pos[i]
-		--)
-		--
-		--
-		--verts_pos --return
+		if verts_pos == undefined then
+			this.verts_pos = all_verts as Array
 
-		verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+		verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
+		format "verts_process_pos: %\n" verts_process_pos
+
+		for i = 1 to verts_process_pos.count do
+		(
+			vert = (verts  as Array )[i]
+			format "vert: %\n" vert
+
+			verts_pos[vert] = verts_process_pos[i]
+		)
+
 
 		verts_pos --return
+
+		--verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+
+		--verts_pos --return
 	),
 
 	--/** Get vertex pos by support

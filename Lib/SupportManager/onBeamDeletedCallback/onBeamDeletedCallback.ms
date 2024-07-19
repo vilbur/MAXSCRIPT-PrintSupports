@@ -6,7 +6,7 @@ global ON_DELETED_OBJECTS = #()
  */
 function bindBeamOnDeleteCallback objs =
 (
-	format "\n"; print ".bindBeamOnDeleteCallback()"
+	--format "\n"; print ".bindBeamOnDeleteCallback()"
 
 	ON_DELETED_OBJECTS = for obj in ON_DELETED_OBJECTS where isValidNode obj collect obj
 

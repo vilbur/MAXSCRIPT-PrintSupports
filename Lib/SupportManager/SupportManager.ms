@@ -224,6 +224,9 @@ struct SupportManager_v
 				)
 		)
 
+
+
+
 		this.updateShapes()
 
 		new_beams --return
@@ -891,6 +894,9 @@ struct SupportManager_v
 
 				SourceObjects[sync_key].Supports[index] = SupportObject
 			)
+
+		for SourceObjectData in SourceObjects do
+			SourceObjectData.value.setVertsPosBySupports()
 
 		bindSupportToTransformEvent( for key in SupportObjects.keys collect SupportObjects[key].support_obj )
 	),

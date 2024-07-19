@@ -93,6 +93,7 @@ struct BeamObject_v
 		--for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
 			--addModifier beam support_A.modifiers[i]
 
+		max create mode
 		addModifier beam support_A.modifiers[#BAR_WIDTH]
 
 
