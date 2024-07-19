@@ -128,6 +128,8 @@ struct SupportObject_v
 
 		setUserPropVal support_obj ( toUpper (to_type as string ) + "_KEY") support_key
 
+		--SUPPORT_MANAGER.updateShapeAdd (support_obj)
+
 		this.updateSupport()
 	),
 
@@ -221,13 +223,15 @@ struct SupportObject_v
 			hit_raft = undefined
 
 
+		length_multiplier = if obj_type == #SUPPORT then 1 else 10
+		format "length_multiplier: %\n" length_multiplier
 		/* ADD SECOND POINT */
 		if hit_raft != undefined
 			then /* SECOND POINT IS POINT OF COLLISION */
 				second_point_pos = hit_raft.pos
 
 			else /* EXTEND SECOND POINT ALONG NORMAL */
-				second_point_pos = vertex_pos +( SUPPORT_OPTIONS.normal_length * direction * 10 ) -- make raft longer by multiplying normal length 10x
+				second_point_pos = vertex_pos +( SUPPORT_OPTIONS.normal_length * direction * length_multiplier ) -- make raft longer by multiplying normal length 10x
 
 
 		/* CHECK POSITION ABOVE GROUND, SET LAST KNOT ABOVE BASE */
@@ -452,7 +456,7 @@ struct SupportObject_v
 	 */
 	function _alignPivotToSeconPoint =
 	(
-		format "\n"; print "SupportRaftBaseObject._alignPivotToSeconPoint()"
+		--format "\n"; print "SupportObject_v._alignPivotToSeconPoint()"
 
 		--dir = normalize (support_obj.pos - knots_positions[1])
 		dir = normalize (knots_positions[1] - support_obj.pos)

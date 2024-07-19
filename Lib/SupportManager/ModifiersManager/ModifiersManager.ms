@@ -43,8 +43,9 @@ struct ModifiersManager_v
 			modifiers = if obj_type == #SUPPORT then SupportModifiers["default"].mods_support else SupportModifiers["default"].mods_raft
 			format "modifiers: %\n" modifiers
 
-			for modi in modifiers do
-				modPanel.addModToSelection (modi ) --ui:on
+			for i = modifiers.count to 1 by -1 do
+			--for modi in modifiers do
+				modPanel.addModToSelection ( modifiers[i] ) --ui:on
 
 			/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
 			this._setSweepRadius (supports[1])
@@ -72,7 +73,7 @@ struct ModifiersManager_v
 		if supports.count > 0 and ( modi = supports[1].modifiers[mod_name] ) != undefined then
 			case mod_name of
 			(
-				#BAR_WIDTH:	modi[#Cylinder_Section].radius	= SUPPORT_OPTIONS.bar_width
+				#BAR_WIDTH:	modi[#Cylinder_Section].radius	= SUPPORT_OPTIONS.getOption #BAR_WIDTH
 				#BASE_WIDTH:	modi.amount	= SUPPORT_OPTIONS.base_width
 				#EXTRUDE_END:	modi.amount	= SUPPORT_OPTIONS.extrude_end
 
@@ -88,7 +89,7 @@ struct ModifiersManager_v
 		format "\n"; print "ModifiersManager_v.convertSupportType()"
 		format "obj_type: %\n" obj_type
 		format "modifiers: %\n" modifiers
-		--format "obj_type: %\n" obj_type
+		format "supports: %\n" supports
 
 		--mods_support	= #( "Select Base", "Base Width", "Chamfer Base", "Chamfer Bar", "Select Top" )
 		--mods_raft	= #( "Chamfer Bar", "Select Ends" )
@@ -98,13 +99,13 @@ struct ModifiersManager_v
 
 		modifiers_add = case of
 		(
-			--(modifiers != undefined):	modifiers
+			(modifiers != undefined):	modifiers
 			(obj_type == #SUPPORT):	SupportModifiers["default"].mods_support
 			(obj_type == #RAFT):	SupportModifiers["default"].mods_raft
 		)
 
 			for modi in modifiers_add do
-				format "modi: %\n" modi
+				format "modifier add: %\n" modi
 
 		for support in supports do
 		(
@@ -113,14 +114,17 @@ struct ModifiersManager_v
 				deleteModifier support 1
 
 
-
-			for modi in modifiers_add do
-				addModifier support modi
+			--if obj_type == #SUPPORT then
+			for i = modifiers_add.count to 1 by -1 do
+					addModifier support modifiers_add[i]
+			--else
+			--	for modi in modifiers_add do
+			--		addModifier support modi
 		)
 
 
 		/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
-			--SupportModifiers["default"].setSweepRadius()
+		this._setSweepRadius (supports[1])
 
 	),
 

@@ -82,7 +82,11 @@ icon:	"across:4|height:32|width:96|tooltip:GENERATE POINTS From selected object.
 			actionMan.executeAction 0 "63563"  -- Views: Preview Highlight Outlines Toggle
 			actionMan.executeAction 0 "63565"  -- Views: Selection Highlight Outlines Toggle
 
+			/*
+				QUICK WORKAROUND BY TOGGLE
+
+			*/
+			actionMan.executeAction 0 "557"  -- Views: Viewport Visual Style Edged Faces Toggle
 
 		)
 )
-

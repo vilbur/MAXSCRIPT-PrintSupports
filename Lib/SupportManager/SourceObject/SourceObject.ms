@@ -47,7 +47,6 @@ struct SourceObject_v
 		this._removeDeletedNodes()
 
 		--this._setVertsToProcess()
-		verts_pos = this._getVertsPositions()
 
 		verts_sel	= getVertSelection obj.mesh
 
@@ -70,6 +69,7 @@ struct SourceObject_v
 		verts_process = ( for vert in verts_process where this._isNormalValid(vert) collect vert ) as BitArray
 		--format "VERTS_PROCESS B: %\n" verts_process
 
+		verts_pos = this._getVertsPositions(verts_process)
 		/* FILTER ONLY VERTS TO PROCESS FROM COLORED ARRAYS */
 		for vertex_color in verts_by_colors.keys do verts_by_colors[vertex_color] *= verts_process
 
@@ -155,7 +155,7 @@ struct SourceObject_v
 	(
 		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
-		verts_pos = this._getVertsPositions()
+		--verts_pos = this._getVertsPositions()
 
 		for key in Supports.keys where not Supports[key].isRaft() do
 			Supports[key].updateSupport first_knot_pos:( verts_pos[key])
@@ -182,11 +182,11 @@ struct SourceObject_v
 	(
 		--format "\n"; print "SourceObject_v.updateSupport()"
 		--format "support_node.name: %\n" support_node.name
-
-		--if verts_pos == undefined then
-			verts_pos = this._getVertsPositions()
-
 		index = getUserPropVal support_node "INDEX"
+
+		if verts_pos == undefined then
+			verts_pos = this._getVertsPositions(#{index})
+
 
 		Supports[index].updateSupport first_knot_pos:verts_pos[index]
 	),
@@ -300,10 +300,34 @@ struct SourceObject_v
 
 	/** Set verts positions
 	 */
-	function _getVertsPositions =
+	function _getVertsPositions verts =
 	(
 		format "\n"; print "SourceObject_v._getVertsPositions()"
-		in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+		format "verts_process: %\n" verts_process
+		format "verts_pos: %\n" verts_pos
+
+
+
+		--if verts_pos == undefined then
+		--	verts_pos = all_verts as Array
+		--
+		--verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
+		--format "verts_process_pos: %\n" verts_process_pos
+		--
+		--for i = 1 to verts_process_pos.count do
+		--(
+		--	vert = (verts  as Array )[i]
+		--	format "vert: %\n" vert
+		--
+		--	verts_pos[vert] = verts_process_pos[i]
+		--)
+		--
+		--
+		--verts_pos --return
+
+		verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+
+		verts_pos --return
 	),
 
 	--/** Get vertex pos by support

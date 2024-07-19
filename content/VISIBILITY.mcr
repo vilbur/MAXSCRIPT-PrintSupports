@@ -13,32 +13,50 @@ function selectHideUnhideSupports type: state: =
 	_objects = if selection.count > 0 then selection as Array else objects as Array
 
 	nodes = SUPPORT_MANAGER.getObjectsByType _objects type:type hierarchy:shift
-	--format "NODES: %\n" nodes
-	--select nodes
-	timer_select = timeStamp()
-	with redraw off
+
+	source_objects = SUPPORT_MANAGER.getObjectsByType _objects type:#SOURCE
+
+	source_objects_selected = for source_object in source_objects where source_object.isSelected collect source_object
+
+	format "TEST: %\n" ( type == #SOURCE and not (ctrl and shift and alt ) and source_objects.count == source_objects_selected.count)
+
+
+	if type == #SOURCE and not (ctrl and shift and alt ) and source_objects.count == source_objects_selected.count then
 	(
-		max create mode
-		case of
-		(
-			--( ctrl and shift ): selectmore nodes
-			--( alt  and shift):
-			--( ctrl and alt ):
-			--( shift ): selectmore nodes
-			( ctrl ): for obj in nodes do obj.isHidden = not state
-			--( alt ):
+		nodes = for obj in _objects where findItem source_objects_selected obj == 0 collect obj
 
-			default: ( if not shift then
-						select nodes
-					   else
-						   --selectmore nodes
-						select (nodes +_objects  )
+		select nodes
 
-					)
-		)
 	)
-	format "select: % ms\n" (( timeStamp()) - timer_select)
-	redrawViews()
+	else
+	(
+		--timer_select = timeStamp()
+		with redraw off
+		(
+			max create mode
+
+			case of
+			(
+				--( ctrl and shift ): selectmore nodes
+				--( alt  and shift):
+				--( ctrl and alt ):
+				--( shift ): selectmore nodes
+				( ctrl ): for obj in nodes do obj.isHidden = not state
+				--( alt ):
+
+				default: ( if not shift then
+							select nodes
+						   else
+							   --selectmore nodes
+							select ( nodes +_objects  )
+
+						)
+			)
+		)
+		--format "select: % ms\n" (( timeStamp()) - timer_select)
+		redrawViews()
+
+	)
 
 
 )
@@ -114,7 +132,7 @@ icon:	"id:BTN_visibility_Rafts|across:5|height:32|width:96|tooltip:GEENERATE RAF
 	on execute do
 		undo "Show\Hide Supports" on
 		(
-			selectHideUnhideSupports type:#SUPPORT state:false
+			selectHideUnhideSupports type:#RAFT state:false
 
 		)
 )
@@ -174,4 +192,3 @@ icon:	"id:BTN_visibility_all|across:5|height:32|width:96|tooltip:GENERATE POINTS
 	--		--	--format "POINTS_CREATED	= % \n" POINTS_CREATED
 		)
 )
-

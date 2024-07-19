@@ -206,7 +206,7 @@ struct SupportManager_v
 
 					/* GENERATE BEAM */
 					BeamObject = (BeamObject_v support_A support_B )
-					format "TEST: %\n" BeamObjects[BeamObject.beam_key]
+					--format "TEST: %\n" BeamObjects[BeamObject.beam_key]
 					if BeamObjects[BeamObject.beam_key]  == undefined then
 					(
 						BeamObject.generateBeam()
@@ -286,7 +286,7 @@ struct SupportManager_v
 		--from_type =  if obj_type == #RAFT then #SUPPORT else #RAFT
 		--format "SupportObjects: %\n" SupportObjects
 		--format "from_type: %\n" from_type
-		--format "obj_type:   %\n" obj_type
+		format "obj_type:   %\n" obj_type
 		--format "supports_by_source.keys: %\n" supports_by_source.keys
 
 		supports_by_source = this._sortObjectsBySourceObject (support_nodes)
@@ -301,12 +301,15 @@ struct SupportManager_v
 				--format "sync_key: %\n" sync_key
 
 				supports_to_convert = supports_by_source[sync_key]
-
+				supports_exists = SourceObjects[sync_key].getSupportNodes obj_type:obj_type
+				/* CONVERT TYPE */
 				SourceObjects[sync_key].convert( supports_to_convert ) obj_type:obj_type
 
-				if (other_supports = SourceObjects[sync_key].getSupportNodes obj_type:obj_type).count > 0 then
-					modifiers = other_supports[1].modifiers
-
+				--format "TEST supports_exists: %\n" (SourceObjects[sync_key].getSupportNodes obj_type:obj_type)
+				/* CONVERT MODIFEIRS */
+				if supports_exists.count > 0 then
+					modifiers = supports_exists[1].modifiers
+				--format "MODIFIERS: %\n" modifiers
 				MODIFIERS_MANAGER.convertSupportType( supports_to_convert ) obj_type:obj_type modifiers:modifiers
 			)
 
@@ -378,7 +381,7 @@ struct SupportManager_v
 		)
 
 		/* IF SUPPORT DELETED */
-		else if (support_key = this.isType #SUPPORT obj) != false then
+		else if (support_key = this.isType #SUPPORT obj) != false or (support_key = this.isType #RAFT obj) != false then
 		(
 			sync_key = this._getSyncKey obj
 		    index    = getUserPropVal obj "INDEX"
@@ -568,7 +571,15 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		format "\n"; print "SupportManager_v.setVisibility()"
+		format "\n"; print "SupportManager_v.getObjectsByType()"
+
+		/** Is type support
+		 */
+		function isTypeSupport type =
+		(
+			--format "\n"; print "SupportManager_v.isTypeSupport()"
+			type == #SUPPORT or type == #RAFT
+		)
 
         source_keys = #()
         supports	= #()
@@ -583,6 +594,7 @@ struct SupportManager_v
                 ((sync_key = this._getKey #SOURCE obj) != undefined ): append source_keys sync_key
                 --((this._isType #SOURCE  obj) != undefined ): append source_keys obj
                 ((this._getKey #SUPPORT obj) != undefined ): append supports obj
+                ((this._getKey #RAFT obj)    != undefined ): append supports obj
                 ((this._getKey #BEAM    obj) != undefined ): append beams obj
                 --default:
 			)
@@ -605,15 +617,17 @@ struct SupportManager_v
 
 		else if source_keys.count > 0 then
 		(
+			raft_test = type == #RAFT
 
+			format "BEAMOBJECTS: %\n" BeamObjects
 			/* GET BEAMS OF SOURCE OBJECT */
 			if hierarchy or type == #BEAM  then
 				for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
 					append objects_to_process BeamObjects[key].beam
 
 			/* GET SUPPORTS OF SOURCE OBJECT */
-			if hierarchy or type == #SUPPORT  then
-				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 do
+			if hierarchy or type == #SUPPORT or type == #RAFT  then
+				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 and SupportObjects[key].isRaft() == raft_test do
 					append objects_to_process SupportObjects[key].support_obj
 
 		)
@@ -625,7 +639,7 @@ struct SupportManager_v
 				for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
 					append objects_to_process BeamObjects[key].beam
 
-			if  hierarchy or type == #SUPPORT then
+			if  hierarchy or type == #SUPPORT or type == #RAFT then
 				objects_to_process += supports
 
 		)
