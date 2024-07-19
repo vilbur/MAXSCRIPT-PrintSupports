@@ -75,9 +75,9 @@ struct SourceObject_v
 
 		/* CREATE SUPPORTS FOR EACH COLOR */
 		for vertex_color in verts_by_colors.keys do
-			for vert in verts_by_colors[vertex_color] do
+			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
 
-			if not supports_exists[vert] then
+			--if not supports_exists[vert] then
 			(
 				--format "create support for vert: %\n" vert
 				SupportObject = SupportObject_v source_obj:obj obj_type:obj_type sync_key:sync_key
@@ -108,7 +108,6 @@ struct SourceObject_v
 				--this.Supports[vert].updateSupport first_knot_pos:verts_pos[vert]
 
 
-		MODIFIERS_MANAGER.addModifiers( this.getSupportNodes obj_type:obj_type ) obj_type:obj_type
 		--MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type
 
 		bindSupportToTransformEvent( this.getSupportNodes() )
@@ -172,7 +171,7 @@ struct SourceObject_v
 			--SupportObjectData.value.updateHeight()
 
 		--for key in Supports.keys where not Supports[key].is_raft do
-		for key in Supports.keys do
+		for key in Supports.keys where not Supports[key].isRaft() do
 			Supports[key].updateHeight()
 
 	),
@@ -183,7 +182,8 @@ struct SourceObject_v
 	(
 		--format "\n"; print "SourceObject_v.updateSupport()"
 		--format "support_node.name: %\n" support_node.name
-		if verts_pos == undefined then
+
+		--if verts_pos == undefined then
 			verts_pos = this._getVertsPositions()
 
 		index = getUserPropVal support_node "INDEX"
@@ -302,7 +302,7 @@ struct SourceObject_v
 	 */
 	function _getVertsPositions =
 	(
-		--format "\n"; print "SourceObject_v._getVertsPositions()"
+		format "\n"; print "SourceObject_v._getVertsPositions()"
 		in coordsys world meshop.getVerts obj.mesh all_verts node:obj
 	),
 

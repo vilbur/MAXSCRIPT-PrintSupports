@@ -168,6 +168,14 @@ struct SupportObject_v
 	),
 
 
+	/** Is raft
+	 */
+	function isRaft =
+	(
+		--format "\n"; print "SupportObject_v.isRaft()"
+		getUserPropVal support_obj "RAFT_KEY" != undefined
+	),
+
 	private
 
 	/** Add knots

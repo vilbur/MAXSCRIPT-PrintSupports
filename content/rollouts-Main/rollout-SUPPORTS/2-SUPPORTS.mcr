@@ -136,7 +136,7 @@ icon:	"control:spinner|across:3|width:64|range:[ 0, 99, 0.5 ]|offset:[ 0, 0 ]"
 macroscript	_print_support_generator
 category:	"_3D-Print"
 buttontext:	"S U P P O R T"
-icon:	"across:3|height:32|width:96|offset:[ 0, 0 ]"
+icon:	"across:3|height:32|width:96|offset:[ -16, 0 ]"
 (
 	/* https://help.autodesk.com/view/MAXDEV/2021/ENU/?guid=GUID-5A4580C6-B5CF-4104-898B-9313D1AAECD4 */
 	on isEnabled return selection.count > 0

@@ -121,9 +121,15 @@ struct SupportManager_v
 		/*------------------------------------------------------------------------------
 			DEV
 		------------------------------------------------------------------------------*/
-		--delete (SourceObject.getSupportNodes())
+
+		--modifiers = if (supports_old = SourceObject.getSupportNodes obj_type:obj_type).count > 0 then
+			 --other_supports[1].modifiers
+		supports_exists  = SourceObject.getSupportNodes obj_type:obj_type
 
 		new_nodes = SourceObject.generateSupports obj_type:obj_type
+
+
+		MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type supports_exists:supports_exists
 
 		--support_nodes =
 		--

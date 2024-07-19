@@ -9,6 +9,7 @@ struct ModifiersManager_v
 
 	/* required */
 	supports,
+	--supports_exists,
 
 
 	/* properties */
@@ -23,16 +24,19 @@ struct ModifiersManager_v
 	/** Add modifiers
 	  *
 	  */
-	function addModifiers supports obj_type:#SUPPORT =
+	function addModifiers supports obj_type:#SUPPORT supports_exists:#() =
 	(
 		format "\n-----------------------------------------\n"
 		format "\n"; print "ModifiersManager_v.addModifiers()"
 		format "supports: %\n" supports
+		format "supports_exists: %\n" supports_exists
 		--format "SupportModifiers: %\n" SupportModifiers["default"].mod_names
 
 		this.supports =	supports
+		--this.supports_exists =	supports_exists
+		support_with_modifiers	= (this._getSupportsWithModfiers(supports_exists))[1]
 
-		if not this._modifiersAdded() then
+		if supports_exists.count == 0 then
 		(
 			select supports
 
@@ -43,12 +47,19 @@ struct ModifiersManager_v
 				modPanel.addModToSelection (modi ) --ui:on
 
 			/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
-			SupportModifiers["default"].setSweepRadius()
+			this._setSweepRadius (supports[1])
 		)
 		else
-			this._copyModifiers()
+			this._copyModifiers supports_exists[1] ((this._getSupportsWithModfiers(supports_exists))[1].modifiers)
 	),
 
+	/** Sweep radius must be set when modifier is added to object
+	 */
+	function _setSweepRadius support =
+	(
+		--format "\n"; print "SupportModifiers_v.setSweepRadius()"
+		support.modifiers[#BAR_WITH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+	),
 
 	/** Update modifier by value in SUPPORT_OPTIONS
 	 */
@@ -72,7 +83,7 @@ struct ModifiersManager_v
 
 	/** Convert support type
 	 */
-	function convertSupportType supports obj_type:#RAFT modifiers: =
+	function convertSupportType supports obj_type:#RAFT modifiers:undefined =
 	(
 		format "\n"; print "ModifiersManager_v.convertSupportType()"
 		format "obj_type: %\n" obj_type
@@ -87,7 +98,7 @@ struct ModifiersManager_v
 
 		modifiers_add = case of
 		(
-			--(modifiers != unsupplied):	modifiers
+			--(modifiers != undefined):	modifiers
 			(obj_type == #SUPPORT):	SupportModifiers["default"].mods_support
 			(obj_type == #RAFT):	SupportModifiers["default"].mods_raft
 		)
@@ -118,21 +129,26 @@ struct ModifiersManager_v
 
 	/** Copy modifiers
 	 */
-	function _copyModifiers =
+	function _copyModifiers support_exists modifiers =
 	(
 		format "\n"; print "SupportModifiers_v._copyModifiers()"
 
 		/* DIRTY CODE - TIME RPOEASSURE */
+		--support_with_modifiers	= (this._getSupportsWithModfiers(supports_exists))[1]
+		--supports_no_modifiers	= this._getSupportsWithoutModfiers()
 
-		support_with_modifiers	= (this._getSupportsWithModfiers())[1]
-		supports_no_modifiers	= this._getSupportsWithoutModfiers()
-
-		modifiers_of_supports	= support_with_modifiers.modifiers
+		--modifiers_of_supports	= support_with_modifiers.modifiers
 
 		max create mode
-		for support_no_modifiers in supports_no_modifiers do
-			for i = modifiers_of_supports.count to 1 by -1 do
-				addModifierWithLocalData support_no_modifiers modifiers_of_supports[i] support_with_modifiers modifiers_of_supports[i] -- instance the modifier
+		--
+		--for support in supports do
+		--	for modi in modifiers do
+		--		addModifierWithLocalData support_no_modifiers modifiers_of_supports[i] support_with_modifiers modifiers_of_supports[i] -- instance the modifier
+
+
+		for support in this.supports do
+			for i = modifiers.count to 1 by -1 do
+				addModifierWithLocalData support modifiers[i] support_exists modifiers[i] -- instance the modifier
 
 		--for i = modifiers_of_supports.count to 1 by -1 do
 		--	try(
@@ -151,9 +167,9 @@ struct ModifiersManager_v
 
 	/** Get obejcts with modfiers
 	 */
-	function _getSupportsWithModfiers =
+	function _getSupportsWithModfiers nodes =
 	(
-		for obj in supports where obj.modifiers.count > 0 collect obj
+		for obj in nodes where obj.modifiers.count > 0 collect obj
 	),
 
 	/** Get obejcts with modfiers
