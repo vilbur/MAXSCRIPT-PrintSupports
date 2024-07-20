@@ -16,6 +16,8 @@ struct VertexGrid_v
 	--resolution = 5,
 	resolution = 10,
 
+	verts_pos,
+
 
 	/* private */
 	/* dependency */
@@ -52,7 +54,7 @@ struct VertexGrid_v
 				#( #{x3y1}, #{x3y2} )
 			)
 	 */
-	function _getVertsInGrid verts_data =
+	function _getVertsInGrid verts =
 	(
 		--format "\n"; print "VertSelector_v._getVertsInGrid()"
 		/** Get cell by position
@@ -71,11 +73,11 @@ struct VertexGrid_v
 			point3 rp3Arr[1] rp3Arr[2] rp3Arr[3]
 		)
 
+		verts_pos = this._getVertsPositions(verts)
 
+		verts_arr = verts as Array
 
-		verts_arr = verts_data[#VERTS] as Array
-
-		pos_by_axis = this.getPositionsSplitByAxis(verts_data)
+		pos_by_axis = this.getPositionsSplitByAxis(verts)
 
 		min_pos = #( amin pos_by_axis[1], amin pos_by_axis[2], amin pos_by_axis[3])
 
@@ -85,7 +87,7 @@ struct VertexGrid_v
 		for i = 1 to verts_arr.count do
 		(
 			vert	= verts_arr[i]
-			vert_pos	= verts_data[#POSITIONS][i]
+			vert_pos	= verts_pos[i]
 
 			for axis = 1 to 3 do
 			--for axis = 1 to 2 do
@@ -108,7 +110,37 @@ struct VertexGrid_v
 		points_grid --return
 	),
 
+	/** Set verts positions
+	 */
+	function _getVertsPositions verts =
+	(
+		--format "\n"; print "SourceObject_v._getVertsPositions()"
+		--format "verts_process: %\n" verts_process
+		--format "verts: %\n" verts
+		--format "verts.numberSet: %\n" verts.numberSet
+		--all_verts = #{1..(getNumVerts obj.mesh)}
 
+		if verts_pos == undefined then
+			this.verts_pos = #{1..(getNumVerts obj.mesh)} as Array
+
+		verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
+		--format "verts_process_pos: %\n" verts_process_pos
+
+		for i = 1 to verts_process_pos.count do
+		(
+			vert = (verts  as Array )[i]
+			--format "vert: %\n" vert
+
+			verts_pos[vert] = verts_process_pos[i]
+		)
+
+
+		verts_pos --return
+
+		--verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+
+		--verts_pos --return
+	),
 
 
 	/** Check selection ingerity
@@ -127,22 +159,23 @@ struct VertexGrid_v
 	  *
 	  * @return #( #(X pos), #(Y pos), #(Z pos) )
 	 */
-	function getPositionsSplitByAxis verts_data =
+	function getPositionsSplitByAxis verts =
 	(
-		--format "\n"; print "MeshDataGetter_v.getPositionsSplitted()"
-		if verts_data[#POSITIONS] == undefined then
-			verts_data[#POSITIONS] = this._getVertsPositions()
+		----format "\n"; print "MeshDataGetter_v.getPositionsSplitted()"
 
+		verts_count = verts.numberSet
 
-		x_positions = #()
-		y_positions = #()
-		z_positions = #()
+		x_positions = #(verts_count)
+		y_positions = #(verts_count)
+		z_positions = #(verts_count)
 
-		for pos in verts_data[#POSITIONS] do
+		for vert in verts do
 		(
-			append x_positions pos.x
-			append y_positions pos.y
-			append z_positions pos.z
+			vert_pos = verts_pos[vert]
+
+			x_positions[vert] = vert_pos.x
+			y_positions[vert] = vert_pos.y
+			z_positions[vert] = vert_pos.z
 		)
 
 		#( x_positions, y_positions, z_positions  ) --return

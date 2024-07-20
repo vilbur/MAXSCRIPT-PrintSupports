@@ -44,11 +44,12 @@ struct VertexGridGetter_v
 
 		--MeshDataGetter.VertNormalLimits.z = [ 135, 180 ]
 
-		data_verts = MeshDataGetter.getVertexData verts:#ALL_OR_SELECTED positions:true --normals:true
+		--data_verts = MeshDataGetter.getVertexData verts:#ALL_OR_SELECTED positions:true --normals:true
+		verts_sel	= getVertSelection obj.mesh
 
 		VertexGrid.resolution = resolution
 
-		VertexGrid._getVertsInGrid(data_verts)
+		VertexGrid._getVertsInGrid(verts_sel)
 
 		--this.sel_modified = copy data_verts[#VERTS]
 		this.sel_modified = #{}
@@ -94,11 +95,12 @@ struct VertexGridGetter_v
 		function isEven n = ( mod n 2 ) == 0
 
 		--this._getVertsToProcess normals:false
-		data_verts = MeshDataGetter.getVertexData verts:#ALL_OR_SELECTED positions:true --normals:true
+		--data_verts = MeshDataGetter.getVertexData verts:#ALL_OR_SELECTED positions:true --normals:true
+		verts_sel	= getVertSelection obj.mesh
 
 		VertexGrid.resolution = resolution
 		--timer_getVertsInGrid = timeStamp()
-		VertexGrid._getVertsInGrid(data_verts)
+		VertexGrid._getVertsInGrid(verts_sel)
 		--format "\n getVertsInGrid: % ms\n" (( timeStamp()) - timer_getVertsInGrid)
 
 		round_grid = VertexGrid.round_grid
@@ -136,11 +138,12 @@ struct VertexGridGetter_v
 
 
 		--this._getVertsToProcess normals:false
-		data_verts = MeshDataGetter.getVertexData verts:#ALL_OR_SELECTED positions:true --normals:true
+		--data_verts = MeshDataGetter.getVertexData verts:#ALL_OR_SELECTED positions:true --normals:true
+		verts_sel	= getVertSelection obj.mesh
 
 		VertexGrid.resolution = resolution
 		--timer_getVertsInGrid = timeStamp()
-		VertexGrid._getVertsInGrid(data_verts)
+		VertexGrid._getVertsInGrid(verts_sel)
 		--format "\n getVertsInGrid: % ms\n" (( timeStamp()) - timer_getVertsInGrid)
 
 		round_grid = VertexGrid.round_grid
@@ -183,11 +186,12 @@ struct VertexGridGetter_v
 
 
 		--this._getVertsToProcess normals:false
-		data_verts = MeshDataGetter.getVertexData verts:#ALL_OR_SELECTED positions:true --normals:true
+		--data_verts = MeshDataGetter.getVertexData verts:#ALL_OR_SELECTED positions:true --normals:true
+		verts_sel	= getVertSelection obj.mesh
 
 		VertexGrid.resolution = resolution
 		--timer_getVertsInGrid = timeStamp()
-		VertexGrid._getVertsInGrid(data_verts)
+		VertexGrid._getVertsInGrid(verts_sel)
 		--format "\n getVertsInGrid: % ms\n" (( timeStamp()) - timer_getVertsInGrid)
 
 		round_grid = VertexGrid.round_grid
@@ -296,12 +300,17 @@ struct VertexGridGetter_v
 	function _getLowestVertOnZaxis verts =
 	(
 		--format "\n"; print "VertexGridGetter_v._getLowestVertOnZaxis()"
+		verts_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
+
 		verts_arr = verts as Array
 
 		/* GET LOWEST POINT IN CELL */
 		if verts_arr.count > 1 then
 		(
-			z_positions = for vert in verts_arr collect MeshDataGetter.getPosition(vert) axis:#Z
+			--z_positions = for vert in verts_arr collect MeshDataGetter.getPosition(vert) axis:#Z
+
+			z_positions = for i = 1 to verts_arr.count collect verts_pos[i].z
+
 			--z_positions = for pos in (meshop.getVerts obj.mesh verts node:obj) collect pos.z
 
 			if ( index = findItem z_positions (amin z_positions) ) > 0 then
@@ -331,7 +340,7 @@ struct VertexGridGetter_v
 	(
 		--format "\n"; print "VertexGridGetter.onCreate()"
 		VertexGrid 	= VertexGrid_v( obj )
-		MeshDataGetter 	= MeshDataGetter_v( obj )
+		--MeshDataGetter 	= MeshDataGetter_v( obj )
 
 	)
 )

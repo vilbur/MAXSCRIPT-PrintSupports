@@ -15,7 +15,7 @@ function createSourceMesh segments:8 radius:20 vertex_selection:#{} test_shifted
 
 	--obj = Sphere radius:radius pos:[0,0, 50 ] segments:segments --showVertexColors:true	vertexColorsShaded:true -- diameter 3 cm
 
-	--obj = Plane width:20 length:20 pos:[ 50, 20, 50 ] widthsegs:4 lengthsegs:4
+	obj = Plane width:20 length:20 pos:[ 50, 20, 50 ] widthsegs:4 lengthsegs:4
 
 	--obj = Plane width:60 length:30 pos:[ 50, 20, 50 ] widthsegs:10 lengthsegs:10
 	--obj = Plane width:40 length:30 pos:[ 50, 20, 50 ] widthsegs:40 lengthsegs:30
@@ -24,7 +24,7 @@ function createSourceMesh segments:8 radius:20 vertex_selection:#{} test_shifted
 	--obj = Box width:50 length:50 height:50 pos:[ 0, 0, 0 ] widthsegs:25 lengthsegs:25 heightsegs:25
 	--obj = Box width:50 length:50 height:50 pos:[ 0, 0, 0 ] widthsegs:35 lengthsegs:35 heightsegs:35
 	--obj = Box width:50 length:50 height:50 pos:[ 0, 0, 0 ] widthsegs:50 lengthsegs:50 heightsegs:50
-	obj = Box width:50 length:50 height:50 pos:[ 0, 0, 0 ] widthsegs:100 lengthsegs:100 heightsegs:100
+	--obj = Box width:50 length:50 height:50 pos:[ 0, 0, 0 ] widthsegs:100 lengthsegs:100 heightsegs:100
 	--obj = Box width:50 length:50 height:50 pos:[ 0, 0, 0 ] widthsegs:10 lengthsegs:10 heightsegs:1
 
 
@@ -33,10 +33,16 @@ function createSourceMesh segments:8 radius:20 vertex_selection:#{} test_shifted
 
 	select obj
 
-	noise_val = radius / 3
-	--modPanel.addModToSelection (Noisemodifier scale:8 strength:[ noise_val, noise_val, noise_val] ) ui:on
+	if classOf obj == Plane then
+	(
+		noise_val = radius / 3
 
-	--Rotate obj ( AngleAxis 180 [1,0,0]) -- rotate object upside down
+		modPanel.addModToSelection (Noisemodifier scale:8 strength:[ noise_val, noise_val, noise_val] ) ui:on
+
+		Rotate obj ( AngleAxis 180 [1,0,0]) -- rotate object upside down
+
+	)
+
 
 	modPanel.addModToSelection (smooth ()) ui:on
 

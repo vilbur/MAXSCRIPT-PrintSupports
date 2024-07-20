@@ -13,7 +13,7 @@ struct SourceObject_v
 
 	all_verts,
 
-	Supports = Dictionary #INTEGER, -- KEY: vertex_index VALUE: SupportObject|RaftObject
+	Supports = Dictionary #INTEGER, -- KEY:vertex_index VALUE:SupportObject|RaftObject
 
 	/* private */
 	verts_process,
@@ -149,13 +149,13 @@ struct SourceObject_v
 		--resumeSupportToTransformEvent()
 	),
 
-	/** Update whole supports objects
+	/** Update all supports of source objects
 	 */
 	function updateSupports =
 	(
 		--format "\n"; print "SourceObject_v.updateSupports()"
 		--format "support_nodes: %\n" support_nodes
-		--verts_pos = this._getVertsPositions()
+		verts_pos = this._getVertsPositions( Supports.keys as BitArray )
 
 		for key in Supports.keys where not Supports[key].isRaft() do
 			Supports[key].updateSupport first_knot_pos:( verts_pos[key])
@@ -280,7 +280,7 @@ struct SourceObject_v
 
 		for face_of_vert in faces_of_verts do
 		(
-			--format "face_of_vert: %\n" face_of_vert
+			format "face_of_vert: %\n" face_of_vert
 			face_verts = getFace	obj_mesh face_of_vert
 			face_normal = getFaceNormal	obj_mesh face_of_vert
 
@@ -314,23 +314,21 @@ struct SourceObject_v
 	 */
 	function _getVertsPositions verts =
 	(
-		format "\n"; print "SourceObject_v._getVertsPositions()"
-		format "verts_process: %\n" verts_process
-		format "verts: %\n" verts
-		format "verts.numberSet: %\n" verts.numberSet
-
-
+		--format "\n"; print "SourceObject_v._getVertsPositions()"
+		--format "verts_process: %\n" verts_process
+		--format "verts: %\n" verts
+		--format "verts.numberSet: %\n" verts.numberSet
 
 		if verts_pos == undefined then
 			this.verts_pos = all_verts as Array
 
 		verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
-		format "verts_process_pos: %\n" verts_process_pos
+		--format "verts_process_pos: %\n" verts_process_pos
 
 		for i = 1 to verts_process_pos.count do
 		(
 			vert = (verts  as Array )[i]
-			format "vert: %\n" vert
+			--format "vert: %\n" vert
 
 			verts_pos[vert] = verts_process_pos[i]
 		)
@@ -458,6 +456,8 @@ struct SourceObject_v
 	(
 		--format "\n"; print "SourceObject_v._isNormalValid()"
 		normals_world[vert].z < 0 --return
+		--normals_world[vert].z < 1 --return
+
 	),
 
 	/** Save object rounded rotation in X and Y axis

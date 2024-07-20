@@ -32,6 +32,7 @@ struct BeamObject_v
 
 		this._drawLines(points_of_lines)
 
+		this._lockTransforms()
 
 		bindBeamOnDeleteCallback( beam )
 
@@ -71,6 +72,17 @@ struct BeamObject_v
 
 
 	private
+
+	/** Lock transforms
+	 */
+	function _lockTransforms =
+	(
+		--format "\n"; print "BeamObject_v._lockTransforms()"
+		--lock_keys = #( #MOVE_X,	#MOVE_Y,	#MOVE_Z,	#ROTATE_X,	#ROTATE_Y,	#ROTATE_Z,	#SCALE_X,	#SCALE_Y,	#SCALE_Z )
+		--lock_states = #( 1,	1,	0,	1,	1,	1,	1,	1,	0 ) as BitArray
+
+		setTransformLockFlags beam #{1..2,4..8}
+	),
 
 	/** Create beam
 	 */

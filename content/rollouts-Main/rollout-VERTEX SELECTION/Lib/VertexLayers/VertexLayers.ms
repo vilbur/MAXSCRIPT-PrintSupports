@@ -185,7 +185,8 @@ struct VertexLayers_v
 	 */
 	on create do
 	(
-		--format "\n"; print "VertexLayers.onCreate()"
+		format "\n"; print "VertexLayers.onCreate()"
+		print "**************************\n**************************"
 		VertIslandFinder = VertIslandFinder_v(obj)
 	)
 

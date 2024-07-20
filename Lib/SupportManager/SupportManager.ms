@@ -6,9 +6,10 @@ filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rol
 --filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-VERTEX COLORS\Lib\VertexColorProcessor.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rollout-VERTEX-COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms" )	--"./../../content/rollouts-Main/rollout-VERTEX-COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onSupportTransformCallback/onSupportTransformCallback.ms" -- MUST BE BEFORE SourceObject.ms
-filein( getFilenamePath(getSourceFileName()) + "/onBeamDeletedCallback/onBeamDeletedCallback.ms" )	--"./onBeamDeletedCallback/onBeamDeletedCallback.ms" -- MUST BE BEFORE SourceObject.ms
+filein( getFilenamePath(getSourceFileName()) + "/onEvents/onBeamDeletedCallback/onBeamDeletedCallback.ms" )	--"./onEvents/onBeamDeletedCallback/onBeamDeletedCallback.ms"
+filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onEvents/onSupportTransformCallback/onSupportTransformCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSourceObjectTransform/onSourceObjectTransform.ms" )	--"./onEvents/onSourceObjectTransform/onSourceObjectTransform.ms"
+
 
 filein( getFilenamePath(getSourceFileName()) + "/../SupportOptions/SupportOptions.ms" )	--"./../SupportOptions/SupportOptions.ms"
 
@@ -206,7 +207,8 @@ struct SupportManager_v
 
 					/* GENERATE BEAM */
 					BeamObject = (BeamObject_v support_A support_B )
-					--format "TEST: %\n" BeamObjects[BeamObject.beam_key]
+
+					/* IF BEAM DOES NOT EXISTS YET */
 					if BeamObjects[BeamObject.beam_key]  == undefined then
 					(
 						BeamObject.generateBeam()
@@ -795,17 +797,26 @@ struct SupportManager_v
 		for i = 1 to verts_data[#VERTS].count do
 			vertex_normals[i] = point3 0 0 0
 
-		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts_data[#VERTS]
+		verts_process = verts_data[#VERTS]
+
+		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts_process
 
 		for face_of_vert in faces_of_verts do
 		(
-			face_verts = getFace	obj_mesh face_of_vert
-			face_normal = getFaceNormal	obj_mesh face_of_vert
+			--face_verts = getFace obj_mesh face_of_vert
+			--face_normal = getFaceNormal obj_mesh face_of_vert
+			--
+			--
+			--vertex_normals[face_verts.x] += face_normal
+			--vertex_normals[face_verts.y] += face_normal
+			--vertex_normals[face_verts.z] += face_normal
 
+			face_verts = getFace obj_mesh face_of_vert
+			face_normal = getFaceNormal obj_mesh face_of_vert
 
-			vertex_normals[face_verts.x] += face_normal
-			vertex_normals[face_verts.y] += face_normal
-			vertex_normals[face_verts.z] += face_normal
+			for vert in face_verts * verts_process do
+				vertex_normals[vert] += face_normal
+
 		)
 
 		for vert in verts_data[#VERTS] collect normalize vertex_normals[vert]

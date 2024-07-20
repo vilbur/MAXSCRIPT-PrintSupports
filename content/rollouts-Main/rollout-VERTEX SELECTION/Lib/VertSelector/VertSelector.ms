@@ -1,5 +1,7 @@
 --filein( getFilenamePath(getSourceFileName()) + "/../../../../../Lib/MeshDataGetter/MeshDataGetter.ms" )	--"./../../../../../Lib/MeshDataGetter/MeshDataGetter.ms"
 
+import_browse
+
 filein( getFilenamePath(getSourceFileName()) + "/../VertexLayers/VertexLayers.ms" )	--"./../VertexLayers/VertexLayers.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../VertexGrid/VertexGrid.ms" )	--"./../VertexGrid/VertexGrid.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../VertexGridGetter/VertexGridGetter.ms" )	--"./../VertexGridGetter/VertexGridGetter.ms"
@@ -31,7 +33,8 @@ struct VertSelector_v
 	sel_modified = #{},
 	face_elements = #(),
 
-	data_verts,
+	verts_pos,
+	--data_verts,
 	--resolution = 5,
 	--resolution = 10,
 
@@ -102,8 +105,8 @@ struct VertSelector_v
 	 */
 	function findIslandsPerLayer =
 	(
-		--format "\n"; print "VertSelector_v.findIslandsPerLayer_timer()"
-
+		format "\n"; print "VertSelector_v.findIslandsPerLayer_timer()"
+		format "VertexLayers: %\n" VertexLayers
 		--format "findIslandsPerLayer_timer: % ms\n" (( timeStamp()) - findIslandsPerLayer_timer)
 		VertexLayers.findVertsOfNewIslands()
 
@@ -122,7 +125,11 @@ struct VertSelector_v
 	(
 		format "\n"; print "VertSelector_v.selectSingleVertPerFaceIsland()"
 
-		data_verts = MeshDataGetter.getVertexData verts:#SELECTED positions:true
+		--data_verts = MeshDataGetter.getVertexData verts:#SELECTED positions:true
+		verts_sel	= getVertSelection obj.mesh
+
+
+		 this._setVertsPositions(verts_sel)
 
 		hidden_verts = polyop.getHiddenVerts obj
 
@@ -138,7 +145,7 @@ struct VertSelector_v
 		(
 			--format "VERTS_ISLAND: %\n" verts_island
 
-			this._filterOnlyMinZVerts (verts_island *  data_verts[#VERTS])
+			this._filterOnlyMinZVerts (verts_island *  verts_sel )
 		)
 		--gc()
 
@@ -162,8 +169,9 @@ struct VertSelector_v
 		--face_islands	= #() -- #( #{ faces_ids } ) array of bitarrays of faces sorted by island the occupy
 		verts_per_faces	= #()
 
+		verts_sel	= getVertSelection obj.mesh
 
-		faces_by_verts = ( polyop.getFacesUsingVert obj  data_verts[#VERTS]) as Array
+		faces_by_verts = ( polyop.getFacesUsingVert obj verts_sel ) as Array
 
 		verts_per_faces = for face_id in faces_by_verts collect polyop.getVertsUsingFace obj #{face_id}
 
@@ -305,7 +313,7 @@ struct VertSelector_v
 		/* GET LOWEST POINT IN CELL */
 		if verts_arr.count > 1 then
 		(
-			z_positions = for vert in verts_arr collect MeshDataGetter.getPosition(vert) axis:#Z
+			z_positions = for vert in verts collect verts_pos[vert].z
 			--z_positions = for pos in (meshop.getVerts obj.mesh verts node:obj) collect pos.z
 
 			if ( index = findItem z_positions (amin z_positions) ) > 0 then
@@ -327,12 +335,44 @@ struct VertSelector_v
 		this.sel_modified  --return
 	),
 
+	/** Set verts positions
+	 */
+	function _setVertsPositions verts =
+	(
+		--format "\n"; print "SourceObject_v._setVertsPositions()"
+		--format "verts_process: %\n" verts_process
+		--format "verts: %\n" verts
+		--format "verts.numberSet: %\n" verts.numberSet
+		all_verts = #{1..(getNumVerts obj.mesh)}
+
+		if verts_pos == undefined then
+			this.verts_pos = all_verts as Array
+
+		verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
+		--format "verts_process_pos: %\n" verts_process_pos
+
+		for i = 1 to verts_process_pos.count do
+		(
+			vert = (verts  as Array )[i]
+			--format "vert: %\n" vert
+
+			verts_pos[vert] = verts_process_pos[i]
+		)
+
+
+		verts_pos --return
+
+		--verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+
+		--verts_pos --return
+	),
+
 	/** Set object
 	 */
 	function _setObject =
 	(
-		--format "\n"; print "GridLayerManager_v.setObject()"
-
+		format "\n"; print "GridLayerManager_v.setObject()"
+		format "this.obj_original: %\n" this.obj_original
 		this.obj = this.obj_original -- DEV
 
 		--this.obj  = snapshot this.obj_original
@@ -344,13 +384,14 @@ struct VertSelector_v
 	 */
 	on create do
 	(
-		--format "\n"; print "VertSelector.onCreate()"
+		format "\n"; print "VertSelector.onCreate()"
+		print "***********************\n***********************"
 		this._setObject()
 
-		VertexGrid 	= VertexGrid_v( obj )
-		MeshDataGetter 	= MeshDataGetter_v( obj )
-		VertexGridGetter 	= VertexGridGetter_v( obj )
 		VertexLayers 	= VertexLayers_v( obj )
+		VertexGrid 	= VertexGrid_v( obj )
+		--MeshDataGetter 	= MeshDataGetter_v( obj )
+		VertexGridGetter 	= VertexGridGetter_v( obj )
 
 	)
 
