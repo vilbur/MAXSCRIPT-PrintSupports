@@ -112,12 +112,12 @@ struct VertIslandFinder_v
 			verts_of_new_faces_count = this.verts_of_new_faces
 
 			/* JOIN NEW FACES TO ALL ISLANDS */
-			this._joinVertsToIslands()
+			merged_islands = this._joinVertsToIslands()
 		--	format "islands_all: %\n" this.islands_all
 			--format "islands_all.count: %\n" this.islands_all.count
 
 			--islands_before = this.islands_all.count
-			this._mergeIslands()
+			this._mergeIslands(merge_islands)
 			--islands_merged = this.islands_all.count
 
 			for verts_island in this.islands_all where (verts_island * verts_processed ).isEmpty do
@@ -189,6 +189,7 @@ struct VertIslandFinder_v
 		--
 		--join this.islands_all islands_in_layer
 
+		merged_islands	= #()
 
 		layer_verts_processed	= #{}
 
@@ -225,6 +226,8 @@ struct VertIslandFinder_v
 				this.islands_all[i] += verts_of_faces
 
 				islands_all_sliced[i] += verts_of_faces_sliced
+
+				append merged_islands i
 			)
 
 			if not merged then
@@ -249,36 +252,56 @@ struct VertIslandFinder_v
 			vert = (this.verts_of_new_faces as Array )[1] -- get any next vert from layer
 		)
 
-		--gc light:true
+		merged_islands --return
 	),
 
 	/** Merge islands
 	 */
-	function _mergeIslands =
+	function _mergeIslands island_indexes =
 	(
 		--format "\n"; print "VertIslandFinder_v._mergeIslands()"
 
-		for x = this.islands_all.count to 1 by -1 do
+		sort island_indexes
+
+		first_island = island_indexes[1]
+
+		island_indexes = deleteItem island_indexes 1
+		--format "island_indexes: %\n" island_indexes
+
+		indexes_reversed = for i = island_indexes.count to 2 by -1 collect island_indexes[i]
+
+		for island_to_merge in indexes_reversed where (this.islands_all[first_island] * this.islands_all[island_to_merge]).numberSet > 1 do
+		--for island_to_merge in deleteItem island_indexes 1 do
 		(
-			merged = false
+			--format "island_to_merge: %\n" island_to_merge
+			this.islands_all[first_island] += this.islands_all[island_to_merge]
 
-			bitarrays_x_sliced = this.islands_all[x] - verts_above
-
-			for y = this.islands_all.count to 1 by -1 where x != y do -- "not ( this.islands_all[x] * this.islands_all[y] ).isEmpty" WILL CONNECT FACES WHICH SHARE SIGNLGE VERTEX - IT IS NOT ACCURATE
-			(
-				bitarrays_y_sliced = this.islands_all[y] - verts_above
-
-				if ( bitarrays_x_sliced * bitarrays_y_sliced ).numberSet > 1 then
-				(
-					this.islands_all[y] += this.islands_all[x]
-
-					merged = true
-				)
-			)
-
-			if merged then
-				deleteItem this.islands_all x
+			deleteItem islands_all island_to_merge
 		)
+
+
+
+		--for x = this.islands_all.count to 1 by -1 do
+		--(
+		--	merged = false
+		--
+		--	bitarrays_x_sliced = this.islands_all[x] - verts_above
+		--
+		--	for y = this.islands_all.count to 1 by -1 where x != y do -- "not ( this.islands_all[x] * this.islands_all[y] ).isEmpty" WILL CONNECT FACES WHICH SHARE SIGNLGE VERTEX - IT IS NOT ACCURATE
+		--	(
+		--		bitarrays_y_sliced = this.islands_all[y] - verts_above
+		--
+		--		if ( bitarrays_x_sliced * bitarrays_y_sliced ).numberSet > 1 then
+		--		(
+		--			this.islands_all[y] += this.islands_all[x]
+		--
+		--			merged = true
+		--		)
+		--	)
+		--
+		--	if merged then
+		--		deleteItem this.islands_all x
+		--)
 
 		--islands_all_sliced = for i = 1 to this.islands_all.count collect this.islands_all[i] - verts_above
 		--

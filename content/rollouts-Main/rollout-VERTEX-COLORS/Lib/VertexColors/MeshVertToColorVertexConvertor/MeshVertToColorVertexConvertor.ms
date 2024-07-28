@@ -30,7 +30,7 @@ struct MeshVertToColorVertexConvertor_v
 	 */
 	function meshVertsToMapVerts verts flat:false =
 	(
-		--format "\n"; print "MeshVertToColorVertexConvertor_v.meshVertsToMapVerts()"
+		format "\n"; print "MeshVertToColorVertexConvertor_v.meshVertsToMapVerts()"
 
 		obj_mesh = obj.mesh
 
@@ -78,15 +78,20 @@ struct MeshVertToColorVertexConvertor_v
 
 
 		--CPV_verts_all = deepCopy verts
-		CPV_verts_all = #()
-		CPV_verts_all[verts.count] = undefined --initialize a 100 elements array in memory
-
+		--CPV_verts_all = #()
+		--CPV_verts_all[verts.count] = undefined --initialize a 100 elements array in memory
+		CPV_verts_all = verts as Array
+		
+		format "verts: %\n" verts
+		format "CPV_verts_all: %\n" CPV_verts_all
 		/*------ GET CPV VERTS ------*/
 		for i = 1 to verts.count do
 		(
 			vert = verts[i]
+			format "vert: %\n" vert
 
 			faces =  ( meshop.getFacesUsingVert obj_mesh vert ) as Array
+			format "faces: %\n" faces
 
 			if not get_single_vert then
 				CPV_verts_all[i] = for face_id in faces collect getMapVertFromFace(vert)(face_id)
@@ -94,6 +99,7 @@ struct MeshVertToColorVertexConvertor_v
 			else
 				CPV_verts_all[i] = getMapVertFromFace(vert)(faces[1])
 		)
+		format "CPV_verts_all: %\n" CPV_verts_all
 
 		/*------ FLATTERN RESULT ARRAY ------*/
 		if flat and not get_single_vert then
@@ -108,7 +114,7 @@ struct MeshVertToColorVertexConvertor_v
 	 */
 	function mapVertsToMeshVerts map_verts =
 	(
-		--format "\n"; print "MeshVertToColorVertexConvertor_v.mapVertsToMeshVerts()"
+		format "\n"; print "MeshVertToColorVertexConvertor_v.mapVertsToMeshVerts()"
 
 		if classOf map_verts == Array then map_verts = map_verts as BitArray
 

@@ -534,7 +534,7 @@ struct SupportObject_v
 			pos
 		)
 		--format "bar_bbox: %\n" bar_bbox
-
+		--intersectRayScene
 		for pos in bar_bbox do
 			if ( hit = intersectRay source_obj ( Ray pos direction) ) != undefined then
 				hit_result = copy hit

@@ -105,8 +105,8 @@ struct VertSelector_v
 	 */
 	function findIslandsPerLayer =
 	(
-		format "\n"; print "VertSelector_v.findIslandsPerLayer_timer()"
-		format "VertexLayers: %\n" VertexLayers
+		--format "\n"; print "VertSelector_v.findIslandsPerLayer_timer()"
+		--format "VertexLayers: %\n" VertexLayers
 		--format "findIslandsPerLayer_timer: % ms\n" (( timeStamp()) - findIslandsPerLayer_timer)
 		VertexLayers.findVertsOfNewIslands()
 
@@ -123,7 +123,22 @@ struct VertSelector_v
 	 */
 	function selectSingleVertPerFaceIsland sel:true =
 	(
-		format "\n"; print "VertSelector_v.selectSingleVertPerFaceIsland()"
+		--format "\n"; print "VertSelector_v.selectSingleVertPerFaceIsland()"
+		/**  Left only single lowest vert of verts
+		  *   Verts above are removed from selection
+		 */
+		function _filterOnlyMinZVerts verts =
+		(
+			/* VERTS CAN BE UNDEFINED IF CELL IS EMPTY */
+			if verts.numberSet > 0 then
+			(
+				if ( lowest_vert = this._getLowestVertOnZaxis(verts) ) != undefined then
+					this.sel_modified[lowest_vert] = true
+				else
+					this.sel_modified[(verts as Array )[1] ] = true
+			)
+
+		)
 
 		--data_verts = MeshDataGetter.getVertexData verts:#SELECTED positions:true
 		verts_sel	= getVertSelection obj.mesh
@@ -143,9 +158,17 @@ struct VertSelector_v
 		/* LOOP EACH ISLAND OF VERTS */
 		for verts_island in (verts_islands = this._sortVertsByIslands()) do
 		(
+			--format "\n"
 			--format "VERTS_ISLAND: %\n" verts_island
+			--format "ISLAND SEL: %\n" (verts_island *  verts_sel )
 
-			this._filterOnlyMinZVerts (verts_island *  verts_sel )
+			--this.sel_modified +=  (verts_island *  verts_sel )
+
+			this.sel_modified[( (verts_island *  verts_sel ) as Array )[1]] = true
+
+
+			--_filterOnlyMinZVerts ( verts_island *  verts_sel )
+			--_filterOnlyMinZVerts ( verts_island )
 		)
 		--gc()
 
@@ -160,9 +183,10 @@ struct VertSelector_v
 	 */
 	function _sortVertsByIslands =
 	(
-		format "\n"; print "VertSelector_v._sortVertsByIslands()"
+		--format "\n"; print "VertSelector_v._sortVertsByIslands()"
 
 		function facesShareVerts verts1 verts2 = not ( verts1 * verts2 ).isEmpty
+		--function facesShareVerts verts1 verts2 = ( verts1 * verts2 ).numberSet > 1
 
 		tested_pairs	= #{} -- store stringified array of face id used in loop already
 		verts_islands	= #() -- #( #{ veret_ids } ) array of bitarrays of verts sorted by island the occupy
@@ -173,34 +197,54 @@ struct VertSelector_v
 
 		faces_by_verts = ( polyop.getFacesUsingVert obj verts_sel ) as Array
 
-		verts_per_faces = for face_id in faces_by_verts collect polyop.getVertsUsingFace obj #{face_id}
+		verts_per_faces = for f in faces_by_verts collect polyop.getVertsUsingFace obj #{f}
 
-		timer_start = timeStamp()
+
 
 		for f = 1 to faces_by_verts.count do
 		(
-			face_joined = true
+			--format "f: %\n" f
+			joined = #()
 
-			for i = 1 to verts_islands.count do
-				if facesShareVerts (verts_islands[i]) (verts_per_faces[f]) then
+			for i = 1 to verts_islands.count where facesShareVerts (verts_islands[i]) (verts_per_faces[f]) do
 				(
-					verts_islands[i] +=  verts_per_faces[f]
+					verts_islands[i] += verts_per_faces[f]
 
-					/* CURENTLY NOT NEEDED, GET FACE IDS BY ISLAND */
-					--append face_islands[i] faces_by_verts[f]
-
-					face_joined = false
+					append joined i
 				)
 
-			if face_joined then
+			if joined.count > 1 then
 			(
-					/* CURENTLY NOT NEEDED, GET FACE IDS BY ISLAND */
-				--append face_islands #(faces_by_verts[f])
+				--format "joined: %\n" joined
+				sort joined
 
+				first_island = joined[1]
+
+				joined = deleteItem joined 1
+				--format "joined: %\n" joined
+
+				islands_reversed = for i = joined.count to 2 by -1 collect joined[i]
+
+				for island_to_merge in islands_reversed where (verts_islands[first_island] * verts_islands[island_to_merge]).numberSet > 1 do
+				--for island_to_merge in deleteItem joined 1 do
+				(
+					--format "island_to_merge: %\n" island_to_merge
+					verts_islands[first_island] += verts_islands[island_to_merge]
+
+					deleteItem verts_islands island_to_merge
+				)
+
+
+			)
+			else if joined.count == 0 then
+			(
 				append verts_islands verts_per_faces[f]
+
+				--format "verts_islands: %\n" verts_islands.count
 			)
 
 		)
+
 
 		verts_islands --return
 	),
@@ -209,7 +253,7 @@ struct VertSelector_v
 	-- */
 	--function selectVerts subobject:#VERTEX =
 	--(
-	--	format "\n"; print "VertSelector_v.selectVerts()"
+	--	--format "\n"; print "VertSelector_v.selectVerts()"
 	--	--format "verts: %\n" verts
 	--
 	--	max modify mode
@@ -282,24 +326,24 @@ struct VertSelector_v
 		--face_elements --return
 	),
 
-	/**  Left only single lowest vert of verts
-	  *   Verts above are removed from selection
-	 */
-	function _filterOnlyMinZVerts verts =
-	(
-		--format "\n"; print "VertexGridGetter_v._SelectOnlyMinZVerts()"
-		--format "verts: %\n" verts
-
-		/* VERTS CAN BE UNDEFINED IF CELL IS EMPTY */
-		if verts.numberSet > 0 and ( lowest_vert = this._getLowestVertOnZaxis(verts) ) != undefined then
-			this.sel_modified[lowest_vert] = true
-
-		lowest_vert --return
-
-		/* REMOVE OTHER VERTS FROM SELECTION */
-		--for vert in verts_to_remove do
-			--this.sel_modified[vert] = false
-	),
+	--/**  Left only single lowest vert of verts
+	--  *   Verts above are removed from selection
+	-- */
+	--function _filterOnlyMinZVerts verts =
+	--(
+	--	--format "\n"; print "VertexGridGetter_v._SelectOnlyMinZVerts()"
+	--	--format "verts: %\n" verts
+	--
+	--	/* VERTS CAN BE UNDEFINED IF CELL IS EMPTY */
+	--	if verts.numberSet > 0 and ( lowest_vert = this._getLowestVertOnZaxis(verts) ) != undefined then
+	--		this.sel_modified[lowest_vert] = true
+	--
+	--	lowest_vert --return
+	--
+	--	/* REMOVE OTHER VERTS FROM SELECTION */
+	--	--for vert in verts_to_remove do
+	--		--this.sel_modified[vert] = false
+	--),
 
 	/** Get vert with min z pos
 	  *
@@ -307,13 +351,14 @@ struct VertSelector_v
 	 */
 	function _getLowestVertOnZaxis verts =
 	(
-		--format "\n"; print "VertexGridGetter_v._getLowestVertOnZaxis()"
+		format "\n"; print "VertexGridGetter_v._getLowestVertOnZaxis()"
 		verts_arr = verts as Array
 
 		/* GET LOWEST POINT IN CELL */
 		if verts_arr.count > 1 then
 		(
 			z_positions = for vert in verts collect verts_pos[vert].z
+			format "Z_POSITIONS: %\n" z_positions
 			--z_positions = for pos in (meshop.getVerts obj.mesh verts node:obj) collect pos.z
 
 			if ( index = findItem z_positions (amin z_positions) ) > 0 then
@@ -339,7 +384,7 @@ struct VertSelector_v
 	 */
 	function _setVertsPositions verts =
 	(
-		--format "\n"; print "SourceObject_v._setVertsPositions()"
+		format "\n"; print "SourceObject_v._setVertsPositions()"
 		--format "verts_process: %\n" verts_process
 		--format "verts: %\n" verts
 		--format "verts.numberSet: %\n" verts.numberSet

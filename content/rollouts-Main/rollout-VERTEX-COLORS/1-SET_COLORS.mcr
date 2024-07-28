@@ -5,7 +5,7 @@ filein( getFilenamePath(getSourceFileName()) + "/../../../../MAXSCRIPT-UI-framew
 
 global VERTEX_COLOR_PARAM
 
-global COLOR_BLUE = ( color 0 135 255 )
+global COLOR_NAMES = Dictionary #( #BLUE, color 0 135 255 ) #(#PINK, color 225 88 199 ) -- KEY:#COLOR_NAME VALUE:color value
 
 /** Call vertex color submenu
   *
@@ -49,8 +49,9 @@ function openVertexColorSubmenu method =
 
 	Menu.item "&RED"	( call_fn + "red"	)
 	Menu.item "&GREEN"	( call_fn + "green"	)
-	Menu.item "&BLUE"	( call_fn + " " + COLOR_BLUE as string	)
+	Menu.item "&BLUE"	( call_fn + " " + COLOR_NAMES[#BLUE] as string	)
 	Menu.item "&ORANGE"	( call_fn + "orange"	)
+	Menu.item "&PINK"	( call_fn + " " + COLOR_NAMES[#PINK] as string	)
 	Menu.item "&WHITE"	( call_fn + "white"	)
 
 
@@ -98,7 +99,7 @@ macroscript	epoly_vertex_color_set_by_last_color
 category:	"_Epoly-Vertex-Color"
 buttonText:	"SET"
 toolTip:	"Set vertex color to selected vertex.\n\nVertex can be selected in modifiers like:\nEdit Poly|Poly Select\n\nLMB: Green\nCTRL:#RED"
-icon:	"across:6|width:56|MENU:&Color Set|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY:\\n1) Try clean mesh, weld verts and close borders"
+icon:	"across:7|width:56|MENU:&Color Set|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY:\\n1) Try clean mesh, weld verts and close borders"
 (
 	on isVisible return subObjectLevel != 0
 
@@ -106,7 +107,7 @@ icon:	"across:6|width:56|MENU:&Color Set|tooltip:\n\n----------------------\n\nF
 	undo "Set Vertex Color" on
 	(
 		--clearListener(); print("Cleared in:\n"+getSourceFileName())
-		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-VERTEX COLORS\1-VERTEX COLOR.mcr"
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-VERTEX COLOR_NAMES\1-VERTEX COLOR.mcr"
 
 		if (vertex_sel = getVertSelection obj.mesh).numberSet > 0 then
 		(
@@ -180,7 +181,7 @@ icon:	"MENU:Set &BLUE"
 	on isVisible return subObjectLevel != 0
 
 	on execute do
-		callMethodByVertexColor #SET COLOR_BLUE
+		callMethodByVertexColor #SET COLOR_NAMES[#BLUE]
 )
 
 /**
@@ -196,6 +197,20 @@ icon:	"MENU:Set &ORANGE"
 
 	on execute do
 		callMethodByVertexColor #SET orange
+)
+/**
+  *
+  */
+macroscript	epoly_vertex_color_set_pink
+category:	"_Epoly-Vertex-Color"
+buttonText:	"PINK"
+toolTip:	""
+icon:	"MENU:Set &PINK"
+(
+	on isVisible return subObjectLevel != 0
+
+	on execute do
+		callMethodByVertexColor #SET COLOR_NAMES[#PINK]
 )
 /**
   *

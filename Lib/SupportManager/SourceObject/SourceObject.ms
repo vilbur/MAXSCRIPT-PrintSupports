@@ -61,7 +61,8 @@ struct SourceObject_v
 		verts_process =  if verts_sel.numberSet > 0 then verts_sel else colored_verts
 		--verts_process -= supports_exists -- remove verts which supports exists aleready
 
-		this._setLocalVertexNormals(verts_process)
+		--if normals_local == undefined then
+			this._setLocalVertexNormals(verts_process)
 
 		this._setWorldSpaceVertexNormals(verts_process)
 		--format "VERTS_PROCESS A: %\n" verts_process
@@ -234,7 +235,7 @@ struct SourceObject_v
 	 */
 	function initObjectsFromScene =
 	(
-		--format "\n"; print "SourceObject_v.initObjectsFromScene()"
+		format "\n"; print "SourceObject_v.initObjectsFromScene()"
 		--this._loadSupportsAndRaftsFromScene()
 --
 		verts_process = Supports.keys as BitArray
@@ -243,7 +244,7 @@ struct SourceObject_v
 		(
 			normals_local = normals_local_loaded
 
-			--format "normals_local_loaded: %\n" normals_local_loaded
+			format "NORMALS_LOCAL_LOADED: %\n" normals_local_loaded
 		)
 		else
 			this._setLocalVertexNormals(verts_process)
@@ -280,9 +281,12 @@ struct SourceObject_v
 
 		for face_of_vert in faces_of_verts do
 		(
-			format "face_of_vert: %\n" face_of_vert
+			--format "face_of_vert: %\n" face_of_vert
 			face_verts = getFace	obj_mesh face_of_vert
 			face_normal = getFaceNormal	obj_mesh face_of_vert
+			--
+			--for vert in face_verts * verts do
+			--	vertex_normals[vert] += face_normal
 
 			normals_local[face_verts.x] += face_normal
 			normals_local[face_verts.y] += face_normal
@@ -314,11 +318,12 @@ struct SourceObject_v
 	 */
 	function _getVertsPositions verts =
 	(
-		--format "\n"; print "SourceObject_v._getVertsPositions()"
+		format "\n"; print "SourceObject_v._getVertsPositions()"
+		format "obj: %\n" obj
 		--format "verts_process: %\n" verts_process
 		--format "verts: %\n" verts
 		--format "verts.numberSet: %\n" verts.numberSet
-
+		timer__getVertsPositions = timeStamp()
 		if verts_pos == undefined then
 			this.verts_pos = all_verts as Array
 
@@ -333,6 +338,7 @@ struct SourceObject_v
 			verts_pos[vert] = verts_process_pos[i]
 		)
 
+		format "_getVertsPositions: % ms\n" (( timeStamp()) - timer__getVertsPositions)
 
 		verts_pos --return
 

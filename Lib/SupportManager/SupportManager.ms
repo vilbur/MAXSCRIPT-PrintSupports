@@ -10,6 +10,7 @@ filein( getFilenamePath(getSourceFileName()) + "/onEvents/onBeamDeletedCallback/
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onEvents/onSupportTransformCallback/onSupportTransformCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSourceObjectTransform/onSourceObjectTransform.ms" )	--"./onEvents/onSourceObjectTransform/onSourceObjectTransform.ms"
 
+filein( getFilenamePath(getSourceFileName()) + "/../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-PINS/Lib/PinsGenerator.ms" )	--"./../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-PINS/Lib/PinsGenerator.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/../SupportOptions/SupportOptions.ms" )	--"./../SupportOptions/SupportOptions.ms"
 
@@ -617,7 +618,7 @@ struct SupportManager_v
 			format "source_keys: %\n" source_keys
 
 			--source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
-			objects_to_process = for key in makeUniqueArray (source_keys + sync_keys_of_objs) collect SourceObjects[key].obj
+			objects_to_process = for key in makeUniqueArray (source_keys + sync_keys_of_objs) where SourceObjects[key] != undefined collect SourceObjects[key].obj
 		)
 
 		else if source_keys.count > 0 then
@@ -639,6 +640,8 @@ struct SupportManager_v
 		else if supports.count > 0 then
 		(
 			/* GET BEAMS OF SOURCE OBJECT */
+			format "hierarchy: %\n" hierarchy
+			format "type == #BEAM: %\n" (type == #BEAM)
 
 			if hierarchy or type == #BEAM  then
 				for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
@@ -785,42 +788,42 @@ struct SupportManager_v
 	),
 
 
-	/** Get verts normals
-	 */
-	function _getVertsNormals =
-	(
-		--format "\n"; print "MeshDataGetter_v._getVertsNormals()"
-		obj_mesh = obj.mesh
-
-		vertex_normals = #{1..obj.numverts} as Array
-
-		for i = 1 to verts_data[#VERTS].count do
-			vertex_normals[i] = point3 0 0 0
-
-		verts_process = verts_data[#VERTS]
-
-		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts_process
-
-		for face_of_vert in faces_of_verts do
-		(
-			--face_verts = getFace obj_mesh face_of_vert
-			--face_normal = getFaceNormal obj_mesh face_of_vert
-			--
-			--
-			--vertex_normals[face_verts.x] += face_normal
-			--vertex_normals[face_verts.y] += face_normal
-			--vertex_normals[face_verts.z] += face_normal
-
-			face_verts = getFace obj_mesh face_of_vert
-			face_normal = getFaceNormal obj_mesh face_of_vert
-
-			for vert in face_verts * verts_process do
-				vertex_normals[vert] += face_normal
-
-		)
-
-		for vert in verts_data[#VERTS] collect normalize vertex_normals[vert]
-	),
+	--/** Get verts normals
+	-- */
+	--function _getVertsNormals =
+	--(
+	--	--format "\n"; print "MeshDataGetter_v._getVertsNormals()"
+	--	obj_mesh = obj.mesh
+	--
+	--	vertex_normals = #{1..obj.numverts} as Array
+	--
+	--	for i = 1 to verts_data[#VERTS].count do
+	--		vertex_normals[i] = point3 0 0 0
+	--
+	--	verts_process = verts_data[#VERTS]
+	--
+	--	faces_of_verts = meshop.getFacesUsingVert obj_mesh verts_process
+	--
+	--	for face_of_vert in faces_of_verts do
+	--	(
+	--		--face_verts = getFace obj_mesh face_of_vert
+	--		--face_normal = getFaceNormal obj_mesh face_of_vert
+	--		--
+	--		--
+	--		--vertex_normals[face_verts.x] += face_normal
+	--		--vertex_normals[face_verts.y] += face_normal
+	--		--vertex_normals[face_verts.z] += face_normal
+	--
+	--		face_verts = getFace obj_mesh face_of_vert
+	--		face_normal = getFaceNormal obj_mesh face_of_vert
+	--
+	--		for vert in face_verts * verts_process do
+	--			vertex_normals[vert] += face_normal
+	--
+	--	)
+	--
+	--	for vert in verts_data[#VERTS] collect normalize vertex_normals[vert]
+	--),
 
 	--/** Get existing support and rafts
 	-- */
@@ -899,11 +902,14 @@ struct SupportManager_v
 				sync_key = getUserPropVal obj_in_scene "SYNC_KEY"
 				--is_raft	 = getUserPropVal obj_in_scene "IS_RAFT"
 
-				SupportObject = SupportObject_v source_obj:SourceObjects[sync_key].obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key obj_type:obj_type
+				if ( SourceObjects[sync_key] ) != undefined then
+				(
+					SupportObject = SupportObject_v source_obj:SourceObjects[sync_key].obj support_obj:obj_in_scene support_key:support_key sync_key:sync_key obj_type:obj_type
 
-				SupportObjects[SupportObject.support_key] = SupportObject
+					SupportObjects[SupportObject.support_key] = SupportObject
 
-				SourceObjects[sync_key].Supports[index] = SupportObject
+					SourceObjects[sync_key].Supports[index] = SupportObject
+				)
 			)
 
 		for SourceObjectData in SourceObjects do

@@ -15,6 +15,8 @@ function selectHideUnhideSupports type: state: =
 	nodes = SUPPORT_MANAGER.getObjectsByType _objects type:type hierarchy:shift
 
 	source_objects = SUPPORT_MANAGER.getObjectsByType _objects type:#SOURCE
+	format "SOURCE_OBJECTS: %\n" source_objects
+	--select source_objects
 
 	source_objects_selected = for source_object in source_objects where source_object.isSelected collect source_object
 

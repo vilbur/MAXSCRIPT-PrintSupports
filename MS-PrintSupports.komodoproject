@@ -3,6 +3,8 @@
 <project id="d1b807d7-900d-4aec-93be-8641730fb7ab" kpf_version="5" name="MS-PrintSupports.komodoproject">
 <livefolder id="0b61d20f-b37d-4b56-96dc-bd2bcd8540f7" idref="d1b807d7-900d-4aec-93be-8641730fb7ab" name="rollout-SUPPORTS" url="content/rollouts-Main/rollout-SUPPORTS/">
 </livefolder>
+<livefolder id="194ac9aa-5a8c-4e58-a48f-8618f715dd2c" idref="d1b807d7-900d-4aec-93be-8641730fb7ab" name="rollout-PINS" url="content/rollouts-Main/rollout-PINS/">
+</livefolder>
 <livefolder id="6e28a3cc-0025-47cf-bc57-efb0ca0056da" idref="d1b807d7-900d-4aec-93be-8641730fb7ab" name="rollouts-Main" url="content/rollouts-Main/">
 </livefolder>
 <livefolder id="7d5a7047-ae9d-4137-858a-3d04d09ca224" idref="d1b807d7-900d-4aec-93be-8641730fb7ab" name="Lib" url="Lib/">

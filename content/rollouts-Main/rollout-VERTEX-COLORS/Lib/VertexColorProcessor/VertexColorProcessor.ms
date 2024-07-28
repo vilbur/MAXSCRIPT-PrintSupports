@@ -65,7 +65,7 @@ struct VertexColorProcessor_v
 		VertexColors.MeshVertToColorVertexConvert.get_single_vert = true
 
 		verts_base = this._getBaseObjectVerts(verts)
-		--format "VERTS_BASE: %\n" verts_base
+		format "VERTS_BASE: %\n" verts_base
 
 		start_map_verts = timeStamp()
 		--format "start_map_verts()\n"
@@ -261,23 +261,27 @@ struct VertexColorProcessor_v
 	 */
 	function _getBaseObjectVerts verts =
 	(
-		--format "\n"; print ".getBaseObjectVerts ()"
+		format "\n"; print ".getBaseObjectVerts()"
+		format "verts: %\n" verts
+		format "classof curr_mod: %\n" (classof curr_mod)
 
 		if classof curr_mod != Editable_Poly then
 		(
 			verts_baseobject = #()
 
 			verts_mesh_all	= #{1..( getNumVerts obj.mesh  )} as Array
-			verts_base_all	= #{1..( polyop.getNumVerts obj)} as Array
+			verts_base_all	= #{1..( polyop.getNumVerts obj.baseobject)} as Array
 
 			verts_pos_baseobjects = polyop.getVerts obj.baseobject verts_base_all --node:obj
 			--verts_pos_baseobjects = in coordsys world (for vert_pos in verts_pos_baseobjects collect round(vert_pos) 3)
 
+			--format "verts_pos_baseobjects[10203]: %\n" verts_pos_baseobjects[10203]
 			--format "VERTS_POS_BASEOBJECTS: %\n" verts_pos_baseobjects
 
 			if verts.count > 0 then
 			(
 				verts_sel_pos  = for vert in verts collect getVert obj.mesh vert
+				--format "verts_sel_pos: %\n" verts_sel_pos
 				--verts_sel_pos  = for vert in verts collect round (getVert obj.mesh vert) 3
 
 				for vert_pos in verts_sel_pos where (index = findItem verts_pos_baseobjects (vert_pos)) > 0 do
