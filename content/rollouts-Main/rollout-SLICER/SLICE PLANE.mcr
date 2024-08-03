@@ -24,9 +24,9 @@ icon:	"across:2|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 (
 	on execute do
 		(
-			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-SLICER\SLICE PLANE.mcr"
-			format "EventFired	= % \n" EventFired
+			--clearListener(); print("Cleared in:\n"+getSourceFileName())
+			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-SLICER\SLICE PLANE.mcr"
+			--format "EventFired	= % \n" EventFired
 
 			/* DEVELOP: KILL SLICE DIALOG */
 			try(
@@ -48,13 +48,15 @@ icon:	"across:2|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 				setModContextTM obj slice_mod mod_TM
 			)
 
-			slice_modes = Dictionary #( #SLICE_PLANE_TOP, ROLLOUT_slicer.CBX_slice_top.state ) #( #SLICE_PLANE_BOTTOM, ROLLOUT_slicer.CBX_slice_bottom.state )
+			/* CHOOSE SLICE TOP OR BOTTOM, UNUSED CURENTLY
+				slice_modes = Dictionary #( #SLICE_PLANE_TOP, ROLLOUT_slicer.CBX_slice_top.state ) #( #SLICE_PLANE_BOTTOM, ROLLOUT_slicer.CBX_slice_bottom.state )
+
+				if not (slice_modes[ #SLICE_PLANE_TOP ]and slice_modes[ #SLICE_PLANE_BOTTOM ])  then
+					slice_modes[ #SLICE_PLANE_TOP ] = true
+			*/
 
 
-
-			/* SET DETAFULT SLICE TOP IF NOTHINK SET */
-			if not (slice_modes[ #SLICE_PLANE_TOP ]and slice_modes[ #SLICE_PLANE_BOTTOM ])  then
-				slice_modes[ #SLICE_PLANE_TOP ] = true
+			slice_modes = Dictionary #( #SLICE_PLANE_TOP, true ) #( #SLICE_PLANE_BOTTOM, false )
 
 			for slice_mode_data in slice_modes where slice_mode_data.value do
 			(
@@ -195,81 +197,81 @@ icon:	"across:2|height:32"
 	CHECKBOXES
 
 --------------------------------------------------------------------------------*/
-/**
-  *
-  */
-macroscript	_print_slice_select_volume
-category:	"_3D-Print"
-buttontext:	"Select"
-tooltip:	"Select verts in sliced layer"
-icon:	"control:checkbox|id:#CBX_slice_select_plane|autorun:false|across:4|height:32|offset:[ 26, 0 ]"
-(
-	on execute do
-		(
-			format "EventFired	= % \n" EventFired
-			if EventFired.val then
-				updateSlicePlaneSystem(undefined)
-
-			else
-				for obj in objects where ( _modifier = obj.modifiers[#SELECT_BY_PRINT_LAYER] ) != undefined do
-					deleteModifier obj _modifier
-		)
-)
-
-/**
-  *
-  */
-macroscript	_print_slice_plane_top
-category:	"_3D-Print"
-buttontext:	"Slice Top"
-tooltip:	"Slice plane top"
-icon:	"control:checkbox|autorun:false|across:4|height:32|offset:[ 10, 0 ]"
-(
-	on execute do
-	(
-		format "EventFired	= % \n" EventFired
-
-		if EventFired.val then
-			updateSlicePlaneSystem(undefined)
-
-		else
-			for obj in objects where ( _modifier = obj.modifiers[#SLICE_PLANE_TOP] ) != undefined do
-				deleteModifier obj _modifier
-	)
-)
-
-
-/**
-  *
-  */
-macroscript	_print_slice_plane_bottom
-category:	"_3D-Print"
-buttontext:	"Slice Bottom"
-tooltip:	"Slice plane bottom"
-icon:	"control:checkbox|autorun:false|across:4|height:32|offset:[ 4, 0 ]"
-(
-	on execute do
-	(
-		format "EventFired	= % \n" EventFired
-
-		if EventFired.val then
-		updateSlicePlaneSystem(undefined)
-
-		else
-			for obj in objects where ( _modifier = obj.modifiers[#SLICE_PLANE_BOTTOM] ) != undefined do
-				deleteModifier obj _modifier
-	)
-)
-
-/**
-  *
-  */
-macroscript	_print_slice_plane_cap
-category:	"_3D-Print"
-buttontext:	"Cap Slice"
-tooltip:	"Cap Slice plane"
-icon:	"control:checkbox|autorun:false|across:4|height:32|offset:[ 12, 0 ]"
-(
-	on execute do
-		updateSlicePlaneSystem(undefined)
-)
+--/**
+--  *
+--  */
+--macroscript	_print_slice_select_volume
+--category:	"_3D-Print"
+--buttontext:	"Select"
+--tooltip:	"Select verts in sliced layer"
+--icon:	"control:checkbox|id:#CBX_slice_select_plane|autorun:false|across:4|height:32|offset:[ 26, 0 ]"
+--(
+--	on execute do
+--		(
+--			format "EventFired	= % \n" EventFired
+--			if EventFired.val then
+--				updateSlicePlaneSystem(undefined)
+--
+--			else
+--				for obj in objects where ( _modifier = obj.modifiers[#SELECT_BY_PRINT_LAYER] ) != undefined do
+--					deleteModifier obj _modifier
+--		)
+--)
+--
+--/**
+--  *
+--  */
+--macroscript	_print_slice_plane_top
+--category:	"_3D-Print"
+--buttontext:	"Slice Top"
+--tooltip:	"Slice plane top"
+--icon:	"control:checkbox|autorun:false|across:4|height:32|offset:[ 10, 0 ]"
+--(
+--	on execute do
+--	(
+--		format "EventFired	= % \n" EventFired
+--
+--		if EventFired.val then
+--			updateSlicePlaneSystem(undefined)
+--
+--		else
+--			for obj in objects where ( _modifier = obj.modifiers[#SLICE_PLANE_TOP] ) != undefined do
+--				deleteModifier obj _modifier
+--	)
+--)
+--
+--
+--/**
+--  *
+--  */
+--macroscript	_print_slice_plane_bottom
+--category:	"_3D-Print"
+--buttontext:	"Slice Bottom"
+--tooltip:	"Slice plane bottom"
+--icon:	"control:checkbox|autorun:false|across:4|height:32|offset:[ 4, 0 ]"
+--(
+--	on execute do
+--	(
+--		format "EventFired	= % \n" EventFired
+--
+--		if EventFired.val then
+--		updateSlicePlaneSystem(undefined)
+--
+--		else
+--			for obj in objects where ( _modifier = obj.modifiers[#SLICE_PLANE_BOTTOM] ) != undefined do
+--				deleteModifier obj _modifier
+--	)
+--)
+--
+--/**
+--  *
+--  */
+--macroscript	_print_slice_plane_cap
+--category:	"_3D-Print"
+--buttontext:	"Cap Slice"
+--tooltip:	"Cap Slice plane"
+--icon:	"control:checkbox|autorun:false|across:4|height:32|offset:[ 12, 0 ]"
+--(
+--	on execute do
+--		updateSlicePlaneSystem(undefined)
+--)

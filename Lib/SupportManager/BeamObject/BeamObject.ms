@@ -36,6 +36,8 @@ struct BeamObject_v
 
 		bindBeamOnDeleteCallback( beam )
 
+		support_A.layer.addNode beam
+
 		SUPPORT_MANAGER.updateShapeAdd (this.beam)
 
 		this --return

@@ -277,6 +277,10 @@ struct SourceObject_v
 		obj_mesh = obj.mesh
 
 		faces_of_verts = meshop.getFacesUsingVert obj_mesh verts
+
+
+		format "faces_of_verts.numberSet: %\n" faces_of_verts.numberSet
+		--faces_of_verts = polyop.getFacesUsingVert obj verts
 		--format "faces_of_verts.numberSet: %\n" faces_of_verts.numberSet
 
 		for face_of_vert in faces_of_verts do

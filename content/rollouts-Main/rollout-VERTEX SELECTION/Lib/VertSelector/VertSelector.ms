@@ -39,7 +39,7 @@ struct VertSelector_v
 	--resolution = 10,
 
 	/* dependency */
-	MeshDataGetter,
+	--MeshDataGetter,
 	VertexGridGetter,
 	VertexLayers,
 
@@ -105,16 +105,29 @@ struct VertSelector_v
 	 */
 	function findIslandsPerLayer =
 	(
-		--format "\n"; print "VertSelector_v.findIslandsPerLayer_timer()"
+		format "\n"; print "VertSelector_v.findIslandsPerLayer()"
 		--format "VertexLayers: %\n" VertexLayers
-		--format "findIslandsPerLayer_timer: % ms\n" (( timeStamp()) - findIslandsPerLayer_timer)
-		VertexLayers.findVertsOfNewIslands()
 
-		new_islands_all = #{}
-		--new_islands_all = for new_island in VertexLayers.VertIslandFinder.new_islands collect new_island
-		for new_island in VertexLayers.VertIslandFinder.new_islands do new_islands_all += new_island
-		--format "new_islands_all: %\n" new_islands_all
-		new_islands_all --return
+		timer_FIND_ISLANDS = timeStamp()
+
+		VertexLayers.findVertsOfNewIslands()
+		format "FIND_ISLANDS: % ms\n" (( timeStamp()) - timer_FIND_ISLANDS)
+
+		--new_islands_all = #{}
+		--
+		--for new_island in VertexLayers.VertIslandFinder.new_islands do
+		--(
+		--	--new_islands_all += new_island
+		--
+		--	new_islands_all[this._getLowestVertOnZaxis(new_island) ] = true
+		--
+		--	format "new_island: %\n" new_island
+		--)
+		--
+		--
+		--new_islands_all --return
+
+		VertexLayers.VertIslandFinder.new_islands --return
 	),
 
 	/** Select sinlge vert per face island
@@ -123,7 +136,7 @@ struct VertSelector_v
 	 */
 	function selectSingleVertPerFaceIsland sel:true =
 	(
-		--format "\n"; print "VertSelector_v.selectSingleVertPerFaceIsland()"
+		format "\n"; print "VertSelector_v.selectSingleVertPerFaceIsland()"
 		/**  Left only single lowest vert of verts
 		  *   Verts above are removed from selection
 		 */
@@ -140,39 +153,51 @@ struct VertSelector_v
 
 		)
 
-		--data_verts = MeshDataGetter.getVertexData verts:#SELECTED positions:true
 		verts_sel	= getVertSelection obj.mesh
 
 
-		 this._setVertsPositions(verts_sel)
+		this._setVertsPositions(verts_sel)
 
 		hidden_verts = polyop.getHiddenVerts obj
 
-		------if  data_verts[#VERTS].numberSet == 0 then
-		------	return false
-
 		this.sel_modified = #{}
 
-		--this.sel_modified = copy data_verts[#VERTS]
+		verts_islands = this._sortVertsByIslands()
+
 
 		/* LOOP EACH ISLAND OF VERTS */
-		for verts_island in (verts_islands = this._sortVertsByIslands()) do
-		(
-			--format "\n"
-			--format "VERTS_ISLAND: %\n" verts_island
-			--format "ISLAND SEL: %\n" (verts_island *  verts_sel )
-
-			--this.sel_modified +=  (verts_island *  verts_sel )
-
-			this.sel_modified[( (verts_island *  verts_sel ) as Array )[1]] = true
+		for verts_island in verts_islands do
+			_filterOnlyMinZVerts ( verts_island *  verts_sel )
 
 
-			--_filterOnlyMinZVerts ( verts_island *  verts_sel )
-			--_filterOnlyMinZVerts ( verts_island )
-		)
-		--gc()
+		free verts_islands
 
 		this._selectVertsAndReturn(sel) --return
+	),
+
+	/** Get lowest verts
+	 */
+	function getLowestVerts bitarrays =
+	(
+		format "\n"; print "VertSelector_v.getLowestVerts()"
+
+		if classOf bitarrays == BitArray then
+			bitarrays = #(bitarrays)
+
+		--this._mergeBitArraysbySharedBits(bitarrays)
+
+		lowest_verts = #{}
+
+		for verts in bitarrays do
+		(
+			--format "verts: %\n" verts
+			--lowest_verts += verts
+
+			lowest_verts[this._getLowestVertOnZaxis(verts)] = true
+		)
+
+		lowest_verts --return
+
 	),
 
 	/** Get ace islands by verts
@@ -183,7 +208,7 @@ struct VertSelector_v
 	 */
 	function _sortVertsByIslands =
 	(
-		--format "\n"; print "VertSelector_v._sortVertsByIslands()"
+		format "\n"; print "VertSelector_v._sortVertsByIslands()"
 
 		function facesShareVerts verts1 verts2 = not ( verts1 * verts2 ).isEmpty
 		--function facesShareVerts verts1 verts2 = ( verts1 * verts2 ).numberSet > 1
@@ -193,25 +218,45 @@ struct VertSelector_v
 		--face_islands	= #() -- #( #{ faces_ids } ) array of bitarrays of faces sorted by island the occupy
 		verts_per_faces	= #()
 
+		--all_verts = #{1..(getNumVerts obj.mesh)}
+		empty_bitarray = #{1..(getNumVerts obj.mesh)} * #{}
+
 		verts_sel	= getVertSelection obj.mesh
 
 		faces_by_verts = ( polyop.getFacesUsingVert obj verts_sel ) as Array
 
-		verts_per_faces = for f in faces_by_verts collect polyop.getVertsUsingFace obj #{f}
+		--verts_per_faces = for f in faces_by_verts collect polyop.getVertsUsingFace obj #{f}
+		--timer_verts_of_faces = timeStamp()
+		--verts_of_faces = for f in faces_by_verts collect polyop.getVertsUsingFace obj #{f}
+		verts_of_faces = for f in faces_by_verts collect (polyop.getVertsUsingFace obj #{f}) * verts_sel
+		--format "verts_of_faces: % ms\n" (( timeStamp()) - timer_verts_of_faces)
 
+		--verts_islands = this._mergeBitArraysbySharedBits(verts_of_faces)
+		--
+		--free verts_of_faces
+		free faces_by_verts
 
-
-		for f = 1 to faces_by_verts.count do
+		verts_islands_count = verts_islands.count
+	--timer_LOOP = timeStamp()
+		--for verts_of_face in verts_of_faces do
+		for f = 1 to verts_of_faces.count do
 		(
-			--format "f: %\n" f
-			joined = #()
+			--format "******************\n"
+			--format "verts_of_face: %\n" verts_of_face
+			verts_of_face = verts_of_faces[f]
 
-			for i = 1 to verts_islands.count where facesShareVerts (verts_islands[i]) (verts_per_faces[f]) do
+			joined = #()
+			--timer_ITEM = timeStamp()
+
+			--for i = 1 to verts_islands.count where facesShareVerts (verts_islands[i]) (verts_of_face) do
+			for i = 1 to verts_islands_count while joined.count < 2 where facesShareVerts (verts_islands[i]) (verts_of_face) do
 				(
-					verts_islands[i] += verts_per_faces[f]
+					--format "i: %\n" i
+					verts_islands[i] += verts_of_face * verts_sel
 
 					append joined i
 				)
+
 
 			if joined.count > 1 then
 			(
@@ -220,33 +265,56 @@ struct VertSelector_v
 
 				first_island = joined[1]
 
-				joined = deleteItem joined 1
-				--format "joined: %\n" joined
-
-				islands_reversed = for i = joined.count to 2 by -1 collect joined[i]
-
-				for island_to_merge in islands_reversed where (verts_islands[first_island] * verts_islands[island_to_merge]).numberSet > 1 do
-				--for island_to_merge in deleteItem joined 1 do
+				for i = joined.count to 2 by -1 where (verts_islands[first_island] * verts_islands[joined[i]]).numberSet > 1 do
 				(
 					--format "island_to_merge: %\n" island_to_merge
-					verts_islands[first_island] += verts_islands[island_to_merge]
+					verts_islands[first_island] += verts_islands[joined[i]]
 
-					deleteItem verts_islands island_to_merge
+					deleteItem verts_islands joined[i]
+
+					verts_islands_count -= 1
 				)
-
 
 			)
 			else if joined.count == 0 then
 			(
-				append verts_islands verts_per_faces[f]
+				--append verts_islands ( deepCopy empty_bitarray + (verts_of_face * verts_sel) )
+				append verts_islands ( empty_bitarray + (verts_of_face * verts_sel) )
 
-				--format "verts_islands: %\n" verts_islands.count
+				verts_islands_count += 1
 			)
+				--append verts_islands (verts_of_face * verts_sel)
+				--append verts_islands ( empty_bitarray + (verts_of_face * verts_sel) )
+
+	--		free joined
+	--	--format "verts_islands.count: %\n" verts_islands.count
+	--
+		--if mod f 1500 == 0 then
+			gc light:true
+	--
+	--	--format "ITEM: % ms\n" (( timeStamp()) - timer_ITEM)
+	--	--format "ITEM: % ms\n" (( timeStamp()) - timer_ITEM)
 
 		)
-
+	--format "LOOP: % ms\n" (( timeStamp()) - timer_LOOP)
 
 		verts_islands --return
+	),
+
+	/**  Left only single lowest vert of verts
+	  *   Verts above are removed from selection
+	 */
+	function _filterOnlyMinZVerts verts =
+	(
+		/* VERTS CAN BE UNDEFINED IF CELL IS EMPTY */
+		if verts.numberSet > 0 then
+		(
+			if ( lowest_vert = this._getLowestVertOnZaxis(verts) ) != undefined then
+				this.sel_modified[lowest_vert] = true
+			else
+				this.sel_modified[(verts as Array )[1] ] = true
+		)
+
 	),
 
 	--/** Select final selection
@@ -275,9 +343,8 @@ struct VertSelector_v
 	 */
 	function setSelection sel_bitarray subobject:#VERTEX =
 	(
-		format "\n"; print "VertSelector_v.selectVerts()"
+		format "\n"; print "VertSelector_v.setSelection()"
 		--format "sel_bitarray: %\n" sel_bitarray
-
 		max modify mode
 
 		setSelectionLevel obj subobject
@@ -291,6 +358,7 @@ struct VertSelector_v
 
 		else if classOf _mod  == Editable_Poly then
 			_mod.SetSelection subobject sel_bitarray
+
 	),
 
 
@@ -351,14 +419,18 @@ struct VertSelector_v
 	 */
 	function _getLowestVertOnZaxis verts =
 	(
-		format "\n"; print "VertexGridGetter_v._getLowestVertOnZaxis()"
+		--format "\n"; print "VertSelector_v._getLowestVertOnZaxis()"
 		verts_arr = verts as Array
+
+		if verts_pos == undefined then
+			this.verts_pos = this._setVertsPositions(verts)
+
 
 		/* GET LOWEST POINT IN CELL */
 		if verts_arr.count > 1 then
 		(
 			z_positions = for vert in verts collect verts_pos[vert].z
-			format "Z_POSITIONS: %\n" z_positions
+			--format "Z_POSITIONS: %\n" z_positions
 			--z_positions = for pos in (meshop.getVerts obj.mesh verts node:obj) collect pos.z
 
 			if ( index = findItem z_positions (amin z_positions) ) > 0 then
@@ -384,30 +456,36 @@ struct VertSelector_v
 	 */
 	function _setVertsPositions verts =
 	(
-		format "\n"; print "SourceObject_v._setVertsPositions()"
+		format "\n"; print "VertSelector_v._setVertsPositions()"
 		--format "verts_process: %\n" verts_process
 		--format "verts: %\n" verts
 		--format "verts.numberSet: %\n" verts.numberSet
 		all_verts = #{1..(getNumVerts obj.mesh)}
 
-		if verts_pos == undefined then
-			this.verts_pos = all_verts as Array
-
-		verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
-		--format "verts_process_pos: %\n" verts_process_pos
-
-		for i = 1 to verts_process_pos.count do
-		(
-			vert = (verts  as Array )[i]
-			--format "vert: %\n" vert
-
-			verts_pos[vert] = verts_process_pos[i]
-		)
-
-
-		verts_pos --return
+		--if verts_pos == undefined then
+		--	this.verts_pos = all_verts as Array
+		--
+		----verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
+		--
+		--verts_process_pos = in coordsys world polyop.getVerts obj verts node:obj
+		--
+		----format "verts_process_pos: %\n" verts_process_pos
+		--
+		--for i = 1 to verts_process_pos.count do
+		--(
+		--	vert = (verts  as Array )[i]
+		--	--format "vert: %\n" vert
+		--
+		--	verts_pos[vert] = verts_process_pos[i]
+		--)
+		--
+		--
+		--verts_pos --return
 
 		--verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+		--timer__setVertsPositions = timeStamp()
+		verts_pos = in coordsys world polyop.getVerts obj all_verts node:obj
+		--format "_setVertsPositions: % ms\n" (( timeStamp()) - timer__setVertsPositions)
 
 		--verts_pos --return
 	),
@@ -416,7 +494,7 @@ struct VertSelector_v
 	 */
 	function _setObject =
 	(
-		format "\n"; print "GridLayerManager_v.setObject()"
+		format "\n"; print "VertSelector_v._setObject()"
 		format "this.obj_original: %\n" this.obj_original
 		this.obj = this.obj_original -- DEV
 
@@ -425,11 +503,38 @@ struct VertSelector_v
 		--convertTo this.obj PolyMeshObject
 	),
 
+	/** Merge bit arrays wich shared bits
+	  *
+	  * @param #( #{} ) bitarrays Array of bittarays
+	 */
+	function _mergeBitArraysbySharedBits bitarrays =
+	(
+		format "\n"; print "VertSelector_v._mergeBitArraysbySharedBits()"
+
+		for x = bitarrays.count to 1 by -1 do
+		(
+			merged = false
+
+			for y = bitarrays.count to 1 by -1 where x != y and not ( bitarrays[x] * bitarrays[y] ).isEmpty do
+			--for y = bitarrays.count to 1 by -1 where x != y and ( bitarrays[x] * bitarrays[y] ).numberSet > 1 do
+			(
+				bitarrays[y] += bitarrays[x]
+
+				merged = true
+			)
+
+			if merged then
+				deleteItem bitarrays x
+		)
+
+		bitarrays --return
+	),
+
 	/**
 	 */
 	on create do
 	(
-		format "\n"; print "VertSelector.onCreate()"
+		format "\n"; print "VertSelector_v.onCreate()"
 		print "***********************\n***********************"
 		this._setObject()
 

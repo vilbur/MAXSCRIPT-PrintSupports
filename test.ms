@@ -2,15 +2,19 @@ clearListener(); print("Cleared in:"+getSourceFileName())
 
 
 
-rollout test "Test"
-   (
-		spinner ball_radius "Ball radius" range:[0,1000,1]
 
-on ball_radius buttonup   inCancel do
---format "inSpin_arg: %\n" inSpin_arg
-format "inCancel: %\n" inCancel
+obj	= selection[1]
 
 
+verts = #{1..(getNumVerts obj.mesh)}
+--verts	= getVertSelection obj.mesh
 
-  )
-   createDialog test
+
+timer_polyop = timeStamp()
+verts_pos_polyop = in coordsys world polyop.getVerts obj verts node:obj
+format "polyop: % ms\n" (( timeStamp()) - timer_polyop)
+
+
+timer_meshop = timeStamp()
+verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
+format "meshop: % ms\n" (( timeStamp()) - timer_meshop)

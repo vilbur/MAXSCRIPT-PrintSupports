@@ -9,7 +9,13 @@
 </livefolder>
 <livefolder id="7d5a7047-ae9d-4137-858a-3d04d09ca224" idref="d1b807d7-900d-4aec-93be-8641730fb7ab" name="Lib" url="Lib/">
 </livefolder>
+<livefolder id="831255bf-345a-4601-ac7b-cf5c911a532e" idref="d1b807d7-900d-4aec-93be-8641730fb7ab" name="SupportManager" url="Lib/SupportManager/">
+</livefolder>
+<livefolder id="9f62dd37-f025-482d-9291-e6ecc0a2f005" idref="d1b807d7-900d-4aec-93be-8641730fb7ab" name="rollout-VERTEX-COLORS" url="content/rollouts-Main/rollout-VERTEX-COLORS/">
+</livefolder>
 <livefolder id="b686bd95-13c9-41d5-8e29-3c85bf7b6903" idref="d1b807d7-900d-4aec-93be-8641730fb7ab" name="rollout-SLICER" url="content/rollouts-Main/rollout-SLICER/">
+</livefolder>
+<livefolder id="c85e8889-8b82-4fe1-a2ec-b332b3388461" idref="d1b807d7-900d-4aec-93be-8641730fb7ab" name="rollout-VERTEX SELECTION" url="content/rollouts-Main/rollout-VERTEX%20SELECTION/">
 </livefolder>
 <preference-set idref="d1b807d7-900d-4aec-93be-8641730fb7ab" id="project" preftype="project">
   <long id="prefs_version">1</long>

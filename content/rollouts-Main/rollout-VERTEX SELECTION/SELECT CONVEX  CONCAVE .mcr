@@ -196,21 +196,29 @@ icon:	"tooltip:CTRL: New selection"
 	on execute do
 	(
 	--	filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-Points\3-1-2-SELECT CONVEX - CONCAVE .mcr"
-
-
-		obj	= selection[1]
-
-		VertSelector 	= VertSelector_v(obj )
-		--if subobject == #FACE then polyop.getFaceSelection obj else polyop.getVertSelection obj -- return
-
-		new_islands_all = VertSelector.findIslandsPerLayer()
-
-		--format "new_islands_all: %\n" new_islands_all
-
-		VertSelector.setSelection ( new_islands_all )
-
+		gc light:true
 		gc()
-		--elements = VertSelector.VerIslandFinder.getElementsOfFaces ( polyop.getFaceSelection obj )
+
+		undo off
+		(
+			obj	= selection[1]
+
+			VertSelector 	= VertSelector_v(obj )
+			--if subobject == #FACE then polyop.getFaceSelection obj else polyop.getVertSelection obj -- return
+
+			new_islands = VertSelector.findIslandsPerLayer()
+
+			format "islands_all COUNT: %\n" VertSelector.VertexLayers.VertIslandFinder.islands_all.count
+			format "new_islands COUNT: %\n" new_islands.count
+
+			lowest_verts = VertSelector.getLowestVerts ( new_islands )
+	format "lowest_verts: %\n" lowest_verts
+
+			VertSelector.setSelection ( lowest_verts )
+
+		)
+
+		--elements = VertSelector.VertIslandFinder.getElementsOfFaces ( polyop.getFaceSelection obj )
 		----getElementsOfFaces ( getFaceSelection obj.mesh )
 		--
 		--for element in elements do

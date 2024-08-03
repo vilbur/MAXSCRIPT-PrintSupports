@@ -42,10 +42,19 @@ function updateSlicePlaneSystem layer_index incremental:false =
 
 	layer_height	= DIALOG_content.SPIN_layer_height.value
 
-	cap_slice	= ROLLOUT_slicer.CBX_cap_slice.state
-	select_plane	= ROLLOUT_slicer.CBX_slice_select_plane.state
-	slice_top	= ROLLOUT_slicer.CBX_slice_top.state
-	slice_bottom	= ROLLOUT_slicer.CBX_slice_bottom.state
+	/* SETUP BY UI
+		cap_slice	= ROLLOUT_slicer.CBX_cap_slice.state
+		select_plane	= ROLLOUT_slicer.CBX_slice_select_plane.state
+		slice_top	= ROLLOUT_slicer.CBX_slice_top.state
+		slice_bottom	= ROLLOUT_slicer.CBX_slice_bottom.state
+	*/
+
+
+	cap_slice	= true
+	select_plane	= false
+	slice_top	= true
+	slice_bottom	= false
+
 
 	layers_count	= volume_height / layer_height
 

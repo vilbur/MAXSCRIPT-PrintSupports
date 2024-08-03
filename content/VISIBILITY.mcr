@@ -25,9 +25,11 @@ function selectHideUnhideSupports type: state: =
 
 	if type == #SOURCE and not (ctrl and shift and alt ) and source_objects.count == source_objects_selected.count then
 	(
-		nodes = for obj in _objects where findItem source_objects_selected obj == 0 collect obj
+		--nodes = for obj in _objects where findItem source_objects_selected obj == 0 collect obj
 
-		select nodes
+		--select nodes
+
+		deselect source_object_selected
 
 	)
 	else

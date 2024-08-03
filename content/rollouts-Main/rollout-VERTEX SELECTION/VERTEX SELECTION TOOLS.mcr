@@ -49,7 +49,10 @@ icon:	"MENU:true|across:4|height:24"
 		VertSelector.selectSingleVertPerFaceIsland()
 		--VertSelector.selectVerts()
 
-		gc()
+		--free VertSelector
+		--VertSelector = undefined
+
+		--gc()
 	)
 )
 

@@ -65,7 +65,7 @@ struct VertexColorProcessor_v
 		VertexColors.MeshVertToColorVertexConvert.get_single_vert = true
 
 		verts_base = this._getBaseObjectVerts(verts)
-		format "VERTS_BASE: %\n" verts_base
+		--format "VERTS_BASE: %\n" verts_base
 
 		start_map_verts = timeStamp()
 		--format "start_map_verts()\n"
@@ -261,9 +261,9 @@ struct VertexColorProcessor_v
 	 */
 	function _getBaseObjectVerts verts =
 	(
-		format "\n"; print ".getBaseObjectVerts()"
-		format "verts: %\n" verts
-		format "classof curr_mod: %\n" (classof curr_mod)
+		format "\n"; print "VertexColorProcessor_v.getBaseObjectVerts()"
+		----format "verts: %\n" verts
+		--format "classof curr_mod: %\n" (classof curr_mod)
 
 		if classof curr_mod != Editable_Poly then
 		(
