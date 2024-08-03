@@ -870,7 +870,7 @@ struct SupportManager_v
 			--format "obj_in_scene: %\n" obj_in_scene
 			SourceObject = SourceObject_v(obj_in_scene) (sync_key)
 
-			SourceObject.initObjectsFromScene()
+			--SourceObject.initObjectsFromScene()
 
 			supports = SourceObject.getSupportNodes()
 

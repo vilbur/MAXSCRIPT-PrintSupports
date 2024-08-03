@@ -134,7 +134,7 @@ struct VertSelector_v
 
 		Point with lowest position on Z
 	 */
-	function selectSingleVertPerFaceIsland sel:true =
+	function selectSingleVertPerFaceIsland make_selection:true =
 	(
 		format "\n"; print "VertSelector_v.selectSingleVertPerFaceIsland()"
 		/**  Left only single lowest vert of verts
@@ -162,17 +162,18 @@ struct VertSelector_v
 
 		this.sel_modified = #{}
 
-		verts_islands = this._sortVertsByIslands()
-
+		verts_islands = this._sortVertsByIslands(verts_sel)
+		format "verts_islands.count: %\n" verts_islands.count
+		format "verts_islands: %\n" verts_islands
 
 		/* LOOP EACH ISLAND OF VERTS */
 		for verts_island in verts_islands do
-			_filterOnlyMinZVerts ( verts_island *  verts_sel )
+			_filterOnlyMinZVerts ( verts_island  )
 
 
 		free verts_islands
 
-		this._selectVertsAndReturn(sel) --return
+		this._selectVertsAndReturn(make_selection) --return
 	),
 
 	/** Get lowest verts
@@ -206,99 +207,46 @@ struct VertSelector_v
 	  *
 	  * @return #( #{..} ) array of vertex ids, each array are verts of one island
 	 */
-	function _sortVertsByIslands =
+	function _sortVertsByIslands verts =
 	(
 		format "\n"; print "VertSelector_v._sortVertsByIslands()"
 
 		function facesShareVerts verts1 verts2 = not ( verts1 * verts2 ).isEmpty
 		--function facesShareVerts verts1 verts2 = ( verts1 * verts2 ).numberSet > 1
 
-		tested_pairs	= #{} -- store stringified array of face id used in loop already
-		verts_islands	= #() -- #( #{ veret_ids } ) array of bitarrays of verts sorted by island the occupy
-		--face_islands	= #() -- #( #{ faces_ids } ) array of bitarrays of faces sorted by island the occupy
-		verts_per_faces	= #()
+		--tested_pairs	= #{} -- store stringified array of face id used in loop already
+		--verts_islands	= #() -- #( #{ veret_ids } ) array of bitarrays of verts sorted by island the occupy
+		----face_islands	= #() -- #( #{ faces_ids } ) array of bitarrays of faces sorted by island the occupy
+		--verts_per_faces	= #()
 
 		--all_verts = #{1..(getNumVerts obj.mesh)}
-		empty_bitarray = #{1..(getNumVerts obj.mesh)} * #{}
-
-		verts_sel	= getVertSelection obj.mesh
-
-		faces_by_verts = ( polyop.getFacesUsingVert obj verts_sel ) as Array
-
-		--verts_per_faces = for f in faces_by_verts collect polyop.getVertsUsingFace obj #{f}
-		--timer_verts_of_faces = timeStamp()
-		--verts_of_faces = for f in faces_by_verts collect polyop.getVertsUsingFace obj #{f}
-		verts_of_faces = for f in faces_by_verts collect (polyop.getVertsUsingFace obj #{f}) * verts_sel
-		--format "verts_of_faces: % ms\n" (( timeStamp()) - timer_verts_of_faces)
-
-		--verts_islands = this._mergeBitArraysbySharedBits(verts_of_faces)
+		--empty_bitarray = #{1..(getNumVerts obj.mesh)} * #{}
+		--faces_by_verts = polyop.getFacesUsingVert obj verts
 		--
-		--free verts_of_faces
+		--faceverts = for f in faces_by_verts collect polyop.getVertsUsingFace obj #{f}
+		--
+		--format "faceverts: %\n" faceverts
+		--
+		--this._mergeBitArraysbySharedBits (faceverts)
+
+
+
+		faces_by_verts = for vert in verts collect polyop.getFacesUsingVert obj #{vert}
+		format "faces_by_verts: %\n" faces_by_verts
+		format "faces_by_verts.count: %\n" faces_by_verts.count
+
+		face_islands = this._mergeBitArraysbySharedBits (faces_by_verts)
+		format "face_islands: %\n" face_islands
+		format "face_islands.count: %\n" face_islands.count
+
+
+		verts_islands = for face_island in face_islands collect ( polyop.getVertsUsingFace obj face_island ) * verts
+
 		free faces_by_verts
+		free face_islands
 
-		verts_islands_count = verts_islands.count
-	--timer_LOOP = timeStamp()
-		--for verts_of_face in verts_of_faces do
-		for f = 1 to verts_of_faces.count do
-		(
-			--format "******************\n"
-			--format "verts_of_face: %\n" verts_of_face
-			verts_of_face = verts_of_faces[f]
+		verts_islands--return
 
-			joined = #()
-			--timer_ITEM = timeStamp()
-
-			--for i = 1 to verts_islands.count where facesShareVerts (verts_islands[i]) (verts_of_face) do
-			for i = 1 to verts_islands_count while joined.count < 2 where facesShareVerts (verts_islands[i]) (verts_of_face) do
-				(
-					--format "i: %\n" i
-					verts_islands[i] += verts_of_face * verts_sel
-
-					append joined i
-				)
-
-
-			if joined.count > 1 then
-			(
-				--format "joined: %\n" joined
-				sort joined
-
-				first_island = joined[1]
-
-				for i = joined.count to 2 by -1 where (verts_islands[first_island] * verts_islands[joined[i]]).numberSet > 1 do
-				(
-					--format "island_to_merge: %\n" island_to_merge
-					verts_islands[first_island] += verts_islands[joined[i]]
-
-					deleteItem verts_islands joined[i]
-
-					verts_islands_count -= 1
-				)
-
-			)
-			else if joined.count == 0 then
-			(
-				--append verts_islands ( deepCopy empty_bitarray + (verts_of_face * verts_sel) )
-				append verts_islands ( empty_bitarray + (verts_of_face * verts_sel) )
-
-				verts_islands_count += 1
-			)
-				--append verts_islands (verts_of_face * verts_sel)
-				--append verts_islands ( empty_bitarray + (verts_of_face * verts_sel) )
-
-	--		free joined
-	--	--format "verts_islands.count: %\n" verts_islands.count
-	--
-		--if mod f 1500 == 0 then
-			gc light:true
-	--
-	--	--format "ITEM: % ms\n" (( timeStamp()) - timer_ITEM)
-	--	--format "ITEM: % ms\n" (( timeStamp()) - timer_ITEM)
-
-		)
-	--format "LOOP: % ms\n" (( timeStamp()) - timer_LOOP)
-
-		verts_islands --return
 	),
 
 	/**  Left only single lowest vert of verts
@@ -509,18 +457,25 @@ struct VertSelector_v
 	 */
 	function _mergeBitArraysbySharedBits bitarrays =
 	(
-		format "\n"; print "VertSelector_v._mergeBitArraysbySharedBits()"
+		--format "\n"; print "VertSelector_v._mergeBitArraysbySharedBits()"
 
 		for x = bitarrays.count to 1 by -1 do
 		(
+			--format "x: %\n" x
 			merged = false
 
-			for y = bitarrays.count to 1 by -1 where x != y and not ( bitarrays[x] * bitarrays[y] ).isEmpty do
-			--for y = bitarrays.count to 1 by -1 where x != y and ( bitarrays[x] * bitarrays[y] ).numberSet > 1 do
+			bitarrays_x = bitarrays[x]
+			--for y = bitarrays.count to 1 by -1 while where x != y and not ( bitarrays_x * bitarrays[y] ).isEmpty do
+			--for y = bitarrays.count to 1 by -1 where x != y and not ( bitarrays_x * bitarrays[y] ).isEmpty do
+
+			--for y = bitarrays.count to 1 by -1 where x != y and ( bitarrays_x * bitarrays[y] ).numberSet > 1 do
+			for y = bitarrays.count to 1 by -1 while not merged where x != y and ( bitarrays_x * bitarrays[y] ).numberSet > 1 do
 			(
 				bitarrays[y] += bitarrays[x]
 
 				merged = true
+
+				--gc light:true
 			)
 
 			if merged then

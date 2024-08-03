@@ -224,7 +224,7 @@ struct SupportObject_v
 
 
 		length_multiplier = if obj_type == #SUPPORT then 1 else 10
-		format "length_multiplier: %\n" length_multiplier
+		--format "length_multiplier: %\n" length_multiplier
 		/* ADD SECOND POINT */
 		if hit_raft != undefined
 			then /* SECOND POINT IS POINT OF COLLISION */
