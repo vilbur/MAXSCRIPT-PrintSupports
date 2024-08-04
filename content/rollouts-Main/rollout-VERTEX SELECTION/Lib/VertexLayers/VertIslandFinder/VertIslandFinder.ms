@@ -37,8 +37,16 @@ struct VertIslandFinder_v
 
 	new_islands = #(),
 
-	new_islands_layers = #(),
-	new_islands_full = #(),
+	islands_data	=  Dictionary #(#LAYER, #()) #(#HEIGHT, #())  #(#VERTS, #()) , -- KEY: VALUE:
+
+	--islands_data[#LAYER] = #(),
+	--islands_data[#HEIGHT] = #(),
+	--islands_data[#VERTS] = #(),
+
+
+	--new_islands_layers = #(),
+	--new_islands_heigt = #(),
+	--new_islands_full = #(),
 
 	--merged_islands = #(),
 	/* private */
@@ -116,7 +124,7 @@ struct VertIslandFinder_v
 
 				join this.new_islands new_islands_in_layer
 
-				join this.new_islands_layers (for i = 1 to new_islands_in_layer.count collect layer)
+				join this.islands_data[#LAYER] (for i = 1 to new_islands_in_layer.count collect layer)
 				--format "new_islands_layers: %\n" new_islands_layers
 
 				this._mergeIslandsBySharedBits(layer)
@@ -132,9 +140,10 @@ struct VertIslandFinder_v
 		format "ALL_LAYERS_TIMER: % seconds\n" ((( timeStamp()) - all_layers_timer) / 1000.0)
 
 		format "\n-----------------------------------------------\n"
-		for i = 1 to new_islands_layers.count do
+
+		for i = 1 to islands_data[#LAYER].count do
 		(
-			format "\n%: %" new_islands_layers[i] new_islands_full[i]
+			format "\n% %: %" islands_data[#LAYER][i] islands_data[#HEIGHT][i] islands_data[#VERTS][i]
 
 		)
 
@@ -142,8 +151,8 @@ struct VertIslandFinder_v
 
 		format "\n-----------------------------------------------\n"
 		format "new_islands.count: %\n" new_islands.count
-		format "new_islands_full.count: %\n" new_islands_full.count
-		format "new_islands_layers.count: %\n" new_islands_layers.count
+		format "islands_data[#LAYER] .count: %\n" islands_data[#LAYER] .count
+		format "islands_data[#HEIGHT].count: %\n" islands_data[#HEIGHT].count
 
 		--format "NEW_ISLANDS_HEIGHTS: %\n" new_islands_layers
 		--format "HUGE_NEW_ISLANDS: %\n" huge_new_islands
@@ -375,12 +384,26 @@ struct VertIslandFinder_v
 
 				--format "MERGE: %\n" island_x
 
-				for i = 1 to new_islands.count where new_islands_full[i] == undefined and not (new_islands[i] * island_x).isEmpty do
-				--for i = 1 to new_islands.count where new_islands_full[i] == undefined do
+				for i = 1 to new_islands.count where islands_data[#HEIGHT][i] == undefined and not (new_islands[i] * island_x).isEmpty do
+				--for i = 1 to new_islands.count where islands_data[#VERTS][i] == undefined do
 				(
-					new_islands_layers[i] = current_layer - new_islands_layers[i]
+					if (island_height = current_layer - islands_data[#LAYER][i] ) > 0 then
+					(
+						format "MERGE: % %\n" i island_height
 
-					insertItem island_x new_islands_full i
+						insertItem island_x islands_data[#VERTS] i
+
+						insertItem island_height islands_data[#HEIGHT] i
+
+						format "\n"
+						format "new_islands: %\n" new_islands[i]
+						format "islands_data[#LAYER]: %\n" islands_data[#LAYER][i]
+						format "islands_data[#HEIGHT]: %\n" islands_data[#HEIGHT][i]
+						format "islands_data[#VERTS]: %\n" islands_data[#VERTS][i]
+
+						--format "\n% %: %" islands_data[#LAYER][i] islands_data[#HEIGHT][i] islands_data[#VERTS][i]
+
+					)
 				)
 
 				deleteItem islands_all x
