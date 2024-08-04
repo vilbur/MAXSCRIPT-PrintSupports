@@ -56,7 +56,9 @@ struct VertexGrid_v
 	 */
 	function _getVertsInGrid verts =
 	(
-		--format "\n"; print "VertSelector_v._getVertsInGrid()"
+		format "\n"; print "VertSelector_v._getVertsInGrid()"
+		format "verts: %\n" verts
+
 		/** Get cell by position
 		 */
 		function cellByPos vert_pos_on_axis axis_origin =
@@ -74,11 +76,12 @@ struct VertexGrid_v
 		)
 
 		verts_pos = this._getVertsPositions(verts)
-
+		format "verts_pos: %\n" verts_pos
+		format "verts_pos.count: %\n" verts_pos.count
 		verts_arr = verts as Array
 
 		pos_by_axis = this.getPositionsSplitByAxis(verts)
-
+		format "pos_by_axis: %\n" pos_by_axis
 		min_pos = #( amin pos_by_axis[1], amin pos_by_axis[2], amin pos_by_axis[3])
 
 		/* FILL MATRIX
@@ -118,28 +121,29 @@ struct VertexGrid_v
 		--format "verts_process: %\n" verts_process
 		--format "verts: %\n" verts
 		--format "verts.numberSet: %\n" verts.numberSet
-		--all_verts = #{1..(getNumVerts obj.mesh)}
 
-		if verts_pos == undefined then
-			this.verts_pos = #{1..(getNumVerts obj.mesh)} as Array
+		--if verts_pos == undefined then
+		--	this.verts_pos = #{1..(getNumVerts obj.mesh)} as Array
+		--
+		--verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
+		----format "verts_process_pos: %\n" verts_process_pos
+		--
+		--for i = 1 to verts_process_pos.count do
+		--(
+		--	vert = (verts  as Array )[i]
+		--	--format "vert: %\n" vert
+		--
+		--	verts_pos[vert] = verts_process_pos[i]
+		--)
+		--
+		--
+		--verts_pos --return
 
-		verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
-		--format "verts_process_pos: %\n" verts_process_pos
+		all_verts = #{1..(getNumVerts obj.mesh)}
 
-		for i = 1 to verts_process_pos.count do
-		(
-			vert = (verts  as Array )[i]
-			--format "vert: %\n" vert
-
-			verts_pos[vert] = verts_process_pos[i]
-		)
-
+		verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
 
 		verts_pos --return
-
-		--verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
-
-		--verts_pos --return
 	),
 
 
@@ -161,7 +165,7 @@ struct VertexGrid_v
 	 */
 	function getPositionsSplitByAxis verts =
 	(
-		----format "\n"; print "MeshDataGetter_v.getPositionsSplitted()"
+		format "\n"; print "MeshDataGetter_v.getPositionsSplitted()"
 
 		verts_count = verts.numberSet
 
@@ -171,12 +175,22 @@ struct VertexGrid_v
 
 		for vert in verts do
 		(
+			--format "vert: %\n" vert
 			vert_pos = verts_pos[vert]
+			--format "vert_pos: %\n" vert_pos
 
 			x_positions[vert] = vert_pos.x
 			y_positions[vert] = vert_pos.y
 			z_positions[vert] = vert_pos.z
 		)
+
+		--format "x_positions: %\n" x_positions
+		--format "y_positions: %\n" y_positions
+		--format "z_positions: %\n" z_positions
+
+		x_positions = for x_position in x_positions where x_position != undefined collect x_position
+		y_positions = for y_position in y_positions where y_position != undefined collect y_position
+		z_positions = for z_position in z_positions where z_position != undefined collect z_position
 
 		#( x_positions, y_positions, z_positions  ) --return
 	),

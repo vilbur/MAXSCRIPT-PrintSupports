@@ -35,12 +35,12 @@ struct VertIslandFinder_v
 	--layer_verts_processed = #{},
 	--new_island = #{},
 
-	new_islands = #(),
+	--islands_data[#NEW_ISLANDS] = #(),
 
-	islands_data	=  Dictionary #(#LAYER, #()) #(#HEIGHT, #())  #(#VERTS, #()) , -- KEY: VALUE:
+	islands_data	=  Dictionary #(#NEW_ISLANDS, #()) #(#BOTTOM, #()) #(#TOP, #()) #(#WHOLE_ISLANDS, #()) , -- KEY: VALUE:
 
-	--islands_data[#LAYER] = #(),
-	--islands_data[#HEIGHT] = #(),
+	--islands_data[#BOTTOM] = #(),
+	--islands_data[#HEIGHTS] = #(),
 	--islands_data[#VERTS] = #(),
 
 
@@ -55,7 +55,7 @@ struct VertIslandFinder_v
 	/* inhered */
 	layer_height,
 
-	/** GET NEW ISLANDS PER LAYER
+	/** GET NEW NEW_ISLANDS PER LAYER
 	  *
 	  * Loop each print layer and search for new islands_all
 	  *
@@ -92,7 +92,7 @@ struct VertIslandFinder_v
 
 				format "\n"
 				format "layer: % of: %\n" l used_layers_count
-				format "new_islands.count: %\n" new_islands.count
+				format "islands_data[#NEW_ISLANDS].count: %\n" islands_data[#NEW_ISLANDS].count
 				--format "islands_all.count: %\n" islands_all.count
 				layer_timer = timeStamp()
 			)
@@ -111,7 +111,7 @@ struct VertIslandFinder_v
 			/* GET ONLY NEW FACES IN LAYER - avoid repetion of faces across layers */
 			new_faces_in_layer = faces_in_layer - faces_processed
 
-			/* JOIN NEW FACES TO ALL ISLANDS */
+			/* JOIN NEW FACES TO ALL NEW_ISLANDS */
 			timer_JOIN = timeStamp()
 
 			new_islands_in_layer = this._joinFacesToIslands(new_faces_in_layer)
@@ -122,9 +122,9 @@ struct VertIslandFinder_v
 			(
 				join this.islands_all new_islands_in_layer
 
-				join this.new_islands new_islands_in_layer
+				join this.islands_data[#NEW_ISLANDS] new_islands_in_layer
 
-				join this.islands_data[#LAYER] (for i = 1 to new_islands_in_layer.count collect layer)
+				join this.islands_data[#BOTTOM] (for i = 1 to new_islands_in_layer.count collect layer)
 				--format "new_islands_layers: %\n" new_islands_layers
 
 				this._mergeIslandsBySharedBits(layer)
@@ -139,25 +139,31 @@ struct VertIslandFinder_v
 		format "\n------\n\n"
 		format "ALL_LAYERS_TIMER: % seconds\n" ((( timeStamp()) - all_layers_timer) / 1000.0)
 
-		format "\n-----------------------------------------------\n"
 
-		for i = 1 to islands_data[#LAYER].count do
-		(
-			format "\n% %: %" islands_data[#LAYER][i] islands_data[#HEIGHT][i] islands_data[#VERTS][i]
+		--for i = 1 to islands_data[#BOTTOM].count do
+		--(
+		--	format "\n-----------------------------------------------\n"
+		--	--format "\n% %: %" islands_data[#BOTTOM][i] islands_data[#HEIGHTS][i] islands_data[#VERTS][i]
+		--	format "#ISLAND: %\n" islands_data[#NEW_ISLANDS][i]
+		--	format "#LAYER: %\n"  islands_data[#BOTTOM] [i]
+		--	format "#HEIGHT: %\n" islands_data[#HEIGHTS][i]
+		--	format "#VERTS: %\n"  islands_data[#VERTS][i]
+		--
+		--)
 
-		)
 
-		--huge_new_islands = for i = 1 to new_islands_heights.count where new_islands_heights[i] != undefined and new_islands_heights[i] > 100 collect new_islands[i]
 
-		format "\n-----------------------------------------------\n"
-		format "new_islands.count: %\n" new_islands.count
-		format "islands_data[#LAYER] .count: %\n" islands_data[#LAYER] .count
-		format "islands_data[#HEIGHT].count: %\n" islands_data[#HEIGHT].count
+		--huge_new_islands = for i = 1 to new_islands_heights.count where new_islands_heights[i] != undefined and new_islands_heights[i] > 100 collect islands_data[#NEW_ISLANDS][i]
+
+		format "\n******************************************************************************\n"
+		format "islands_data[#NEW_ISLANDS].count: %\n" islands_data[#NEW_ISLANDS].count
+		--format "islands_data[#BOTTOM] .count: %\n" islands_data[#BOTTOM] .count
+		--format "islands_data[#HEIGHTS].count: %\n" islands_data[#HEIGHTS].count
 
 		--format "NEW_ISLANDS_HEIGHTS: %\n" new_islands_layers
 		--format "HUGE_NEW_ISLANDS: %\n" huge_new_islands
 
-		this.new_islands --return
+		this.islands_data[#NEW_ISLANDS] --return
 	),
 
 	/** Join faces to islands
@@ -344,8 +350,8 @@ struct VertIslandFinder_v
 		)
 
 
-		for new_island in this.new_islands  do
-		--for new_island in this.new_islands  do
+		for new_island in this.islands_data[#NEW_ISLANDS]  do
+		--for new_island in this.islands_data[#NEW_ISLANDS]  do
 		(
 			polyop.setVertColor obj.baseobject 0 (new_island) red
 
@@ -364,7 +370,7 @@ struct VertIslandFinder_v
 
 		--format "\n"; print ".mergeBitArraysTest2()"
 
-		--if new_islands_heights.count < new_islands.count then
+		--if new_islands_heights.count < islands_data[#NEW_ISLANDS].count then
 
 
 		for x = islands_all.count to 1 by -1 do
@@ -384,24 +390,27 @@ struct VertIslandFinder_v
 
 				--format "MERGE: %\n" island_x
 
-				for i = 1 to new_islands.count where islands_data[#HEIGHT][i] == undefined and not (new_islands[i] * island_x).isEmpty do
-				--for i = 1 to new_islands.count where islands_data[#VERTS][i] == undefined do
+				for i = 1 to islands_data[#NEW_ISLANDS].count where islands_data[#TOP][i] == undefined and not (islands_data[#NEW_ISLANDS][i] * island_x).isEmpty do
+				--for i = 1 to islands_data[#NEW_ISLANDS].count where islands_data[#VERTS][i] == undefined do
 				(
-					if (island_height = current_layer - islands_data[#LAYER][i] ) > 0 then
+					if current_layer != islands_data[#BOTTOM][i] then
 					(
-						format "MERGE: % %\n" i island_height
+						--format "MERGE: % %\n" i island_height
 
-						insertItem island_x islands_data[#VERTS] i
+						insertItem island_x islands_data[#WHOLE_ISLANDS] i
 
-						insertItem island_height islands_data[#HEIGHT] i
+						insertItem current_layer islands_data[#TOP] i
 
-						format "\n"
-						format "new_islands: %\n" new_islands[i]
-						format "islands_data[#LAYER]: %\n" islands_data[#LAYER][i]
-						format "islands_data[#HEIGHT]: %\n" islands_data[#HEIGHT][i]
-						format "islands_data[#VERTS]: %\n" islands_data[#VERTS][i]
+						--insertItem island_height islands_data[#HEIGHTS] i
+						--
+						--format "\n-----------------------------------------------\n"
+						----format "\n% %: %" islands_data[#BOTTOM][i] islands_data[#HEIGHTS][i] islands_data[#VERTS][i]
+						--format "#ISLAND: %\n" islands_data[#NEW_ISLANDS][i]
+						--format "#LAYER: %\n"  islands_data[#BOTTOM] [i]
+						--format "#HEIGHT: %\n" islands_data[#HEIGHTS][i]
+						--format "#VERTS: %\n"  islands_data[#VERTS][i]
 
-						--format "\n% %: %" islands_data[#LAYER][i] islands_data[#HEIGHT][i] islands_data[#VERTS][i]
+						--format "\n% %: %" islands_data[#BOTTOM][i] islands_data[#HEIGHTS][i] islands_data[#VERTS][i]
 
 					)
 				)
@@ -549,7 +558,7 @@ struct VertIslandFinder_v
 
 		--faces_sel = polyop.getFaceSelection obj
 		--format "faces_sel: %\n" faces_sel
-		--/*------ SPLIT TO ISLANDS ------*/
+		--/*------ SPLIT TO NEW_ISLANDS ------*/
 		--verts_sel = polyop.getVertsUsingFace obj faces_sel
 		--format "verts_sel: %\n" verts_sel
 
@@ -597,7 +606,7 @@ struct VertIslandFinder_v
 
 				verts_used_in_layer = verts_in_layer * verts_used
 
-				--format "ISLANDS: %\n" islands_all
+				--format "NEW_ISLANDS: %\n" islands_all
 
 				/* GET FACES IN LAYER */
 				faces_in_layer = polyop.getFacesUsingVert obj verts_in_layer
@@ -625,7 +634,7 @@ struct VertIslandFinder_v
 						intesections_count = intesections.count
 
 						if intesections_count == 0 then
-							append this.new_islands island_used
+							append this.islands_data[#NEW_ISLANDS] island_used
 
 						case intesections_count of
 						(
@@ -662,14 +671,14 @@ struct VertIslandFinder_v
 			--
 			--this._mergeIslandsBySharedBits (islands) &islands_final
 			--
-			--format "\n\nNEW ISLANDS: %\n" this.new_islands
-			--format "\n\nNEW ISLANDS COUNT: %\n" this.new_islands.count
+			--format "\n\nNEW NEW_ISLANDS: %\n" this.islands_data[#NEW_ISLANDS]
+			--format "\n\nNEW NEW_ISLANDS COUNT: %\n" this.islands_data[#NEW_ISLANDS].count
 			--
 			--format "\n\nISLANDS FINAL: %\n" islands_final
 
 			delete Helpers -- DEV
 
-			for new_island in this.new_islands do
+			for new_island in this.islands_data[#NEW_ISLANDS] do
 				this._getCenterOfIsland (new_island)
 		)
 

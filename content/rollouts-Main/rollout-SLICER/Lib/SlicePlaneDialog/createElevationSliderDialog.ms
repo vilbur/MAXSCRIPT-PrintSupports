@@ -64,12 +64,12 @@ function createElevationSliderDialog =
 		(
 			format "\n"; print ".removeSlicePlaneModifier()"
 
-			if (  select_mod = obj.modifiers[#SLICE_SELECT_OBJ] ) != undefined then
-				deleteModifier select_mod
-
-
-			if (  slice_mod = obj.modifiers[#SLICE_PLANE_TOP] ) != undefined then
-				deleteModifier obj slice_mod
+			--if (  select_mod = obj.modifiers[#SLICE_SELECT_OBJ] ) != undefined then
+			--	deleteModifier select_mod
+			--
+			--
+			--if (  slice_mod = obj.modifiers[#SLICE_PLANE_TOP] ) != undefined then
+			--	deleteModifier obj slice_mod
 
 
 			--for mod_name in #( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM, #SELECT_LAYER ) do

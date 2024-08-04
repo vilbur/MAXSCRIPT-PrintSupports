@@ -2,16 +2,17 @@ global ROLLOUT_slicer
 global DIALOG_elevation_slider
 
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/getPlaneZpozition.ms" )	--"./Lib/getPlaneZpozition.ms"
+filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/getPlaneZpozition.ms" )	--"./Lib/SlicePlaneDialog/getPlaneZpozition.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/setSlicePlaneModifier.ms" )	--"./Lib/setSlicePlaneModifier.ms"
+filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/setSlicePlaneModifier.ms" )	--"./Lib/SlicePlaneDialog/setSlicePlaneModifier.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/setSelectPlaneModifier.ms" )	-- "./Lib/setSelectPlaneModifier.ms"
+filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/setSelectPlaneModifier.ms" )	-- "./Lib/SlicePlaneDialog/setSelectPlaneModifier.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/updateSlicePlaneSystem.ms" )	-- "./Lib/updateSlicePlaneSystem.ms"
+filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/updateSlicePlaneSystem.ms" )	-- "./Lib/SlicePlaneDialog/updateSlicePlaneSystem.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/createElevationSliderDialog.ms" )	-- "./Lib/createElevationSliderDialog.ms"
+filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/createElevationSliderDialog.ms" )	-- "./Lib/SlicePlaneDialog/createElevationSliderDialog.ms"
 
+filein( getFilenamePath(getSourceFileName()) + "/Lib/IslandManagerDialog/IslandManagerDialog.ms" )	--"./Lib/IslandManagerDialog/IslandManagerDialog.ms"
 
 /**
   *
@@ -20,7 +21,7 @@ macroscript	print_create_slicerdialog
 category:	"_3D-Print"
 buttontext:	"SLICE OBJECT"
 tooltip:	"Slice selected object."
-icon:	"across:2|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY: RESET OBJECT XFORM\n\nIF Z POZITION OF SLICE PLANE DOES NOT WORK PROPERLY"
+icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY: RESET OBJECT XFORM\n\nIF Z POZITION OF SLICE PLANE DOES NOT WORK PROPERLY"
 (
 	on execute do
 		(
@@ -100,7 +101,7 @@ macroscript	print_remove_slice_modifiers
 category:	"_3D-Print"
 buttontext:	"Slice Object"
 tooltip:	"EXIT SLICE MODE"
-icon:	"across:2|height:32"
+icon:	"across:3|height:32"
 (
 	on execute do
 		(
@@ -170,7 +171,7 @@ macroscript	_print_slice_increment_plus
 category:	"_3D-Print"
 buttontext:	"+ \ -"
 tooltip:	"Shift layer UP"
-icon:	"across:2|height:32|Tooltip:CTRL:SHIFT:ALT: 10\25\25 Layers incremnet by number of mod keys pressed 1\2\3"
+icon:	"across:3|height:32|Tooltip:CTRL:SHIFT:ALT: 10\25\25 Layers incremnet by number of mod keys pressed 1\2\3"
 (
 
 	on execute do
@@ -183,11 +184,65 @@ macroscript	_print_slice_increment_minus
 category:	"_3D-Print"
 buttontext:	"+ \ -"
 tooltip:	"RMB: Shift layer DOWN"
-icon:	"across:2|height:32"
+icon:	"across:3|height:32"
 (
 
 	on execute do
 		updateSlicePlaneSystem ( getLayerNumberToMove( #MINUS ) ) incremental:true
+)
+
+
+/*==============================================================================
+
+		FIND ISLANDS
+
+================================================================================*/
+
+/**
+ *
+ */
+macroscript	maxtoprint_find_islands
+category:	"maxtoprint"
+buttontext:	"FIND ISLANDS"
+toolTip:	""
+icon:	"across:3|tooltip:CTRL: New selection"
+(
+
+	on execute do
+	(
+	--	filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-Points\3-1-2-SELECT CONVEX - CONCAVE .mcr"
+		gc light:true
+		gc()
+
+		undo off
+		(
+			obj	= selection[1]
+
+			VertSelector 	= VertSelector_v(obj )
+			--if subobject == #FACE then polyop.getFaceSelection obj else polyop.getVertSelection obj -- return
+
+			new_islands = VertSelector.findIslandsPerLayer()
+
+			format "islands_all COUNT: %\n" VertSelector.VertexLayers.VertIslandFinder.islands_all.count
+
+			lowest_verts = VertSelector.getLowestVerts ( new_islands )
+			format "lowest_verts: %\n" lowest_verts
+
+			VertSelector.setSelection ( lowest_verts )
+
+			createIslandManagerDialog(VertSelector.VertexLayers.VertIslandFinder.islands_data)
+
+		)
+
+		--elements = VertSelector.VertIslandFinder.getElementsOfFaces ( polyop.getFaceSelection obj )
+		----getElementsOfFaces ( getFaceSelection obj.mesh )
+		--
+		--for element in elements do
+		--	format "element: %\n" element
+		--
+		--format "elements.count: %\n" elements.count
+
+	)
 )
 
 

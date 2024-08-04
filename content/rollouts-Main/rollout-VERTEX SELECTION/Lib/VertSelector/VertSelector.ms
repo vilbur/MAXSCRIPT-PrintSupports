@@ -50,7 +50,7 @@ struct VertSelector_v
 	 */
 	function selectLowestVertsInGrid resolution:10 =
 	(
-		--format "\n"; print "VertSelector_v.selectLowestVertsInGrid()"
+		format "\n"; print "VertSelector_v.selectLowestVertsInGrid()"
 		VertexGridGetter.resolution = resolution
 
 		this.sel_modified = VertexGridGetter.getLowestVertsInGrid()
@@ -127,7 +127,7 @@ struct VertSelector_v
 		--
 		--new_islands_all --return
 
-		VertexLayers.VertIslandFinder.new_islands --return
+		VertexLayers.VertIslandFinder.islands_data[#NEW_ISLANDS] --return
 	),
 
 	/** Select sinlge vert per face island

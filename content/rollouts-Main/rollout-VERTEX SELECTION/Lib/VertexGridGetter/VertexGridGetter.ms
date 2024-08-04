@@ -30,7 +30,7 @@ struct VertexGridGetter_v
 
 	/* dependency */
 	VertexGrid,
-	MeshDataGetter,
+	--MeshDataGetter,
 
 	/* reference */
 	/* inhered */
@@ -46,6 +46,7 @@ struct VertexGridGetter_v
 
 		--data_verts = MeshDataGetter.getVertexData verts:#ALL_OR_SELECTED positions:true --normals:true
 		verts_sel	= getVertSelection obj.mesh
+		format "VERTS_SEL: %\n" verts_sel
 
 		VertexGrid.resolution = resolution
 

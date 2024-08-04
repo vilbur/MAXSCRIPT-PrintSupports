@@ -1,29 +1,5 @@
 
 
-/**  Export format
-  *
- */
-macroscript	_print_select_by_print_layer
-category:	"_Print-Points-Tools"
-buttonText:	"LAYERS"
-toolTip:	"Get only single vertex of each face island.\n\Vert with lowest position on Z axis is selected"
-icon:	"MENU:true|across:4|height:24"
-(
-	on execute do
-	if selection.count > 0 then
-	(
-		clearListener(); print("Cleared in:\n"+getSourceFileName())
-	--	filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-viltools3\VilTools\rollouts-Tools\rollout-PRINT-3D\3-1-3-VERTEX SELECTION TOOLS.mcr"
-
-		--obj	= selection[1]
-
-		VertSelector 	= VertSelector_v( selection[1]  )
-
-		VertSelector.findIslandsPerLayer()
-
-	)
-)
-
 
 
 
