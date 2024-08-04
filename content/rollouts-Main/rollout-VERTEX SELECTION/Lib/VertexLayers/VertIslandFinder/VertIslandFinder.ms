@@ -36,7 +36,11 @@ struct VertIslandFinder_v
 	--new_island = #{},
 
 	new_islands = #(),
-	merged_islands = #(),
+
+	new_islands_layers = #(),
+	new_islands_full = #(),
+
+	--merged_islands = #(),
 	/* private */
 	/* dependency */
 	/* reference */
@@ -61,24 +65,6 @@ struct VertIslandFinder_v
 		--verts_processed = #{}
 
 		this.empty_bitarray = verts_all * #{}
-
-		--cache_store  = deepCopy empty_bitarray
-		--cache_delete = undefined
-		cache_store  = #{}
-		cache_delete  = #{}
-
-		--this.verts_processed += verts_all
-		--this.verts_processed *= #{}
-
-		--this.verts_of_faces = copy this.empty_bitarray
-
-		--
-		--this.new_island_created = copy empty_bitarray
-		--this.new_island += verts_all
-
-		--for i = 1 to 10 do
-		--  islands_all[i] = undefined
-
 
 		if verts_above.isEmpty then
 			verts_above = copy verts_all
@@ -107,7 +93,7 @@ struct VertIslandFinder_v
 
 			/* GET VERTS IN LAYER */
 			verts_in_layer = verts_layers[layer]
-		--	format "verts_in_layer: %\n" verts_in_layer
+
 			/* REMOVE VERTS FORM CURENT LAYER FROM VERTS ABOVE */
 			verts_above  -= verts_in_layer
 
@@ -117,88 +103,54 @@ struct VertIslandFinder_v
 			/* GET ONLY NEW FACES IN LAYER - avoid repetion of faces across layers */
 			new_faces_in_layer = faces_in_layer - faces_processed
 
-
-			--format "\n"
-			--format "\nverts: %\n" verts_count
 			/* JOIN NEW FACES TO ALL ISLANDS */
 			timer_JOIN = timeStamp()
-			--format "count: %\n" islands_all.count
 
-			this._joinFacesToIslands(new_faces_in_layer)
-
+			new_islands_in_layer = this._joinFacesToIslands(new_faces_in_layer)
 			--this._joinVertsToIslands(new_faces_in_layer)
 
 
-			--format "JOIN: % ms\n" (join_end)
-			--format "vert: % ms\n" (join_end/ verts_count)
-
-			/* VERTS OF NEW ISLAND ARE NOT PROCESSED YET, THAT IS HOW NEW ISLAND IS FOUND  */
-			for verts_island in islands_all where (verts_island * verts_processed ).isEmpty do
-				append this.new_islands verts_island
-
-
-			islands_all_count = islands_all.count
-			--this._mergeIslands()
-			--format "count: %\n" islands_all.count
-			join_end = (( timeStamp()) - timer_JOIN)
-
-			--if islands_all_count != islands_all.count then
+			if new_islands_in_layer.count > 0 then
 			(
-				timer_MERGE = timeStamp()
-				this._mergeIslandsBySharedBits()
+				join this.islands_all new_islands_in_layer
 
-				merge_end = ( timeStamp()) - timer_MERGE
-				--format "MERGE: % ms\n" (merge_end)
-				--format "vert:     % ms\n"  (merge_end / verts_count)
-				--format "islands:  % ms\n"  (merge_end / islands_all_count)
+				join this.new_islands new_islands_in_layer
 
+				join this.new_islands_layers (for i = 1 to new_islands_in_layer.count collect layer)
+				--format "new_islands_layers: %\n" new_islands_layers
+
+				this._mergeIslandsBySharedBits(layer)
 			)
-
-			--cache_store += verts_in_layer
-			--
-			--if mod l 50 == 0 then
-			--(
-			--	if cache_delete != undefined then
-			--		for i = islands_all.count to 1 by -1 do
-			--		(
-			--			islands_all[i] -= cache_delete
-			--
-			--			if islands_all[i].isEmpty then
-			--				deleteItem islands_all i
-			--		)
-			--
-			--	--cache_delete = deepCopy cache_store
-			--	--cache_store  = deepCopy empty_bitarray
-			--	cache_delete = cache_store
-			--	cache_store  = #{}
-			--)
 
 			faces_processed += faces_in_layer
 			verts_processed += verts_in_layer
 
-			--if mod l 10 == 0 then
-				gc light:true
-			--if mod l 50 == 0 then (
-				--format "layer_timer: % seconds\n" ((( timeStamp()) - layer_timer) / 1000.0)
-			--)
-
-				--this.islands_all = #()
+			gc light:true
 		)
 
 		format "\n------\n\n"
 		format "ALL_LAYERS_TIMER: % seconds\n" ((( timeStamp()) - all_layers_timer) / 1000.0)
 
-		--this._setVertexColorToNewIslands()
+		format "\n-----------------------------------------------\n"
+		for i = 1 to new_islands_layers.count do
+		(
+			format "\n%: %" new_islands_layers[i] new_islands_full[i]
 
-		--garbage_collection = timeStamp()
+		)
 
-		--gc light:true
-		--gc()
-		--gc delayed:true
-		--format "garbage_collection: % seconds\n" ((( timeStamp()) - garbage_collection) / 1000.0)
+		--huge_new_islands = for i = 1 to new_islands_heights.count where new_islands_heights[i] != undefined and new_islands_heights[i] > 100 collect new_islands[i]
+
+		format "\n-----------------------------------------------\n"
+		format "new_islands.count: %\n" new_islands.count
+		format "new_islands_full.count: %\n" new_islands_full.count
+		format "new_islands_layers.count: %\n" new_islands_layers.count
+
+		--format "NEW_ISLANDS_HEIGHTS: %\n" new_islands_layers
+		--format "HUGE_NEW_ISLANDS: %\n" huge_new_islands
 
 		this.new_islands --return
 	),
+
 	/** Join faces to islands
 	 */
 	function _joinFacesToIslands new_faces_in_layer =
@@ -207,6 +159,7 @@ struct VertIslandFinder_v
 
 		layer_verts_processed	= #{}
 
+		new_islands_in_layer = #()
 
 		for face in new_faces_in_layer do
 		(
@@ -214,10 +167,7 @@ struct VertIslandFinder_v
 
 			merged = false
 
-			--verts_in_layer = verts - verts_above
-
 			for i = 1 to islands_all.count while not merged where not ((islands_all[i]) * verts ).isEmpty do
-
 			--for i = 1 to islands_all.count while not merged where ((islands_all[i]) * verts ).numberSet > 1 do
 			--for i = 1 to islands_all.count while not merged where (islands_all[i] * verts_in_layer ).numberSet > 1 do
 			(
@@ -228,13 +178,13 @@ struct VertIslandFinder_v
 
 			if not merged then
 			(
-				--append islands_all ( empty_bitarray * verts )
-				--append islands_all ( (verts_all * #{}) * verts )
+				append new_islands_in_layer verts
+
 				append islands_all verts
-
 			)
-
 		)
+
+		new_islands_in_layer --return
 	),
 	/** Join verts to islands
 	 */
@@ -245,9 +195,9 @@ struct VertIslandFinder_v
 		--format "verts.count: %\n" verts.count
 		--format "verts.numberSet: %\n" verts.numberSet
 
-
 		layer_verts_processed	= #{}
 
+		new_islands_in_layer = #()
 
 		/* GET VERTS OF NEW FACES IN LAYER */
 		verts = polyop.getVertsUsingFace obj new_faces_in_layer
@@ -300,8 +250,9 @@ struct VertIslandFinder_v
 			(
 				--append islands_all ( empty_bitarray * verts_of_faces )
 				--append islands_all ( (verts_all * #{}) * verts_of_faces )
-				append islands_all verts_of_faces
+				append new_islands_in_layer verts
 
+				append islands_all verts_of_faces
 			)
 
 			--gc light:true
@@ -309,8 +260,6 @@ struct VertIslandFinder_v
 
 			verts	-= verts_of_faces
 			--layer_verts_processed	+= verts_of_faces
-
-
 
 			--
 			--vert = (next_verts as Array )[1]
@@ -401,42 +350,44 @@ struct VertIslandFinder_v
 	  *
 	  * @param #( #{} ) bitarrays Array of bittarays
 	 */
-	function _mergeIslandsBySharedBits =
+	function _mergeIslandsBySharedBits current_layer =
 	(
 
 		--format "\n"; print ".mergeBitArraysTest2()"
+
+		--if new_islands_heights.count < new_islands.count then
+
 
 		for x = islands_all.count to 1 by -1 do
 		(
 			merged = false
 
+			island_x = islands_all[x]
+
+
 			--for y = islands_all.count to 1 by -1 while not merged where x != y and not ( islands_all[x] * islands_all[y] ).isEmpty do
-			for y = islands_all.count to 1 by -1 while not merged where x != y and ( islands_all[x] * islands_all[y] ).numberSet > 1 do
+			for y = islands_all.count to 1 by -1 while not merged where x != y and ( island_x * islands_all[y] ).numberSet > 1 do
 
 			(
-				islands_all[y] += islands_all[x]
+				islands_all[y] += island_x
 
 				merged = true
 
+				--format "MERGE: %\n" island_x
+
+				for i = 1 to new_islands.count where new_islands_full[i] == undefined and not (new_islands[i] * island_x).isEmpty do
+				--for i = 1 to new_islands.count where new_islands_full[i] == undefined do
+				(
+					new_islands_layers[i] = current_layer - new_islands_layers[i]
+
+					insertItem island_x new_islands_full i
+				)
+
 				deleteItem islands_all x
 			)
-
-			--if merged then
-
-			--for y = bitarrays.count to 1 by -1 where x != y and not ( bitarrays[x] * bitarrays[y] ).isEmpty do
-			----for y = bitarrays.count to 1 by -1 where x != y and ( bitarrays[x] * bitarrays[y] ).numberSet > 1 do
-			--(
-			--	bitarrays[y] += bitarrays[x]
-			--
-			--	merged = true
-			--)
-			--
-			--if merged then
-			--	deleteItem bitarrays x
 		)
-
-		--bitarrays --return
 	),
+
 
 	/** Slice layers
 	 */

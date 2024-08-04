@@ -65,12 +65,16 @@ function createElevationSliderDialog =
 			format "\n"; print ".removeSlicePlaneModifier()"
 
 			if (  select_mod = obj.modifiers[#SLICE_SELECT_OBJ] ) != undefined then
-				deleteModifier obj modifiers[#SLICE_SELECT_OBJ]
+				deleteModifier select_mod
 
 
-			for mod_name in #( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM, #SELECT_LAYER ) do
-				for obj in geometry where obj.modifiers[mod_name] != undefined do
-					deleteModifier obj obj.modifiers[mod_name]
+			if (  slice_mod = obj.modifiers[#SLICE_PLANE_TOP] ) != undefined then
+				deleteModifier obj slice_mod
+
+
+			--for mod_name in #( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM, #SELECT_LAYER ) do
+			--	for obj in geometry where obj.modifiers[mod_name] != undefined do
+			--		deleteModifier obj obj.modifiers[mod_name]
 		)
 
 		/** Get Layer index by position in world
@@ -296,18 +300,22 @@ function createElevationSliderDialog =
 			updateSlicePlaneSystem (val)
 
 
-		--/* ON DIALOG OPEN */
+		/*------------------------------------------------------------------------------
+			DIALOG EVENTS
+		--------------------------------------------------------------------------------*/
+
+		/* ON OPEN */
 		on DIALOG_elevation_slider OPEN do
 			toggleSlicePlanePosition pos:#CENTER
 			--updateSlicePlaneSystem (DIALOG_elevation_slider.SPIN_layer_current.value)
 
-		/* ON DIALOG CLOSE */
+		/* ON CLOSE */
 		on DIALOG_elevation_slider CLOSE do
-				removeSlicePlaneModifier( selection )
+			removeSlicePlaneModifier( selection )
 
 		--	updateSlicePlaneSystem (DIALOG_elevation_slider.SPIN_layer_current.value)
 
-	)
+    ) -- end rollout
 
 	--format "GetDialogPos DIALOG_elevation_slider	= % \n" (GetDialogPos DIALOG_elevation_slider == [0,0])
 
