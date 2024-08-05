@@ -1,9 +1,10 @@
 
 global layers_data
+global DIALOG_island_manager
 
 /** Select island verts
  */
-function selectIslandVerts verts =
+function selectIslandVerts verts layer_index =
 (
 	format "\n"; print ".selectIslandVerts()"
 
@@ -12,6 +13,7 @@ function selectIslandVerts verts =
 	format "verts: %\n" verts
 	format "verts: %\n" (classOF verts)
 
+	DIALOG_island_manager.SLIDER_island_select.value = layer_index
 
 	--$.EditablePoly.SetSelection #Vertex ( verts as BitArray )
 	$.EditablePoly.SetSelection #Vertex verts
@@ -22,7 +24,7 @@ function selectIslandVerts verts =
 function selectLayer slider_val =
 (
 	--format "\n"; print ".selectLayer()"
-	--format "EventFired	= % \n" EventFired
+	format "EventFired	= % \n" EventFired
 	format "slider_val: %\n" slider_val
 	--format "layers_data: %\n" layers_data
 
@@ -65,26 +67,26 @@ function createIslandManagerDialog islands_data =
 	--LayersData	=  Dictionary #INTEGER
 
 	--layers_data = #()
-	layers_data = #()
+	--layers_data = #()
+	--
+	--layers_data[slice_layers.count] = undefined
+	--
+	--for i = 1 to islands_data[#NEW_ISLANDS].count do
+	--(
+	--	if layers_data[i] == undefined then
+	--	(
+	--
+	--		bottom_layer = islands_data[#BOTTOM][i]
+	--		format "BOTTOM_LAYER: %\n" bottom_layer
+	--
+	--		layers_data[i]	=  Dictionary #( #BOTTOM, bottom_layer )  #( #TOP, islands_data[#TOP][i] ) #( #NEW_ISLAND, islands_data[#NEW_ISLANDS][i] )  #( #WHOLE_ISLAND, islands_data[#WHOLE_ISLANDS][i] )
+	--
+	--	)
+	--)
 
-	layers_data[slice_layers.count] = undefined
-
-	for i = 1 to islands_data[#NEW_ISLANDS].count do
-	(
-		if layers_data[i] == undefined then
-		(
-
-			bottom_layer = islands_data[#BOTTOM][i]
-			format "BOTTOM_LAYER: %\n" bottom_layer
-
-			layers_data[i]	=  Dictionary #( #BOTTOM, bottom_layer )  #( #TOP, islands_data[#TOP][i] ) #( #NEW_ISLAND, islands_data[#NEW_ISLANDS][i] )  #( #WHOLE_ISLAND, islands_data[#WHOLE_ISLANDS][i] )
-
-		)
-	)
-
-	format "layers_data: %\n" layers_data
-	format "layers_data.count: %\n" layers_data.count
-	format "slice_layers.count: %\n" slice_layers.count
+	--format "layers_data: %\n" layers_data
+	--format "layers_data.count: %\n" layers_data.count
+	--format "slice_layers.count: %\n" slice_layers.count
 
 	Dialog 	    = Dialog_v ("Island Manager") --ini:(getSourceFileName())
 
@@ -104,14 +106,14 @@ function createIslandManagerDialog islands_data =
 
 	islands_count = islands_data[#NEW_ISLANDS].count
 
-	steps_count = islands_count + 1
+	steps_count = islands_count
 
-	slider_height =  steps_count * step_height
-	format "slider_height: %\n" slider_height
+	slider_height =  (islands_count + 1 ) * step_height
+	--format "slider_height: %\n" slider_height
 
 	btn_pos = -step_height + pos_y_start
 
-	format "btn_pos: %\n" btn_pos
+	--format "btn_pos: %\n" btn_pos
 
 	for i = islands_count to 1 by -1 do
 	--for i = 1 to islands_data[#NEW_ISLANDS].count do
@@ -121,18 +123,18 @@ function createIslandManagerDialog islands_data =
 		_Button     = _Controls.control #button ( islands_data[#BOTTOM][i] as string + " " + i as string ) across:1 height:step_height  pos:[ 32, btn_pos += step_height ]
 
 
-		--_Button.Event #PRESSED "selectIslandVerts" params:(islands_data[#NEW_ISLANDS][i] )
+		_Button.Event #PRESSED "selectIslandVerts" params:#(islands_data[#NEW_ISLANDS][i], i )
 
 
-		--if islands_data[#NEW_ISLANDS][i] != undefined then
-		--	_Button.Event #RIGHTCLICK  "selectIslandVerts" params:(islands_data[#NEW_ISLANDS][i] )
+		if islands_data[#WHOLE_ISLANDS][i] != undefined then
+			_Button.Event #RIGHTCLICK  "selectIslandVerts" params:#(islands_data[#WHOLE_ISLANDS][i], i )
 
 	)
 
 	/*------ SLIDER ------*/
 
 
-	_slider     = _Controls.control #SLIDER "" range:[0,steps_count ,0] pos:[ pos_y_start, pos_y_start ] height:slider_height params:#(#orient, #vertical, #type, #integer) border:true width:16
+	_slider     = _Controls.control #SLIDER "" id:#SLIDER_island_select range:[0,steps_count ,0] pos:[ pos_y_start, pos_y_start ] height:slider_height params:#(#orient, #vertical, #type, #integer) border:true width:16 ticks:(steps_count - 1)
 
 	--_slider     = _Controls.control #SLIDER "" range:[0,slice_layers.count,0] height:512 params:#(#orient, #vertical, #type, #integer) border:true width:16  pos:[ -256, 0 ]
 
