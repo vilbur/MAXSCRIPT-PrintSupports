@@ -174,6 +174,7 @@ tooltip:	"Shift layer UP"
 icon:	"across:3|height:32|Tooltip:CTRL:SHIFT:ALT: 10\25\25 Layers incremnet by number of mod keys pressed 1\2\3"
 (
 
+
 	on execute do
 		updateSlicePlaneSystem ( getLayerNumberToMove( #PLUS ) ) incremental:true
 )
