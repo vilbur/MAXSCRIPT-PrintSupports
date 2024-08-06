@@ -1,5 +1,5 @@
 
-global layers_data
+global ISLANDS_DATA
 global DIALOG_island_manager
 
 /** Select island verts
@@ -13,7 +13,7 @@ function selectIslandVerts verts layer_index =
 	format "verts: %\n" verts
 	format "verts: %\n" (classOF verts)
 
-	DIALOG_island_manager.SLIDER_island_select.value = layer_index
+	DIALOG_island_manager.SLIDER_island_select.value = layer_index - 1
 
 	--$.EditablePoly.SetSelection #Vertex ( verts as BitArray )
 	$.EditablePoly.SetSelection #Vertex verts
@@ -26,26 +26,35 @@ function selectLayer slider_val =
 	--format "\n"; print ".selectLayer()"
 	format "EventFired	= % \n" EventFired
 	format "slider_val: %\n" slider_val
-	--format "layers_data: %\n" layers_data
+	format "ISLANDS_DATA: %\n" ISLANDS_DATA
+
+	if slider_val == undefined then
+		slider_val = DIALOG_island_manager.SLIDER_island_select.value
+
+	obj	= selection[1]
 
 	layer_index = slider_val + 1
 
-	--format "layer_data: %\n" DIALOG_island_manager.layers_data[layer_index]
+	--format "ISLANDS_DATA: %\n" DIALOG_island_manager.layers_data[layer_index]
 
-	layer_data = layers_data[layer_index]
-	--format "layer_data: %\n" layer_data
-	if layer_data != undefined then
+	--ISLANDS_DATA = ISLANDS_DATA[#NEW_ISLANDS][layer_index]
+
+	if ISLANDS_DATA[#NEW_ISLANDS][layer_index] != undefined then
 	(
-		--verts = layer_data[#WHOLE_ISLAND]
-		--verts = layer_data[#NEW_ISLAND]
+		--verts = ISLANDS_DATA[#WHOLE_ISLAND]
+		--verts = ISLANDS_DATA[#NEW_ISLAND]
 
-		verts = if keyboard.controlPressed and layer_data[#WHOLE_ISLAND] != undefined then layer_data[#WHOLE_ISLAND] else layer_data[#NEW_ISLAND]
+		verts = if keyboard.controlPressed and ISLANDS_DATA[#NEW_ISLANDS][layer_index] != undefined then ISLANDS_DATA[#NEW_ISLANDS][layer_index] else ISLANDS_DATA[#NEW_ISLANDS][layer_index]
 
-		--format "verts: %\n" verts
+		/* ADD TO CURRENT SELECTION */
+		if keyboard.shiftPressed then
+			verts += getVertSelection obj.mesh
 
+		else if keyboard.altPressed then
+			verts -= getVertSelection obj.mesh
 
 		if verts != undefined then
-			$.EditablePoly.SetSelection #Vertex verts
+			obj.EditablePoly.SetSelection #Vertex verts
 		--else
 			--$.EditablePoly.SetSelection #Vertex #{}
 
@@ -57,12 +66,12 @@ function selectLayer slider_val =
 
 /** Create island manager dialog
  */
-function createIslandManagerDialog islands_data =
+function createIslandManagerDialog =
 (
 	format "\n"; print ".createIslandManagerDialog()"
-	format "islands_data: %\n" islands_data
+	format "ISLANDS_DATA: %\n" ISLANDS_DATA
 
-	slice_layers = makeUniqueArray ( for pos in islands_data[#TOP] collect pos )
+	--slice_layers = makeUniqueArray ( for pos in ISLANDS_DATA[#TOP] collect pos )
 
 	--LayersData	=  Dictionary #INTEGER
 
@@ -71,15 +80,15 @@ function createIslandManagerDialog islands_data =
 	--
 	--layers_data[slice_layers.count] = undefined
 	--
-	--for i = 1 to islands_data[#NEW_ISLANDS].count do
+	--for i = 1 to ISLANDS_DATA[#NEW_ISLANDS].count do
 	--(
 	--	if layers_data[i] == undefined then
 	--	(
 	--
-	--		bottom_layer = islands_data[#BOTTOM][i]
+	--		bottom_layer = ISLANDS_DATA[#BOTTOM][i]
 	--		format "BOTTOM_LAYER: %\n" bottom_layer
 	--
-	--		layers_data[i]	=  Dictionary #( #BOTTOM, bottom_layer )  #( #TOP, islands_data[#TOP][i] ) #( #NEW_ISLAND, islands_data[#NEW_ISLANDS][i] )  #( #WHOLE_ISLAND, islands_data[#WHOLE_ISLANDS][i] )
+	--		layers_data[i]	=  Dictionary #( #BOTTOM, bottom_layer )  #( #TOP, ISLANDS_DATA[#TOP][i] ) #( #NEW_ISLAND, ISLANDS_DATA[#NEW_ISLANDS][i] )  #( #WHOLE_ISLAND, ISLANDS_DATA[#WHOLE_ISLANDS][i] )
 	--
 	--	)
 	--)
@@ -104,47 +113,45 @@ function createIslandManagerDialog islands_data =
 
 	viewport_height = Dialog.getViewportHeight()
 
-	islands_count = islands_data[#NEW_ISLANDS].count
+	islands_count = ISLANDS_DATA[#NEW_ISLANDS].count
 
-	steps_count = islands_count
+	--steps_count = islands_count
 
-	slider_height =  (islands_count + 1 ) * step_height
+	slider_height =  (islands_count ) * step_height
 	--format "slider_height: %\n" slider_height
 
 	btn_pos = -step_height + pos_y_start
 
 	--format "btn_pos: %\n" btn_pos
 
-	for i = islands_count to 1 by -1 do
-	--for i = 1 to islands_data[#NEW_ISLANDS].count do
-	(
-		--_Button     = _Controls.control #button ( "Island " + i as string ) across:1 height:18 offset:[0,-2]
-
-		_Button     = _Controls.control #button ( islands_data[#BOTTOM][i] as string + " " + i as string ) across:1 height:step_height  pos:[ 32, btn_pos += step_height ]
-
-
-		_Button.Event #PRESSED "selectIslandVerts" params:#(islands_data[#NEW_ISLANDS][i], i )
-
-
-		if islands_data[#WHOLE_ISLANDS][i] != undefined then
-			_Button.Event #RIGHTCLICK  "selectIslandVerts" params:#(islands_data[#WHOLE_ISLANDS][i], i )
-
-	)
-
-	/*------ SLIDER ------*/
-
-
-	_slider     = _Controls.control #SLIDER "" id:#SLIDER_island_select range:[0,steps_count ,0] pos:[ pos_y_start, pos_y_start ] height:slider_height params:#(#orient, #vertical, #type, #integer) border:true width:16 ticks:(steps_count - 1)
-
-	--_slider     = _Controls.control #SLIDER "" range:[0,slice_layers.count,0] height:512 params:#(#orient, #vertical, #type, #integer) border:true width:16  pos:[ -256, 0 ]
-
-	_slider.Event #CHANGED "selectLayer"
+	items = for i = ISLANDS_DATA[#NEW_ISLANDS].count to 1 by -1 collect ISLANDS_DATA[#BOTTOM][i] as string
 
 
 
-	--Dialog.create()
-	--Dialog.create height:( (islands_data[#NEW_ISLANDS].count + 1 ) * 20 + 128 )
-	--Dialog.create width:96 height:( (islands_data[#NEW_ISLANDS].count + 1 ) * 20 + 128 ) bgcolor:( color 60 130 140 ) lockWidth:false
+	_multilistbox     = _Controls.control #MULTILISTBOX "TEST" items:items width:96 height:islands_count
+
+	_multilistbox.Event #selected  "selectLayer"
+
+	--for i = islands_count to 1 by -1 do
+	----for i = 1 to ISLANDS_DATA[#NEW_ISLANDS].count do
+	--(
+	--	--_Button     = _Controls.control #button ( "Island " + i as string ) across:1 height:18 offset:[0,-2]
+	--
+	--	_Button     = _Controls.control #button ( ISLANDS_DATA[#BOTTOM][i] as string + " " + i as string ) across:1 height:step_height  pos:[ 42, btn_pos += step_height ]
+	--
+	--
+	--	_Button.Event #PRESSED "selectIslandVerts" params:#(ISLANDS_DATA[#NEW_ISLANDS][i], i )
+	--
+	--
+	--	if ISLANDS_DATA[#WHOLE_ISLANDS][i] != undefined then
+	--		_Button.Event #RIGHTCLICK  "selectIslandVerts" params:#(ISLANDS_DATA[#WHOLE_ISLANDS][i], i )
+	--)
+	--
+	--/*------ SLIDER ------*/
+	--_slider     = _Controls.control #SLIDER "" id:#SLIDER_island_select range:[0, islands_count - 1 ,0] pos:[ pos_y_start, pos_y_start ] height:slider_height params:#(#orient, #vertical, #type, #integer) border:true width:32 ticks:(islands_count - 2)
+	--
+	--_slider.Event #CHANGED "selectLayer"
+
 	Dialog.create width:48 height:#VIEWPORT --bgcolor:( color 60 130 140 )
 
 	Dialog.min_size = [32, -1]

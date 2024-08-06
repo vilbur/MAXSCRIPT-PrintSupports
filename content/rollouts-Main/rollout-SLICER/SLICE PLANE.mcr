@@ -202,11 +202,46 @@ icon:	"across:3|height:32"
 /**
  *
  */
+macroscript	maxtoprint_find_islands_dialog
+category:	"maxtoprint"
+buttontext:	"FIND ISLANDS"
+toolTip:	""
+icon:	"across:3"
+(
+
+	on execute do
+	(
+	--	filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-Points\3-1-2-SELECT CONVEX - CONCAVE .mcr"
+		gc light:true
+		gc()
+
+		undo off
+		(
+			obj	= selection[1]
+
+			if ( ISLANDS_DATA = getUserPropVal obj "ISLANDS_DATA"  ) == undefined then
+			(
+				macros.run "maxtoprint" "maxtoprint_find_islands"
+
+				ISLANDS_DATA = getUserPropVal obj "ISLANDS_DATA"
+			)
+
+
+			createIslandManagerDialog()
+
+		)
+
+	)
+)
+
+/**
+ *
+ */
 macroscript	maxtoprint_find_islands
 category:	"maxtoprint"
 buttontext:	"FIND ISLANDS"
 toolTip:	""
-icon:	"across:3|tooltip:CTRL: New selection"
+icon:	"across:3"
 (
 
 	on execute do
@@ -220,19 +255,20 @@ icon:	"across:3|tooltip:CTRL: New selection"
 			obj	= selection[1]
 
 			VertSelector 	= VertSelector_v(obj )
+
+			VertIslandFinder = VertSelector.VertexLayers.VertIslandFinder
 			--if subobject == #FACE then polyop.getFaceSelection obj else polyop.getVertSelection obj -- return
 
 			new_islands = VertSelector.findIslandsPerLayer()
 
-			format "islands_all COUNT: %\n" VertSelector.VertexLayers.VertIslandFinder.islands_all.count
+			format "islands_all COUNT: %\n" VertIslandFinder.islands_all.count
 
 			lowest_verts = VertSelector.getLowestVerts ( new_islands )
 			format "lowest_verts: %\n" lowest_verts
 
 			VertSelector.setSelection ( lowest_verts )
 
-			createIslandManagerDialog(VertSelector.VertexLayers.VertIslandFinder.islands_data)
-
+			setUserPropVal obj "ISLANDS_DATA" VertIslandFinder.islands_data
 		)
 
 		--elements = VertSelector.VertIslandFinder.getElementsOfFaces ( polyop.getFaceSelection obj )
