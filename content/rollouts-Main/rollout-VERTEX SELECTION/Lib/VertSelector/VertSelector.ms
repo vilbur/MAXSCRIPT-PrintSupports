@@ -127,7 +127,7 @@ struct VertSelector_v
 		--
 		--new_islands_all --return
 
-		VertexLayers.VertIslandFinder.islands_data[#NEW_ISLANDS] --return
+		VertexLayers.VertIslandFinder.islands_data --return
 	),
 
 	/** Select sinlge vert per face island

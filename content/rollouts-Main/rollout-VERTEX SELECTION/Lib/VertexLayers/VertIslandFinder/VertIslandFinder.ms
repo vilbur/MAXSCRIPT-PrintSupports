@@ -22,33 +22,12 @@ struct VertIslandFinder_v
 	face_islands	= #(),
 	verts_layers	= #(),	-- each item is BitArray of verts in layer
 	verts_above	= #{},	-- store verts above last layer, or not yet iterated layers
-	--verts_bellow	= #{},
 	verts_processed	= #{},
 
+	islands_data	= #(),
+	islands_cache	= #(),
 	faces_processed	= #{},
-	islands_all	= #(), -- store silands of verts bellow first layer, or already itearated layers
-	islands_empty	= #(), -- store silands of verts bellow first layer, or already itearated layers
 
-	empty_bitarray = #{},
-
-	--verts_of_faces = #{},
-	--layer_verts_processed = #{},
-	--new_island = #{},
-
-	--islands_data[#NEW_ISLANDS] = #(),
-
-	islands_data	=  Dictionary #(#NEW_ISLANDS, #()) #(#BOTTOM, #()) #(#TOP, #()) #(#WHOLE_ISLANDS, #()) , -- KEY: VALUE:
-
-	--islands_data[#BOTTOM] = #(),
-	--islands_data[#HEIGHTS] = #(),
-	--islands_data[#VERTS] = #(),
-
-
-	--new_islands_layers = #(),
-	--new_islands_heigt = #(),
-	--new_islands_full = #(),
-
-	--merged_islands = #(),
 	/* private */
 	/* dependency */
 	/* reference */
@@ -57,12 +36,12 @@ struct VertIslandFinder_v
 
 	/** GET NEW NEW_ISLANDS PER LAYER
 	  *
-	  * Loop each print layer and search for new islands_all
+	  * Loop each print layer and search for new islands_cache
 	  *
 	  * This method is usefel up to 100k vertex count, higher vertex count is slow
 	  * Use lots of RAM memory
 	  *
-	  * @return #( #{ verts of new islands_all } )
+	  * @return #( #{ verts of new islands_cache } )
 	 */
 	function getNewIslandsPerLayer =
 	(
@@ -72,7 +51,7 @@ struct VertIslandFinder_v
 		--format "layers_count: %\n" layers_count
 		--verts_processed = #{}
 
-		this.empty_bitarray = verts_all * #{}
+		--this.empty_bitarray = verts_all * #{}
 
 		if verts_above.isEmpty then
 			verts_above = copy verts_all
@@ -92,8 +71,8 @@ struct VertIslandFinder_v
 
 				format "\n"
 				format "layer: % of: %\n" l used_layers_count
-				format "islands_data[#NEW_ISLANDS].count: %\n" islands_data[#NEW_ISLANDS].count
-				--format "islands_all.count: %\n" islands_all.count
+
+				--format "islands_cache.count: %\n" islands_cache.count
 				layer_timer = timeStamp()
 			)
 
@@ -117,15 +96,20 @@ struct VertIslandFinder_v
 			new_islands_in_layer = this._joinFacesToIslands(new_faces_in_layer)
 			--this._joinVertsToIslands(new_faces_in_layer)
 
-
 			if new_islands_in_layer.count > 0 then
 			(
-				join this.islands_all new_islands_in_layer
+				for new_island in new_islands_in_layer do
+				(
+					island_data = Dictionary()
 
-				join this.islands_data[#NEW_ISLANDS] new_islands_in_layer
+					island_data[#NEW_ISLAND] = new_island
 
-				join this.islands_data[#BOTTOM] (for i = 1 to new_islands_in_layer.count collect layer)
-				--format "new_islands_layers: %\n" new_islands_layers
+					island_data[#BOTTOM] = layer
+
+					append islands_data island_data
+				)
+
+				join this.islands_cache new_islands_in_layer
 
 				this._mergeIslandsBySharedBits(layer)
 			)
@@ -156,14 +140,13 @@ struct VertIslandFinder_v
 		--huge_new_islands = for i = 1 to new_islands_heights.count where new_islands_heights[i] != undefined and new_islands_heights[i] > 100 collect islands_data[#NEW_ISLANDS][i]
 
 		format "\n******************************************************************************\n"
-		format "islands_data[#NEW_ISLANDS].count: %\n" islands_data[#NEW_ISLANDS].count
 		--format "islands_data[#BOTTOM] .count: %\n" islands_data[#BOTTOM] .count
 		--format "islands_data[#HEIGHTS].count: %\n" islands_data[#HEIGHTS].count
 
 		--format "NEW_ISLANDS_HEIGHTS: %\n" new_islands_layers
 		--format "HUGE_NEW_ISLANDS: %\n" huge_new_islands
 
-		this.islands_data[#NEW_ISLANDS] --return
+		this.islands_data --return
 	),
 
 	/** Join faces to islands
@@ -182,154 +165,24 @@ struct VertIslandFinder_v
 
 			merged = false
 
-			for i = 1 to islands_all.count while not merged where not ((islands_all[i]) * verts ).isEmpty do
-			--for i = 1 to islands_all.count while not merged where ((islands_all[i]) * verts ).numberSet > 1 do
-			--for i = 1 to islands_all.count while not merged where (islands_all[i] * verts_in_layer ).numberSet > 1 do
+			for i = 1 to islands_cache.count while not merged where not ((islands_cache[i]) * verts ).isEmpty do
+			--for i = 1 to islands_cache.count while not merged where ((islands_cache[i]) * verts ).numberSet > 1 do
+			--for i = 1 to islands_cache.count while not merged where (islands_cache[i] * verts_in_layer ).numberSet > 1 do
 			(
 				merged = true
 
-				islands_all[i] += verts
+				islands_cache[i] += verts
 			)
 
 			if not merged then
 			(
 				append new_islands_in_layer verts
 
-				append islands_all verts
+				append islands_cache verts
 			)
 		)
 
 		new_islands_in_layer --return
-	),
-	/** Join verts to islands
-	 */
-	function _joinVertsToIslands new_faces_in_layer =
-	(
-		--format "\n"; print "VertIslandFinder_v.joinVertsToIslands()"
-		--format "verts: %\n" verts
-		--format "verts.count: %\n" verts.count
-		--format "verts.numberSet: %\n" verts.numberSet
-
-		layer_verts_processed	= #{}
-
-		new_islands_in_layer = #()
-
-		/* GET VERTS OF NEW FACES IN LAYER */
-		verts = polyop.getVertsUsingFace obj new_faces_in_layer
-
-		while not verts.isEmpty do -- "while" is used insetead of "for" loop, it allows to mul
-		(
-			vert = ( verts as Array )[1]
-
-			faces_of_vert	= polyop.getFacesUsingVert obj vert
-
-			verts_of_faces	= polyop.getVertsUsingFace obj faces_of_vert
-
-			merged = false
-
-			--for i = 1 to islands_all.count where ((islands_all[i] - verts_above) * (verts_of_faces - verts_above) ).numberSet > 1 do
-			--for i = 1 to islands_all.count where not ((islands_all[i]) * (verts_of_faces) ).isEmpty do
-
-			--for i = 1 to islands_all.count while not merged where ((islands_all[i]) * (verts_of_faces) ).numberSet > 0 do
-
-			--for face in faces_of_vert where faces_processed[face] do
-			--format "!!! TESTED AGAIN: %\n" face
-
-
-
-			for i = 1 to islands_all.count while not merged where ((islands_all[i]) * (verts_of_faces) ).numberSet > 1 do
-			(
-					merged = true
-
-					islands_all[i] += verts_of_faces
-				)
-			--
-			--
-			--for i = 1 to islands_all.count while not merged do
-			--(
-			--	island = islands_all[i]
-			--
-			--	for vert in verts_of_faces while not merged where island[vert] do
-			--	--if ((islands_all[i]) * (verts_of_faces) ).numberSet > 1
-			--	(
-			--		merged = true
-			--
-			--		islands_all[i] += verts_of_faces
-			--	)
-			--
-			--
-			--)
-
-
-			if not merged then
-			(
-				--append islands_all ( empty_bitarray * verts_of_faces )
-				--append islands_all ( (verts_all * #{}) * verts_of_faces )
-				append new_islands_in_layer verts
-
-				append islands_all verts_of_faces
-			)
-
-			--gc light:true
-			--next_verts = verts_of_faces - layer_verts_processed
-
-			verts	-= verts_of_faces
-			--layer_verts_processed	+= verts_of_faces
-
-			--
-			--vert = (next_verts as Array )[1]
-			--
-			--if vert == undefined then
-			--	vert = (verts as Array )[1]
-		)
-
-		--join islands_all islands_in_layer
-
-		--format "\n"
-		--format "islands_all.count: %\n" islands_all.count
-		--format "islands_all.count: %\n" islands_all.count
-
-	),
-
-	/** Merge islands
-	 */
-	function _mergeIslands =
-	(
-		--format "\n"; print "VertIslandFinder_v._mergeIslands()"
-		for x = this.islands_all.count to 1 by -1 do
-		--for x = this.islands_all.count to 1 by -1 where islands_all[x] != undefined do
-		(
-			merged = false
-
-			bitarrays_x = this.islands_all[x]
-			--format "bitarrays_x.count: %\n" bitarrays_x.count
-
-			bitarrays_x_sliced = bitarrays_x - verts_above
-
-			--for y = this.islands_all.count to 1 by -1 where x != y and not ( this.islands_all[x] * this.islands_all[y] ).isEmpty do -- "not ( this.islands_all[x] * this.islands_all[y] ).isEmpty" WILL CONNECT FACES WHICH SHARE SIGNLGE VERTEX - IT IS NOT ACCURATE
-			--for y = this.islands_all.count to 1 by -1 where x != y and ( this.islands_all[x] * this.islands_all[y] ).numberSet > 1 do -- "not ( this.islands_all[x] * this.islands_all[y] ).isEmpty" WILL CONNECT FACES WHICH SHARE SIGNLGE VERTEX - IT IS NOT ACCURATE
-
-			for y = this.islands_all.count to 1 by -1 where x != y do -- "not ( this.islands_all[x] * this.islands_all[y] ).isEmpty" WILL CONNECT FACES WHICH SHARE SIGNLGE VERTEX - IT IS NOT ACCURATE
-			--for y = this.islands_all.count to 1 by -1 where islands_all[y] != undefined and x != y do -- "not ( this.islands_all[x] * this.islands_all[y] ).isEmpty" WILL CONNECT FACES WHICH SHARE SIGNLGE VERTEX - IT IS NOT ACCURATE
-			(
-
-				bitarrays_y_sliced = this.islands_all[y] - verts_above
-
-				if ( bitarrays_x_sliced * bitarrays_y_sliced ).numberSet > 1 then
-				--if ( bitarrays_x_sliced * bitarrays_y_sliced ).numberSet > 0 then
-				(
-					--append merged_islands this.islands_all[y]
-
-					this.islands_all[y] += this.islands_all[x]
-
-					merged = true
-				)
-			)
-
-			if merged then
-				deleteItem this.islands_all x
-		)
-
 	),
 
 	/** Set vertex color to new islands
@@ -350,13 +203,13 @@ struct VertIslandFinder_v
 		)
 
 
-		for new_island in this.islands_data[#NEW_ISLANDS]  do
 		--for new_island in this.islands_data[#NEW_ISLANDS]  do
-		(
-			polyop.setVertColor obj.baseobject 0 (new_island) red
-
-			this._getCenterOfIsland (new_island)
-		)
+		----for new_island in this.islands_data[#NEW_ISLANDS]  do
+		--(
+		--	polyop.setVertColor obj.baseobject 0 (new_island) red
+		--
+		--	this._getCenterOfIsland (new_island)
+		--)
 
 	),
 
@@ -373,140 +226,36 @@ struct VertIslandFinder_v
 		--if new_islands_heights.count < islands_data[#NEW_ISLANDS].count then
 
 
-		for x = islands_all.count to 1 by -1 do
+		for x = islands_cache.count to 1 by -1 do
 		(
 			merged = false
 
-			island_x = islands_all[x]
+			island_x = islands_cache[x]
 
 
-			--for y = islands_all.count to 1 by -1 while not merged where x != y and not ( islands_all[x] * islands_all[y] ).isEmpty do
-			for y = islands_all.count to 1 by -1 while not merged where x != y and ( island_x * islands_all[y] ).numberSet > 1 do
-
+			--for y = islands_cache.count to 1 by -1 while not merged where x != y and not ( islands_cache[x] * islands_cache[y] ).isEmpty do
+			for y = islands_cache.count to 1 by -1 while not merged where x != y and ( island_x * islands_cache[y] ).numberSet > 1 do
 			(
-				islands_all[y] += island_x
+				islands_cache[y] += island_x
 
 				merged = true
 
-				--format "MERGE: %\n" island_x
 
-				for i = 1 to islands_data[#NEW_ISLANDS].count where islands_data[#TOP][i] == undefined and not (islands_data[#NEW_ISLANDS][i] * island_x).isEmpty do
-				--for i = 1 to islands_data[#NEW_ISLANDS].count where islands_data[#VERTS][i] == undefined do
+				for i = 1 to islands_data.count where islands_data[i][#TOP] == undefined and not (islands_data[i][#NEW_ISLAND] * island_x).isEmpty do
 				(
-					if current_layer != islands_data[#BOTTOM][i] then
+					if current_layer != islands_data[i][#BOTTOM] then
 					(
-						--format "MERGE: % %\n" i island_height
+						--format "islands_data[#BOTTOM][i]: %\n" islands_data[#BOTTOM][i]
+						islands_data[i][#TOP] = i
 
-						insertItem island_x islands_data[#WHOLE_ISLANDS] i
-
-						insertItem current_layer islands_data[#TOP] i
-
-						--insertItem island_height islands_data[#HEIGHTS] i
-						--
-						--format "\n-----------------------------------------------\n"
-						----format "\n% %: %" islands_data[#BOTTOM][i] islands_data[#HEIGHTS][i] islands_data[#VERTS][i]
-						--format "#ISLAND: %\n" islands_data[#NEW_ISLANDS][i]
-						--format "#LAYER: %\n"  islands_data[#BOTTOM] [i]
-						--format "#HEIGHT: %\n" islands_data[#HEIGHTS][i]
-						--format "#VERTS: %\n"  islands_data[#VERTS][i]
-
-						--format "\n% %: %" islands_data[#BOTTOM][i] islands_data[#HEIGHTS][i] islands_data[#VERTS][i]
-
+						islands_data[i][#WHOLE_ISLAND] = island_x
 					)
+
 				)
-
-				deleteItem islands_all x
+				deleteItem islands_cache x
 			)
 		)
 	),
-
-
-	/** Slice layers
-	 */
-	function _sliceLayers layers_with_verts =
-	(
-		format "\n"; print "VertIslandFinder_v._sliceLayers()"
-		bbox	= ( nodeGetBoundingBox obj ( Matrix3 1) ) -- get bbox before slice
-
-		max create mode
-
-		--slice_mod = SliceModifier name:"SLICE_LAYERS" Slice_Type:2 Faces___Polygons_Toggle:1 SetMaterial:on materialID:999
-		slice_mod = SliceModifier name:"SLICE_LAYERS" Slice_Type:2 Faces___Polygons_Toggle:1 --SetMaterial:on materialID:999
-
-		--select_mod = Vol__Select name:"SELECT_LAYER" level:2 volume:5 matID:999 invert:true
-		--epoly_mod = Edit_Poly name:"Edit_Poly_LAYER"
-
-
-		addModifier obj slice_mod
-		--addModifier obj select_mod
-		--addModifier obj epoly_mod
-
-
-		--size_z = bbox[2].z - bbox[1].z
-		--format "size_z: %\n" size_z
-		--
-		----layer_height = 1
-		----layer_height = 0.1
-		--
-		----layers_count = (size_z / layer_height) as integer
-		--
-		--
-		--format "layers_count: %\n" layers_count
-		--
-		--elements_all = #()
-		elements_count_changed = #()
-		--
-		count_old = 0
-
-		--loop_layers = timeStamp()
-		--format "\n loop_layers: % ms\n" (( timeStamp()) - loop_layers)
-		with redraw off
-
-		for layer in layers_with_verts do -- layer has not verts if item is integer ( layer number )
-		--for layer = 1 to layers_count do
-		(
-			--format "\n==============================\nlayer: %\n" layer
-			layer_TM = Matrix3 1
-			--layer_TM.position.z = bbox[1].z
-			layer_TM.position.z = layer * layer_height
-			--layer_TM.position.z += layer_height -- set first layer
-
-
-			temp_TM =	layer_TM * ( Inverse obj.transform )
-
-			slice_mod.slice_plane.transform = temp_TM
-
-
-			elements = this.getElementsOfFaces ()
-
-
-
-			--_mergeIslandsBySharedBits elements &elements_all
-
-
-			--format "count: % elements: % elements_all: \n" elements.count elements elements_all
-			if elements.count > count_old  then
-			(
-				--format "\n==============================\nlayer: %\n" layer
-				--
-				--format "elements: %\n" elements
-				--format "elements.count : %\n" elements.count
-
-				append elements_count_changed layer
-			)
-
-
-			count_old = elements.count
-
-		)
-
-		deleteModifier obj slice_mod
-		--deleteModifier obj select_mod
-
-
-		elements_count_changed --return
-	),
-
 
 	/** Get first layer
 	 */
@@ -520,8 +269,8 @@ struct VertIslandFinder_v
 			this.faces_processed += faces_in_layer
 
 
-			this.islands_all = this.getVertexIslands ( polyop.getVertsUsedOnlyByFaces obj faces_in_layer)
-			--this.islands_all = this.getVertexIslands ( polyop.getVertsUsingFace obj faces_in_layer)
+			this.islands_cache = this.getVertexIslands ( polyop.getVertsUsedOnlyByFaces obj faces_in_layer)
+			--this.islands_cache = this.getVertexIslands ( polyop.getVertsUsingFace obj faces_in_layer)
 
 			return layer
 		)
@@ -533,7 +282,7 @@ struct VertIslandFinder_v
 	function setVertsProcessed verts =
 	(
 		--format "\n"; print "VertIslandFinder_v.setVertsProcessed()"
-		this.islands_all = this.getVertexIslands (verts)
+		this.islands_cache = this.getVertexIslands (verts)
 	),
 
 	/** Set verts processed
@@ -545,7 +294,7 @@ struct VertIslandFinder_v
 		--
 		----faceverts = for face_id in faces_of_verts collect ( polyop.getVertsUsingFace obj face_id )
 		--
-		--islands_all = this._sortVertsByIslands( polyop.getFacesUsingVert obj verts_processed
+		--islands_cache = this._sortVertsByIslands( polyop.getFacesUsingVert obj verts_processed
 		islands = #()
 
 		--verts_used = copy verts
@@ -580,150 +329,6 @@ struct VertIslandFinder_v
 		--islands --return
 	),
 
-	/** Analyze layers
-	 */
-	function analyzeLayersByDetach verts_all verts_process verts_layers =
-	(
-		format "\n"; print "VertIslandFinder_v.analyzeLayersByDetach()"
-		format "vertex count: %\n" verts_all.numberSet
-
-		layers_count = verts_layers.count
-
-		--getFacesUsingVert = polyop.getFacesUsingVert
-		--getVertsUsingFace = polyop.getVertsUsingFace
-
-		max create mode
-
-		with redraw off
-		(
-			for layer = 1 to layers_count where classOf ( verts_in_layer = verts_layers[layer] ) == BitArray do -- layer has not verts if item is integer ( layer number )
-			(
-				----vert_color.hue = ( random 0 255 )
-				--format "\n==============\nlayer: %\n" layer
-
-				if mod layer 100 == 0 then
-					(format "layer: % of: %\n" layer layers_count)
-
-				verts_used_in_layer = verts_in_layer * verts_used
-
-				--format "NEW_ISLANDS: %\n" islands_all
-
-				/* GET FACES IN LAYER */
-				faces_in_layer = polyop.getFacesUsingVert obj verts_in_layer
-				--faces_in_layer = getFacesUsingVert obj verts_in_layer
-				--format "faces_in_layer: %\n" faces_in_layer
-
-				face_islands_in_layer = this.getElementsOfFaces (faces_in_layer)
-				--format "face_islands_in_layer: %\n" face_islands_in_layer
-
-				for face_island_in_layer in face_islands_in_layer do
-				(
-					island = polyop.getVertsUsingFace obj face_island_in_layer
-					--island = getVertsUsingFace obj face_island_in_layer
-					--format "\nisland: %\n" island
-
-					island_used = island * verts_used_in_layer -- island only from used verts
-					--format "island_used: %\n" island_used
-
-					if island_used.numberSet > 0 then
-					(
-						--intesections = for i = 1 to islands_all.count where (islands_all[i] * island_used).numberSet > 1 collect i
-						intesections = for i = 1 to islands_all.count where not (islands[i] * island_used).isEmpty collect i
-						--format "intesections: %\n" intesections
-
-						intesections_count = intesections.count
-
-						if intesections_count == 0 then
-							append this.islands_data[#NEW_ISLANDS] island_used
-
-						case intesections_count of
-						(
-							/* JOIN TO EXISTING BITARRAY */
-							(1):	islands[intesections[1]] += island
-
-							/* ADD NEW BITARRAY */
-							(0): append islands island
-
-							/* MERGE MULTIPLE BITARRAYS */
-							default:(
-
-								for i = intesections.count to 1 by -1 do
-								(
-									index = intesections[i]
-
-									island += islands[index]
-
-									deleteItem islands index
-								)
-
-								append islands island
-							)
-						)
-					)
-				)
-
-			--gc light:true
-
-			)
-
-			--
-			--islands_final = #()
-			--
-			--this._mergeIslandsBySharedBits (islands) &islands_final
-			--
-			--format "\n\nNEW NEW_ISLANDS: %\n" this.islands_data[#NEW_ISLANDS]
-			--format "\n\nNEW NEW_ISLANDS COUNT: %\n" this.islands_data[#NEW_ISLANDS].count
-			--
-			--format "\n\nISLANDS FINAL: %\n" islands_final
-
-			delete Helpers -- DEV
-
-			for new_island in this.islands_data[#NEW_ISLANDS] do
-				this._getCenterOfIsland (new_island)
-		)
-
-		redrawViews()
-
-		--gc()
-	),
-
-
-	/** Detach method
-	 */
-	function getElementsOfFaces =
-	(
-		--format "\n"; print ".detachMethod()"
-		--format "faces_of_verts: %\n" faces_of_verts
-		obj_snap = snapshot obj
-
-		convertTo obj_snap PolyMeshObject
-
-		--polyop.detachFaces obj_snap faces_of_verts delete:true
-		--
-		--local poGetElementsUsingFace = polyop.getElementsUsingFace
-		--vertex_count = getNumVerts obj.mesh
-		--_mod	= modPanel.getCurrentObject()
-
-		faces = #{1..( polyop.getNumFaces obj_snap)}
-
-		elements = #()
-
-		while not faces.isEmpty do
-																										(
-			face = (faces as array)[1]
-
-			element = polyop.getElementsUsingFace obj_snap #(face)
-
-			append elements element
-
-			faces -= element
-		)
-
-		delete obj_snap
-
-		elements --return
-	),
-
 	/** Get center of island
 	 */
 	function _getCenterOfIsland verts =
@@ -745,26 +350,6 @@ struct VertIslandFinder_v
 
 	),
 
-	/**
-	  * @param BitArray verts which faces will be sorted by islands
-	  *
-	  * @return #( #{..} ) array of vertex ids, each array are verts of one island
-	 */
-	function _sortVertsByIslands face_ids_of_verts =
-	(
-		--format "\n"; print "VertSelector_v._sortVertsByIslands()"
-
-		--face_ids_of_verts = ( polyop.getFacesUsingVert obj verts_in_layer ) as Array
-		--format "face_ids_of_verts: %\n" face_ids_of_verts
-		islands = #()
-
-		faceverts = for face_id in face_ids_of_verts collect polyop.getVertsUsingFace obj #{face_id} -- ( #{1..4}, #{2,4,5,6} ) -- faces definded by verts
-
-		--this._mergeIslandsBySharedBits (faceverts) (&islands)
-		join islands faceverts
-
-		islands = this._mergeIslandsBySharedBits(islands)
-	),
 
 
 	private
