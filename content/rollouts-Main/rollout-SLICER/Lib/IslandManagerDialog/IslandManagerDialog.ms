@@ -19,6 +19,20 @@ function selectIslandVerts verts layer_index =
 	$.EditablePoly.SetSelection #Vertex verts
 )
 
+/** Get verts from island data
+ */
+function getVertsFromIslandData island_data =
+(
+	format "\n"; print ".getVertsFromIslandData()"
+	format "STATE: %\n" (DIALOG_island_manager.RB_slider_mode.state)
+	case DIALOG_island_manager.RB_slider_mode.state of
+	(
+		0:	island_data[#NEW_ISLAND]
+		1:	#{island_data[#LOWEST_VERT]}
+		2:	if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
+	)
+
+)
 
 /** Select layer
  */
@@ -34,22 +48,22 @@ function selectLayerSlider slider_val =
 
 	layer_index = slider_val + 1
 	--format "layer_index: %\n" layer_index
-	select_whole_island = DIALOG_island_manager.CBTN_slider_mode.state
+	select_whole_island = DIALOG_island_manager.RB_slider_mode.state
 	--format "select_whole_island: %\n" select_whole_island
 	--format "BOTTOM: %\n" ISLANDS_DATA[#BOTTOM][layer_index]
 	--format "NEW_ISLAND:   %\n" ISLANDS_DATA[#NEW_ISLAND][layer_index]
 	--format "WHOLE_ISLAND: %\n" ISLANDS_DATA[#WHOLE_ISLAND][layer_index]
 
 	island_data = ISLANDS_DATA[layer_index]
-	--format "island_data: %\n" island_data\
-	format "island_data[#WHOLE_ISLAND]: %\n" island_data[#WHOLE_ISLAND]
+	format "island_data: %\n" island_data\
+	--format "island_data[#WHOLE_ISLAND]: %\n" island_data[#WHOLE_ISLAND]
 
 	if island_data[#NEW_ISLAND] != undefined then
 	(
 		--verts = ISLANDS_DATA[#WHOLE_ISLAND]
 		--verts = ISLANDS_DATA[#NEW_ISLAND]
 
-		verts = if select_whole_island and island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
+		verts = getVertsFromIslandData (island_data)
 
 		format "verts: %\n" verts
 		--/* PLUS TO SELECTION */
@@ -60,6 +74,7 @@ function selectLayerSlider slider_val =
 		--else if keyboard.altPressed then
 		--	verts -= getVertSelection obj.mesh
 
+		subObjectLevel = 1
 
 		if verts != undefined then
 			obj.EditablePoly.SetSelection #Vertex verts
@@ -68,15 +83,7 @@ function selectLayerSlider slider_val =
 
 )
 
-/** Toggle select island mode
- */
-function toggleSelectIslandMode =
-(
-	format "\n"; print ".toggleSelectIslandMode()"
-	--format "DIALOG_island_manager.CBTN_slider_mode.state: %\n" DIALOG_island_manager.CBTN_slider_mode.state
-	DIALOG_island_manager.CBTN_slider_mode.state = not DIALOG_island_manager.CBTN_slider_mode.state
 
-)
 
 /** Select layer
  */
@@ -87,7 +94,7 @@ function selectLayerListbox =
 	----format "slider_val: %\n" slider_val
 	--format "ISLANDS_DATA: %\n" ISLANDS_DATA
 
-	select_whole_island = DIALOG_island_manager.CBTN_slider_mode.state
+	--select_whole_island = DIALOG_island_manager.RB_slider_mode.state
 
 	_listbox = DIALOG_island_manager.ML_island_select
 
@@ -111,14 +118,34 @@ function selectLayerListbox =
 
 	for layer_index in selected_islands do
 	(
-		verts += if select_whole_island and ISLANDS_DATA[layer_index][#WHOLE_ISLAND] != undefined  then ISLANDS_DATA[layer_index][#WHOLE_ISLAND] else ISLANDS_DATA[layer_index][#NEW_ISLAND]
+		verts += if select_whole_island == 2 and ISLANDS_DATA[layer_index][#WHOLE_ISLAND] != undefined  then ISLANDS_DATA[layer_index][#WHOLE_ISLAND] else ISLANDS_DATA[layer_index][#NEW_ISLAND]
+		verts += getVertsFromIslandData (ISLANDS_DATA[layer_index])
 
 	)
+
+	subObjectLevel = 1
 
 	if verts.numberSet > 0 then
 		obj.EditablePoly.SetSelection #Vertex verts
 
 
+)
+/** Toggle select island mode
+ */
+function toggleSelectIslandMode =
+(
+	format "\n"; print ".toggleSelectIslandMode()"
+	--format "DIALOG_island_manager.RB_slider_mode.state: %\n" DIALOG_island_manager.RB_slider_mode.state
+	--DIALOG_island_manager.RB_slider_mode.state = not DIALOG_island_manager.RB_slider_mode.state
+	--format "DIALOG_island_manager.RB_slider_mode_last_state: %\n" DIALOG_island_manager.RB_slider_mode_last_state
+	format "DIALOG_island_manager.RB_slider_mode.state: %\n" DIALOG_island_manager.RB_slider_mode.state
+
+	DIALOG_island_manager.RB_slider_mode.state = case DIALOG_island_manager.RB_slider_mode.state of
+	(
+		0:	1
+		1:	2
+		2:	0
+	)
 )
 
 
@@ -178,7 +205,7 @@ function createIslandManagerDialog =
 	slider_height =  ( islands_count +1 ) * step_height + 2
 
 	if slider_height > viewport_height then
-		slider_height = viewport_height 
+		slider_height = viewport_height
 
 	format "viewport_height: %\n" viewport_height
 	format "slider_height: %\n" slider_height
@@ -192,8 +219,8 @@ function createIslandManagerDialog =
 	items = for i = ISLANDS_DATA.count to 1 by -1 collect ISLANDS_DATA[i][#BOTTOM] as string
 
 	/*------ CECKBUTTON ------*/
-	_button = _Controls.control #CHECKBUTTON "ISLAND" id:#CBTN_slider_mode
-	--_button.Event #CHANGED     "selectLayerSlider"
+	--_button = _Controls.control #CHECKBUTTON "ISLAND" id:#RB_slider_mode
+	_radio =	_Controls.control #RADIOBUTTONS "" id:#RB_slider_mode items:#("↓","↑") params:#( #UNSELECT, true )
 
 
 	/*------ MULTILISTBOX ------*/

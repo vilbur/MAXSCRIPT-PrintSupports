@@ -113,6 +113,14 @@ struct VertSelector_v
 		VertexLayers.findVertsOfNewIslands()
 		format "FIND_ISLANDS: % ms\n" (( timeStamp()) - timer_FIND_ISLANDS)
 
+
+		for i = 1 to VertexLayers.VertIslandFinder.islands_data.count do
+		(
+			format "i: %\n" i
+			VertexLayers.VertIslandFinder.islands_data[i][#LOWEST_VERT] = this._getLowestVertOnZaxis(VertexLayers.VertIslandFinder.islands_data[i][#NEW_ISLAND])
+		)
+
+
 		--new_islands_all = #{}
 		--
 		--for new_island in VertexLayers.VertIslandFinder.new_islands do
@@ -163,8 +171,8 @@ struct VertSelector_v
 		this.sel_modified = #{}
 
 		verts_islands = this._sortVertsByIslands(verts_sel)
-		format "verts_islands.count: %\n" verts_islands.count
-		format "verts_islands: %\n" verts_islands
+		--format "verts_islands.count: %\n" verts_islands.count
+		--format "verts_islands: %\n" verts_islands
 
 		/* LOOP EACH ISLAND OF VERTS */
 		for verts_island in verts_islands do
@@ -209,7 +217,7 @@ struct VertSelector_v
 	 */
 	function _sortVertsByIslands verts =
 	(
-		format "\n"; print "VertSelector_v._sortVertsByIslands()"
+		--format "\n"; print "VertSelector_v._sortVertsByIslands()"
 
 		function facesShareVerts verts1 verts2 = not ( verts1 * verts2 ).isEmpty
 		--function facesShareVerts verts1 verts2 = ( verts1 * verts2 ).numberSet > 1
@@ -350,7 +358,7 @@ struct VertSelector_v
 	--	--format "\n"; print "VertexGridGetter_v._SelectOnlyMinZVerts()"
 	--	--format "verts: %\n" verts
 	--
-	--	/* VERTS CAN BE UNDEFINED IF CELL IS EMPTY */
+	----	/* VERTS CAN BE UNDEFINED IF CELL IS EMPTY */
 	--	if verts.numberSet > 0 and ( lowest_vert = this._getLowestVertOnZaxis(verts) ) != undefined then
 	--		this.sel_modified[lowest_vert] = true
 	--
@@ -368,6 +376,7 @@ struct VertSelector_v
 	function _getLowestVertOnZaxis verts =
 	(
 		--format "\n"; print "VertSelector_v._getLowestVertOnZaxis()"
+		--format "verts: %\n" verts
 		verts_arr = verts as Array
 
 		if verts_pos == undefined then
