@@ -139,9 +139,12 @@ function getSelectedIslandsFromListBox =
 	items_count = _listbox.items.count
 	items_sel = _listbox.selection
 
+	format "list_items: %\n" list_items
 	/* FLIP INDEX - first item == last siland */
-	selected_islands = (for item in items_sel collect items_count - item + 1) as BitArray
-	--format "SELECTED_ISLANDS: %\n" selected_islands
+
+	selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect (substring list_items[i] (( findString list_items[i] "#" )+1) -1 ) as Number ) as BitArray
+
+
 	selected_islands --return
 )
 
@@ -161,7 +164,7 @@ function updateListbox =
 	--items_sel = _listbox.selection
 
 	/* FLIP INDEX - first item == last siland */
-	selected_islands = getSelectedIslandsFromListBox()
+	selected_islands = ( getSelectedIslandsFromListBox() ) as Array
 	format "SELECTED_ISLANDS: %\n" selected_islands
 
 	--shift_pressed = keyboard.shiftPressed
@@ -183,7 +186,7 @@ function updateListbox =
 	--if items_sel.numberSet == 1 then
 
 	if selected_islands.count > 0 then
-		DIALOG_island_manager.SLIDER_island_select.value = ( selected_islands as Array )[1]
+		DIALOG_island_manager.SLIDER_island_select.value = selected_islands[selected_islands.count] - 1
 )
 
 /** Select first verts
@@ -291,10 +294,14 @@ function createIslandManagerDialog =
 
 	--steps_count = islands_count
 
+
 	slider_height =  ( islands_count +1 ) * step_height + 2
 
+    max_item_length = amax(for i = ISLANDS_DATA.count to 1 by -1 collect (ISLANDS_DATA[i][#BOTTOM] as string ).count)
+	format "MAX_ITEM_LENGTH: %\n" max_item_length
 	--width_listbox = 32
-	width_listbox = 48
+	--character_width = 4
+	width_listbox = max_item_length * 10
 	slider_width = 32
 
 	if slider_height > viewport_height then
@@ -306,13 +313,17 @@ function createIslandManagerDialog =
 	(
 		listbox_height = ceil( (viewport_height - pos_y_start) / step_height ) + 2
 
-		width_listbox += 24
+		width_listbox += 14
 	)
 
-	pos_listbox = [ 0, pos_y_start ]
-	pos_slider = [ width_listbox + 4, pos_y_start + 4 ]
 
-	items = for i = ISLANDS_DATA.count to 1 by -1 collect ISLANDS_DATA[i][#BOTTOM] as string + (getHeighIsland(ISLANDS_DATA[i])) + (getIslandSizeCharacter(ISLANDS_DATA[i]))
+
+	pos_listbox = [ 0, pos_y_start ]
+	pos_slider  = [ width_listbox, pos_y_start - 4 ]
+
+
+
+    items = for i = ISLANDS_DATA.count to 1 by -1 collect ISLANDS_DATA[i][#BOTTOM] as string + "      #" + i as string --+ (getHeighIsland(ISLANDS_DATA[i])) + (getIslandSizeCharacter(ISLANDS_DATA[i]))
 
 	/*------ CECKBUTTON ------*/
 	_button = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate
@@ -320,14 +331,13 @@ function createIslandManagerDialog =
 	/*------ RADIOBUTTONS ------*/
 	_radio = _Controls.control #RADIOBUTTONS "" id:#RB_slider_mode items:#("↓","↑") params:#( #UNSELECT, true ) across:1 offset:[ 12, 0]
 
-
 	/*------ MULTILISTBOX ------*/
 	_multilistbox = _Controls.control #MULTILISTBOX "" id:#ML_island_listbox \
 						width:width_listbox	\
 						height:listbox_height	\
 						items:items	\
 						across:2	\
-						pos:[0, pos_y_start ]
+						pos:pos_listbox
 
     _multilistbox.Event #SELECTIONEND 	"updateListbox()" -- called when select action ends
     --_multilistbox.Event #SELECTED 	"updateListbox()" -- called when select action ends
@@ -342,7 +352,7 @@ function createIslandManagerDialog =
                     width:slider_width	\
                     height:slider_height	\
                     across:2	\
-                    pos:[ width_listbox + 8, pos_y_start ]
+                    pos:pos_slider
 
 
 	_slider.Event #CHANGED     "selectLayerSlider"
