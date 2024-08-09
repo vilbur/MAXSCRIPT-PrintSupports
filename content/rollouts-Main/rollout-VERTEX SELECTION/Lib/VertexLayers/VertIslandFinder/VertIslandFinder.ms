@@ -90,8 +90,8 @@ struct VertIslandFinder_v
 			/* GET ONLY NEW FACES IN LAYER - avoid repetion of faces across layers */
 			new_faces_in_layer = faces_in_layer - faces_processed
 
-			if layer == 78 then
-				format "VERTS_IN_LAYER 78: %\n" verts_in_layer
+			--if layer == 78 then
+				--format "VERTS_IN_LAYER 78: %\n" verts_in_layer
 
 			/* JOIN NEW FACES TO ALL NEW_ISLANDS */
 			timer_JOIN = timeStamp()
@@ -112,7 +112,7 @@ struct VertIslandFinder_v
 					island_data[#BOTTOM] = layer
 
 
-					if layer == 78 then
+					--if layer == 78 then
 					(
 						format "********************************\n"
 						format "NEW_ISLAND: %\n" new_island
@@ -198,30 +198,34 @@ struct VertIslandFinder_v
 				--append new_islands_in_layer (faceverts * verts_in_layer)
 				append new_islands_in_layer faceverts
 
-				if layer == 78 then
-				(
-					format "\n\nNOT MERGED\n"
-					format "FACE: %\n" face
-					format "FACEVERTS: %\n" faceverts
-					format "NEW_ISLANDS_IN_LAYER: %\n" new_islands_in_layer
-
-				)
+				----if layer == 78 then
+				--(
+				--	format "\n\nNOT MERGED\n"
+				--	format "FACE: %\n" face
+				--	format "FACEVERTS: %\n" faceverts
+				--	format "NEW_ISLANDS_IN_LAYER: %\n" new_islands_in_layer
+				--
+				--)
 
 			)
 		)
 
 
-		if layer == 78 then
+		--if layer == 78 then
+
+		if new_islands_in_layer.count > 0 then
+		(
 			format "\n\n RAW: NEW_ISLANDS_IN_LAYER: %\n" new_islands_in_layer
 
-		new_islands_in_layer = this._mergeBitArraysbySharedBits(new_islands_in_layer)
+			new_islands_in_layer = this._mergeBitArraysbySharedBits(new_islands_in_layer)
 
 
+			join islands_cache new_islands_in_layer
 
-		join islands_cache new_islands_in_layer
-
-		if layer == 78 then
+			--if layer == 78 then
 			format "\n\n RESULT: NEW_ISLANDS_IN_LAYER: %\n" new_islands_in_layer
+
+		)
 
 		new_islands_in_layer --return
 	),

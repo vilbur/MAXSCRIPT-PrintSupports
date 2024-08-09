@@ -46,15 +46,20 @@ function selectIslandsVerts verts =
 	(
 		subObjectLevel = 1
 
+		hidden_verts =	polyop.getHiddenVerts obj - verts
+
+		polyop.unHideAllVerts obj
+
 		if DIALOG_island_manager.CBTN_isolate.state == 1 then
 		(
 			all_verts = #{1..(getNumVerts obj.mesh)}
 
-			polyop.unHideAllVerts obj
-
 			polyop.setHiddenVerts obj (all_verts - verts)
-
 		)
+		else
+			polyop.setHiddenVerts obj (hidden_verts - verts)
+
+
 		--else
 		obj.EditablePoly.SetSelection #Vertex verts
 	)
@@ -123,6 +128,22 @@ function selectLayerSlider slider_val =
 
 )
 
+/** Get selected islands from list box
+ */
+function getSelectedIslandsFromListBox =
+(
+	--format "\n"; print ".getSelectedIslandsFromListBox()"
+	_listbox = DIALOG_island_manager.ML_island_listbox
+
+	list_items = _listbox.items
+	items_count = _listbox.items.count
+	items_sel = _listbox.selection
+
+	/* FLIP INDEX - first item == last siland */
+	selected_islands = (for item in items_sel collect items_count - item + 1) as BitArray
+	--format "SELECTED_ISLANDS: %\n" selected_islands
+	selected_islands --return
+)
 
 /** Select layer
  */
@@ -133,14 +154,14 @@ function updateListbox =
 
 	obj	= selection[1]
 
-	_listbox = DIALOG_island_manager.ML_island_listbox
-
-	list_items = _listbox.items
-	items_count = _listbox.items.count
-	items_sel = _listbox.selection
+	--_listbox = DIALOG_island_manager.ML_island_listbox
+	--
+	--list_items = _listbox.items
+	--items_count = _listbox.items.count
+	--items_sel = _listbox.selection
 
 	/* FLIP INDEX - first item == last siland */
-	selected_islands = (for item in items_sel collect items_count - item + 1) as BitArray
+	selected_islands = getSelectedIslandsFromListBox()
 	format "SELECTED_ISLANDS: %\n" selected_islands
 
 	--shift_pressed = keyboard.shiftPressed
@@ -161,9 +182,67 @@ function updateListbox =
 
 	--if items_sel.numberSet == 1 then
 
-	DIALOG_island_manager.SLIDER_island_select.value = ( selected_islands as Array )[1]
+	if selected_islands.count > 0 then
+		DIALOG_island_manager.SLIDER_island_select.value = ( selected_islands as Array )[1]
 )
 
+/** Select first verts
+ */
+function selectFirstVerts vertex_type =
+(
+	format "\n"; print ".selectFirstVerts()"
+	format "vertex_type: %\n" (classOf vertex_type)
+	_listbox = DIALOG_island_manager.ML_island_listbox
+
+	selected_islands = getSelectedIslandsFromListBox()
+
+	if selected_islands.count == 0 then
+		selected_islands = #{1..ISLANDS_DATA.count} as Array
+
+	format "SELECTED_ISLANDS: %\n" selected_islands
+
+	verts = #{}
+
+	for layer_index in selected_islands collect
+	(
+
+		if vertex_type == #LOWEST_VERT then
+			verts[ISLANDS_DATA[layer_index][vertex_type]] = true
+
+		else if ( island_verts = ISLANDS_DATA[layer_index][vertex_type] ) != undefined then
+			verts += island_verts
+	)
+
+	selectIslandsVerts( verts as BitArray )
+
+)
+
+/** Open new islands menu
+ */
+function openNewIslandsMenu =
+(
+	--format "\n"; print ".openNewIslandsMenu()"
+	/* DEFINE MAIN MENU */
+	Menu = RcMenu_v name:"TestMenu"
+
+	Menu.item "Select Lowest Verts" "selectFirstVerts(#LOWEST_VERT)"
+	Menu.item "Select New Islands" "selectFirstVerts(#NEW_ISLAND)"
+	Menu.item "Select Islands" "selectFirstVerts(#WHOLE_ISLAND)"
+
+	--if method != #SET then
+	--	Menu.item item_title	( "macros.run" + "\"" + category + "\"" + "\"" + macro_name + "\""	) -- macros.run "_Epoly-Vertex-Color" "color_set_by_selection"
+	--
+	--Menu.item "&RED"	( call_fn + "red"	)
+	--Menu.item "&GREEN"	( call_fn + "green"	)
+	--Menu.item "&BLUE"	( call_fn + " " + COLOR_NAMES[#BLUE] as string	)
+	--Menu.item "&ORANGE"	( call_fn + "orange"	)
+	--Menu.item "&PINK"	( call_fn + " " + COLOR_NAMES[#PINK] as string	)
+	--Menu.item "&WHITE"	( call_fn + "white"	)
+
+
+	popUpMenu (Menu.create())
+
+)
 
 /** Toggle select island mode
  */
@@ -252,7 +331,7 @@ function createIslandManagerDialog =
 
     _multilistbox.Event #SELECTIONEND 	"updateListbox()" -- called when select action ends
     --_multilistbox.Event #SELECTED 	"updateListbox()" -- called when select action ends
-    _multilistbox.Event #RIGHTCLICK 	"updateListbox()" -- called when select action ends
+    _multilistbox.Event #RIGHTCLICK 	"openNewIslandsMenu()" -- called when select action ends
 
 
 	--/*------ SLIDER ------*/
