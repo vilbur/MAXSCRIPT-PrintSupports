@@ -85,6 +85,85 @@ function selectLayerItemListbox layer =
 
 )
 
+
+/** Get island item title
+ */
+function getIslandIndexFromTitle list_item =
+(
+	--format "\n"; print ".getIslandIndexFromTitle()"
+	( substring list_item (( findString list_item "#" )+1) -1 ) as Number
+)
+
+/** Get selected islands from list box
+ */
+function getSelectedIslandsFromListBox =
+(
+	--format "\n"; print ".getSelectedIslandsFromListBox()"
+	_listbox = DIALOG_island_manager.ML_island_listbox
+
+	list_items = _listbox.items
+	items_count = _listbox.items.count
+	items_sel = _listbox.selection
+
+	--format "list_items: %\n" list_items
+	/* FLIP INDEX - first item == last siland */
+
+	selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect getIslandIndexFromTitle(list_items[i])) as BitArray
+	--format "SELECTED_ISLANDS: %\n" selected_islands
+
+	selected_islands --return
+)
+
+/** Get first island from listbox
+ */
+function getFirstIslandFromListbox =
+(
+	--format "\n"; print ".getFirstIslandFromListbox()"
+
+	_listbox = DIALOG_island_manager.ML_island_listbox
+
+	getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
+
+)
+
+/** Select first verts
+ */
+function selectFirstVerts vertex_type =
+(
+	format "\n"; print ".selectFirstVerts()"
+	format "vertex_type: %\n" (classOf vertex_type)
+	_listbox = DIALOG_island_manager.ML_island_listbox
+
+	selected_islands = getSelectedIslandsFromListBox()
+
+	if selected_islands.count == 0 then
+		selected_islands = #{1..ISLANDS_DATA.count} as Array
+
+	format "SELECTED_ISLANDS: %\n" selected_islands
+
+	verts = #{}
+
+	for layer_index in selected_islands collect
+	(
+
+		if vertex_type == #LOWEST_VERT then
+			verts[ISLANDS_DATA[layer_index][vertex_type]] = true
+
+		else if ( island_verts = ISLANDS_DATA[layer_index][vertex_type] ) != undefined then
+			verts += island_verts
+	)
+
+	selectIslandsVerts( verts as BitArray )
+
+)
+
+/*------------------------------------------------------------------------------
+
+	CALLBACKS
+
+--------------------------------------------------------------------------------*/
+
+
 /** Select layer
  */
 function selectLayerSlider slider_val =
@@ -128,26 +207,6 @@ function selectLayerSlider slider_val =
 
 )
 
-/** Get selected islands from list box
- */
-function getSelectedIslandsFromListBox =
-(
-	--format "\n"; print ".getSelectedIslandsFromListBox()"
-	_listbox = DIALOG_island_manager.ML_island_listbox
-
-	list_items = _listbox.items
-	items_count = _listbox.items.count
-	items_sel = _listbox.selection
-
-	format "list_items: %\n" list_items
-	/* FLIP INDEX - first item == last siland */
-
-	selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect (substring list_items[i] (( findString list_items[i] "#" )+1) -1 ) as Number ) as BitArray
-
-
-	selected_islands --return
-)
-
 /** Select layer
  */
 function updateListbox =
@@ -189,36 +248,9 @@ function updateListbox =
 		DIALOG_island_manager.SLIDER_island_select.value = selected_islands[selected_islands.count] - 1
 )
 
-/** Select first verts
- */
-function selectFirstVerts vertex_type =
-(
-	format "\n"; print ".selectFirstVerts()"
-	format "vertex_type: %\n" (classOf vertex_type)
-	_listbox = DIALOG_island_manager.ML_island_listbox
-
-	selected_islands = getSelectedIslandsFromListBox()
-
-	if selected_islands.count == 0 then
-		selected_islands = #{1..ISLANDS_DATA.count} as Array
-
-	format "SELECTED_ISLANDS: %\n" selected_islands
-
-	verts = #{}
-
-	for layer_index in selected_islands collect
-	(
-
-		if vertex_type == #LOWEST_VERT then
-			verts[ISLANDS_DATA[layer_index][vertex_type]] = true
-
-		else if ( island_verts = ISLANDS_DATA[layer_index][vertex_type] ) != undefined then
-			verts += island_verts
-	)
-
-	selectIslandsVerts( verts as BitArray )
-
-)
+/*------------------------------------------------------------------------------
+	MENU
+--------------------------------------------------------------------------------*/
 
 /** Open new islands menu
  */
@@ -231,6 +263,7 @@ function openNewIslandsMenu =
 	Menu.item "Select Lowest Verts" "selectFirstVerts(#LOWEST_VERT)"
 	Menu.item "Select New Islands" "selectFirstVerts(#NEW_ISLAND)"
 	Menu.item "Select Islands" "selectFirstVerts(#WHOLE_ISLAND)"
+	Menu.item "SHOW SELECTED" "createIslandManagerDialog relaunch:true"
 
 	--if method != #SET then
 	--	Menu.item item_title	( "macros.run" + "\"" + category + "\"" + "\"" + macro_name + "\""	) -- macros.run "_Epoly-Vertex-Color" "color_set_by_selection"
@@ -266,10 +299,17 @@ function toggleSelectIslandMode =
 )
 
 
+/*------------------------------------------------------------------------------
+
+	DIALOG
+
+--------------------------------------------------------------------------------*/
+
 /** Create island manager dialog
  */
-function createIslandManagerDialog =
+function createIslandManagerDialog relaunch:false =
 (
+	--clearListener(); print("Cleared in:\n"+getSourceFileName())
 	--format "\n"; print ".createIslandManagerDialog()"
 	--format "ISLANDS_DATA: %\n" ISLANDS_DATA
 
@@ -277,9 +317,33 @@ function createIslandManagerDialog =
 	 */
 	function getHeighIsland island_data = if island_data[#TOP] != undefined and island_data[#TOP] - island_data[#BOTTOM] > 10  then " ↕" else ""
 	function getIslandSizeCharacter island_data = if island_data[#SIZE] != undefined and island_data[#SIZE] > 5  then " ↔" else ""
-	--function getHeighIsland island_data = if island_data[#TOP] - island_data[#BOTTOM] > 10  then " ↕ " else ""
 
-	Dialog 	    = Dialog_v "" id:#DIALOG_island_manager --ini:(getSourceFileName()) min_size:[48, -1] max_size:[48, -1]
+	/** Get item titile
+	 */
+	function getItemTitile island_index =
+	(
+		--format "\n"; print ".getItemTitile()"
+		ISLANDS_DATA[island_index][#BOTTOM] as string + "      #" + island_index as string --+ (getHeighIsland(ISLANDS_DATA[i])) + (getIslandSizeCharacter(ISLANDS_DATA[i]))
+	)
+
+	/*------------------------------------------------------------------------------
+		GET ITEMS
+	--------------------------------------------------------------------------------*/
+	selected_islands = getSelectedIslandsFromListBox()
+
+	islands_to_show = case of
+    (
+        (relaunch and selected_islands.numberSet >  1):	selected_islands                     -- SHOW ONLY SELECTED ITEMS ON RELAUNCH
+        (relaunch and selected_islands.numberSet == 1):	#{(getFirstIslandFromListbox())..(selected_islands as Array )[1]} -- SHOW ISLANDS UP TO SELECTED ITEM ON RELAUNCH IF ONLY SINGLE ISLAND IS SELECTED
+        default:		#{1..ISLANDS_DATA.count}             -- SHOW ALL ISLANDS
+    )
+
+	items = for i = ISLANDS_DATA.count to 1 by -1 where islands_to_show[i] collect  getItemTitile (i)
+
+	/*------------------------------------------------------------------------------
+		DIALOG
+	--------------------------------------------------------------------------------*/
+    Dialog 	    = Dialog_v "" id:#DIALOG_island_manager --ini:(getSourceFileName()) min_size:[48, -1] max_size:[48, -1]
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 
@@ -290,15 +354,14 @@ function createIslandManagerDialog =
 
 	viewport_height = Dialog.getViewportHeight()
 
-	islands_count = ISLANDS_DATA.count
+	items_count = items.count
 
-	--steps_count = islands_count
+	--steps_count = items_count
 
-
-	slider_height =  ( islands_count +1 ) * step_height + 2
+	slider_height =  ( items_count +1 ) * step_height + 2
 
     max_item_length = amax(for i = ISLANDS_DATA.count to 1 by -1 collect (ISLANDS_DATA[i][#BOTTOM] as string ).count)
-	format "MAX_ITEM_LENGTH: %\n" max_item_length
+	--format "MAX_ITEM_LENGTH: %\n" max_item_length
 	--width_listbox = 32
 	--character_width = 4
 	width_listbox = max_item_length * 10
@@ -307,13 +370,13 @@ function createIslandManagerDialog =
 	if slider_height > viewport_height then
 		slider_height = viewport_height - 16
 
-	listbox_height = islands_count
+	listbox_height = items_count
 
-	if islands_count * step_height > viewport_height then
+	if items_count * step_height > viewport_height then
 	(
 		listbox_height = ceil( (viewport_height - pos_y_start) / step_height ) + 2
 
-		width_listbox += 14
+		width_listbox += 16
 	)
 
 
@@ -321,9 +384,6 @@ function createIslandManagerDialog =
 	pos_listbox = [ 0, pos_y_start ]
 	pos_slider  = [ width_listbox, pos_y_start - 4 ]
 
-
-
-    items = for i = ISLANDS_DATA.count to 1 by -1 collect ISLANDS_DATA[i][#BOTTOM] as string + "      #" + i as string --+ (getHeighIsland(ISLANDS_DATA[i])) + (getIslandSizeCharacter(ISLANDS_DATA[i]))
 
 	/*------ CECKBUTTON ------*/
 	_button = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate
@@ -346,9 +406,9 @@ function createIslandManagerDialog =
 
 	--/*------ SLIDER ------*/
     _slider = _Controls.control #SLIDER "" id:#SLIDER_island_select	\
-                    range:[0, islands_count - 1 ,0]	\
+                    range:[0, items_count - 1 ,0]	\
                     params:#(#orient, #vertical, #type, #integer)	\
-                    ticks:(islands_count - 2)	\
+                    ticks:(items_count - 2)	\
                     width:slider_width	\
                     height:slider_height	\
                     across:2	\
