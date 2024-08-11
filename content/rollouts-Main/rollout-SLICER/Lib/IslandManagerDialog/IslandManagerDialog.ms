@@ -6,6 +6,39 @@ filein( getFilenamePath(getSourceFileName()) + "/methods.ms" )	--"./methods.ms"
 filein( getFilenamePath(getSourceFileName()) + "/callbacks.ms" )	--"./callbacks.ms"
 filein( getFilenamePath(getSourceFileName()) + "/rcMenu.ms" )	--"./rcMenu.ms"
 
+/** Get selected islands from list box
+ */
+function getSelectedIslandsFromListBox =
+(
+	--format "\n"; print ".getSelectedIslandsFromListBox()"
+	selected_islands = #{}
+
+	if DIALOG_island_manager != undefined then
+	(
+		_listbox = DIALOG_island_manager.ML_island_listbox
+
+		list_items = _listbox.items
+		items_count = _listbox.items.count
+		items_sel = _listbox.selection
+
+		/* FLIP INDEX - first item == last siland */
+
+		selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect getIslandIndexFromTitle(list_items[i])) as BitArray
+		--format "SELECTED_ISLANDS: %\n" selected_islands
+	)
+
+	selected_islands --return
+)
+
+/** Get first island from listbox
+ */
+function getFirstIslandFromListbox =
+(
+	--format "\n"; print ".getFirstIslandFromListbox()"
+	_listbox = DIALOG_island_manager.ML_island_listbox
+
+	getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
+)
 
 /** Create island manager dialog
  */
@@ -47,11 +80,11 @@ function createIslandManagerDialog relaunch:false =
 	/*------------------------------------------------------------------------------
 		DIALOG
 	--------------------------------------------------------------------------------*/
-    Dialog 	    = Dialog_v "" id:#DIALOG_island_manager --ini:(getSourceFileName()) min_size:[48, -1] max_size:[48, -1]
+    Dialog 	    = Dialog_v "" id:#DIALOG_island_manager ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 
-	pos_y_start = 72
+	pos_y_start = 96
 
 	step_height = 13
 
@@ -95,10 +128,10 @@ function createIslandManagerDialog relaunch:false =
 	_size_min.Event #CHANGED     "format \"EventFired: %\n\" EventFired"
 
 	/*------ CECKBUTTON ------*/
-	_button = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate
+	_button = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate height:32
 
 	/*------ RADIOBUTTONS ------*/
-	_radio = _Controls.control #RADIOBUTTONS "" id:#RB_slider_mode items:#("↓","↑") params:#( #UNSELECT, true ) across:1 offset:[ 12, 0]
+	_radio = _Controls.control #RADIOBUTTONS "" id:#RB_slider_mode items:#("↓","↑") params:#( #UNSELECT, true ) across:1 offset:[ 16, 0]
 
 	/*------ MULTILISTBOX ------*/
 	_multilistbox = _Controls.control #MULTILISTBOX "" id:#ML_island_listbox \
@@ -106,7 +139,8 @@ function createIslandManagerDialog relaunch:false =
 						height:listbox_height	\
 						items:items	\
 						across:2	\
-						pos:pos_listbox
+						ini:false	\
+								        pos:pos_listbox
 
     _multilistbox.Event #SELECTIONEND 	"updateListbox()" -- called when select action ends
     --_multilistbox.Event #SELECTED 	"updateListbox()" -- called when select action ends
@@ -121,6 +155,7 @@ function createIslandManagerDialog relaunch:false =
                     width:slider_width	\
                     height:slider_height	\
                     across:2	\
+                    ini:false	\
                     pos:pos_slider
 
 

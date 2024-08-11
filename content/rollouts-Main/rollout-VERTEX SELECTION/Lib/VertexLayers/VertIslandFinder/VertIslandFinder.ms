@@ -113,11 +113,11 @@ struct VertIslandFinder_v
 
 
 					--if layer == 78 then
-					(
-						format "********************************\n"
-						format "NEW_ISLAND: %\n" new_island
-						format "ISLAND_DATA: %\n" island_data
-					)
+					--(
+						--format "********************************\n"
+						--format "NEW_ISLAND: %\n" new_island
+						--format "ISLAND_DATA: %\n" island_data
+					--)
 
 					append islands_data island_data
 				)

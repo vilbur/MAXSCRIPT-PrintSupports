@@ -31,23 +31,7 @@ function selectLayerSlider slider_val =
 		verts = getVertsFromIslandData (island_data)
 
 		if keyboard.shiftPressed then
-			verts += polyop.getVertSelection obj/** Toggle select island mode
- */
-function toggleSelectIslandMode =
-(
-	format "\n"; print ".toggleSelectIslandMode()"
-	--format "DIALOG_island_manager.RB_slider_mode.state: %\n" DIALOG_island_manager.RB_slider_mode.state
-	--DIALOG_island_manager.RB_slider_mode.state = not DIALOG_island_manager.RB_slider_mode.state
-	--format "DIALOG_island_manager.RB_slider_mode_last_state: %\n" DIALOG_island_manager.RB_slider_mode_last_state
-	format "DIALOG_island_manager.RB_slider_mode.state: %\n" DIALOG_island_manager.RB_slider_mode.state
-
-	DIALOG_island_manager.RB_slider_mode.state = case DIALOG_island_manager.RB_slider_mode.state of
-	(
-		0:	1
-		1:	2
-		2:	0
-	)
-)
+			verts += polyop.getVertSelection obj
 
 
 
@@ -102,23 +86,7 @@ function updateListbox =
 )
 
 
-/** Select islands by size
- */
-function selectIslandsBySize size =
-(
-	format "\n"; print ".selectIslandsBySize()"
 
-	--islands_by_size = for i = ISLANDS_DATA.count to 1 by -1 where ISLANDS_DATA[i][#SIZE] != undefined and  ISLANDS_DATA[i][#SIZE] > 2 collect i
-	_listbox = DIALOG_island_manager.ML_island_listbox
-	list_items = _listbox.items
-
-
-	islands_by_size = (for i = 1 to ISLANDS_DATA.count where ISLANDS_DATA[i][#SIZE] != undefined and  ISLANDS_DATA[i][#SIZE] > 10 collect i) as BitArray
-
-	items_of_islands = for i = 1 to  list_items.count where islands_by_size[ getIslandIndexFromTitle list_items[i] ] collect i
-
-	DIALOG_island_manager.ML_island_listbox.selection = items_of_islands as BitArray
-)
 /** Toggle select island mode
  */
 function toggleSelectIslandMode =

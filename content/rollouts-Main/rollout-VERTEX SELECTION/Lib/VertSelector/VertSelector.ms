@@ -122,11 +122,12 @@ struct VertSelector_v
 
 			VertexLayers.VertIslandFinder.islands_data[i][#LOWEST_VERT] = this._getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
 
+			verts_get_size = if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
 
-			if island_data[#WHOLE_ISLAND] != undefined then
+			--if island_data[#WHOLE_ISLAND] != undefined then
 			(
-				x_positions = for vert in island_data[#WHOLE_ISLAND] collect verts_pos[vert].x
-				y_positions = for vert in island_data[#WHOLE_ISLAND] collect verts_pos[vert].y
+				x_positions = for vert in verts_get_size collect verts_pos[vert].x
+				y_positions = for vert in verts_get_size collect verts_pos[vert].y
 
 
 				x_length = (amax x_positions) - (amin x_positions)

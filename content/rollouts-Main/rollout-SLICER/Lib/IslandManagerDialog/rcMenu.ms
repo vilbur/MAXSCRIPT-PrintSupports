@@ -7,24 +7,27 @@ function openNewIslandsMenu =
 	/* DEFINE MAIN MENU */
 	Menu = RcMenu_v name:"TestMenu"
 
-	Menu.item "Select Lowest Verts" "selectFirstVerts(#LOWEST_VERT)"
-	Menu.item "Select New Islands" "selectFirstVerts(#NEW_ISLAND)"
-	Menu.item "Select Big Islands" "selectIslandsBySize(#BIG)"
-	Menu.item "Select Islands" "selectFirstVerts(#WHOLE_ISLAND)"
-	Menu.item "SHOW SELECTED" "createIslandManagerDialog relaunch:true"
+	Menu.item "Select Lowest Verts"	"selectFirstVerts(#LOWEST_VERT)"
+	Menu.item "Select New Islands"	"selectFirstVerts(#NEW_ISLAND)"
 
-	--if method != #SET then
-	--	Menu.item item_title	( "macros.run" + "\"" + category + "\"" + "\"" + macro_name + "\""	) -- macros.run "_Epoly-Vertex-Color" "color_set_by_selection"
-	--
-	--Menu.item "&RED"	( call_fn + "red"	)
-	--Menu.item "&GREEN"	( call_fn + "green"	)
-	--Menu.item "&BLUE"	( call_fn + " " + COLOR_NAMES[#BLUE] as string	)
-	--Menu.item "&ORANGE"	( call_fn + "orange"	)
-	--Menu.item "&PINK"	( call_fn + " " + COLOR_NAMES[#PINK] as string	)
-	--Menu.item "&WHITE"	( call_fn + "white"	)
+	Menu.item "Select BIG Islands"	"selectIslandsBySize(#BIG)"
+	Menu.item "Select MEDIUM Islands"	"selectIslandsBySize(#MEDIUM)"
+	Menu.item "Select SMALL Islands"	"selectIslandsBySize(#SMALL)"
 
+	Menu.item "Select Islands"	"selectFirstVerts(#WHOLE_ISLAND)"
+
+	listbox_items_count = DIALOG_island_manager.ML_island_listbox.items.count
+
+	format "listbox_items_count: %\n" listbox_items_count
+	format "ISLANDS_DATA.count: %\n" ISLANDS_DATA.count
+
+
+	if DIALOG_island_manager.ML_island_listbox.selection.numberSet > 1 and listbox_items_count > 0 then
+		Menu.item "SHOW SELECTED" "createIslandManagerDialog relaunch:true"
+
+
+	if listbox_items_count < ISLANDS_DATA.count then
+		Menu.item "SHOW ALL" "createIslandManagerDialog()"
 
 	popUpMenu (Menu.create())
-
 )
-
