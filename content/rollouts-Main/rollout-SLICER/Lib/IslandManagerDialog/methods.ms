@@ -2,10 +2,161 @@
 global ISLANDS_DATA
 global DIALOG_island_manager
 
-filein( getFilenamePath(getSourceFileName()) + "/methods.ms" )	--"./methods.ms"
 filein( getFilenamePath(getSourceFileName()) + "/callbacks.ms" )	--"./callbacks.ms"
 filein( getFilenamePath(getSourceFileName()) + "/rcMenu.ms" )	--"./rcMenu.ms"
 
+
+/** Get verts from island data
+ */
+function getVertsFromIslandData island_data =
+(
+	--format "\n"; print ".getVertsFromIslandData()"
+	--format "STATE: %\n" (DIALOG_island_manager.RB_slider_mode.state)
+	case DIALOG_island_manager.RB_slider_mode.state of
+	(
+		0:	island_data[#NEW_ISLAND]
+		1:	#{island_data[#LOWEST_VERT]}
+		2:	if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
+	)
+
+)
+
+/** Select islands verts
+ */
+function selectIslandsVerts verts =
+(
+	format "\n"; print ".selectIslandsVerts()"
+	format "verts: %\n" verts
+	obj	= selection[1]
+
+	if verts != undefined then
+	(
+		subObjectLevel = 1
+
+		hidden_verts =	polyop.getHiddenVerts obj - verts
+
+		polyop.unHideAllVerts obj
+
+		if DIALOG_island_manager.CBTN_isolate.state == 1 then
+		(
+			all_verts = #{1..(getNumVerts obj.mesh)}
+
+			polyop.setHiddenVerts obj (all_verts - verts)
+		)
+		else
+			polyop.setHiddenVerts obj (hidden_verts - verts)
+
+
+		--else
+		obj.EditablePoly.SetSelection #Vertex verts
+	)
+)
+/** Select layer listbox
+ */
+function selectLayerItemListbox layer =
+(
+	format "\n"; print ".selectLayerListbox()"
+	format "layer: %\n" layer
+	_listbox = DIALOG_island_manager.ML_island_listbox
+
+	items = _listbox.items
+	items_count = _listbox.items.count
+	items_sel = _listbox.selection
+
+	new_index = DIALOG_island_manager.ML_island_listbox.items.count - layer_index + 1
+
+
+
+	DIALOG_island_manager.ML_island_listbox.selection = if keyboard.shiftPressed then items_sel + #{new_index} else new_index
+
+
+)
+
+
+/** Get island item title
+ */
+function getIslandIndexFromTitle list_item =
+(
+	--format "\n"; print ".getIslandIndexFromTitle()"
+	( substring list_item (( findString list_item "#" )+1) -1 ) as Number
+)
+
+/** Get selected islands from list box
+ */
+function getSelectedIslandsFromListBox =
+(
+	--format "\n"; print ".getSelectedIslandsFromListBox()"
+	selected_islands = #{}
+
+	if DIALOG_island_manager != undefined then
+	(
+		_listbox = DIALOG_island_manager.ML_island_listbox
+
+		list_items = _listbox.items
+		items_count = _listbox.items.count
+		items_sel = _listbox.selection
+
+		--format "list_items: %\n" list_items
+		/* FLIP INDEX - first item == last siland */
+
+		selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect getIslandIndexFromTitle(list_items[i])) as BitArray
+		--format "SELECTED_ISLANDS: %\n" selected_islands
+
+	)
+
+
+	selected_islands --return
+)
+
+/** Get first island from listbox
+ */
+function getFirstIslandFromListbox =
+(
+	--format "\n"; print ".getFirstIslandFromListbox()"
+
+	_listbox = DIALOG_island_manager.ML_island_listbox
+
+	getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
+
+)
+
+/** Select first verts
+ */
+function selectFirstVerts vertex_type =
+(
+	format "\n"; print ".selectFirstVerts()"
+	format "vertex_type: %\n" (classOf vertex_type)
+	_listbox = DIALOG_island_manager.ML_island_listbox
+
+	selected_islands = getSelectedIslandsFromListBox()
+
+	if selected_islands.count == 0 then
+		selected_islands = #{1..ISLANDS_DATA.count} as Array
+
+	format "SELECTED_ISLANDS: %\n" selected_islands
+
+	verts = #{}
+
+	for layer_index in selected_islands collect
+	(
+
+		if vertex_type == #LOWEST_VERT then
+			verts[ISLANDS_DATA[layer_index][vertex_type]] = true
+
+		else if ( island_verts = ISLANDS_DATA[layer_index][vertex_type] ) != undefined then
+			verts += island_verts
+	)
+
+	selectIslandsVerts( verts as BitArray )
+
+)
+
+
+/*------------------------------------------------------------------------------
+
+	DIALOG
+
+--------------------------------------------------------------------------------*/
 
 /** Create island manager dialog
  */

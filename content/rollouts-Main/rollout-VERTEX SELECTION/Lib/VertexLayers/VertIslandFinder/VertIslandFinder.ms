@@ -172,8 +172,8 @@ struct VertIslandFinder_v
 
 		new_islands_in_layer = #()
 
-		if layer == 78 then
-			format "NEW_FACES_IN_LAYER: %\n" new_faces_in_layer
+		--if layer == 78 then
+		--	format "NEW_FACES_IN_LAYER: %\n" new_faces_in_layer
 
 		for face in new_faces_in_layer do
 		(
@@ -215,7 +215,7 @@ struct VertIslandFinder_v
 
 		if new_islands_in_layer.count > 0 then
 		(
-			format "\n\n RAW: NEW_ISLANDS_IN_LAYER: %\n" new_islands_in_layer
+			--format "\n\n RAW: NEW_ISLANDS_IN_LAYER: %\n" new_islands_in_layer
 
 			new_islands_in_layer = this._mergeBitArraysbySharedBits(new_islands_in_layer)
 
@@ -223,7 +223,7 @@ struct VertIslandFinder_v
 			join islands_cache new_islands_in_layer
 
 			--if layer == 78 then
-			format "\n\n RESULT: NEW_ISLANDS_IN_LAYER: %\n" new_islands_in_layer
+			--format "\n\n RESULT: NEW_ISLANDS_IN_LAYER: %\n" new_islands_in_layer
 
 		)
 
