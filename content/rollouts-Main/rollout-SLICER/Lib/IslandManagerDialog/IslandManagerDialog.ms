@@ -113,8 +113,6 @@ function createIslandManagerDialog relaunch:false =
 		width_listbox += 16
 	)
 
-
-
 	pos_listbox = [ 4, pos_y_start ]
 	pos_slider  = [ width_listbox + 4, pos_y_start - 4 ]
 
@@ -122,8 +120,8 @@ function createIslandManagerDialog relaunch:false =
 		CONTROLS
 	--------------------------------------------------------------------------------*/
 
-	_size_min = _Controls.control #SPINNER "" id:#SPIN_island_size_min across:2 type:#integer range:[0,100,5]  width:48 offset:[ -10, 0]
-	_size_max = _Controls.control #SPINNER "" id:#SPIN_island_size_max across:2 type:#integer range:[0,100,10] width:48
+	_size_min = _Controls.control #SPINNER "" id:#SPIN_island_size_min across:2 type:#integer range:[0,100,2]  width:48 offset:[ -10, 0]
+	_size_max = _Controls.control #SPINNER "" id:#SPIN_island_size_max across:2 type:#integer range:[0,100,5] width:48
 
 	_size_min.Event #CHANGED     "format \"EventFired: %\n\" EventFired"
 

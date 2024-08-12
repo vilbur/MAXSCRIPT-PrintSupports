@@ -39,7 +39,6 @@ function selectIslandsVerts verts =
 		else
 			polyop.setHiddenVerts obj (hidden_verts - verts)
 
-
 		--else
 		obj.EditablePoly.SetSelection #Vertex verts
 	)
@@ -62,8 +61,6 @@ function selectLayerItemInListbox layer_index =
 	--format "TEST: %\n" (if keyboard.shiftPressed then items_sel + #{new_index} else new_index)
 
 	DIALOG_island_manager.ML_island_listbox.selection = if keyboard.shiftPressed then items_sel + #{new_index} else #{new_index}
-
-
 )
 
 /** Select islands by size
@@ -77,15 +74,18 @@ function selectIslandsBySize size =
 	function isIslandMatchinSize island_size size =
 	(
 		--format "\n"; print ".isIslandMatchinSize()"
+		--format "island_size: %\n" island_size
+		--format "size: %\n" size
 		size_min = DIALOG_island_manager.SPIN_island_size_min.value
 		size_max = DIALOG_island_manager.SPIN_island_size_max.value
 
 		case size of
 		(
-			(#SMALL):	island_size <= size_min
-			(#MEDIUM):	island_size > size_min and island_size < size_max
-			(#BIG):	island_size >= size_max
+			(#SMALL):	island_size.x <= size_min or  island_size.y <= size_min
+			(#MEDIUM):	(island_size.x > size_min and island_size.x < size_max) or (island_size.y > size_min and island_size.y < size_max)
+			(#BIG):	island_size.x >= size_max or  island_size.y >= size_max
 		)
+
 	)
 
 	--islands_by_size = for i = ISLANDS_DATA.count to 1 by -1 where ISLANDS_DATA[i][#SIZE] != undefined and  ISLANDS_DATA[i][#SIZE] > 2 collect i

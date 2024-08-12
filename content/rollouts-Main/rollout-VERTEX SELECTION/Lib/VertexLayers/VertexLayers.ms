@@ -56,43 +56,18 @@ struct VertexLayers_v
 
 		verts_pos = this._getVertsPositions()
 
-		this._sortVertsToLayers()
+		if (this._sortVertsToLayers()) != false then
+		(
 
-		VertIslandFinder.verts_all	= verts_all
-		VertIslandFinder.verts_process	= verts_process
-		VertIslandFinder.verts_layers	= verts_layers
+			VertIslandFinder.verts_all	= verts_all
+			VertIslandFinder.verts_process	= verts_process
+			VertIslandFinder.verts_layers	= verts_layers
 
-		GET_ISLANDS = timeStamp()
-		--format "verts_process.numberSet: %\n" verts_process.numberSet
-		--format "VertIslandFinder.verts_process.numberSet: %\n" VertIslandFinder.verts_process.numberSet
-		VertIslandFinder.getNewIslandsPerLayer()
-
-
-		--format "\n GET_ISLANDS: % seconds\n" ((( timeStamp()) - GET_ISLANDS) / 1000.0)
-
-		--format "\n analyzeLayers: % seconds\n" ((( timeStamp()) - analyzeLayers) / 1000.0)
-		--format "\n analyzeLayers: % ms\n" (( timeStamp()) - analyzeLayers)
-
-
-		--format "verts_process: %\n" verts_process
-
-
-		--this.selectVerts(bottom_verts * convex_verts * visible_verts)
-
-
-		--this.selectVerts(bottom_verts)
-
-		--this.selectVerts(verts_process)
-
-		--this.selectVerts(convex_verts)
-
-		--this.selectVerts( verts_layers[1]  )
-		--
-		--this.selectVerts( verts_layers[1] * verts_process )
-		--VertIslandFinder.new_islands --return
-
+			VertIslandFinder.getNewIslandsPerLayer()
+		)
+		else
+			false --return
 	),
-
 
 	/** Set verts positions
 	 */
@@ -121,6 +96,16 @@ struct VertexLayers_v
 
 			verts_fit = copy verts_all
 		)
+
+		if pos_z_min < 0 then
+		(
+			messageBox ("OBJECT IS BELLOW THE GROUND.\n\nMove object "+obj.name+" above ground please.") title:"FIND ISLANDS ERROR"
+
+			return false
+		)
+
+
+
 		/* SET ONLY SELECTED VERTS TO LAYERS */
 		--else
 		--(

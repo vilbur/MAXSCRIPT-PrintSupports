@@ -10,9 +10,9 @@ function openNewIslandsMenu =
 	Menu.item "Select Lowest Verts"	"selectFirstVerts(#LOWEST_VERT)"
 	Menu.item "Select New Islands"	"selectFirstVerts(#NEW_ISLAND)"
 
-	Menu.item "Select BIG Islands"	"selectIslandsBySize(#BIG)"
-	Menu.item "Select MEDIUM Islands"	"selectIslandsBySize(#MEDIUM)"
 	Menu.item "Select SMALL Islands"	"selectIslandsBySize(#SMALL)"
+	Menu.item "Select MEDIUM Islands"	"selectIslandsBySize(#MEDIUM)"
+	Menu.item "Select BIG Islands"	"selectIslandsBySize(#BIG)"
 
 	Menu.item "Select Islands"	"selectFirstVerts(#WHOLE_ISLAND)"
 

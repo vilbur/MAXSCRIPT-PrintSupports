@@ -110,50 +110,32 @@ struct VertSelector_v
 
 		timer_FIND_ISLANDS = timeStamp()
 
-		VertexLayers.findVertsOfNewIslands()
-		format "FIND_ISLANDS: % ms\n" (( timeStamp()) - timer_FIND_ISLANDS)
-
-
-		for i = 1 to VertexLayers.VertIslandFinder.islands_data.count do
+		if (VertexLayers.findVertsOfNewIslands()) != false then
 		(
-			--format "i: %\n" i
-
-			island_data = VertexLayers.VertIslandFinder.islands_data[i]
-
-			VertexLayers.VertIslandFinder.islands_data[i][#LOWEST_VERT] = this._getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
-
-			verts_get_size = if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
-
-			--if island_data[#WHOLE_ISLAND] != undefined then
+			for i = 1 to VertexLayers.VertIslandFinder.islands_data.count do
 			(
-				x_positions = for vert in verts_get_size collect verts_pos[vert].x
-				y_positions = for vert in verts_get_size collect verts_pos[vert].y
+				--format "i: %\n" i
+
+				island_data = VertexLayers.VertIslandFinder.islands_data[i]
+
+				VertexLayers.VertIslandFinder.islands_data[i][#LOWEST_VERT] = this._getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
+
+				verts_get_size = if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
+
+				--if island_data[#WHOLE_ISLAND] != undefined then
+				(
+					x_positions = for vert in verts_get_size collect verts_pos[vert].x
+					y_positions = for vert in verts_get_size collect verts_pos[vert].y
 
 
-				x_length = (amax x_positions) - (amin x_positions)
-				y_length = (amax y_positions) - (amin y_positions)
+					x_length = (amax x_positions) - (amin x_positions)
+					y_length = (amax y_positions) - (amin y_positions)
 
 
-				VertexLayers.VertIslandFinder.islands_data[i][#SIZE] = (x_length * y_length) as integer
+					VertexLayers.VertIslandFinder.islands_data[i][#SIZE] = [x_length, y_length]
+				)
 			)
-
-
 		)
-
-
-		--new_islands_all = #{}
-		--
-		--for new_island in VertexLayers.VertIslandFinder.new_islands do
-		--(
-		--	--new_islands_all += new_island
-		--
-		--	new_islands_all[this._getLowestVertOnZaxis(new_island) ] = true
-		--
-		--	format "new_island: %\n" new_island
-		--)
-		--
-		--
-		--new_islands_all --return
 
 		VertexLayers.VertIslandFinder.islands_data --return
 	),
