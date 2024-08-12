@@ -1,4 +1,3 @@
-filein( getFilenamePath(getSourceFileName()) + "/VertIslandFinder/VertIslandFinder.ms" )	--"./VertIslandFinder/VertIslandFinder.ms"
 
 /**
  */
@@ -22,65 +21,22 @@ struct VertexLayers_v
 	layer_height = 0.05, -- height of print layer in mm
 
 	/* dependency */
-	VertIslandFinder,
 
 	/* reference */
 	/* inhered */
 	/** Find points
 	 */
-	function findVertsOfNewIslands =
+	function findVertsOfNewIslands verts_all verts_process layer_height =
 	(
-		--format "\n"; print "VertexLayers_v.findVertsOfNewIslands()"
+		format "\n"; print "VertexLayers_v.findVertsOfNewIslands()"
 
 		/* ========= DEV DESELECT ALL VERTS ========= */
 		--obj.EditablePoly.SetSelection #Vertex #{}
 
-		this.vertex_count = getNumVerts obj.mesh
 
-		verts_all = #{1..(vertex_count)}
+		format "VERTS_PROCESS: %\n" verts_process
+		verts_pos = in coordsys world meshop.getVerts obj.mesh verts_all node:obj
 
-		/* GET VERTS WITH NORMAL POINTING DOWN */
-		--bottom_verts = this.getBottom()
-
-		/* GET ONLY CONVEX VERTS */
-		--convex_verts = this.selectConvex()
-
-		visible_verts = -( polyop.getHiddenVerts obj)
-		format "visible_verts.numberSet: %\n" visible_verts.numberSet
-
-		verts_sel = polyop.getVertSelection obj
-
-		verts_process = if (verts_sel = polyop.getVertSelection obj ).numberSet > 0 then verts_sel else verts_all
-
-		verts_process *= visible_verts
-
-		verts_pos = this._getVertsPositions()
-
-		if (this._sortVertsToLayers()) != false then
-		(
-
-			VertIslandFinder.verts_all	= verts_all
-			VertIslandFinder.verts_process	= verts_process
-			VertIslandFinder.verts_layers	= verts_layers
-
-			VertIslandFinder.getNewIslandsPerLayer()
-		)
-		else
-			false --return
-	),
-
-	/** Set verts positions
-	 */
-	function _getVertsPositions =
-	(
-		format "\n"; print "VertDataGetter_v._getVertsPositions()"
-		in coordsys world meshop.getVerts obj.mesh this.verts_all node:obj
-	),
-
-	/** Sort verts to layers
-	 */
-	function _sortVertsToLayers =
-	(
 		format "\n"; print "VertexLayers_v._sortVertsToLayers()"
 
 		/* SET ALL VERTS TO LAYERS */
@@ -163,8 +119,8 @@ struct VertexLayers_v
 		--format "verts_fit: %\n" verts_fit
 		--format "verts_bellow: %\n" verts_bellow
 
+		verts_layers --return --return
 	),
-
 
 	/**
 	 */
@@ -172,7 +128,6 @@ struct VertexLayers_v
 	(
 		format "\n"; print "VertexLayers.onCreate()"
 		print "**************************\n**************************"
-		VertIslandFinder = VertIslandFinder_v(obj)
 	)
 
 )

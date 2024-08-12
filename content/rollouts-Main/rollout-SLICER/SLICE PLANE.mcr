@@ -256,14 +256,16 @@ icon:	"across:3"
 		(
 			obj	= selection[1]
 
+			layer_height = 0.05
+
 			VertSelector 	= VertSelector_v(obj )
 
-			VertIslandFinder = VertSelector.VertexLayers.VertIslandFinder
+			--VertIslandFinder = VertSelector.VertIslandFinder
 			--if subobject == #FACE then polyop.getFaceSelection obj else polyop.getVertSelection obj -- return
 
-			islands_data = VertSelector.findIslandsPerLayer()
+			islands_data = VertSelector.findIslandsPerLayer(layer_height)
 
-			format "islands_data COUNT: %\n" VertIslandFinder.islands_data.count
+			format "islands_data COUNT: %\n" VertSelector.VertIslandFinder.islands_data.count
 
 			new_islands = for island_data in islands_data collect island_data[#NEW_ISLAND]
 
@@ -273,7 +275,9 @@ icon:	"across:3"
 			--
 			VertSelector.setSelection ( lowest_verts )
 
-			setUserPropVal obj "ISLANDS_DATA" VertIslandFinder.islands_data
+			setUserPropVal obj "ISLANDS_DATA" VertSelector.VertIslandFinder.islands_data
+
+			createIslandManagerDialog()
 		)
 
 		--elements = VertSelector.VertIslandFinder.getElementsOfFaces ( polyop.getFaceSelection obj )

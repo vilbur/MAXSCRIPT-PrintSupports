@@ -5,6 +5,7 @@ import_browse
 filein( getFilenamePath(getSourceFileName()) + "/../VertexLayers/VertexLayers.ms" )	--"./../VertexLayers/VertexLayers.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../VertexGrid/VertexGrid.ms" )	--"./../VertexGrid/VertexGrid.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../VertexGridGetter/VertexGridGetter.ms" )	--"./../VertexGridGetter/VertexGridGetter.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../VertIslandFinder/VertIslandFinder.ms" )	--"./../VertIslandFinder/VertIslandFinder.ms"
 
 /** Get lowest verts in grid
 
@@ -42,6 +43,7 @@ struct VertSelector_v
 	--MeshDataGetter,
 	VertexGridGetter,
 	VertexLayers,
+	VertIslandFinder,
 
 	/* reference */
 	/* inhered */
@@ -103,22 +105,41 @@ struct VertSelector_v
 
 	/** Find islands per layer
 	 */
-	function findIslandsPerLayer =
+	function findIslandsPerLayer layer_height =
 	(
 		format "\n"; print "VertSelector_v.findIslandsPerLayer()"
 		--format "VertexLayers: %\n" VertexLayers
 
-		timer_FIND_ISLANDS = timeStamp()
+		vertex_count = getNumVerts obj.mesh
 
-		if (VertexLayers.findVertsOfNewIslands()) != false then
+		verts_all = #{1..(vertex_count)}
+
+		/* GET VERTS WITH NORMAL POINTING DOWN */
+		--bottom_verts = this.getBottom()
+
+		/* GET ONLY CONVEX VERTS */
+		--convex_verts = this.selectConvex()
+
+		visible_verts = -( polyop.getHiddenVerts obj)
+
+		verts_process = if (verts_sel = polyop.getVertSelection obj ).numberSet > 0 then verts_sel else verts_all
+
+		verts_process *= visible_verts
+
+
+		if ( verts_layers = VertexLayers.findVertsOfNewIslands(verts_all)(verts_process)(layer_height)) != undefined then
 		(
-			for i = 1 to VertexLayers.VertIslandFinder.islands_data.count do
+			VertIslandFinder.verts_all	= verts_all
+			VertIslandFinder.verts_process	= verts_process
+			VertIslandFinder.verts_layers	= verts_layers
+
+			VertIslandFinder.getNewIslandsPerLayer()
+
+			for i = 1 to VertIslandFinder.islands_data.count do
 			(
-				--format "i: %\n" i
+				island_data = VertIslandFinder.islands_data[i]
 
-				island_data = VertexLayers.VertIslandFinder.islands_data[i]
-
-				VertexLayers.VertIslandFinder.islands_data[i][#LOWEST_VERT] = this._getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
+				VertIslandFinder.islands_data[i][#LOWEST_VERT] = this._getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
 
 				verts_get_size = if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
 
@@ -132,12 +153,12 @@ struct VertSelector_v
 					y_length = (amax y_positions) - (amin y_positions)
 
 
-					VertexLayers.VertIslandFinder.islands_data[i][#SIZE] = [x_length, y_length]
+					VertIslandFinder.islands_data[i][#SIZE] = [x_length, y_length]
 				)
 			)
 		)
 
-		VertexLayers.VertIslandFinder.islands_data --return
+		VertIslandFinder.islands_data --return
 	),
 
 	/** Select sinlge vert per face island
@@ -506,7 +527,7 @@ struct VertSelector_v
 
 		VertexLayers 	= VertexLayers_v( obj )
 		VertexGrid 	= VertexGrid_v( obj )
-		--MeshDataGetter 	= MeshDataGetter_v( obj )
+		VertIslandFinder 	= VertIslandFinder_v(obj)
 		VertexGridGetter 	= VertexGridGetter_v( obj )
 
 	)

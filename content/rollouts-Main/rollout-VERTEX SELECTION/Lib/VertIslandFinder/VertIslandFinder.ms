@@ -194,28 +194,15 @@ struct VertIslandFinder_v
 
 			/* CREATE NEW ISLAND IF NOT MERGED */
 			if not merged then
-			(
-				--append new_islands_in_layer (faceverts * verts_in_layer)
 				append new_islands_in_layer faceverts
-
-				----if layer == 78 then
-				--(
-				--	format "\n\nNOT MERGED\n"
-				--	format "FACE: %\n" face
-				--	format "FACEVERTS: %\n" faceverts
-				--	format "NEW_ISLANDS_IN_LAYER: %\n" new_islands_in_layer
-				--
-				--)
-
-			)
 		)
-
-
-		--if layer == 78 then
 
 		if new_islands_in_layer.count > 0 then
 		(
-			--format "\n\n RAW: NEW_ISLANDS_IN_LAYER: %\n" new_islands_in_layer
+
+			/* REMOVE ISLANDS THEY ARE NOT IN VERTS PROCESS - HOTFIX */
+			for i = new_islands_in_layer.count to 1 by -1 where (new_islands_in_layer[i] * verts_process).isEmpty do deleteItem new_islands_in_layer i
+
 
 			new_islands_in_layer = this._mergeBitArraysbySharedBits(new_islands_in_layer)
 
