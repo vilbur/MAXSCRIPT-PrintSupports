@@ -36,9 +36,10 @@ try(
 
 
 	--/* CREATE DIALOG */
-	MaxToPrint = ContentLoader.create width:420 height:1024
+	--MaxToPrint = ContentLoader.create width:420 height:1024
 	--MaxToPrint = ContentLoader.create width:420 height:#AUTO
 	--MaxToPrint = ContentLoader.create width:420 height:undefined
+	MaxToPrint = ContentLoader.create width:420
 
 	--MaxToPrint.register()
 

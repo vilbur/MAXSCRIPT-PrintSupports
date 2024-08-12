@@ -197,15 +197,14 @@ struct VertIslandFinder_v
 				append new_islands_in_layer faceverts
 		)
 
+
 		if new_islands_in_layer.count > 0 then
 		(
+			new_islands_in_layer = this._mergeBitArraysbySharedBits(new_islands_in_layer)
+
 
 			/* REMOVE ISLANDS THEY ARE NOT IN VERTS PROCESS - HOTFIX */
 			for i = new_islands_in_layer.count to 1 by -1 where (new_islands_in_layer[i] * verts_process).isEmpty do deleteItem new_islands_in_layer i
-
-
-			new_islands_in_layer = this._mergeBitArraysbySharedBits(new_islands_in_layer)
-
 
 			join islands_cache new_islands_in_layer
 

@@ -89,25 +89,45 @@ function selectIslandsBySize size =
 	)
 
 	--islands_by_size = for i = ISLANDS_DATA.count to 1 by -1 where ISLANDS_DATA[i][#SIZE] != undefined and  ISLANDS_DATA[i][#SIZE] > 2 collect i
-	_listbox = DIALOG_island_manager.ML_island_listbox
-	list_items = _listbox.items
 
+	/* GET ISLANDS MATHING SIZE */
 	islands_by_size = (for i = 1 to ISLANDS_DATA.count where ISLANDS_DATA[i][#SIZE] != undefined and isIslandMatchinSize(ISLANDS_DATA[i][#SIZE])(size) collect i) as BitArray
 
-	items_of_islands = for i = 1 to  list_items.count where islands_by_size[ getIslandIndexFromTitle list_items[i] ] collect i
-
-	DIALOG_island_manager.ML_island_listbox.selection = items_of_islands as BitArray
+	DIALOG_island_manager.ML_island_listbox.selection = _getListboxItemsByIslandsIndex (islands_by_size)
 
 	updateListbox()
 )
 
+/** Select islands by verts
+ */
+function selectIslandsByVerts =
+(
+	--format "\n"; print ".selectIslandsByVerts()"
+	verts_sel = polyop.getVertSelection selection[1]
 
+	verts_of_islands = #{}
+
+	islands_of_verts = ( for i = 1 to ISLANDS_DATA.count where not (ISLANDS_DATA[i][#NEW_ISLAND] * verts_sel ).isEmpty collect i) as BitArray
+
+	for index in islands_of_verts do verts_of_islands += ISLANDS_DATA[index][#NEW_ISLAND]
+
+
+	if classOf (_mod = modPanel.getCurrentObject()) == Edit_Poly then
+		_mod.Select #VERTEX verts_of_islands
+
+	else if classOf _mod  == Editable_Poly then
+		_mod.SetSelection #VERTEX verts_of_islands
+
+
+	DIALOG_island_manager.ML_island_listbox.selection = _getListboxItemsByIslandsIndex (islands_of_verts)
+
+)
 
 /** Get island item title
  */
-function getIslandIndexFromTitle list_item =
+function _getIslandIndexFromTitle list_item =
 (
-	--format "\n"; print ".getIslandIndexFromTitle()"
+	--format "\n"; print "._getIslandIndexFromTitle()"
 	( substring list_item (( findString list_item "#" )+1) -1 ) as Number
 )
 
@@ -142,3 +162,33 @@ function selectFirstVerts vertex_type =
 	selectIslandsVerts( verts as BitArray )
 
 )
+
+
+/** Get listbox items by island index
+ */
+function _getListboxItemsByIslandsIndex island_indexes =
+(
+	--format "\n"; print "._getListboxItemsByIslandIndex()"
+	--_listbox = DIALOG_island_manager.ML_island_listbox
+
+	list_items = DIALOG_island_manager.ML_island_listbox.items
+
+
+	( for i = 1 to  list_items.count where island_indexes[ _getIslandIndexFromTitle list_items[i] ] collect i ) as BitArray
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

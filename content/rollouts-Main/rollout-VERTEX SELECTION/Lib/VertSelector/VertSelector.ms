@@ -330,7 +330,7 @@ struct VertSelector_v
 
 		_mod = modPanel.getCurrentObject()
 
-		_mod.SetSelection subobject #{}
+		--_mod.SetSelection subobject #{}
 
 		if classOf _mod == Edit_Poly then
 			_mod.Select subobject sel_bitarray
