@@ -2,10 +2,10 @@
 
 /** Select layer
  */
-function selectLayerSlider slider_val =
+function selectLayerBySlider slider_val =
 (
-	--format "\n"; print ".selectLayerSlider()"
-	--format "slider_val: %\n" slider_val
+	format "\n"; print ".selectLayerBySlider()"
+	format "slider_val: %\n" slider_val
 
 	if slider_val == undefined then
 		slider_val = DIALOG_island_manager.SLIDER_island_select.value
@@ -13,7 +13,7 @@ function selectLayerSlider slider_val =
 	obj	= selection[1]
 
 	layer_index = slider_val + 1
-	--format "layer_index: %\n" layer_index
+	format "layer_index: %\n" layer_index
 	select_whole_island = DIALOG_island_manager.RB_slider_mode.state
 	--format "select_whole_island: %\n" select_whole_island
 	--format "BOTTOM: %\n" ISLANDS_DATA[#BOTTOM][layer_index]
@@ -35,12 +35,12 @@ function selectLayerSlider slider_val =
 
 
 
-		--format "VERTS: %\n" verts
+		format "VERTS: %\n" verts
 		selectIslandsVerts (verts)
 
 	)
 
-	selectLayerItemListbox (layer_index)
+	selectLayerItemInListbox (layer_index)
 
 )
 

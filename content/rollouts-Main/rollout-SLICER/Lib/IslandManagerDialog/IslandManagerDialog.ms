@@ -84,7 +84,7 @@ function createIslandManagerDialog relaunch:false =
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 
-	pos_y_start = 96
+	pos_y_start = 92
 
 	step_height = 13
 
@@ -129,9 +129,11 @@ function createIslandManagerDialog relaunch:false =
 
 	/*------ CECKBUTTON ------*/
 	_button = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate height:32
+    --_button.Event #CHANGED 	"EventFired.control.text = \"XXX\"" -- called when select action ends
+
 
 	/*------ RADIOBUTTONS ------*/
-	_radio = _Controls.control #RADIOBUTTONS "" id:#RB_slider_mode items:#("↓","↑") params:#( #UNSELECT, true ) across:1 offset:[ 16, 0]
+	_radio = _Controls.control #RADIOBUTTONS "" id:#RB_slider_mode items:#("   ↓   ","   ↑   ") params:#( #UNSELECT, true ) across:1 offset:[ 4, 2 ] --align:#center  --width:96
 
 	/*------ MULTILISTBOX ------*/
 	_multilistbox = _Controls.control #MULTILISTBOX "" id:#ML_island_listbox \
@@ -159,7 +161,7 @@ function createIslandManagerDialog relaunch:false =
                     pos:pos_slider
 
 
-	_slider.Event #CHANGED     "selectLayerSlider"
+	_slider.Event #CHANGED     "selectLayerBySlider"
 	_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"
 
 

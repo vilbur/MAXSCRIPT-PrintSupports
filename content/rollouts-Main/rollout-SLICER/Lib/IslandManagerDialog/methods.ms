@@ -1,4 +1,71 @@
 
+/** Get verts from island data
+ */
+function getVertsFromIslandData island_data =
+(
+	--format "\n"; print ".getVertsFromIslandData()"
+	--format "STATE: %\n" (DIALOG_island_manager.RB_slider_mode.state)
+	case DIALOG_island_manager.RB_slider_mode.state of
+	(
+		0:	island_data[#NEW_ISLAND]
+		1:	#{island_data[#LOWEST_VERT]}
+		2:	if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
+	)
+
+)
+
+/** Select islands verts
+ */
+function selectIslandsVerts verts =
+(
+	format "\n"; print ".selectIslandsVerts()"
+	format "verts: %\n" verts
+	obj	= selection[1]
+
+	if verts != undefined then
+	(
+		subObjectLevel = 1
+
+		hidden_verts =	( polyop.getHiddenVerts obj) - verts
+
+		polyop.unHideAllVerts obj
+
+		if DIALOG_island_manager.CBTN_isolate.state == 1 then
+		(
+			all_verts = #{1..(getNumVerts obj.mesh)}
+
+			polyop.setHiddenVerts obj (all_verts - verts)
+		)
+		else
+			polyop.setHiddenVerts obj (hidden_verts - verts)
+
+
+		--else
+		obj.EditablePoly.SetSelection #Vertex verts
+	)
+)
+
+/** Select layer listbox
+ */
+function selectLayerItemInListbox layer_index =
+(
+	format "\n"; print ".selectLayerItemInListbox()"
+	format "layer_index: %\n" layer_index
+	_listbox = DIALOG_island_manager.ML_island_listbox
+
+	items = _listbox.items
+	items_count = _listbox.items.count
+	items_sel = _listbox.selection
+
+	new_index = DIALOG_island_manager.ML_island_listbox.items.count - layer_index + 1
+
+	--format "TEST: %\n" (if keyboard.shiftPressed then items_sel + #{new_index} else new_index)
+
+	DIALOG_island_manager.ML_island_listbox.selection = if keyboard.shiftPressed then items_sel + #{new_index} else #{new_index}
+
+
+)
+
 /** Select islands by size
  */
 function selectIslandsBySize size =
@@ -35,51 +102,6 @@ function selectIslandsBySize size =
 )
 
 
-/** Get verts from island data
- */
-function getVertsFromIslandData island_data =
-(
-	--format "\n"; print ".getVertsFromIslandData()"
-	--format "STATE: %\n" (DIALOG_island_manager.RB_slider_mode.state)
-	case DIALOG_island_manager.RB_slider_mode.state of
-	(
-		0:	island_data[#NEW_ISLAND]
-		1:	#{island_data[#LOWEST_VERT]}
-		2:	if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
-	)
-
-)
-
-/** Select islands verts
- */
-function selectIslandsVerts verts =
-(
-	format "\n"; print ".selectIslandsVerts()"
-	format "verts: %\n" verts
-	obj	= selection[1]
-
-	if verts != undefined then
-	(
-		subObjectLevel = 1
-
-		hidden_verts =	polyop.getHiddenVerts obj - verts
-
-		polyop.unHideAllVerts obj
-
-		if DIALOG_island_manager.CBTN_isolate.state == 1 then
-		(
-			all_verts = #{1..(getNumVerts obj.mesh)}
-
-			polyop.setHiddenVerts obj (all_verts - verts)
-		)
-		else
-			polyop.setHiddenVerts obj (hidden_verts - verts)
-
-
-		--else
-		obj.EditablePoly.SetSelection #Vertex verts
-	)
-)
 
 /** Get island item title
  */
