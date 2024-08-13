@@ -17,8 +17,8 @@ function openNewIslandsMenu =
 
 	/* ADD ITEMS */
 
-	--if listbox_selection.numberSet != listbox_items_count then
-		--Menu.item "Select All"	"(DIALOG_island_manager.ML_island_listbox.selection = #{1..DIALOG_island_manager.ML_island_listbox.items.count};updateListbox())"
+	if listbox_selection.numberSet != listbox_items_count then
+		Menu.item "Select All"	"(DIALOG_island_manager.ML_island_listbox.selection = #{1..DIALOG_island_manager.ML_island_listbox.items.count};updateListbox())"
 
 	if (verts_sel = polyop.getVertSelection selection[1]).numberSet > 0 then
 		Menu.item "Select Islands by verts"	"selectIslandsByVerts()"

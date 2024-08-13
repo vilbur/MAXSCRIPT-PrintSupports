@@ -23,7 +23,7 @@ function getSelectedIslandsFromListBox =
 
 		/* FLIP INDEX - first item == last siland */
 
-		selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect getIslandIndexFromTitle(list_items[i])) as BitArray
+		selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect _getIslandIndexFromTitle(list_items[i])) as BitArray
 		--format "SELECTED_ISLANDS: %\n" selected_islands
 	)
 
@@ -37,7 +37,7 @@ function getFirstIslandFromListbox =
 	--format "\n"; print ".getFirstIslandFromListbox()"
 	_listbox = DIALOG_island_manager.ML_island_listbox
 
-	getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
+	_getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
 )
 
 /** Create island manager dialog
@@ -45,7 +45,7 @@ function getFirstIslandFromListbox =
 function createIslandManagerDialog relaunch:false =
 (
 	--clearListener(); print("Cleared in:\n"+getSourceFileName())
-	--format "\n"; print ".createIslandManagerDialog()"
+	format "\n"; print ".createIslandManagerDialog()"
 	--format "ISLANDS_DATA: %\n" ISLANDS_DATA
 
 	/** Get heigh island
@@ -91,6 +91,7 @@ function createIslandManagerDialog relaunch:false =
 	viewport_height = Dialog.getViewportHeight()
 
 	items_count = items.count
+	format "items_count: %\n" items_count
 
 	slider_height =  ( items_count +1 ) * step_height + 2
 

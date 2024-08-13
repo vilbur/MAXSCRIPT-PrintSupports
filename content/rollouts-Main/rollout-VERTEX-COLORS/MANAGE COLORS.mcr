@@ -4,7 +4,7 @@
   */
 macroscript	epoly_vertex_color_select_by_selection
 category:	"_Epoly-Vertex-Color"
-buttonText:	"SELECT Color"
+buttonText:	"SELECT"
 toolTip:	""
 --icon:	"MENU:&Select Color"
 (
@@ -34,7 +34,7 @@ toolTip:	""
   */
 macroscript	epoly_vertex_color_select_submenu
 category:	"_Epoly-Vertex-Color"
-buttonText:	"SELECT Color"
+buttonText:	"SELECT"
 toolTip:	""
 icon:	"MENU:&SELECT Color"
 (
@@ -54,7 +54,7 @@ icon:	"MENU:&SELECT Color"
   */
 macroscript	epoly_vertex_color_hide_by_selection
 category:	"_Epoly-Vertex-Color"
-buttonText:	"HIDE Color"
+buttonText:	"HIDE"
 toolTip:	""
 --icon:	"MENU:&Hide Color"
 (
@@ -84,7 +84,7 @@ toolTip:	""
   */
 macroscript	epoly_vertex_color_hide_submenu
 category:	"_Epoly-Vertex-Color"
-buttonText:	"HIDE Color"
+buttonText:	"HIDE"
 toolTip:	""
 icon:	"MENU:&HIDE Color"
 (
@@ -103,7 +103,7 @@ icon:	"MENU:&HIDE Color"
   */
 macroscript	epoly_vertex_color_unhide_by_selection
 category:	"_Epoly-Vertex-Color"
-buttonText:	"UNHIDE Color"
+buttonText:	"UNHIDE"
 toolTip:	""
 --icon:	"MENU:&UNHIDE Color"
 (
@@ -128,7 +128,7 @@ toolTip:	""
   */
 macroscript	epoly_vertex_color_unhide_submenu
 category:	"_Epoly-Vertex-Color"
-buttonText:	"UNHIDE Color"
+buttonText:	"UNHIDE"
 toolTip:	""
 icon:	"MENU:&UNHIDE Color"
 (
@@ -148,7 +148,7 @@ icon:	"MENU:&UNHIDE Color"
   */
 macroscript	epoly_vertex_color_isolate_by_selection
 category:	"_Epoly-Vertex-Color"
-buttonText:	"ISOLATE Color"
+buttonText:	"ISOLATE"
 toolTip:	"Hide verts by vertex color of selected verts.White color is used, if nothing selected.\n\nCTRL: ISOLATE MODE (Show all verts of selected colors ).\n\nQUICK SCRIPT, TESTED ONLY ON EDITABLE POLY"
 icon:	"across:4"
 (
@@ -173,7 +173,7 @@ icon:	"across:4"
   */
 macroscript	epoly_vertex_color_isolate_submenu
 category:	"_Epoly-Vertex-Color"
-buttonText:	"ISOLATE Color"
+buttonText:	"ISOLATE"
 toolTip:	""
 icon:	"MENU:&ISOLATE Color"
 (
@@ -256,8 +256,8 @@ icon:	"MENU:&ISOLATE Color"
   */
 macroscript	epoly_vertex_color_property_toggle
 category:	"_Epoly-Vertex-Color"
-buttonText:	"SHOW-Colors"
-toolTip:	"Toggle show\hide"
+buttonText:	"SHOW"
+toolTip:	"SHOW \ HIDE vertex colors on selcted obejcts"
 icon:	"across:4|MENU:true"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
@@ -270,10 +270,38 @@ icon:	"across:4|MENU:true"
 
 		if selection.count > 0 then
 		(
-			$.showVertexColors = not selection[1].showVertexColors
-			$.vertexColorsShaded = on
-			$.vertexColorType = 0
+			state = not selection[1].showVertexColors
+
+			for obj in selection do
+			(
+				obj.showVertexColors = state
+				obj.vertexColorsShaded = on
+				obj.vertexColorType = 0
+			)
 		)
+	)
+)
+
+/**
+  *
+  */
+macroscript	epoly_vertex_color_reset_vertex_colors
+category:	"_Epoly-Vertex-Color"
+buttonText:	"RESET"
+toolTip:	"Reset Vertex Colors"
+--icon:	"across:4|MENU:true"
+(
+	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
+
+	on execute do
+	if queryBox "Reest Vertex Colors ?" title:"RESET VERTEX COLORS" then
+
+	(
+		obj	= selection[1]
+		/* SET NEW CLASS INSTANCE */
+		VertexColorProcessor = VertexColorProcessor_v(obj)
+
+		VertexColorProcessor.resetCPVVerts()
 	)
 )
 
@@ -319,29 +347,5 @@ toolTip:	"List Vertex Colors"
 
 		for colors_data in colors do format "\n********\n\nCOLOR: %\nVERTS: %\nCOUNT: %\n" colors_data.key colors_data.value colors_data.value.numberSet
 
-	)
-)
-
-
-/**
-  *
-  */
-macroscript	epoly_vertex_color_reset_vertex_colors
-category:	"_Epoly-Vertex-Color"
-buttonText:	"Reset Colors"
-toolTip:	"Reset Vertex Colors"
---icon:	"across:4|MENU:true"
-(
-	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
-
-	on execute do
-	if queryBox "Reest Vertex Colors ?" title:"RESET VERTEX COLORS" then
-
-	(
-		obj	= selection[1]
-		/* SET NEW CLASS INSTANCE */
-		VertexColorProcessor = VertexColorProcessor_v(obj)
-
-		VertexColorProcessor.resetCPVVerts()
 	)
 )
