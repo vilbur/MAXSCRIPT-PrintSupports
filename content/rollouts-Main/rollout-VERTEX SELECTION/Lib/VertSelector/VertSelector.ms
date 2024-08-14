@@ -64,7 +64,7 @@ struct VertSelector_v
 	 */
 	function selectMiddleVertsInGrid resolution:10 =
 	(
-		--format "\n"; print "VertSelector_v.selectLowestVertsInGrid()"
+		format "\n"; print "VertSelector_v.selectMiddleVertsInGrid()"
 		VertexGridGetter.resolution = resolution
 
 		this.sel_modified = VertexGridGetter.getMiddlePointsInGrid()

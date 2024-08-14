@@ -122,8 +122,7 @@ struct VertexGridGetter_v
 				)
 			)
 
-		this.sel_modified
-		--return
+		this.sel_modified --return
 	),
 
 	/** Get checker apttern of selection
@@ -268,15 +267,18 @@ struct VertexGridGetter_v
 	 */
 	function _getClosestVertToCenter verts =
 	(
-		--format "\n"; print "VertexGridGetter_v._getClosestVertToCenter()"
+		format "\n"; print "VertexGridGetter_v._getClosestVertToCenter()"
+		format "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
 		verts_arr = verts as Array
+
+		verts_pos = in coordsys world meshop.getVerts obj.mesh (#{1..(getNumVerts obj.mesh)}) node:obj
 
 		/* GET LOWEST POINT IN CELL */
 		if verts_arr.count > 1 then
 		(
 			average_pos = point3 0 0 0
 
-			positions = for vert in verts collect MeshDataGetter.getPosition(vert)
+			positions = for vert in verts collect verts_pos[vert]
 
 			for pos in positions do
 				average_pos += pos

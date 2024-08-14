@@ -57,7 +57,9 @@ struct VertexGrid_v
 	function _getVertsInGrid verts =
 	(
 		format "\n"; print "VertSelector_v._getVertsInGrid()"
+		format "RESOLUTION: %\n" resolution
 		format "verts: %\n" verts
+		format "verts.numberSet: %\n" verts.numberSet
 
 		/** Get cell by position
 		 */
@@ -74,14 +76,16 @@ struct VertexGrid_v
 			local rp3Arr = for c in tempArr collect ((floor ((c * mult)+0.5)) / mult)
 			point3 rp3Arr[1] rp3Arr[2] rp3Arr[3]
 		)
+		--vertex_count = getNumVerts obj.mesh
+
+		verts_all = #{1..(getNumVerts obj.mesh)}
 
 		verts_pos = this._getVertsPositions(verts)
-		format "verts_pos: %\n" verts_pos
-		format "verts_pos.count: %\n" verts_pos.count
+
 		verts_arr = verts as Array
 
-		pos_by_axis = this.getPositionsSplitByAxis(verts)
-		format "pos_by_axis: %\n" pos_by_axis
+		pos_by_axis = this.getPositionsSplitByAxis(verts_arr)
+
 		min_pos = #( amin pos_by_axis[1], amin pos_by_axis[2], amin pos_by_axis[3])
 
 		/* FILL MATRIX
@@ -90,12 +94,26 @@ struct VertexGrid_v
 		for i = 1 to verts_arr.count do
 		(
 			vert	= verts_arr[i]
-			vert_pos	= verts_pos[i]
+			vert_pos	= verts_pos[vert]
 
 			for axis = 1 to 3 do
 			--for axis = 1 to 2 do
 			(
 				level = cellByPos(vert_pos[axis])(min_pos[axis])
+
+				--if level == 0 then
+				--(
+				--	format "\n"
+				--	format "vert: %\n" vert
+				--	format "VERT_POS: %\n" vert_pos
+				--	format "VERT_POS[axis]: %\n" vert_pos[axis]
+				--	format "min_pos[axis]:   %\n" min_pos[axis]
+				--	format "level: %\n" level
+				--
+				--)
+
+				--if level > 0 then
+				(
 
 				/* CRTEATE NEW CELL */
 				if (round_grid[axis][level]) == undefined then
@@ -103,10 +121,13 @@ struct VertexGrid_v
 
 				/* SET VERT TO BITARRAY OF CELL */
 				round_grid[axis][level][vert] = true
+				)
 			)
 		)
 
 		--gc()
+		gc light:true
+
 
 		--format "POINTS_GRID: %\n" points_grid
 
@@ -139,9 +160,14 @@ struct VertexGrid_v
 		--
 		--verts_pos --return
 
+
+
+
+
 		all_verts = #{1..(getNumVerts obj.mesh)}
 
-		verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+		--verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
+		verts_pos = meshop.getVerts obj.mesh all_verts node:obj
 
 		verts_pos --return
 	),
@@ -163,58 +189,74 @@ struct VertexGrid_v
 	  *
 	  * @return #( #(X pos), #(Y pos), #(Z pos) )
 	 */
-	function getPositionsSplitByAxis verts =
+	function getPositionsSplitByAxis verts_arr =
 	(
 		format "\n"; print "MeshDataGetter_v.getPositionsSplitted()"
+		x_positions = #()
+		y_positions = #()
+		z_positions = #()
 
-		verts_count = verts.numberSet
 
-		x_positions = #(verts_count)
-		y_positions = #(verts_count)
-		z_positions = #(verts_count)
-
-		for vert in verts do
+		if (verts_count = verts_arr.count) > 0 then
 		(
-			--format "vert: %\n" vert
-			vert_pos = verts_pos[vert]
-			--format "vert_pos: %\n" vert_pos
+			x_positions[verts_count] = undefined
+			y_positions[verts_count] = undefined
+			z_positions[verts_count] = undefined
 
-			x_positions[vert] = vert_pos.x
-			y_positions[vert] = vert_pos.y
-			z_positions[vert] = vert_pos.z
+			--for vert in verts_arr do
+			for i = 1 to verts_count do
+			(
+				vert = verts_arr[i]
+
+				vert_pos = verts_pos[vert]
+
+				x_positions[vert] = vert_pos.x
+				y_positions[vert] = vert_pos.y
+				z_positions[vert] = vert_pos.z
+			)
+
+			--format "x_positions: %\n" x_positions
+			--format "y_positions: %\n" y_positions
+			--format "z_positions: %\n" z_positions
+
+			x_positions = for x_position in x_positions where x_position != undefined collect x_position
+			y_positions = for y_position in y_positions where y_position != undefined collect y_position
+			z_positions = for z_position in z_positions where z_position != undefined collect z_position
+
+
 		)
-
-		--format "x_positions: %\n" x_positions
-		--format "y_positions: %\n" y_positions
-		--format "z_positions: %\n" z_positions
-
-		x_positions = for x_position in x_positions where x_position != undefined collect x_position
-		y_positions = for y_position in y_positions where y_position != undefined collect y_position
-		z_positions = for z_position in z_positions where z_position != undefined collect z_position
 
 		#( x_positions, y_positions, z_positions  ) --return
 	),
 
 
-
-
-
-
-
-
-
-
 	private
 
+
+	/** Set units muliplier
+	  *
+	  */
+	function _setResolutionUnits =
+	(
+		--format "\n"; print "SupportOptions_v.setUnitsMuliplier()"
+		display_units = case units.SystemType of -- convert to milimeters
+		(
+			#millimeters:	1
+			#centimeters:	10
+			#meters:	1000
+			#kilometers:	1000000
+			default:	1 -- non metric units
+		)
+
+		this.resolution /= display_units
+	),
 
 	/**
 	 */
 	on create do
 	(
 		--format "\n"; print "VertexGrid.onCreate()"
-		--MeshDataGetter 	= MeshDataGetter_v( obj )
-		--for prop in #(  ) where getProperty this prop == undefined do -- CHECK CONSTRUCT PROPERTIES -- Array of this struct properties necessary to run
-		--	throw ("\n\n\nUNDEFINED CONSTRUCT PROPERTY\n\n\nSTRUCT:\n\n"+ ((filterString( classof this as string )"(:")[2]) +"\n\n\nPROPERTY:\n\n"+ prop )
+		this._setResolutionUnits()
 	)
 
 

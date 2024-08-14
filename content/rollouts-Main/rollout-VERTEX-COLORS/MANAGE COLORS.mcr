@@ -5,7 +5,7 @@
 macroscript	epoly_vertex_color_select_by_selection
 category:	"_Epoly-Vertex-Color"
 buttonText:	"SELECT"
-toolTip:	""
+toolTip:	"Select verts with same color as selected verts"
 --icon:	"MENU:&Select Color"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
@@ -35,7 +35,7 @@ toolTip:	""
 macroscript	epoly_vertex_color_select_submenu
 category:	"_Epoly-Vertex-Color"
 buttonText:	"SELECT"
-toolTip:	""
+toolTip:	"Open Select Vrtex Color Menu"
 icon:	"MENU:&SELECT Color"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
@@ -55,7 +55,7 @@ icon:	"MENU:&SELECT Color"
 macroscript	epoly_vertex_color_hide_by_selection
 category:	"_Epoly-Vertex-Color"
 buttonText:	"HIDE"
-toolTip:	""
+toolTip:	"Hide verts with same color as selected verts"
 --icon:	"MENU:&Hide Color"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
@@ -85,7 +85,7 @@ toolTip:	""
 macroscript	epoly_vertex_color_hide_submenu
 category:	"_Epoly-Vertex-Color"
 buttonText:	"HIDE"
-toolTip:	""
+toolTip:	"Open Hide By Color Menu"
 icon:	"MENU:&HIDE Color"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
@@ -104,7 +104,7 @@ icon:	"MENU:&HIDE Color"
 macroscript	epoly_vertex_color_unhide_by_selection
 category:	"_Epoly-Vertex-Color"
 buttonText:	"UNHIDE"
-toolTip:	""
+toolTip:	"Unhide verts with same color as selected verts"
 --icon:	"MENU:&UNHIDE Color"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
@@ -129,7 +129,7 @@ toolTip:	""
 macroscript	epoly_vertex_color_unhide_submenu
 category:	"_Epoly-Vertex-Color"
 buttonText:	"UNHIDE"
-toolTip:	""
+toolTip:	"Open Unhide By Color Menu"
 icon:	"MENU:&UNHIDE Color"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
@@ -174,7 +174,7 @@ icon:	"across:4"
 macroscript	epoly_vertex_color_isolate_submenu
 category:	"_Epoly-Vertex-Color"
 buttonText:	"ISOLATE"
-toolTip:	""
+toolTip:	"Open Isolate By Color Menu"
 icon:	"MENU:&ISOLATE Color"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0

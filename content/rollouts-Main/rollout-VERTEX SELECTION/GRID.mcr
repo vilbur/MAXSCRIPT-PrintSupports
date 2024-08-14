@@ -17,7 +17,7 @@ icon:	"MENU:false|id:#SPIN_grid_step|control:spinner|range:[1, 100, 10]|type:#in
 /**  Export format
   *
  */
-macroscript	_print_select_lowest_verts_in_grid
+macroscript	_print_select_middle_verts_in_grid
 category:	"_Print-Points-Tools"
 buttonText:	"GRID MIDDLE"
 toolTip:	"SELECT LOWEST SINGLE VERTEX of each face island.\n\Vert with lowest position on Z axis is selected"
