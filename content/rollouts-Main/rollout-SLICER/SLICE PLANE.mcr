@@ -1,6 +1,7 @@
 global ROLLOUT_slicer
 global DIALOG_elevation_slider
 
+filein( getFilenamePath(getSourceFileName()) + "/Lib/PrinterVolume/PrinterVolume.ms" )	--"./Lib/PrinterVolume/PrinterVolume.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/getPlaneZpozition.ms" )	--"./Lib/SlicePlaneDialog/getPlaneZpozition.ms"
 
@@ -272,7 +273,7 @@ icon:	"across:3"
 			lowest_verts = VertSelector.getLowestVerts ( new_islands )
 
 			--format "lowest_verts: %\n" lowest_verts
-			--
+			--PrinterVolume
 			VertSelector.setSelection ( lowest_verts )
 
 			setUserPropVal obj "ISLANDS_DATA" VertSelector.VertIslandFinder.islands_data

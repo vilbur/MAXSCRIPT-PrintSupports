@@ -7,7 +7,7 @@
 macroscript	_print_select_vets_grid_resolution
 category:	"_Print-Points-Tools"
 buttonText:	"GRID"
-toolTip:	"Get only signlge vertex of each face island"
+toolTip:	"Size of cell in grid."
 icon:	"MENU:false|id:#SPIN_grid_step|control:spinner|range:[1, 100, 10]|type:#integer|across:3|height:24|offset:[ 12, 4]|align:#left|fieldwidth:32"
 (
 	on execute do

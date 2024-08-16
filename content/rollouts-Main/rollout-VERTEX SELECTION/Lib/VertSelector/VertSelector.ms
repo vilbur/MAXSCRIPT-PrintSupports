@@ -47,6 +47,67 @@ struct VertSelector_v
 
 	/* reference */
 	/* inhered */
+	/** Find islands per layer
+	 */
+	function findIslandsPerLayer layer_height =
+	(
+		format "\n"; print "VertSelector_v.findIslandsPerLayer()"
+		--format "VertexLayers: %\n" VertexLayers
+
+		vertex_count = getNumVerts obj.mesh
+
+		verts_all = #{1..(vertex_count)}
+		format "vertex_count: %\n" vertex_count
+		/* GET VERTS WITH NORMAL POINTING DOWN */
+		--bottom_verts = this.getBottom()
+
+		/* GET ONLY CONVEX VERTS */
+		--convex_verts = this.selectConvex()
+
+		visible_verts = -( polyop.getHiddenVerts obj)
+		format "verts_sel: %\n" (polyop.getVertSelection obj)
+		format "visible_verts.numberSet: %\n" visible_verts.numberSet
+
+
+		verts_process = if (verts_sel = polyop.getVertSelection obj ).numberSet > 0 then verts_sel else verts_all
+		format "verts_process.numberSet: %\n" verts_process.numberSet
+		verts_process *= visible_verts
+		format "verts_process.numberSet: %\n" verts_process.numberSet
+
+
+		if ( verts_layers = VertexLayers.findVertsOfNewIslands(verts_all)(verts_process)(layer_height)) != undefined then
+		(
+			VertIslandFinder.verts_all	= verts_all
+			VertIslandFinder.verts_process	= verts_process
+			VertIslandFinder.verts_layers	= verts_layers
+
+			VertIslandFinder.getNewIslandsPerLayer()
+
+			for i = 1 to VertIslandFinder.islands_data.count do
+			(
+				island_data = VertIslandFinder.islands_data[i]
+
+				VertIslandFinder.islands_data[i][#LOWEST_VERT] = this._getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
+
+				verts_get_size = if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
+
+				--if island_data[#WHOLE_ISLAND] != undefined then
+				(
+					x_positions = for vert in verts_get_size collect verts_pos[vert].x
+					y_positions = for vert in verts_get_size collect verts_pos[vert].y
+
+
+					x_length = (amax x_positions) - (amin x_positions)
+					y_length = (amax y_positions) - (amin y_positions)
+
+
+					VertIslandFinder.islands_data[i][#SIZE] = [x_length, y_length]
+				)
+			)
+		)
+
+		VertIslandFinder.islands_data --return
+	),
 
 	/** Get lowest verts in grid
 	 */
@@ -103,63 +164,6 @@ struct VertSelector_v
 
 	),
 
-	/** Find islands per layer
-	 */
-	function findIslandsPerLayer layer_height =
-	(
-		format "\n"; print "VertSelector_v.findIslandsPerLayer()"
-		--format "VertexLayers: %\n" VertexLayers
-
-		vertex_count = getNumVerts obj.mesh
-
-		verts_all = #{1..(vertex_count)}
-
-		/* GET VERTS WITH NORMAL POINTING DOWN */
-		--bottom_verts = this.getBottom()
-
-		/* GET ONLY CONVEX VERTS */
-		--convex_verts = this.selectConvex()
-
-		visible_verts = -( polyop.getHiddenVerts obj)
-
-		verts_process = if (verts_sel = polyop.getVertSelection obj ).numberSet > 0 then verts_sel else verts_all
-
-		verts_process *= visible_verts
-
-
-		if ( verts_layers = VertexLayers.findVertsOfNewIslands(verts_all)(verts_process)(layer_height)) != undefined then
-		(
-			VertIslandFinder.verts_all	= verts_all
-			VertIslandFinder.verts_process	= verts_process
-			VertIslandFinder.verts_layers	= verts_layers
-
-			VertIslandFinder.getNewIslandsPerLayer()
-
-			for i = 1 to VertIslandFinder.islands_data.count do
-			(
-				island_data = VertIslandFinder.islands_data[i]
-
-				VertIslandFinder.islands_data[i][#LOWEST_VERT] = this._getLowestVertOnZaxis( island_data[#NEW_ISLAND] )
-
-				verts_get_size = if island_data[#WHOLE_ISLAND] != undefined then island_data[#WHOLE_ISLAND] else island_data[#NEW_ISLAND]
-
-				--if island_data[#WHOLE_ISLAND] != undefined then
-				(
-					x_positions = for vert in verts_get_size collect verts_pos[vert].x
-					y_positions = for vert in verts_get_size collect verts_pos[vert].y
-
-
-					x_length = (amax x_positions) - (amin x_positions)
-					y_length = (amax y_positions) - (amin y_positions)
-
-
-					VertIslandFinder.islands_data[i][#SIZE] = [x_length, y_length]
-				)
-			)
-		)
-
-		VertIslandFinder.islands_data --return
-	),
 
 	/** Select sinlge vert per face island
 

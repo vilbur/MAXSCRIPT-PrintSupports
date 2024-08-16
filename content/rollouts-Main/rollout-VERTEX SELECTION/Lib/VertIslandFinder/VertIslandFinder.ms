@@ -62,6 +62,8 @@ struct VertIslandFinder_v
 
 		all_layers_timer = timeStamp()
 
+		format "\nSTART GETTING ISLANDS\n"
+
 		for l = 1 to used_layers_count do
 		--for layer in layers_with_verts do -- layer has not verts if item is integer ( layer number )
 		(
@@ -81,11 +83,6 @@ struct VertIslandFinder_v
 			/* GET VERTS IN LAYER */
 			verts_in_layer = verts_layers[layer]
 
-			--if this._bitsAreShared verts_process verts_in_layer  then
-			--(
-			--
-			--)
-
 			/* REMOVE VERTS FORM CURENT LAYER FROM VERTS ABOVE */
 			verts_above  -= verts_in_layer
 
@@ -100,6 +97,15 @@ struct VertIslandFinder_v
 
 			/* JOIN NEW FACES TO ALL NEW_ISLANDS */
 			timer_JOIN = timeStamp()
+
+
+
+
+
+
+
+
+
 
 			new_islands = this._joinFacesToIslands(new_faces_in_layer)(verts_in_layer)layer
 			--this._joinVertsToIslands(new_faces_in_layer)
@@ -116,18 +122,32 @@ struct VertIslandFinder_v
 
 					island_data[#BOTTOM] = layer
 
-
-					--if layer == 78 then
-					--(
-						--format "********************************\n"
-						--format "NEW_ISLAND: %\n" new_island
-						--format "ISLAND_DATA: %\n" island_data
-					--)
-
 					append islands_data island_data
 				)
 
 				join this.islands_cache new_islands
+
+
+
+
+
+
+
+
+				
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 				this._mergeIslandsBySharedVerts(layer)
 			)
@@ -166,56 +186,6 @@ struct VertIslandFinder_v
 
 		this.islands_data --return
 	),
-	/** Test if bitarrays share bits
-	 */
-	function _bitsAreShared arr_A arr_B = ( arr_A * arr_B ).numberSet > 0 ,
-
-	/** Test new islands
-	 */
-	function _testNewIslands =
-	(
-		format "\n"; print "VertIslandFinder_v._testNewIslands()"
-		--for x = islands_data.count to 1 by -1 do
-		--(
-		--	--format "x: %\n" x
-		--
-		--	island_data = islands_data[x][#NEW_ISLAND]
-		--
-		--		--format "island_data: %\n" island_data
-		--	--if island_data != undefined then
-		--
-		--
-		--		for y = islands_data.count to 1 by -1 where x != y and ( island_data * islands_data[y][#NEW_ISLAND] ).numberSet > 0 do
-		--		(
-		--			format "\n\n=========================\n"
-		--			format "x: % \ny: %\n\n" x y
-		--			format "NEW_ISLAND: %\n" islands_data[y][#NEW_ISLAND]
-		--		)
-		--		--else
-		--		--(
-		--		--	format "\n\n=========================\n"
-		--		--	format "UNDEFINED: %\n" x
-		--		--)
-		--	gc light:true
-		--
-		--)
-
-		for island_data in islands_data do
-			format "island_data[#NEW_ISLAND]: %\n" island_data[#NEW_ISLAND]
-
-	),
-
-	/** Bitarrays match
-	 */
-	function _bitarraysMatch haystack needle =
-	(
-		--format "\n"; print "VertIslandFinder_v.bitarraysMatch()"
-		found = false
-
-		for vert in needle while not found where haystack[vert] do found = true
-
-		found --return
-	),
 
 	/** Join faces to islands
 	 */
@@ -240,33 +210,48 @@ struct VertIslandFinder_v
 		--format "FACEVERTS_IN_LAYER: %\n" faceverts_in_layer
 
 
+		/* SEARCH FOR NEW ISLANDS */
 		for faceverts in faceverts_in_layer do
 		--for x = 1 to faceverts_in_layer.count where not faceverts_processed[x] do
 		(
 			--faceverts = faceverts_in_layer[x]
 
 			--faceverts_processed[x] = true
-			debug = layer == 518 and not (#{34264, 118231} * faceverts ).isEmpty
+			--debug = layer == 518 and not (#{34264, 118231} * faceverts ).isEmpty
 
 			merged = false
 
-			/* MERGE FACE TO ISLANDS */
-			----for x = 1 to islands_cache.count while not merged where not ((islands_cache[x]) * faceverts ).isEmpty do
-			for y = 1 to islands_cache.count while not merged where this._bitsAreShared islands_cache[y] faceverts do
-			--for y = 1 to islands_cache.count while not merged where this._bitarraysMatch islands_cache[y] faceverts do
+			/* TRY MERGE FACE TO EXISTING ISlANDS */
+			for y = 1 to islands_cache.count while not merged                                                  \
+				where ( connecting_verts = this._bitsAreShared islands_cache[y] faceverts more_bits_then:0 ) != false \
+				and this._bitsAreShared -verts_above connecting_verts != false \
+				do
 			(
-				merged = true
 
-				islands_cache[y] += faceverts
+				if faceverts[151872] then
+				(
+					format "\n"
+					format "faceverts: %\n" faceverts
+					format "CONNECTING_VERTS: %\n" connecting_verts
+					format "CONNECTING_VERTS valid: %\n" (this._bitsAreSharedSearch -verts_above connecting_verts)
+
+				)
+
+
+				--if this._bitsAreSharedSearch -verts_above connecting_verts != false then
+				(
+					--print "MERGE"
+					merged = true
+
+					islands_cache[y] += faceverts
+
+				)
 			)
 
-			--if debug then
-			--	format "merged: %\n" merged
-
-			/* CREATE NEW ISLAND IF NOT MERGED */
+			/* ADD FACE AS NEW ISLAND IF NOT MERGED */
 			if not merged then
 			(
-				if this._bitsAreShared verts_process faceverts then
+				if this._bitsAreShared verts_process faceverts != false then
 					append new_islands faceverts
 				else
 					append islands_cache faceverts
@@ -274,9 +259,27 @@ struct VertIslandFinder_v
 			)
 		)
 
-
+		/* IF NEWE ISLANDS FOUND */
 		if new_islands.count > 0 then
 		(
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			/*  */
 			new_islands = this._mergeBitArraysbySharedBits(new_islands)
 
 			if new_islands.count > 1 then
@@ -290,8 +293,10 @@ struct VertIslandFinder_v
 					faces_island = faces_islands[x]
 					verts_island = new_islands[x]
 
-					for y = faces_islands.count to 1 by -1 while not merged where x != y and this._bitsAreShared faces_island faces_islands[y] do
+					for y = faces_islands.count to 1 by -1 while not merged where x != y and this._bitsAreShared faces_island faces_islands[y] more_bits_then:1 != false do
 					(
+						merged = true
+
 						faces_islands[y] += faces_island
 						new_islands[y]   += verts_island
 
@@ -331,6 +336,7 @@ struct VertIslandFinder_v
 		--if new_islands_heights.count < islands_data[#NEW_ISLANDS].count then
 
 
+		/* LOOP EACH NEW ISLAND */
 		for x = islands_cache.count to 1 by -1 do
 		(
 			merged = false
@@ -338,18 +344,15 @@ struct VertIslandFinder_v
 			island_x = islands_cache[x]
 
 
-			for y = islands_cache.count to 1 by -1 while not merged where x != y and ( island_x * islands_cache[y] ).numberSet > 1 do
-			--for y = islands_cache.count to 1 by -1 while not merged where x != y and not ( island_x * islands_cache[y] ).isEmpty do
-			--for y = islands_cache.count to 1 by -1 while not merged where x != y and this._bitarraysMatch islands_cache[y] island_x do
+			--for y = islands_cache.count to 1 by -1 while not merged where x != y and ( island_x * islands_cache[y] ).numberSet > 1 do
+			for y = islands_cache.count to 1 by -1 while not merged where x != y and this._bitsAreShared islands_cache[y] island_x more_bits_then:1 != false do
 			(
 				islands_cache[y] += island_x
 
 				merged = true
 
-
-				for i = 1 to islands_data.count where islands_data[i][#TOP] == undefined and (islands_data[i][#NEW_ISLAND] * island_x).numberSet > 0  do
-				--for i = 1 to islands_data.count where islands_data[i][#TOP] == undefined and not (islands_data[i][#NEW_ISLAND] * island_x).isEmpty do
-				--for i = 1 to islands_data.count where islands_data[i][#TOP] == undefined and this._bitarraysMatch islands_data[i][#NEW_ISLAND]  island_x do
+				--for i = 1 to islands_data.count where islands_data[i][#TOP] == undefined and (islands_data[i][#NEW_ISLAND] * island_x).numberSet > 0  do
+				for i = 1 to islands_data.count where islands_data[i][#TOP] == undefined and this._bitsAreShared islands_data[i][#NEW_ISLAND] island_x != false  do
 				(
 					if current_layer != islands_data[i][#BOTTOM] then
 					(
@@ -360,6 +363,7 @@ struct VertIslandFinder_v
 					)
 
 				)
+
 				deleteItem islands_cache x
 			)
 		)
@@ -398,6 +402,64 @@ struct VertIslandFinder_v
 
 		bitarrays --return
 	),
+
+	/** Test if bitarrays share bits
+	 */
+	function _bitsAreShared arr_A arr_B more_bits_then:0 =
+	(
+		if ( intersection = ( arr_A * arr_B ) ).numberSet > more_bits_then then
+			intersection --return
+		else
+			false --return
+	),
+
+	/** Bitarrays match
+	 */
+	function _bitsAreSharedSearch haystack needle =
+	(
+		--format "\n"; print "VertIslandFinder_v.bitarraysMatch()"
+		found = false
+
+		for vert in needle while not found where haystack[vert] do found = true
+
+		found --return
+	),
+
+	/** Test new islands
+	 */
+	function _testNewIslands =
+	(
+		format "\n"; print "VertIslandFinder_v._testNewIslands()"
+		--for x = islands_data.count to 1 by -1 do
+		--(
+		--	--format "x: %\n" x
+		--
+		--	island_data = islands_data[x][#NEW_ISLAND]
+		--
+		--		--format "island_data: %\n" island_data
+		--	--if island_data != undefined then
+		--
+		--
+		--		for y = islands_data.count to 1 by -1 where x != y and ( island_data * islands_data[y][#NEW_ISLAND] ).numberSet > 0 do
+		--		(
+		--			format "\n\n=========================\n"
+		--			format "x: % \ny: %\n\n" x y
+		--			format "NEW_ISLAND: %\n" islands_data[y][#NEW_ISLAND]
+		--		)
+		--		--else
+		--		--(
+		--		--	format "\n\n=========================\n"
+		--		--	format "UNDEFINED: %\n" x
+		--		--)
+		--	gc light:true
+		--
+		--)
+
+		for island_data in islands_data do
+			format "island_data[#NEW_ISLAND]: %\n" island_data[#NEW_ISLAND]
+
+	),
+
 	/** Set vertex color to new islands
 	 */
 	function _setVertexColorToNewIslands =

@@ -267,8 +267,7 @@ struct VertexGridGetter_v
 	 */
 	function _getClosestVertToCenter verts =
 	(
-		format "\n"; print "VertexGridGetter_v._getClosestVertToCenter()"
-		format "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+		--format "\n"; print "VertexGridGetter_v._getClosestVertToCenter()"
 		verts_arr = verts as Array
 
 		verts_pos = in coordsys world meshop.getVerts obj.mesh (#{1..(getNumVerts obj.mesh)}) node:obj
