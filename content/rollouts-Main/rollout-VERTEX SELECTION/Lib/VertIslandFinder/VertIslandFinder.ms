@@ -98,58 +98,28 @@ struct VertIslandFinder_v
 			/* JOIN NEW FACES TO ALL NEW_ISLANDS */
 			timer_JOIN = timeStamp()
 
-
-
-
-
-
-
-
-
-
 			new_islands = this._joinFacesToIslands(new_faces_in_layer)(verts_in_layer)layer
 			--this._joinVertsToIslands(new_faces_in_layer)
 
-
+			/* IF NEW ISLANDS FOUND */
 			if new_islands.count > 0 then
 			(
-				for new_island in new_islands do
+				if new_islands.count > 1 then
 				(
-					island_data = Dictionary()
+					/* MERGE NEW ISLANDS BY VERTS - new islands can be splitten  */
+					new_islands = this._mergeNewIslandsBySharedBits(new_islands)
 
-					--island_data[#NEW_ISLAND] = new_island
-					island_data[#NEW_ISLAND] = (new_island * verts_in_layer)
-
-					island_data[#BOTTOM] = layer
-
-					append islands_data island_data
+					/* MERGE NEW ISLANDS BY FACES  */
+					new_islands = this._mergeIslandsBySharedFaces(new_islands)
 				)
 
-				join this.islands_cache new_islands
+				/* ADD NEW ISLANDS TO OTHER ISLANDS */
+				join islands_cache new_islands
 
-
-
-
-
-
-
-
-				
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+				/* TRY MERGE ALL ISALNDS - islands can be joined by new faces in layer */
 				this._mergeIslandsBySharedVerts(layer)
+
+				this._addIslandDataToNewIslands(new_islands)(verts_in_layer)(layer)
 			)
 
 			faces_processed += faces_in_layer
@@ -192,33 +162,16 @@ struct VertIslandFinder_v
 	function _joinFacesToIslands new_faces_in_layer verts_in_layer layer =
 	(
 		--format "\n"; print "VertIslandFinder_v._joinFacesToIslands()"
-
 		layer_verts_processed	= #{}
 		faceverts_processed	= #{}
 
 		new_islands = #()
 
-		--if layer == 78 then
-		--	format "NEW_FACES_IN_LAYER: %\n" new_faces_in_layer
-
-
 		faceverts_in_layer = for face in new_faces_in_layer collect polyop.getVertsUsingFace obj #(face)
-		--format "FACEVERTS_IN_LAYER: %\n" faceverts_in_layer
-
-		--if layer == 518 then
-			--faceverts_in_layer = this._mergeBitArraysbySharedBits(faceverts_in_layer)
-		--format "FACEVERTS_IN_LAYER: %\n" faceverts_in_layer
-
 
 		/* SEARCH FOR NEW ISLANDS */
 		for faceverts in faceverts_in_layer do
-		--for x = 1 to faceverts_in_layer.count where not faceverts_processed[x] do
 		(
-			--faceverts = faceverts_in_layer[x]
-
-			--faceverts_processed[x] = true
-			--debug = layer == 518 and not (#{34264, 118231} * faceverts ).isEmpty
-
 			merged = false
 
 			/* TRY MERGE FACE TO EXISTING ISlANDS */
@@ -227,102 +180,62 @@ struct VertIslandFinder_v
 				and this._bitsAreShared -verts_above connecting_verts != false \
 				do
 			(
+				--print "MERGE"
+				merged = true
 
-				if faceverts[151872] then
-				(
-					format "\n"
-					format "faceverts: %\n" faceverts
-					format "CONNECTING_VERTS: %\n" connecting_verts
-					format "CONNECTING_VERTS valid: %\n" (this._bitsAreSharedSearch -verts_above connecting_verts)
-
-				)
-
-
-				--if this._bitsAreSharedSearch -verts_above connecting_verts != false then
-				(
-					--print "MERGE"
-					merged = true
-
-					islands_cache[y] += faceverts
-
-				)
+				islands_cache[y] += faceverts
 			)
 
 			/* ADD FACE AS NEW ISLAND IF NOT MERGED */
 			if not merged then
 			(
 				if this._bitsAreShared verts_process faceverts != false then
+					/* ADD NEW ISLAND */
 					append new_islands faceverts
 				else
+					/* ADD TO OTHER ISLANDS IF VERTS ARE NOT MEANT TO BE PROCESED - E.g.: if faces are on top side of object */
 					append islands_cache faceverts
 
 			)
-		)
-
-		/* IF NEWE ISLANDS FOUND */
-		if new_islands.count > 0 then
-		(
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			/*  */
-			new_islands = this._mergeBitArraysbySharedBits(new_islands)
-
-			if new_islands.count > 1 then
-			(
-				faces_islands = for new_island in new_islands collect polyop.getFacesUsingVert obj new_island
-
-				for x = faces_islands.count to 1 by -1 do
-				(
-					merged = false
-
-					faces_island = faces_islands[x]
-					verts_island = new_islands[x]
-
-					for y = faces_islands.count to 1 by -1 while not merged where x != y and this._bitsAreShared faces_island faces_islands[y] more_bits_then:1 != false do
-					(
-						merged = true
-
-						faces_islands[y] += faces_island
-						new_islands[y]   += verts_island
-
-						deleteItem faces_islands x
-						deleteItem new_islands x
-					)
-
-
-				)
-
-			)
-
-			--/* REMOVE ISLANDS THEY ARE NOT IN VERTS PROCESS - HOTFIX */
-			--for i = new_islands.count to 1 by -1 where (new_islands[i] * verts_process).isEmpty do deleteItem new_islands i
-
-			join islands_cache new_islands
-
-			--if layer == 78 then
-			--format "\n\n RESULT: NEW_ISLANDS_IN_LAYER: %\n" new_islands
-
 		)
 
 		new_islands --return
 	),
 
 
+	/** Merge islands by shared faces
+	  *
+	  * FIX:       2 VERTS on one edge problem
+	  * CASED BY: Single island with mutliple faces can by divided by face which is not recognized as face of new island
+	  *
+	 */
+	function _mergeIslandsBySharedFaces new_islands =
+	(
+		--format "\n"; print "VertIslandFinder_v._mergeIslandsBySharedFaces()"
+		faces_islands = for new_island in new_islands collect polyop.getFacesUsingVert obj new_island
+
+		for x = faces_islands.count to 1 by -1 do
+		(
+			merged = false
+
+			faces_island = faces_islands[x]
+			verts_island = new_islands[x]
+
+			/* MERGE ISLANDS IF SHARE FACE */
+			for y = faces_islands.count to 1 by -1 while not merged where x != y and this._bitsAreShared faces_island faces_islands[y] more_bits_then:1 != false do
+			(
+				merged = true
+
+				faces_islands[y] += faces_island
+				new_islands[y]   += verts_island
+
+				deleteItem faces_islands x
+				deleteItem new_islands x
+			)
+		)
+
+		new_islands --return
+	),
 
 	/** Merge bit arrays wich shared bits
 	  *
@@ -330,12 +243,6 @@ struct VertIslandFinder_v
 	 */
 	function _mergeIslandsBySharedVerts current_layer =
 	(
-
-		--format "\n"; print ".mergeBitArraysTest2()"
-
-		--if new_islands_heights.count < islands_data[#NEW_ISLANDS].count then
-
-
 		/* LOOP EACH NEW ISLAND */
 		for x = islands_cache.count to 1 by -1 do
 		(
@@ -343,15 +250,12 @@ struct VertIslandFinder_v
 
 			island_x = islands_cache[x]
 
-
-			--for y = islands_cache.count to 1 by -1 while not merged where x != y and ( island_x * islands_cache[y] ).numberSet > 1 do
 			for y = islands_cache.count to 1 by -1 while not merged where x != y and this._bitsAreShared islands_cache[y] island_x more_bits_then:1 != false do
 			(
 				islands_cache[y] += island_x
 
 				merged = true
 
-				--for i = 1 to islands_data.count where islands_data[i][#TOP] == undefined and (islands_data[i][#NEW_ISLAND] * island_x).numberSet > 0  do
 				for i = 1 to islands_data.count where islands_data[i][#TOP] == undefined and this._bitsAreShared islands_data[i][#NEW_ISLAND] island_x != false  do
 				(
 					if current_layer != islands_data[i][#BOTTOM] then
@@ -369,14 +273,13 @@ struct VertIslandFinder_v
 		)
 	),
 
-
 	/** Merge bit arrays wich shared bits
 	  *
 	  * @param #( #{} ) bitarrays Array of bittarays
 	 */
-	function _mergeBitArraysbySharedBits bitarrays =
+	function _mergeNewIslandsBySharedBits bitarrays =
 	(
-		--format "\n"; print "VertSelector_v._mergeBitArraysbySharedBits()"
+		--format "\n"; print "VertSelector_v._mergeNewIslandsBySharedBits()"
 
 		for x = bitarrays.count to 1 by -1 do
 		(
@@ -385,9 +288,8 @@ struct VertIslandFinder_v
 
 			bitarrays_x = bitarrays[x]
 
-			for y = bitarrays.count to 1 by -1 while not merged where x != y and ( bitarrays_x * bitarrays[y] ).numberSet > 0 do
-			--for y = bitarrays.count to 1 by -1 while not merged where x != y and not ( bitarrays_x * bitarrays[y] ).isEmpty do
-			--for y = bitarrays.count to 1 by -1 while not merged where x != y and this._bitarraysMatch bitarrays_x bitarrays[y]  do
+			--for y = bitarrays.count to 1 by -1 while not merged where x != y and ( bitarrays_x * bitarrays[y] ).numberSet > 0 do
+			for y = bitarrays.count to 1 by -1 while not merged where x != y and this._bitsAreShared bitarrays_x bitarrays[y] more_bits_then:0 != false  do
 			(
 				bitarrays[y] += bitarrays[x]
 
@@ -401,6 +303,24 @@ struct VertIslandFinder_v
 		)
 
 		bitarrays --return
+	),
+
+	/** Add island data to neww islands
+	 */
+	function _addIslandDataToNewIslands new_islands verts_in_layer layer =
+	(
+		--format "\n"; print "VertIslandFinder_v._addIslandDataToNewIslands()"
+		for new_island in new_islands do
+		(
+			island_data = Dictionary()
+
+			--island_data[#NEW_ISLAND] = new_island
+			island_data[#NEW_ISLAND] = (new_island * verts_in_layer)
+
+			island_data[#BOTTOM] = layer
+
+			append islands_data island_data
+		)
 	),
 
 	/** Test if bitarrays share bits
