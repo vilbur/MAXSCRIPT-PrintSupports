@@ -132,8 +132,8 @@ struct SupportOptions_v
 	 */
 	function getOption prop_key =
 	(
-		format "\n"; print "SupportOptions_v.getProp()"
-		format "prop_key: %\n" prop_key
+		--format "\n"; print "SupportOptions_v.getProp()"
+		--format "prop_key: %\n" prop_key
 
 		/* Mutate value for modifier */
 		case prop_key of

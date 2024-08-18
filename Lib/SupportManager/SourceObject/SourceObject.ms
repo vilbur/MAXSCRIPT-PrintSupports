@@ -90,20 +90,25 @@ struct SourceObject_v
 
 				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
+				--format "SUPPORTOBJECT.SUPPORT_OBJ: %\n" SupportObject.support_obj
+				if SupportObject.support_obj != undefined then
+				(
 
-				setUserPropVal SupportObject.support_obj ( toUpper (obj_type as string ) + "_KEY")	SupportObject.support_key asString:true
+					setUserPropVal SupportObject.support_obj ( toUpper (obj_type as string ) + "_KEY")	SupportObject.support_key asString:true
 
-				setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
-				setUserPropVal SupportObject.support_obj "INDEX"	vert
+					setUserPropVal SupportObject.support_obj "SYNC_KEY"	sync_key
+					setUserPropVal SupportObject.support_obj "INDEX"	vert
 
-				SupportObject.support_obj.parent = obj
+					SupportObject.support_obj.parent = obj
 
-				/* ADD TO ARRAYS */
-				this.Supports[vert] = SupportObject
+					/* ADD TO ARRAYS */
+					this.Supports[vert] = SupportObject
 
-				SUPPORT_MANAGER.SupportObjects[SupportObject.support_key] = SupportObject
+					SUPPORT_MANAGER.SupportObjects[SupportObject.support_key] = SupportObject
 
-				append new_nodes SupportObject.support_obj
+					append new_nodes SupportObject.support_obj
+
+				)
 			)
 			--else
 				--this.Supports[vert].updateSupport first_knot_pos:verts_pos[vert]
@@ -384,14 +389,17 @@ struct SourceObject_v
 		format "\n"; print "SourceObject_v._getVertsPositions()"
 		format "obj: %\n" obj
 		--format "verts_process: %\n" verts_process
-		--format "verts: %\n" verts
-		--format "verts.numberSet: %\n" verts.numberSet
+		format "verts: %\n" verts
+		format "all_verts: %\n" all_verts
+		format "all_verts.numberSet: %\n" all_verts.numberSet
+		format "verts.numberSet: %\n" verts.numberSet
 		timer__getVertsPositions = timeStamp()
+
 		if verts_pos == undefined then
 			this.verts_pos = all_verts as Array
 
 		verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
-		--format "verts_process_pos: %\n" verts_process_pos
+		format "verts_process_pos: %\n" verts_process_pos
 
 		for i = 1 to verts_process_pos.count do
 		(

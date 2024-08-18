@@ -1,57 +1,43 @@
 clearListener(); print("Cleared in:"+getSourceFileName())
 
 
-temp = #(#{21..24}, #{21..22, 140..141}, #{139..140, 142..143}, #{67, 133, 181}, #{67, 140, 143, 181}, #{21, 24, 133, 181}, #{62, 139..140, 190}, #{140..141, 165, 190}, #{57, 96, 98}, #{22..23, 90..91}, #{22, 91, 141}, #{21, 140, 181})
+	_objects = selection as Array
+
+	source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
+
+	format "source_objects: %\n" source_objects
 
 
-function _mergeBitArraysbySharedBits bitarrays =
-(
-	--format "\n"; print "VertSelector_v._mergeBitArraysbySharedBits()"
+	supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
 
-	for x = bitarrays.count to 1 by -1 do
+	format "supports: %\n" supports
+
+	SourceObjects = SUPPORT_MANAGER.getSourceObjects source_objects
+
+	for SourceObject in SourceObjects do
 	(
-		--format "x: %\n" x
-		merged = false
+		--format "SourceObject: %\n" SourceObject
+		indexes =( for index in SourceObject.Supports.keys where SourceObject.Supports[index].support_obj.isSelected collect index) as BitArray
 
-		bitarrays_x = bitarrays[x]
-		--for y = bitarrays.count to 1 by -1 while where x != y and not ( bitarrays_x * bitarrays[y] ).isEmpty do
-		--for y = bitarrays.count to 1 by -1 where x != y and not ( bitarrays_x * bitarrays[y] ).isEmpty do
+		format "indexes: %\n" indexes
 
-		--for y = bitarrays.count to 1 by -1 where x != y and ( bitarrays_x * bitarrays[y] ).numberSet > 1 do
-		--for y = bitarrays.count to 1 by -1 while not merged where x != y and ( bitarrays_x * bitarrays[y] ).numberSet > 1 do
+		obj = SourceObject.obj.baseobject
 
-		--for y = bitarrays.count to 1 by -1 while not merged where x != y and ( bitarrays_x * bitarrays[y] ).numberSet > 0 do
-		for y = bitarrays.count to 1 by -1 where x != y and ( bitarrays_x * bitarrays[y] ).numberSet > 0 do
-		(
-			bitarrays[y] += bitarrays[x]
+		max modify mode
 
-			merged = true
+		verts_hidden = polyop.getHiddenVerts obj
 
-			--gc light:true
-		)
+		polyop.setHiddenVerts obj (verts_hidden - indexes )
 
-		if merged then
-			deleteItem bitarrays x
+		obj.SetSelection #VERTEX indexes
+
 	)
 
-	bitarrays --return
-)
+	if SourceObjects.count == 1 then
+	(
+		select SourceObjects[1].obj
 
---result = _mergeBitArraysbySharedBits (temp)
-
-haystack = #{1..10}
-needle = #{11}
-
-/** Bitarrays match
- */
-function _bitarraysMatch haystack needle =
-(
-	--format "\n"; print "VertIslandFinder_v.bitarraysMatch()"
-	found = false
-
-	for vert in needle while not found where haystack[vert] do found = true
-
-	found --return
-)
-
-format "test: %\n" (_bitarraysMatch haystack needle)
+		subObjectLevel = 1
+	)
+	else if SourceObjects.count > 1 then
+		select ( 	for SourceObject in SourceObjects collect SourceObject.obj )

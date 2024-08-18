@@ -5,7 +5,7 @@
 macroscript	epoly_vertex_color_select_by_selection
 category:	"_Epoly-Vertex-Color"
 buttonText:	"SELECT"
-toolTip:	"Select verts with same color as selected verts.\n\n   IF NOTHING SELECTEDm, then select ALL COLORED verts"
+toolTip:	"Select verts with same color as selected verts.\n\n   IF NOTHING SELECTED, then select ALL COLORED verts"
 --icon:	"MENU:&Select Color"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0

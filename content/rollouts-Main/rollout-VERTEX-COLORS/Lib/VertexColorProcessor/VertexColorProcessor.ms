@@ -92,11 +92,13 @@ struct VertexColorProcessor_v
 	),
 
 	/** Process operation on verts by vertex color
+	  *
+	  * @param name method #SELECT|#HIDE|#UNHIDE|#ISOLATE
 	 */
 	function byColor method colors =
 	(
-		--format "\n"; print "VertexColorProcessor_v.byColor()"
-		--format "colors: %\n" colors
+		format "\n"; print "VertexColorProcessor_v.byColor()"
+		format "colors: %\n" colors
 
 		verts_by_colors = #{}
 
@@ -111,6 +113,8 @@ struct VertexColorProcessor_v
 	),
 
 	/** Process operation on verts by vertex color of given verts
+	  *
+	  * @param name method #SELECT|#HIDE|#UNHIDE|#ISOLATE
 	 */
 	function byVerts method verts =
 	(

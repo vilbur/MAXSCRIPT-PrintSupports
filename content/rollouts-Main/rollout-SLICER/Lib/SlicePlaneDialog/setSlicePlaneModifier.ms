@@ -21,6 +21,8 @@ function setSlicePlaneModifier mode state layer_index_or_z_pos cap_state =
 
 	z_pos = if classOf layer_index_or_z_pos == integer then getPlaneZpozition (layer_index_or_z_pos) else layer_index_or_z_pos
 
+	format "z_pos: %\n" z_pos
+
 	/* SET SLICE PLANE POSITION */
 	final_TM = Matrix3 1
 

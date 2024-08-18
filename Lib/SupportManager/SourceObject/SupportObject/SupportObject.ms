@@ -37,22 +37,28 @@ struct SupportObject_v
 	function generateSupport vertex_index first_knot_pos: clr: direction: =
 	(
 		--format "\n"; print "SupportObject_v.generateSupport()"
-		this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr first_knot_pos:first_knot_pos
-
 		this._setRaftKnots(first_knot_pos)(direction)
 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportKnots()
 
-		this._drawLine()
+		if not this._checkSegmentsLenghts(vertex_index) then
+			clr = black
 
-		this._setMaterialsToLineSegments()
 
-		this._setPivotToSecondPoint()
+		(
+			this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr first_knot_pos:first_knot_pos
 
-		this._alignPivotToSeconPoint()
+			this._drawLine()
 
-		support_key = (getHandleByAnim support_obj) as string
+			this._setMaterialsToLineSegments()
+
+			this._setPivotToSecondPoint()
+
+			this._alignPivotToSeconPoint()
+
+			support_key = (getHandleByAnim support_obj) as string
+		)
 
 		this --return
 	),
@@ -91,8 +97,6 @@ struct SupportObject_v
 		/* REMOVE REDUNTANT KNOTS FROM SUPPORT */
 		else if num_knots > knots_positions.count then
 			this._removeKnots()
-
-
 
 		this._updateLine()
 
@@ -179,6 +183,36 @@ struct SupportObject_v
 	),
 
 	private
+
+	/** Check segments lenghts
+	 */
+	function _checkSegmentsLenghts vertex_index =
+	(
+		--format "\n"; print "SupportObject_v._checkSegmentsLenghts()"
+
+		result = true
+
+		if ( dist = distance knots_positions[1] knots_positions[knots_positions.count] ) < SUPPORT_OPTIONS.getOption #CHAMFER_BAR  then
+		(
+			format "SUPPORT OF VERT:% HAS NO LENGTH\n" vertex_index
+
+			result = false
+		)
+		else if knots_positions.count > 2 then
+			for i = knots_positions.count to 2 by -1 do
+			(
+				if ( dist = distance knots_positions[i] knots_positions[i - 1] ) < SUPPORT_OPTIONS.getOption #BAR_WIDTH then
+				(
+					format "SUPPORT OF VERT:% IS TOO SHORT\n" vertex_index
+
+					deleteItem knots_positions (i - 1)
+
+					--result = false
+				)
+			)
+
+		result --return
+	),
 
 	/** Add knots
 	 */
@@ -441,6 +475,7 @@ struct SupportObject_v
 	function _setMaterialsToLineSegments =
 	(
 		--format "\n"; print "SupportObject_v._setMaterialsToLineSegments()"
+
 		num_of_segments = numSegments support_obj ( numSplines support_obj)
 
 		for segment_i = 1 to num_of_segments do

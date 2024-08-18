@@ -8,7 +8,7 @@ macroscript	_print_select_vets_grid_resolution
 category:	"_Print-Points-Tools"
 buttonText:	"GRID"
 toolTip:	"Size of cell in grid."
-icon:	"MENU:false|id:#SPIN_grid_step|control:spinner|range:[1, 100, 10]|type:#integer|across:3|height:24|offset:[ 12, 4]|align:#left|fieldwidth:32"
+icon:	"MENU:false|id:#SPIN_grid_step|control:spinner|across:4|range:[1, 100, 10]|type:#integer|height:24|offset:[ 12, 4]|align:#left|fieldwidth:32"
 (
 	on execute do
 		format "EventFired	= % \n" EventFired

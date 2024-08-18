@@ -11,6 +11,8 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/setSelectP
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/updateSlicePlaneSystem.ms" )	-- "./Lib/SlicePlaneDialog/updateSlicePlaneSystem.ms"
 
+filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/toggleSlicePlanePosition.ms" )	--"./Lib/SlicePlaneDialog/toggleSlicePlanePosition.ms"
+
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/createElevationSliderDialog.ms" )	-- "./Lib/SlicePlaneDialog/createElevationSliderDialog.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/IslandManagerDialog/IslandManagerDialog.ms" )	--"./Lib/IslandManagerDialog/IslandManagerDialog.ms"

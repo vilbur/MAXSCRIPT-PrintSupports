@@ -43,6 +43,8 @@ struct ModifiersManager_v
 			modifiers = if obj_type == #SUPPORT then SupportModifiers["default"].mods_support else SupportModifiers["default"].mods_raft
 			format "modifiers: %\n" modifiers
 
+			--max create mode
+
 			for i = modifiers.count to 1 by -1 do
 			--for modi in modifiers do
 				modPanel.addModToSelection ( modifiers[i] ) --ui:on
@@ -59,7 +61,12 @@ struct ModifiersManager_v
 	function _setSweepRadius support =
 	(
 		--format "\n"; print "SupportModifiers_v.setSweepRadius()"
+		max modify mode
+
+		try(
 		support.modifiers[#BAR_WIDTH][#Cylinder_Section].radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+
+			)catch()
 	),
 
 	/** Update modifier by value in SUPPORT_OPTIONS
@@ -173,7 +180,7 @@ struct ModifiersManager_v
 	 */
 	function _getSupportsWithModfiers nodes =
 	(
-		for obj in nodes where obj.modifiers.count > 0 collect obj
+		for obj in nodes where isValidNode obj and obj.modifiers.count > 0 collect obj
 	),
 
 	/** Get obejcts with modfiers

@@ -65,9 +65,8 @@ function updateSlicePlaneSystem layer_index incremental:false =
 	if not (slice_top and slice_bottom) then
 		slice_top = true
 
-
-	format "slice_top:	% \n" slice_top
-	format "slice_bottom % \n" slice_bottom
+	--format "slice_top:	% \n" slice_top
+	--format "slice_bottom % \n" slice_bottom
 
 	/* GET INCREMENTAL LAYER INDEX */
 	if incremental then

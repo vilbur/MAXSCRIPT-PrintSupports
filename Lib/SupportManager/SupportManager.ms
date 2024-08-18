@@ -129,21 +129,25 @@ struct SupportManager_v
 		supports_exists  = SourceObject.getSupportNodes obj_type:obj_type
 
 		new_nodes = SourceObject.generateSupports obj_type:obj_type
+		format "NEW_NODES: %\n" NEW_NODES
 
+		if new_nodes.count > 0 then
+		(
+			MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type supports_exists:supports_exists
 
-		MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type supports_exists:supports_exists
+			--support_nodes =
+			--
+			--for SupportObject in (SupportObjects) do
 
-		--support_nodes =
-		--
-		--for SupportObject in (SupportObjects) do
+			bindSupportToTransformEvent( SourceObject.getSupportNodes() )
 
-		bindSupportToTransformEvent( SourceObject.getSupportNodes() )
+			bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
 
-		bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
+			--format "SourceObject.getSupportNodes(): %\n" (SourceObject.getSupportNodes())
+			--format "SourceObject.Supports: %\n" SourceObject.Supports
+			this.updateShapes()
 
-		--format "SourceObject.getSupportNodes(): %\n" (SourceObject.getSupportNodes())
-		--format "SourceObject.Supports: %\n" SourceObject.Supports
-		this.updateShapes()
+		)
 
 		new_nodes --return
 	),
@@ -354,7 +358,7 @@ struct SupportManager_v
 
 		prop_key = removeControlTypePrefix(ctrl)
 
-		source_objects = this._getSourceObjects ( _selection )
+		source_objects = this.getSourceObjects ( _selection )
 		supports       = this._getSupportNodes ( _selection )
 
 		for SourceObject in source_objects do
@@ -574,6 +578,8 @@ struct SupportManager_v
 
 
 	/** get objects by type
+	  *
+	  * @param name type of object: #SOURCE|#SUPPORT|#BEAM|#RAFT
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
@@ -675,6 +681,17 @@ struct SupportManager_v
 	),
 
 
+
+	/** Get source object
+	 */
+	function getSourceObjects _objects =
+	(
+		--format "\n"; print "SupportManager_v._getSourceObject()"
+		sync_keys = for obj in _objects where (sync_key = this._getSyncSourceKey (obj)) != undefined collect sync_key
+
+		for sync_key in sync_keys collect SourceObjects[sync_key]
+	),
+
 	/*------------------------------------------------------------------------------*/
 
 	private
@@ -767,16 +784,6 @@ struct SupportManager_v
 		)
 
 		sorted_all -- return
-	),
-
-	/** Get source object
-	 */
-	function _getSourceObjects _objects =
-	(
-		--format "\n"; print "SupportManager_v._getSourceObject()"
-		sync_keys = for obj in _objects where (sync_key = this._getSyncSourceKey (obj)) != undefined collect sync_key
-
-		for sync_key in sync_keys collect SourceObjects[sync_key]
 	),
 
 	/** Get supports
