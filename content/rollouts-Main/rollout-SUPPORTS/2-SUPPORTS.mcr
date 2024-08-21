@@ -18,7 +18,14 @@ function generateSupportsOrRafts obj_type: =
 
 	if source_objects.count == 0 then
 		source_objects = for obj in _selection where not SUPPORT_MANAGER.isManaged(obj) collect obj
+
 	--supports_exists = for obj in _selection where findItem source_objects obj == 0 collect obj
+
+	--existing_supports = SUPPORT_MANAGER.getObjectsByType _selection type:#SUPPORT --hierarchy:shift
+	--existing_rafts     = SUPPORT_MANAGER.getObjectsByType _selection type:#RAFT --hierarchy:shift
+	--
+	--existing_nodes = existing_supports + existing_rafts
+	--format "EXISTING_NODES: %\n" existing_nodes
 
 	if source_objects.count > 0 then
 		new_nodes = SUPPORT_MANAGER.generateSupports source_objects[1] obj_type:obj_type
@@ -41,6 +48,15 @@ function generateSupportsOrRafts obj_type: =
 		/* CONVERT SELECTED RAFTS TO SUPPORTS */
 		if obj_type == #SUPPORT and selected_rafts.count > 0 then
 			SUPPORT_MANAGER.convert(selected_rafts) obj_type:#SUPPORT
+
+		if obj_type == #SUPPORT and selected_supports.count > 0 then
+		(
+			pauseSupportToTransformEvent()
+
+			SUPPORT_MANAGER.rebuildSupports(selected_supports) obj_type:#SUPPORT
+
+			resumeSupportToTransformEvent()
+		)
 
 	)
 
@@ -131,8 +147,10 @@ icon:	"control:spinner|across:3|width:64|range:[ 0, 99, 0.5 ]|offset:[ 0, 0 ]"
 
 ================================================================================*/
 
-/*
-*/
+
+/*------------------------------------------------------------------------------
+	GENERATE SUPPORT BUTTON
+--------------------------------------------------------------------------------*/
 macroscript	_print_support_generator
 category:	"_3D-Print"
 buttontext:	"S U P P O R T"

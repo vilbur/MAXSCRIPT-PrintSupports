@@ -25,6 +25,7 @@ struct SourceObject_v
 
 	obj_rotation, -- store object rotation to find if world normals needs to be recount
 
+	direction_down = [0,0,-1],
 	/* dependency */
 
 	VertexColors, --"./../../VertexColors/VertexColors.ms"
@@ -86,7 +87,7 @@ struct SourceObject_v
 				/*------------------------------------------------------------------------------
 					GENERATE SUPPORT OR RAFT
 				--------------------------------------------------------------------------------*/
-				second_point_direction = if SUPPORT_OPTIONS.second_point_direction == 1 then normals_world[vert] else [0,0,-1] -- direction down
+				second_point_direction = if SUPPORT_OPTIONS.second_point_direction == 1 then normals_world[vert] else direction_down -- direction down
 
 				SupportObject.generateSupport vert first_knot_pos:verts_pos[vert] clr:(execute vertex_color) direction:second_point_direction --"./SupportObject/SupportObject.ms"
 
@@ -110,22 +111,10 @@ struct SourceObject_v
 
 				)
 			)
-			--else
-				--this.Supports[vert].updateSupport first_knot_pos:verts_pos[vert]
-
-
-		--MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type
 
 		bindSupportToTransformEvent( this.getSupportNodes() )
 
 		bindSourceObjectTransformEvent ( obj )
-
-		--for support in (this.getSupportNodes()) do
-		--	support.parent = obj
-
-		--Supports_and_Rafts = Supports + Rafts
-		--for RaftSupport in (Supports + Rafts) do
-			--format "RaftSupport: %\n" RaftSupport
 
 		new_nodes --return
 	),
@@ -163,8 +152,8 @@ struct SourceObject_v
 		--format "support_nodes: %\n" support_nodes
 		verts_pos = this._getVertsPositions( Supports.keys as BitArray )
 
-		for key in Supports.keys where not Supports[key].isRaft() do
-			Supports[key].updateSupport first_knot_pos:( verts_pos[key])
+		for index in Supports.keys where not Supports[index].isRaft() do
+			Supports[index].updateSupport first_knot_pos:( verts_pos[index])
 	),
 
 	/** Update supports height
@@ -182,6 +171,7 @@ struct SourceObject_v
 
 	),
 
+
 	/** Update support
 	 */
 	function updateSupport support_node =
@@ -193,8 +183,34 @@ struct SourceObject_v
 		if verts_pos == undefined then
 			verts_pos = this._getVertsPositions(#{index})
 
-
 		Supports[index].updateSupport first_knot_pos:verts_pos[index]
+	),
+
+	/** Rebuild support
+	 */
+	function rebuildSupport support_node =
+	(
+		--format "\n"; print "SourceObject_v.updateSupport()"
+		--format "normals_local: %\n" normals_local
+		--format "support_node.name: %\n" support_node.name
+		index = getUserPropVal support_node "INDEX"
+
+		clr = VertexColors._getVertColor(index)
+		--format "clr: %\n" clr
+		verts_process = #{index}
+
+		--if normals_local == undefined then
+			this._setLocalVertexNormals(verts_process)
+
+		--if normals_world == undefined then
+			this._setWorldSpaceVertexNormals(verts_process)
+
+		--if verts_pos == undefined then
+			verts_pos = this._getVertsPositions(#{index})
+
+		direction = if SUPPORT_OPTIONS.second_point_direction == 1 then normals_world[index] else direction_down -- direction down
+
+		Supports[index].generateSupport index first_knot_pos:verts_pos[index] direction:direction clr:clr
 	),
 
 	/** Get support by node
@@ -373,6 +389,8 @@ struct SourceObject_v
 	function _setWorldSpaceVertexNormals verts =
 	(
 		format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
+		format "verts: %\n" verts
+		format "verts.numberSet: %\n" verts.numberSet
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
 

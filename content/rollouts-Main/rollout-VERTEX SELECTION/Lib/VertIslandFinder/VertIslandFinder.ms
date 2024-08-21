@@ -104,7 +104,7 @@ struct VertIslandFinder_v
 				if new_islands.count > 1 then
 				(
 					/* MERGE NEW ISLANDS BY VERTS - new islands can be splitten  */
-					new_islands = this._mergeNewIslandsBySharedBits(new_islands)
+					new_islands = this._collapseNewIslands(new_islands)
 
 					--for new_island in new_islands do
 					--	format "new_island: %\n" new_island
@@ -116,8 +116,8 @@ struct VertIslandFinder_v
 				/* ADD NEW ISLANDS TO OTHER ISLANDS */
 				join islands_cache new_islands
 
-				/* TRY MERGE ALL ISALNDS - islands can be joined by new faces in layer */
-				this._mergeIslandsBySharedVerts(layer)
+				/* TRY MERGE ALL ISLANDS - islands can be joined by new faces in layer */
+				this._mergeNewIslandsToCache(layer)
 
 				this._addIslandDataToNewIslands(new_islands)(verts_in_layer)(layer)
 			)
@@ -230,29 +230,35 @@ struct VertIslandFinder_v
 	  *
 	  * @param #( #{} ) bitarrays Array of bittarays
 	 */
-	function _mergeIslandsBySharedVerts current_layer =
+	function _mergeNewIslandsToCache current_layer =
 	(
-		/* LOOP EACH NEW ISLAND */
+		/* LOOP EACH ISLAND */
 		for x = islands_cache.count to 1 by -1 do
 		(
 			merged = false
 
 			island_x = islands_cache[x]
 
+			/* MERGE ISLANDS IF ISLAND X SHARE VERTS WITH ISLAND Y */
 			for y = islands_cache.count to 1 by -1 while not merged where x != y and this._bitsAreShared islands_cache[y] island_x more_bits_then:1 != false do
 			(
 				islands_cache[y] += island_x
 
 				merged = true
+				new_island_added = false
 
-				for i = 1 to islands_data.count where islands_data[i][#TOP] == undefined and this._bitsAreShared islands_data[i][#NEW_ISLAND] island_x != false  do
+				/* ADD DATA TO MERGED ISLAND */
+				for i = 1 to islands_data.count while not new_island_added where islands_data[i][#WHOLE_ISLAND] == undefined and this._bitsAreShared islands_data[i][#NEW_ISLAND] island_x != false  do
+				--for i = islands_data.count to 1 by -1 where islands_data[i][#WHOLE_ISLAND] == undefined and this._bitsAreShared islands_data[i][#NEW_ISLAND] island_x != false  do
 				(
 					if current_layer != islands_data[i][#BOTTOM] then
 					(
 						--format "islands_data[#BOTTOM][i]: %\n" islands_data[#BOTTOM][i]
 						islands_data[i][#TOP] = current_layer
 
-						islands_data[i][#WHOLE_ISLAND] = island_x
+						islands_data[i][#WHOLE_ISLAND] = (island_x * verts_process)
+
+						new_island_added = true
 					)
 
 				)
@@ -266,9 +272,9 @@ struct VertIslandFinder_v
 	  *
 	  * @param #( #{} ) bitarrays Array of bittarays
 	 */
-	function _mergeNewIslandsBySharedBits bitarrays =
+	function _collapseNewIslands bitarrays =
 	(
-		--format "\n"; print "VertSelector_v._mergeNewIslandsBySharedBits()"
+		--format "\n"; print "VertSelector_v._collapseNewIslands()"
 
 		for x = bitarrays.count to 1 by -1 do
 		(
@@ -463,7 +469,7 @@ struct VertIslandFinder_v
 			verts -= verts_of_faces
 		)
 
-		this._mergeIslandsBySharedVerts(islands) --return
+		this._mergeNewIslandsToCache(islands) --return
 
 		--islands --return
 	),

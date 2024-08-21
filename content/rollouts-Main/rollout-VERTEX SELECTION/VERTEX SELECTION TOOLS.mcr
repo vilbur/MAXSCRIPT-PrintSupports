@@ -244,20 +244,47 @@ icon:	"MENU:false|across:4|height:24"
 /**
  *
  */
-macroscript	maxtoprint_get_bottom_verts
+macroscript	maxtoprint_select_verts_by_supports
 category:	"maxtoprint"
-buttontext:	"SUpports > Verts"
+buttontext:	"SUPPORT ↔ VERT"
 toolTip:	"Select verts of source object which belongs to selected supports"
 icon:	"across:4"
 (
-	on execute do
+
+	/** Select supports by vert
+	 */
+	function selectSupportsByVerts =
 	(
+		format "\n"; print ".selectSupportsByVert()"
+
+		obj	= selection[1]
+
+		--source_objects = SUPPORT_MANAGER.getObjectsByType ( obj ) type:#SOURCE -- hierarchy:shift
+		--format "source_objects: %\n" source_objects
+		vertex_sel	= getVertSelection obj.mesh
+
+		SourceObjects = SUPPORT_MANAGER.getSourceObjects ( selection as Array )
+		--format "SourceObjects: %\n" SourceObjects
+
+		SourceObject = SourceObjects[1]
+
+		supports = for index in SourceObject.Supports.keys where vertex_sel[index] collect SourceObject.Supports[index].support_obj
+
+		if supports.count > 0 then
+			select supports
+
+	)
+
+	/** Select verts by supports
+	 */
+	function selectVertsBySupports =
+	(
+		--format "\n"; print ".selectVertsBySupports()"
 		_objects = selection as Array
 
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
 
 		format "source_objects: %\n" source_objects
-
 
 		supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
 
@@ -292,7 +319,31 @@ icon:	"across:4"
 		)
 		else if SourceObjects.count > 1 then
 			select ( 	for SourceObject in SourceObjects collect SourceObject.obj )
+	)
 
+	on execute do
+	(
+		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-VERTEX SELECTION\VERTEX SELECTION TOOLS.mcr"
+
+		if subObjectLevel == 0 then
+			selectVertsBySupports()
+
+		else if subObjectLevel == 1 then
+			selectSupportsByVerts()
 	)
 )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

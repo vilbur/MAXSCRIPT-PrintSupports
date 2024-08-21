@@ -21,7 +21,7 @@ macroscript	_print_platform_generator_normal_length
 category:	"_3D-Print"
 buttontext:	"Normal Length"
 tooltip:	"Length of first segment of platform facing to vertex normal"
-icon:	"across:3|control:spinner|offset:[ 0, 20 ]|fieldwidth:24|range:[ 1, 999, 3 ]"
+icon:	"across:3|control:spinner|offset:[ 0, 20 ]|fieldwidth:24|range:[ 0.1, 999, 3 ]"
 (
 	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )

@@ -37,28 +37,34 @@ struct SupportObject_v
 	function generateSupport vertex_index first_knot_pos: clr: direction: =
 	(
 		--format "\n"; print "SupportObject_v.generateSupport()"
+		--format "DIRECTION: %\n" direction
+
 		this._setRaftKnots(first_knot_pos)(direction)
+		--format "KNOTS_POSITIONS: %\n" knots_positions
 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportKnots()
 
-		if not this._checkSegmentsLenghts(vertex_index) then
-			clr = black
+		if support_obj == undefined then
+			support_obj = SplineShape()
+
+		else
+			deleteSpline support_obj _spline_index
 
 
-		(
-			this.support_obj = SplineShape name:(this._getName(vertex_index)) wirecolor:clr first_knot_pos:first_knot_pos
+		support_obj.name	= (this._getName(vertex_index))
+		support_obj.wirecolor	= clr
+		--support_obj.first_knot_pos	= first_knot_pos
 
-			this._drawLine()
+		this._drawLine()
 
-			this._setMaterialsToLineSegments()
+		this._setMaterialsToLineSegments()
 
-			this._setPivotToSecondPoint()
+		this._setPivotToSecondPoint()
 
-			this._alignPivotToSeconPoint()
+		this._alignPivotToSeconPoint()
 
-			support_key = (getHandleByAnim support_obj) as string
-		)
+		support_key = (getHandleByAnim support_obj) as string
 
 		this --return
 	),
@@ -70,7 +76,6 @@ struct SupportObject_v
 		--format "\n"; print "SupportObject_v.updateSupport()"
 		--format "SUPPORT: %\n" support_obj.name
 		--format "first_knot_pos: %\n" first_knot_pos
-		--format "obj_type: %\n" obj_type
 		--deleteAllChangeHandlers id:#updateSupportsEvent
 
 		if first_knot_pos != unsupplied then
@@ -83,9 +88,6 @@ struct SupportObject_v
 		is_on_ground = obj_type == #SUPPORT and hit_support == undefined
 
 		num_knots = numKnots support_obj _spline_index
-		--format "num_knots: %\n" num_knots
-		--format "knots_positions.count: %\n" knots_positions.count
-		--format "hit_raft: %\n" hit_raft
 
 		if obj_type == #SUPPORT and hit_raft == undefined then
 			this._setSupportKnots()
@@ -98,13 +100,13 @@ struct SupportObject_v
 		else if num_knots > knots_positions.count then
 			this._removeKnots()
 
+		--format "knots_positions.count: %\n" knots_positions.count
+
 		this._updateLine()
 
 		this._setMaterialsToLineSegments()
 
 		this._setPivotToSecondPoint()
-
-		--this._alignPivotToSeconPoint()
 		--updateShape support_obj
 		SUPPORT_MANAGER.updateShapeAdd (support_obj)
 
@@ -250,7 +252,6 @@ struct SupportObject_v
 
 		/* TEST COLLISTION WITH SOURCE OBJECT FOR 2nd POINT */
 		hit_raft = this._intersectRaySourceObject (vertex_pos) (direction)
-
 
 		/* RESET COLLISION IF DISTANCE TO HIT IS GRTEATER THEN NORMAL - only for support */
 		if obj_type == #SUPPORT and hit_raft != undefined and distance knots_positions[1] hit_raft.pos > SUPPORT_OPTIONS.normal_length then
@@ -560,6 +561,8 @@ struct SupportObject_v
 
 		half_of_bar_width = SUPPORT_OPTIONS.bar_width / 2
 
+
+		pos += 0.1 * direction
 
 		bar_bbox = #(
 			modifyPos pos 1 half_of_bar_width,

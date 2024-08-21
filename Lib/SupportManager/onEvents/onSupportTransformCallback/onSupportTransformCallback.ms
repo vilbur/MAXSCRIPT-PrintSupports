@@ -90,8 +90,8 @@ function bindSupportToTransformEvent supports =
 		/* ON SINGLE SUPPORT TRANSFORM */
 		else if support.isSelected then
 		(
-			print "!!!!!!!!! FIRED UPDATE"
-			format "FIRED UPDATE: %\n" support.name
+			--print "!!!!!!!!! FIRED UPDATE"
+			--format "Update Supports: %\n" support.name
 
 			SUPPORT_MANAGER.updateSupports #( support )
 		)

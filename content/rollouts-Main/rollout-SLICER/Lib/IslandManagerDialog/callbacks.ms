@@ -5,7 +5,7 @@
 function selectLayerBySlider slider_val =
 (
 	format "\n"; print ".selectLayerBySlider()"
-	format "slider_val: %\n" slider_val
+	--format "slider_val: %\n" slider_val
 
 	if slider_val == undefined then
 		slider_val = DIALOG_island_manager.SLIDER_island_select.value
@@ -13,7 +13,7 @@ function selectLayerBySlider slider_val =
 	obj	= selection[1]
 
 	layer_index = slider_val + 1
-	format "layer_index: %\n" layer_index
+	--format "layer_index: %\n" layer_index
 	select_whole_island = DIALOG_island_manager.RB_slider_mode.state
 	--format "select_whole_island: %\n" select_whole_island
 	--format "BOTTOM: %\n" ISLANDS_DATA[#BOTTOM][layer_index]
@@ -21,7 +21,7 @@ function selectLayerBySlider slider_val =
 	--format "WHOLE_ISLAND: %\n" ISLANDS_DATA[#WHOLE_ISLAND][layer_index]
 
 	island_data = ISLANDS_DATA[layer_index]
-	format "island_data: %\n" island_data
+	--format "island_data: %\n" island_data
 	--format "island_data[#WHOLE_ISLAND]: %\n" island_data[#WHOLE_ISLAND]
 
 	if island_data[#NEW_ISLAND] != undefined then
@@ -35,7 +35,7 @@ function selectLayerBySlider slider_val =
 
 
 
-		format "VERTS: %\n" verts
+		--format "VERTS: %\n" verts
 		selectIslandsVerts (verts)
 
 	)
@@ -61,7 +61,7 @@ function updateListbox =
 
 	/* FLIP INDEX - first item == last siland */
 	selected_islands = ( getSelectedIslandsFromListBox() ) as Array
-	format "SELECTED_ISLANDS: %\n" selected_islands
+	--format "SELECTED_ISLANDS: %\n" selected_islands
 
 	--shift_pressed = keyboard.shiftPressed
 
@@ -74,7 +74,7 @@ function updateListbox =
 
 	)
 
-	format "VERTS: %\n" verts
+	--format "VERTS: %\n" verts
 
 	selectIslandsVerts (verts)
 
@@ -91,11 +91,11 @@ function updateListbox =
  */
 function toggleSelectIslandMode =
 (
-	format "\n"; print ".toggleSelectIslandMode()"
+	--format "\n"; print ".toggleSelectIslandMode()"
 	--format "DIALOG_island_manager.RB_slider_mode.state: %\n" DIALOG_island_manager.RB_slider_mode.state
 	--DIALOG_island_manager.RB_slider_mode.state = not DIALOG_island_manager.RB_slider_mode.state
 	--format "DIALOG_island_manager.RB_slider_mode_last_state: %\n" DIALOG_island_manager.RB_slider_mode_last_state
-	format "DIALOG_island_manager.RB_slider_mode.state: %\n" DIALOG_island_manager.RB_slider_mode.state
+	--format "DIALOG_island_manager.RB_slider_mode.state: %\n" DIALOG_island_manager.RB_slider_mode.state
 
 	DIALOG_island_manager.RB_slider_mode.state = case DIALOG_island_manager.RB_slider_mode.state of
 	(

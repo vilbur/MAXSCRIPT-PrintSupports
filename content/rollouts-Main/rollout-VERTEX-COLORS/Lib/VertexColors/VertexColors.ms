@@ -140,11 +140,13 @@ struct VertexColors_v
 	 */
 	function _getVertColor mesh_vert =
 	(
-		--format "\n"; print "VertexColors_v._getVertColor()"
+		format "\n"; print "VertexColors_v._getVertColor()"
+
+		format "verts_by_colors: %\n" verts_by_colors
 		--map_verts_of_mesh_vert = makeUniqueArray (MeshVertToColorVertexConvert.meshVertsToMapVerts (mesh_vert) flat:true )
 		map_verts_of_mesh_vert = MeshVertToColorVertexConvert.meshVertsToMapVerts (mesh_vert) flat:true
 
-		color_of_vert = this._searchNewVertexColor (colors) (map_verts_of_mesh_vert)
+		color_of_vert = this._searchNewVertexColor (verts_by_colors) (map_verts_of_mesh_vert)
 
 		color_of_vert --return
 	),
@@ -258,6 +260,7 @@ struct VertexColors_v
 		local color_of_vert
 
 		i = 1
+
 		while map_verts[i] != undefined and hasDictValue colors ( (color_of_vert = getvertcolor obj_mesh map_verts[i]) as string )  do
 			i += 1
 

@@ -83,6 +83,7 @@ struct VertSelector_v
 
 			VertIslandFinder.getNewIslandsPerLayer()
 
+			/* ADD ISLAND DATA */
 			for i = 1 to VertIslandFinder.islands_data.count do
 			(
 				island_data = VertIslandFinder.islands_data[i]

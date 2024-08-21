@@ -56,7 +56,7 @@ struct VertexGrid_v
 	 */
 	function _getVertsInGrid verts =
 	(
-		format "\n"; print "VertSelector_v._getVertsInGrid()"
+		format "\n"; print "VertexGrid_v._getVertsInGrid()"
 		format "RESOLUTION: %\n" resolution
 		format "verts: %\n" verts
 		format "verts.numberSet: %\n" verts.numberSet
@@ -138,7 +138,7 @@ struct VertexGrid_v
 	 */
 	function _getVertsPositions verts =
 	(
-		--format "\n"; print "SourceObject_v._getVertsPositions()"
+		--format "\n"; print "VertexGrid_v._getVertsPositions()"
 		--format "verts_process: %\n" verts_process
 		--format "verts: %\n" verts
 		--format "verts.numberSet: %\n" verts.numberSet
@@ -177,10 +177,10 @@ struct VertexGrid_v
 	 */
 	function _checkSelectionIngerity mesh_sel polyop_sel =
 	(
-		--format "\n"; print "VertSelector_v._checkSelectionIngerity()"
+		--format "\n"; print "VertexGrid_v._checkSelectionIngerity()"
 
 		if mesh_sel[mesh_sel.count] 1= polyop_sel[polyop_sel.count] then
-			messageBox ("Object '"+obj.name+"' needs to be rexported.\n\nVertex needs to be reindexed" )title:"VertSelector_v"
+			messageBox ("Object '"+obj.name+"' needs to be rexported.\n\nVertex needs to be reindexed" )title:"VertexGrid_v"
 	),
 
 
@@ -191,7 +191,7 @@ struct VertexGrid_v
 	 */
 	function getPositionsSplitByAxis verts_arr =
 	(
-		format "\n"; print "MeshDataGetter_v.getPositionsSplitted()"
+		format "\n"; print "VertexGrid_v.getPositionsSplitted()"
 		x_positions = #()
 		y_positions = #()
 		z_positions = #()
@@ -238,7 +238,7 @@ struct VertexGrid_v
 	  */
 	function _setResolutionUnits =
 	(
-		--format "\n"; print "SupportOptions_v.setUnitsMuliplier()"
+		--format "\n"; print "VertexGrid_v.setUnitsMuliplier()"
 		display_units = case units.SystemType of -- convert to milimeters
 		(
 			#millimeters:	1
