@@ -8,7 +8,7 @@ struct BeamObject_v
 
 	/* required */
 	beam_key,
-	
+
 	/* properties */
 	beam,
 	sync_key,
@@ -64,16 +64,6 @@ struct BeamObject_v
 		SUPPORT_MANAGER.updateShapeAdd (this.beam)
 	),
 
-	--/** Get beam key
-	-- */
-	--function getBeamKey =
-	--(
-	--	--format "\n"; print "SupportManager_v.getBeamKey()"
-	--	pointers = sort #( this._getSupportKey(support_A) , this._getSupportKey(support_B) )
-	--
-	--	( pointers[1] + "x" + pointers[2] ) --return
-	--),
-
 
 	private
 
@@ -100,12 +90,9 @@ struct BeamObject_v
 		beam.parent	= support_A
 		beam.pivot  = beam.center
 
-		--setUserPropVal beam "THIS"	(getHandleByAnim beam)
-
-
 		/* COPY MODIFIERS OF PARENT SUPPORT NAME WHICH NAME IS MATCHING: "*BAR*" */
-		--for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
-			--addModifier beam support_A.modifiers[i]
+		------for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
+		----	--addModifier beam support_A.modifiers[i]
 
 		max create mode
 
@@ -239,12 +226,7 @@ struct BeamObject_v
 	function _drawLine start_point end_point spline_id =
 	(
 		--format "\n"; print "BeamObject_v.drawLine()"
-		--spline_id = 1 -- index of spline
-
 		addNewSpline this.beam
-
-		--for pos in points_of_lines do
-			--addKnot this.beam spline_id #corner #line pos
 
 		addKnot this.beam spline_id #corner #line start_point
 		addKnot this.beam spline_id #corner #line end_point
@@ -273,27 +255,7 @@ struct BeamObject_v
 		point_top.z	-= offset_from_ends
 
 		Dictionary #( #BOTTOM, point_bottom ) #( #TOP, point_top ) #( #VECTOR, normalize (point_bottom - point_top) ) --return
-
 	),
-
-	--/** Get distance between points in 2D FROM TOP VIEW
-	--  */
-	--function getPointDistance point_1 point_2 =
-	--(
-	--	--format "\n"; print "BeamObject_v.getPointDistance()"
-	--	--point_1.z = point_2.z = 0 -- get distance in 2D -- COPY OF PARAMETERS IS NEEDED FOR THIS E.G.: point_1_copy = copy point_1
-	--
-	--	distance point_1 point_2 --return
-	--),
-
-	--/** Get support key
-	-- */
-	--function _getSupportKey support =
-	--(
-	--	--format "\n"; print "BeamObject_v._getSupportKey()"
-	--	getUserPropVal support "SUPPORT_KEY"
-	--),
-
 
 	/** Filter edit spline objects
 	  *
@@ -401,15 +363,6 @@ struct BeamObject_v
 
 		wirecolor_shifted --return
 	),
-
-
-
-
-
-
-
-
-
 
 	/**
 	 */

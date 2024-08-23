@@ -62,7 +62,7 @@ struct BeamGenerator_v
 
 	/** Generate beams to closest supports
 	 */
-	function generateBeamsToClosestSupports supports =
+	function generateBeamsToClosestSupports supports max_distance: use_only_selected_supports:false =
 	(
 		format "\n"; print ".generateBeamsToClosestSupports()"
 		procesed_supports = #()
@@ -78,9 +78,11 @@ struct BeamGenerator_v
 		--format "supports.count: %\n" supports.count
 		--beams = SUPPORT_MANAGER.getObjectsByType supports type:#BEAM
 
-		supports_all = SUPPORT_MANAGER.getObjectsByType source_objects type:#SUPPORT
+
+		supports_to_connect = if use_only_selected_supports then  supports else SUPPORT_MANAGER.getObjectsByType source_objects type:#SUPPORT
 		--format "supports_of_beams.count: %\n" supports_of_beams.count
-		format "supports_all: %\n" supports_all
+
+		format "supports_to_connect: %\n" supports_to_connect
 
 		for support in supports where findItem procesed_supports support == 0 do
 		(
@@ -88,7 +90,11 @@ struct BeamGenerator_v
 
 			min_distance = 9999999
 
-			for support_other in supports_all where support_other != support and ( dist = distance support support_other ) < min_distance and not this.beamExists support support_other do
+			for support_other in supports_to_connect \
+				where support_other != support \
+				and ( dist = distance support support_other ) < min_distance \
+				and dist <= max_distance \
+				and not this.beamExists support support_other do
 			(
 				min_distance = dist
 
@@ -109,16 +115,16 @@ struct BeamGenerator_v
 		new_beams --return
 	),
 
-
-	private
-
-
 	/** connected with beams
 	 */
 	function beamExists support_A support_B =
 	(
 		SUPPORT_MANAGER.BeamObjects[this._getBeamKey support_A support_B] != undefined
 	),
+
+
+	private
+
 
 	/** Get beam key
 	 */

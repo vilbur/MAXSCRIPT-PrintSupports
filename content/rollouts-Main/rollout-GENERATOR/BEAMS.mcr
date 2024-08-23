@@ -3,18 +3,24 @@
 
 
 /*
+
+  IF SELECTED 1 support, then beam is generated to closest support
+  IF SELECTED 2 supports, then beam is generated betweene thes supports if does not exists. Otherwise closest supports wil be connected
+
+
+
 */
 macroscript	_print_support_generator_beams
 category:	"_3D-Print"
 buttontext:	"B E A M S"
-tooltip:	"Generate beams with AUTOSORT and MAX DISTANCE"
-icon:	"across:4|offset:[ 0, 6 ]|width:96|height:32|tooltip:GEENERATE BEAMS for selected supports.\n\nUsed all supports when source object is selected"
+tooltip:	"Connect closest supports"
+icon:	"across:5|offset:[ 4, 6 ]|width:96|height:32|tooltip:GENERATE BEAMS for selected supports.\n\nCTRL: Connect only selected supports"
 (
 	on execute do
 		undo "Generate Beams" on
 		(
 			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-GENERATOR\BEAMS.mcr"
-			SUPPORT_MANAGER.generateBeams()
+			SUPPORT_MANAGER.generateBeams use_only_selected_supports:keyboard.controlPressed use_max_distance:ROLLOUT_generator.CBX_max_distance.state
 		)
 )
 
@@ -71,31 +77,67 @@ tooltip:	"OPEN MENU"
 		)
 )
 
+/** USE MAX DISTANCE CHECKBOX
+  *
+  */
+macroscript	_print_generator_beams_max_distance_toggle
+category:	"_3D-Print"
+buttontext:	"Max Distance"
+--tooltip:	"USE MAX DISTANCE between supports where beams will be generated"
+icon:	"across:5|control:checkbox|offset:[ 18, 16 ]|tooltip:USE MAX DISTANCE between supports where beams will be generated"
+(
+	on execute do
+	(
 
+		format "EventFired:	% \n" EventFired
+
+		ROLLOUT_generator.SPIN_max_distance.enabled = EventFired.val
+
+		--/** Get size
+		-- */
+		--function getSize obj = (bbox	= nodeGetBoundingBox obj ( Matrix3 1))[2].z - bbox[1].z
+		--
+		--if EventFired.inSpin and EventFired.Control.value == EventFired.Control.range[1] and selection.count >= 2 then
+		--(
+		--	--sizes = for obj in selection collect  getSize obj
+		--
+		--	EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue(distance selection[1].pos selection[2].pos )
+		--)
+		--else
+		--	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.Control.value)
+	)
+)
 
 /**
   *
   */
 macroscript	_print_generator_beams_max_distance
 category:	"_3D-Print"
-buttontext:	"Max Distance"
---tooltip:	""
-icon:	"across:4|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:72|offset:[ 64, 16 ]|tooltip:Max distance in mm between supports to generate beam."
+buttontext:	"[Max Distance Value]"
+--tooltip:	"Max distance between supports"
+icon:	"across:5|control:spinner|id:#SPIN_max_distance|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:32|offset:[ 0, 16 ]|tooltip:Max distance in mm between supports."
 (
-	--format "EventFired:	% \n" EventFired
-
-	/** Get size
-	 */
-	function getSize obj = (bbox	= nodeGetBoundingBox obj ( Matrix3 1))[2].z - bbox[1].z
-
-	if EventFired.inSpin and EventFired.Control.value == EventFired.Control.range[1] and selection.count >= 2 then
+	on execute do
 	(
-		--sizes = for obj in selection collect  getSize obj
 
-		EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue(distance selection[1].pos selection[2].pos )
+		format "EventFired:	% \n" EventFired
+		format "EventFired.Control.value: %\n" EventFired.Control.value
+
+		EventFired.Control.tooltip = EventFired.Control.value as string + "mm is max distance between supports"
+
+		/** Get size
+		 */
+		function getSize obj = (bbox	= nodeGetBoundingBox obj ( Matrix3 1))[2].z - bbox[1].z
+
+		if EventFired.inSpin and EventFired.Control.value == EventFired.Control.range[1] and selection.count >= 2 then
+		(
+			--sizes = for obj in selection collect  getSize obj
+
+			EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue(distance selection[1].pos selection[2].pos )
+		)
+		else
+			SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.Control.value)
 	)
-	else
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.Control.value)
 )
 
 /**
@@ -105,7 +147,7 @@ macroscript	_print_generator_beams_max_length
 category:	"_3D-Print"
 buttontext:	"Min Height"
 tooltip:	"Min Height of supports where beam is created"
-icon:	"across:4|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:64|offset:[ 64, 16 ]"
+icon:	"across:5|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:64|offset:[ 36, 16 ]"
 (
 	format "EventFired:	% \n" EventFired
 
@@ -137,7 +179,7 @@ macroscript	_print_generator_beams_count
 category:	"_Export"
 buttontext:	"[Beams Count]"
 toolTip:	"Beams Count"
-icon:	"control:radiobuttons|across:4|align:#CENTER|items:#('1', '2')|offset:[ 42, 16 ]"
+icon:	"control:radiobuttons|across:5|align:#CENTER|items:#('1', '2')|offset:[ 32, 16 ]"
 (
 	--format "EventFired	= % \n" EventFired
 	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
@@ -151,7 +193,7 @@ icon:	"control:radiobuttons|across:4|align:#CENTER|items:#('1', '2')|offset:[ 42
 --category:	"_3D-Print"
 --buttontext:	"Same Height"
 --tooltip:	"Set height of beams on each support"
---icon:	"across:4|control:checkbox|offset:[ 0, 6 ]"
+--icon:	"across:5|control:checkbox|offset:[ 0, 6 ]"
 --(
 --	format "EventFired:	% \n" EventFired
 --)
@@ -171,7 +213,7 @@ icon:	"control:radiobuttons|across:4|align:#CENTER|items:#('1', '2')|offset:[ 42
 --category:	"_Export"
 --buttontext:	"[Connect]"
 --toolTip:	"Where support is connected to beam"
---icon:	"control:radiobuttons|across:4|align:#CENTER|items:#('END', 'MIDDLE', 'THIRD', 'QUATER')|columns:4|offset:[ -72, 0 ]"
+--icon:	"control:radiobuttons|across:5|align:#CENTER|items:#('END', 'MIDDLE', 'THIRD', 'QUATER')|columns:4|offset:[ -72, 0 ]"
 --(
 --	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
 --

@@ -157,10 +157,11 @@ struct SupportManager_v
 
 	/** Generate beams
 	 */
-	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS auto_sort:true use_max_distance:false =
+	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS auto_sort:true use_max_distance:false use_only_selected_supports:false =
 	(
 		format "\n"; print "SupportManager_v.generateBeams()"
 		--format "supports: %\n" supports
+		format "use_only_selected_supports: %\n" use_only_selected_supports
 
 		/** if support height is greater then min height option
 		 */
@@ -168,19 +169,20 @@ struct SupportManager_v
 
 		--new_beams = #()
 
-		max_distance = if use_max_distance then SUPPORT_OPTIONS.max_distance else 999999
-
 		/* GET ONLY SUPPORTS FROM OBJECTS */
 		supports = for obj in selection as Array where this.isType #SUPPORT obj != false collect obj
 
+		/* DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected */
+		max_distance = if not use_max_distance or supports.count <= 2 then 999999999 else SUPPORT_OPTIONS.max_distance
+		format "MAX_DISTANCE: %\n" max_distance
 
 		new_beams = if supports.count == 2 and not BeamGenerator.beamExists supports[1] supports[2] then
-			BeamGenerator.generateBeam (supports[1]) (supports[2])
+			#(BeamGenerator.generateBeam (supports[1]) (supports[2]))
 
 		else
 			case sort_mode of
 			(
-				(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports supports
+				(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports supports use_only_selected_supports:use_only_selected_supports max_distance:max_distance
 				(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports) (max_distance)
 				--default:
 			)
