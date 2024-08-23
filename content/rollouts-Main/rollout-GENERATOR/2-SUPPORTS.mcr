@@ -105,7 +105,7 @@ macroscript	_print_platform_generator_bar_width
 category:	"_3D-Print"
 buttontext:	"WIDTH"
 tooltip:	"Bar width in mm of printed model.\n\nExported scale is used"
-icon:	"control:spinner|id:SPIN_bar_width|across:3|range:[ 0.8, 99, 1.0 ]|width:64|offset:[ 0, 0 ]"
+icon:	"control:spinner|id:SPIN_bar_width|across:3|range:[ 0.8, 3, 1.0 ]|width:64|offset:[ 0, 0 ]"
 (
 		format "EventFired:	% \n" EventFired
 	on execute do
@@ -131,7 +131,7 @@ macroscript	_print_platform_generator_extrude_top
 category:	"_3D-Print"
 buttontext:	"EXTEND"
 tooltip:	"Extrude end part in mm of printed model.\n\nExported scale is used"
-icon:	"control:spinner|across:3|width:64|range:[ 0, 99, 0.5 ]|offset:[ 0, 0 ]"
+icon:	"control:spinner|id:SPIN_extend_top|across:3|width:64|range:[ 0, 99, 0.5 ]|offset:[ 0, 0 ]"
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do

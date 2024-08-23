@@ -82,7 +82,8 @@ struct ModifiersManager_v
 			(
 				#BAR_WIDTH:	modi[#Cylinder_Section].radius	= SUPPORT_OPTIONS.getOption #BAR_WIDTH
 				#BASE_WIDTH:	modi.amount	= SUPPORT_OPTIONS.base_width
-				#EXTRUDE_END:	modi.amount	= SUPPORT_OPTIONS.extrude_end
+				#EXTEND_END:	modi.amount	= SUPPORT_OPTIONS.extend_end
+				#EXTEND_TOP:	modi.amount	= SUPPORT_OPTIONS.extend_top
 
 				default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" mod_name -- this should never happen
 			)

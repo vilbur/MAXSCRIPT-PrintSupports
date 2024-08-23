@@ -36,8 +36,15 @@ struct SupportObject_v
 	 */
 	function generateSupport vertex_index first_knot_pos: clr: direction: =
 	(
-		--format "\n"; print "SupportObject_v.generateSupport()"
-		--format "DIRECTION: %\n" direction
+		format "\n"; print "SupportObject_v.generateSupport()"
+		format "vertex_index: %\n" vertex_index
+		format "DIRECTION: %\n" direction
+
+
+		if direction.z > -0.25 then
+			direction.z = -0.25
+
+		format "DIRECTION: %\n" direction
 
 		this._setRaftKnots(first_knot_pos)(direction)
 		--format "KNOTS_POSITIONS: %\n" knots_positions
@@ -65,6 +72,8 @@ struct SupportObject_v
 		this._alignPivotToSeconPoint()
 
 		support_key = (getHandleByAnim support_obj) as string
+
+		setUserPropVal support_obj "DIRECTION" direction --asString:true
 
 		this --return
 	),

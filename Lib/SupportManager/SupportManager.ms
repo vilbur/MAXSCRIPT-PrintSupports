@@ -18,6 +18,8 @@ filein( getFilenamePath(getSourceFileName()) + "/SourceObject/SourceObject.ms" )
 
 filein( getFilenamePath(getSourceFileName()) + "/BeamObject/BeamObject.ms" )	--"./BeamObject/BeamObject.ms"
 
+filein( getFilenamePath(getSourceFileName()) + "/BeamGenerator/BeamGenerator.ms" )	--"./BeamGenerator/BeamGenerator.ms"
+
 filein( getFilenamePath(getSourceFileName()) + "/ModifiersManager/ModifiersManager.ms" )	--"./ModifiersManager/ModifiersManager.ms"
 
 /** Support manager
@@ -86,6 +88,7 @@ struct SupportManager_v
 	shapes_to_update = #(), -- sore shape for mass updating
 
 	/* dependency */
+	BeamGenerator = BeamGenerator_v(),
 	/* reference */
 	/* inhered */
 
@@ -154,90 +157,43 @@ struct SupportManager_v
 
 	/** Generate beams
 	 */
-	function generateBeams supports_in auto_sort:true use_max_distance:true =
+	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS auto_sort:true use_max_distance:false =
 	(
 		format "\n"; print "SupportManager_v.generateBeams()"
-		--format "supports_in: %\n" supports_in
+		--format "supports: %\n" supports
 
 		/** if support height is greater then min height option
 		 */
-		function isTallEnough obj =
+		function isTallEnough obj = obj.max - obj.min > SUPPORT_OPTIONS.min_height
+
+		--new_beams = #()
+
+		max_distance = if use_max_distance then SUPPORT_OPTIONS.max_distance else 999999
+
+		/* GET ONLY SUPPORTS FROM OBJECTS */
+		supports = for obj in selection as Array where this.isType #SUPPORT obj != false collect obj
+
+
+		new_beams = if supports.count == 2 and not BeamGenerator.beamExists supports[1] supports[2] then
+			BeamGenerator.generateBeam (supports[1]) (supports[2])
+
+		else
+			case sort_mode of
+			(
+				(#JOIN_CLOSE_SUPPORTS): BeamGenerator.generateBeamsToClosestSupports supports
+				(#JOIN_SUPPORTS_CHAIN): BeamGenerator.generateBeamsChain (supports) (max_distance)
+				--default:
+			)
+
+		format "NEW_BEAMS: %\n" new_beams
+		if new_beams.count > 0 then
 		(
-			bbox = nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+			this.updateShapes()
 
-			bbox[2].z - bbox[1].z > SUPPORT_OPTIONS.min_height
+			select new_beams
 		)
-		/** Get beam key
-		 */
-		function getBeamKey =
-		(
-			--format "\n"; print "SupportManager_v.getBeamKey()"
-			pointers = sort #( this._getSupportKey(support_A) , this._getSupportKey(support_B) )
-
-			( pointers[1] + "x" + pointers[2] ) --return
-		)
-		new_beams = #()
-
-		supports_in = for support in supports_in where this.isType #SUPPORT (support) != false  collect support
-
-		if supports_in.count > 2 then
-			supports_in = for support in supports_in where isTallEnough(support)  collect support
-
-
-		--supports_in = for support in supports_in where this.isType #SUPPORT support != false collect support
-
-		format "supports_in: %\n" supports_in.count
-		format "supports_in: %\n" supports_in
-
-		if supports_in.count >= 2 then
-		(
-			--format "supports_in IN: %\n" supports_in
-			sorted_supports = if supports_in.count > 2 and auto_sort then
-							this._sortSupportsByDistance(supports_in) (use_max_distance)
-						else
-							#(supports_in)
-
-			--format "sorted_supports: %\n" sorted_supports.count
-			--format "sorted_supports: %\n" sorted_supports
-
-			--print "------------------------"
-			--for supports in sorted_supports do
-				--format "supports: %\n" supports
-
-			for supports in sorted_supports do
-				for i = 1 to supports.count - 1 do
-				(
-					support_A = supports[i]
-					support_B = supports[i + 1]
-
-					/* GENERATE BEAM */
-					BeamObject = (BeamObject_v support_A support_B )
-
-					/* IF BEAM DOES NOT EXISTS YET */
-					if BeamObjects[BeamObject.beam_key]  == undefined then
-					(
-						BeamObject.generateBeam()
-
-						/* SAVE SYNC KEY */
-						setUserPropVal BeamObject.beam "SYNC_KEY" ( getUserPropVal support_A "SYNC_KEY" )
-						setUserPropVal BeamObject.beam "BEAM_KEY"  BeamObject.beam_key
-
-						/* ADD TO BEAMS */
-						BeamObjects[BeamObject.beam_key] = BeamObject
-
-						append new_beams BeamObject.beam
-					)
-
-				)
-		)
-
-
-
-
-		this.updateShapes()
-
-		new_beams --return
 	),
+
 
 	/** Update supports
 	 */
@@ -606,7 +562,7 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		format "\n"; print "SupportManager_v.getObjectsByType()"
+		--format "\n"; print "SupportManager_v.getObjectsByType()"
 
 		/** Is type support
 		 */
@@ -634,17 +590,17 @@ struct SupportManager_v
                 --default:
 			)
 
-		format "source_keys: %\n" source_keys.count
-		format "supports: %\n" supports.count
-		format "beams: %\n" beams.count
+		--format "source_keys: %\n" source_keys.count
+		--format "supports: %\n" supports.count
+		--format "beams: %\n" beams.count
 
 
 		if type == #SOURCE then
 		(
 			--for source_key in source_keys do append objects_to_process SourceObjects[source_key]
 			sync_keys_of_objs = for obj in supports + beams collect this._getSyncKey(obj)
-			format "sync_keys_of_objs: %\n" sync_keys_of_objs
-			format "source_keys: %\n" source_keys
+			--format "sync_keys_of_objs: %\n" sync_keys_of_objs
+			--format "source_keys: %\n" source_keys
 
 			--source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
 			objects_to_process = for key in makeUniqueArray (source_keys + sync_keys_of_objs) where SourceObjects[key] != undefined collect SourceObjects[key].obj
@@ -654,7 +610,7 @@ struct SupportManager_v
 		(
 			raft_test = type == #RAFT
 
-			format "BEAMOBJECTS: %\n" BeamObjects
+			--format "BEAMOBJECTS: %\n" BeamObjects
 			/* GET BEAMS OF SOURCE OBJECT */
 			if hierarchy or type == #BEAM  then
 				for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
@@ -669,8 +625,8 @@ struct SupportManager_v
 		else if supports.count > 0 then
 		(
 			/* GET BEAMS OF SOURCE OBJECT */
-			format "hierarchy: %\n" hierarchy
-			format "type == #BEAM: %\n" (type == #BEAM)
+			--format "hierarchy: %\n" hierarchy
+			--format "type == #BEAM: %\n" (type == #BEAM)
 
 			if hierarchy or type == #BEAM  then
 				for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
@@ -698,7 +654,7 @@ struct SupportManager_v
 
 
 
-		format "OBJECTS_TO_PROCESS: %\n" OBJECTS_TO_PROCESS
+		--format "OBJECTS_TO_PROCESS: %\n" OBJECTS_TO_PROCESS
 
 		objects_to_process --return
 	),
@@ -720,94 +676,6 @@ struct SupportManager_v
 	private
 
 	/*------------------------------------------------------------------------------*/
-
-	/** Sort supports by distance
-	  * Return arrays of supports sorted by closest distance.
-	  * Each array contains supports which are close enought to thmeselfs.
-	  *
-	  * Max distance of supports is set in SUPPORT_OPTIONS.max_distance
-	  *
-	  * @return 2D array
-	 */
-	function _sortSupportsByDistance supports use_max_distance =
-	(
-		format "\n"; print "SupportManager_v.sortSupportsByDistance()"
-		format "use_max_distance: %\n" use_max_distance
-        sorted_all = #()
-		cluster    = #()
-
-        proccessed_supports	= #{}
-
-        /* SET FIRST SUPPORT INDEX */
-        support_i	= 1
-
-		while support_i != undefined do
-		(
-			min_distance_found = 9999999
-
-			/* GET SUPPORT NODE AND POSITION */
-            support     = supports[support_i]
-            support_pos = support.pos
-
-			/* AVOID TESTING SUPPORT AGAIN */
-            proccessed_supports[support_i] = true
-
-			support_i      = undefined
-			next_support_i = undefined
-
-			--format "SUPPORT_OPTIONS.max_distance: %\n" SUPPORT_OPTIONS.max_distance
-			/*------------------------------------------------------------------------------
-				LOOP SUPPORTS AND FIND CLOSEST SUPPORT
-			--------------------------------------------------------------------------------*/
-			for i = 1 to supports.count where not proccessed_supports[i] do
-			(
-				--format "distance: %\n" (distance support_pos supports[i].pos)
-				if (current_distance = distance support_pos supports[i].pos ) < min_distance_found then
-					if not use_max_distance or current_distance <= SUPPORT_OPTIONS.max_distance  then
-					(
-
-						min_distance_found = current_distance
-
-						next_support_i = i
-					)
-			)
-
-			/*------------------------------------------------------------------------------
-				ADD SUPPORTS TO CLUSTER IF NEXT SUPPORT FOUND
-			--------------------------------------------------------------------------------*/
-			if next_support_i != undefined then
-			(
-				if cluster.count == 0 then -- create new cluster
-					cluster = #(support)
-
-				append cluster supports[next_support_i]
-
-				support_i = next_support_i
-			)
-			/*------------------------------------------------------------------------------
-				IF NEXT SUPPORT CLOSE ENOUGHT IS NOT FOUND
-			--------------------------------------------------------------------------------*/
-			else
-			(
-				/* ADD CLUSTER TO SORTED SUPPORTS */
-				if cluster.count > 0 then
-					append sorted_all cluster
-
-				cluster = #()
-			)
-
-			/*------------------------------------------------------------------------------
-				GET NEXT NOT TESTED SUPPORT
-			--------------------------------------------------------------------------------*/
-
-			if support_i == undefined then
-				for i = 1 to supports.count where not proccessed_supports[i] do
-					if support_i == undefined then
-						support_i = i
-		)
-
-		sorted_all -- return
-	),
 
 	/** Get supports
 	 */

@@ -8,20 +8,13 @@ macroscript	_print_support_generator_beams
 category:	"_3D-Print"
 buttontext:	"B E A M S"
 tooltip:	"Generate beams with AUTOSORT and MAX DISTANCE"
-icon:	"across:4|offset:[ 0, 6 ]|width:96|height:32|tooltip:GEENERATE BEAMS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
+icon:	"across:4|offset:[ 0, 6 ]|width:96|height:32|tooltip:GEENERATE BEAMS for selected supports.\n\nUsed all supports when source object is selected"
 (
 	on execute do
 		undo "Generate Beams" on
 		(
-			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\BEAMS.mcr"
-			_selection = for o in selection collect o
-
-			if _selection.count > 0 then
-				new_nodes = SUPPORT_MANAGER.generateBeams( _selection)
-
-			select (if new_nodes.count > 0 then new_nodes else _selection)
-
+			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-GENERATOR\BEAMS.mcr"
+			SUPPORT_MANAGER.generateBeams()
 		)
 )
 
@@ -30,20 +23,50 @@ icon:	"across:4|offset:[ 0, 6 ]|width:96|height:32|tooltip:GEENERATE BEAMS betwe
 macroscript	_print_support_generator_beams_max_distance_off
 category:	"_3D-Print"
 buttontext:	"B E A M S"
-tooltip:	"Generate beams SORTED BY SELECTION WITHOUT MAX DISTANCE"
-icon:	""
+tooltip:	"OPEN MENU"
 (
 	on execute do
 		undo "Generate Beams" on
 		(
 			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\BEAMS.mcr"
-			_selection = for o in selection collect o
+			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-GENERATOR\BEAMS.mcr"
 
-			if _selection.count > 0 then
-				new_nodes = SUPPORT_MANAGER.generateBeams( _selection) auto_sort:false use_max_distance:false
+			--category = "_Epoly-Vertex-Color"
+			--
+			--macro_name = "epoly_vertex_color_" + method as string  + (if method == #SET then "_by_last_color" else "_by_selection")
+			--
+			--/* ITEMS BY COLOR */
+			--call_fn = "callMethodByVertexColor #"+ method as string + " "
+			--
 
-			select (if new_nodes.count > 0 then new_nodes else _selection)
+			/* DEFINE MAIN MENU */
+			Menu = RcMenu_v name:"GenerateBeamsMenu"
+
+
+			--if method != #SET then
+			--	Menu.item item_title	( "macros.run" + "\"" + category + "\"" + "\"" + macro_name + "\""	) -- macros.run "_Epoly-Vertex-Color" "color_set_by_selection"
+			--
+			--Menu.item "Force Generate without AUTOSORT and MAX DISTANCE"	( "generateBeams auto_sort:false use_max_distance:false"	)
+
+			Menu.item "Connect supports in CHAIN"	( "SUPPORT_MANAGER.generateBeams sort_mode:#JOIN_SUPPORTS_CHAIN"	)
+
+			--Menu.item "To Closest Selected Supports"	( "generateBeamsToClosestSupports()"	)
+			--Menu.item "&GREEN"	( call_fn + "green"	)
+			--Menu.item "&BLUE"	( call_fn + " " + COLOR_NAMES[#BLUE] as string	)
+			--Menu.item "&ORANGE"	( call_fn + "orange"	)
+			--Menu.item "&PINK"	( call_fn + " " + COLOR_NAMES[#PINK] as string	)
+			--Menu.item "&WHITE"	( call_fn + "white"	)
+
+
+			popUpMenu (Menu.create())
+
+
+			--_selection = for o in selection collect o
+			--
+			--if _selection.count > 0 then
+			--	new_nodes = SUPPORT_MANAGER.generateBeams( _selection) auto_sort:false use_max_distance:false
+			--
+			--select (if new_nodes.count > 0 then new_nodes else _selection)
 
 		)
 )
@@ -65,9 +88,6 @@ icon:	"across:4|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]
 	 */
 	function getSize obj = (bbox	= nodeGetBoundingBox obj ( Matrix3 1))[2].z - bbox[1].z
 
-
-	--bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
-
 	if EventFired.inSpin and EventFired.Control.value == EventFired.Control.range[1] and selection.count >= 2 then
 	(
 		--sizes = for obj in selection collect  getSize obj
@@ -76,9 +96,6 @@ icon:	"across:4|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]
 	)
 	else
 		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.Control.value)
-
-
-
 )
 
 /**
@@ -108,11 +125,9 @@ icon:	"across:4|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]
 	else
 		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.Control.value)
 
-
 		--print "\nSpinner test #rightclick or spinner RESETED\n\n3Ds Max BUG ?\n\nArgument inCancel DOESN'T WORK"
 	--else
 	--	print "Spinner test #entered"
-
 )
 
 /**

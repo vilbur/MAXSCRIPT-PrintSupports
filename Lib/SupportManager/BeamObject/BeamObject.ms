@@ -7,9 +7,10 @@ struct BeamObject_v
 	support_B, -- support node
 
 	/* required */
+	beam_key,
+	
 	/* properties */
 	beam,
-	beam_key,
 	sync_key,
 
 	/* private */
@@ -58,19 +59,20 @@ struct BeamObject_v
 
 		this._drawLines(points_of_lines)
 
+
 		--SUPPORT_MANAGER.updateShapeAdd (this.beam.baseobject)
 		SUPPORT_MANAGER.updateShapeAdd (this.beam)
 	),
 
-	/** Get beam key
-	 */
-	function getBeamKey =
-	(
-		--format "\n"; print "SupportManager_v.getBeamKey()"
-		pointers = sort #( this._getSupportKey(support_A) , this._getSupportKey(support_B) )
-
-		( pointers[1] + "x" + pointers[2] ) --return
-	),
+	--/** Get beam key
+	-- */
+	--function getBeamKey =
+	--(
+	--	--format "\n"; print "SupportManager_v.getBeamKey()"
+	--	pointers = sort #( this._getSupportKey(support_A) , this._getSupportKey(support_B) )
+	--
+	--	( pointers[1] + "x" + pointers[2] ) --return
+	--),
 
 
 	private
@@ -100,14 +102,13 @@ struct BeamObject_v
 
 		--setUserPropVal beam "THIS"	(getHandleByAnim beam)
 
-		setUserPropVal beam "SUPPORT_A" ( this._getSupportKey(support_A) )
-		setUserPropVal beam "SUPPORT_B" ( this._getSupportKey(support_B) )
 
 		/* COPY MODIFIERS OF PARENT SUPPORT NAME WHICH NAME IS MATCHING: "*BAR*" */
 		--for i = support_A.modifiers.count to 1 by -1 where matchPattern support_A.modifiers[i].name pattern:"*BAR*" do
 			--addModifier beam support_A.modifiers[i]
 
 		max create mode
+
 		addModifier beam support_A.modifiers[#BAR_WIDTH]
 
 
@@ -285,13 +286,13 @@ struct BeamObject_v
 	--	distance point_1 point_2 --return
 	--),
 
-	/** Get support key
-	 */
-	function _getSupportKey support =
-	(
-		--format "\n"; print "BeamObject_v._getSupportKey()"
-		getUserPropVal support "SUPPORT_KEY"
-	),
+	--/** Get support key
+	-- */
+	--function _getSupportKey support =
+	--(
+	--	--format "\n"; print "BeamObject_v._getSupportKey()"
+	--	getUserPropVal support "SUPPORT_KEY"
+	--),
 
 
 	/** Filter edit spline objects
@@ -415,7 +416,7 @@ struct BeamObject_v
 	on create do
 	(
 		--format "\n"; print "BeamObject.onCreate()"
-		beam_key = this.getBeamKey()
+		--beam_key = this.getBeamKey()
 
 	)
 )

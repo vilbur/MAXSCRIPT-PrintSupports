@@ -36,20 +36,23 @@ struct SupportOptions_v
 	base_height	= 1.0,
 	base_width	= 4.0,
 
-	extrude_end	= 0.5,
-
 	chamfer_base = 2,
 	chamfer_bar	= 5,	-- CHAMFER MIN: 0 - CHAMFER MAX: 10
+
+	extend_top	= 0.5,
 
 
 	/* RAFT OPTIONS */
 	raft_width 	= 0.5,
+	extend_end	= 0.5,
+
 
 	/* BEAMS OPTIONS */
 	beams_count = 2,
 	max_distance	= 20,	-- max distance between supports
 	min_height	= 10,	-- generate beams only if support is higher than this number=
 	max_height	= 20,	-- gmax height between of beam split
+
 
 	/* PINS OPTIONS */
 	pin_width	= 3.0, -- outter diametter of outter pin
