@@ -158,33 +158,74 @@ icon:	"across:4"
 		select filtered
 	)
 )
+
+
+
+
+/** Select supports by beams count
+ */
+function selectSupportsByBeamsCount count =
+(
+	--format "\n"; print ".selectSupportsByBeamsCount()"
+
+	_objects = (if selection.count > 0 then selection else objects) as Array
+
+	--source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
+
+	supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
+	format "supports.count: %\n" supports.count
+	--beams = SUPPORT_MANAGER.getObjectsByType supports type:#BEAM
+
+	bemas_of_supports = for support in supports collect SUPPORT_MANAGER.getObjectsByType support type:#BEAM
+	--SUPPORT_MANAGER.getObjectsByType beams type:#SUPPORT
+	--format "bemas_of_supports.count: %\n" bemas_of_supports.count
+	--format "source_objects: %\n" source_objects
+	supports_by_count = for i = 1 to bemas_of_supports.count where bemas_of_supports[i].count == count collect supports[i]
+
+	if supports_by_count.count > 0 then
+		select supports_by_count
+
+)
+
+
 /**
  *
  */
-macroscript	maxtoprint_select_supports_without_beams
+macroscript	maxtoprint_select_supports_with_beams
 category:	"maxtoprint"
-buttontext:	"NO BEAM"
-toolTip:	"Select only supports with normal DOWN"
+buttontext:	"BY BEAMS"
+toolTip:	"Select supports without beams"
 icon:	"across:4"
 (
+	on execute do
+		selectSupportsByBeamsCount 0
+)
 
+
+/**
+ *
+ */
+macroscript	maxtoprint_select_supports_with_beams_by_count
+category:	"maxtoprint"
+buttontext:	"BY BEAMS"
+toolTip:	"Select supports by beams count"
+(
 	on execute do
 	(
 		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SELECTION-TOOLS\SUPPORT SELECTION.mcr"
 
-		_objects = selection as Array
 
-		--source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
+		/* DEFINE MAIN MENU */
+		Menu = RcMenu_v name:"GenerateBeamsMenu"
 
-		supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
-		format "supports.count: %\n" supports.count
-		beams = SUPPORT_MANAGER.getObjectsByType supports type:#BEAM
+		Menu.item "With 1 beam" ( "selectSupportsByBeamsCount 1" )
+		Menu.item "With 2 beam" ( "selectSupportsByBeamsCount 2" )
+		Menu.item "With 3 beam" ( "selectSupportsByBeamsCount 3" )
+		Menu.item "With 4 beam" ( "selectSupportsByBeamsCount 4" )
 
-		supports_of_beams = SUPPORT_MANAGER.getObjectsByType beams type:#SUPPORT
-		format "supports_of_beams.count: %\n" supports_of_beams.count
-		--format "source_objects: %\n" source_objects
-		supports_no_beams = for support in supports where findItem supports_of_beams support == 0 collect support
-
-		select supports_no_beams
+		popUpMenu (Menu.create())
 	)
 )
+
+
+

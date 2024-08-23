@@ -1,7 +1,6 @@
 --DEV
 --filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
 
-
 /*
 
   IF SELECTED 1 support, then beam is generated to closest support
@@ -14,7 +13,7 @@ macroscript	_print_support_generator_beams
 category:	"_3D-Print"
 buttontext:	"B E A M S"
 tooltip:	"Connect closest supports"
-icon:	"across:5|offset:[ 4, 6 ]|width:96|height:32|tooltip:GENERATE BEAMS for selected supports.\n\nCTRL: Connect only selected supports"
+icon:	"across:3|offset:[ -8, 4 ]|width:96|height:32|tooltip:GENERATE BEAMS for selected supports.\n\nCTRL: Connect only selected supports"
 (
 	on execute do
 		undo "Generate Beams" on
@@ -77,6 +76,38 @@ tooltip:	"OPEN MENU"
 		)
 )
 
+/**
+  *
+ */
+macroscript	_print_generator_beams_count_per_support
+category:	"_Export"
+buttontext:	"[Connections count]"
+--toolTip:	"Beams Count"
+icon:	"control:radiobuttons|across:3|offset:[ 8, -4 ]|items:#( '1', '2', '3', '4', '5' )|tooltip:Number of beams allowed per support"
+(
+	--format "EventFired	= % \n" EventFired
+	--SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+)
+
+/**
+  *
+ */
+macroscript	_print_generator_beams_count
+category:	"_Export"
+buttontext:	"[Beams Count]"
+--toolTip:	"Beams Count"
+icon:	"control:radiobuttons|across:3|align:#CENTER|items:#('1', '2')|offset:[ 32, -4 ]|tooltip:Number of bars on beam"
+(
+	--format "EventFired	= % \n" EventFired
+	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+)
+
+
+
+
+
+
+
 /** USE MAX DISTANCE CHECKBOX
   *
   */
@@ -84,7 +115,7 @@ macroscript	_print_generator_beams_max_distance_toggle
 category:	"_3D-Print"
 buttontext:	"Max Distance"
 --tooltip:	"USE MAX DISTANCE between supports where beams will be generated"
-icon:	"across:5|control:checkbox|offset:[ 18, 16 ]|tooltip:USE MAX DISTANCE between supports where beams will be generated"
+icon:	"across:5|control:checkbox|offset:[ 108, -16 ]|tooltip:USE MAX DISTANCE between supports where beams will be generated"
 (
 	on execute do
 	(
@@ -115,7 +146,7 @@ macroscript	_print_generator_beams_max_distance
 category:	"_3D-Print"
 buttontext:	"[Max Distance Value]"
 --tooltip:	"Max distance between supports"
-icon:	"across:5|control:spinner|id:#SPIN_max_distance|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:32|offset:[ 0, 16 ]|tooltip:Max distance in mm between supports."
+icon:	"across:5|control:spinner|id:#SPIN_max_distance|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:32|offset:[ 96, -16 ]|tooltip:Max distance in mm between supports."
 (
 	on execute do
 	(
@@ -147,7 +178,7 @@ macroscript	_print_generator_beams_max_length
 category:	"_3D-Print"
 buttontext:	"Min Height"
 tooltip:	"Min Height of supports where beam is created"
-icon:	"across:5|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:64|offset:[ 36, 16 ]"
+icon:	"across:5|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:64|offset:[ 148, -16 ]"
 (
 	format "EventFired:	% \n" EventFired
 
@@ -172,18 +203,6 @@ icon:	"across:5|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]
 	--	print "Spinner test #entered"
 )
 
-/**
-  *
- */
-macroscript	_print_generator_beams_count
-category:	"_Export"
-buttontext:	"[Beams Count]"
-toolTip:	"Beams Count"
-icon:	"control:radiobuttons|across:5|align:#CENTER|items:#('1', '2')|offset:[ 32, 16 ]"
-(
-	--format "EventFired	= % \n" EventFired
-	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
-)
 
 
 --/**
@@ -213,7 +232,7 @@ icon:	"control:radiobuttons|across:5|align:#CENTER|items:#('1', '2')|offset:[ 32
 --category:	"_Export"
 --buttontext:	"[Connect]"
 --toolTip:	"Where support is connected to beam"
---icon:	"control:radiobuttons|across:5|align:#CENTER|items:#('END', 'MIDDLE', 'THIRD', 'QUATER')|columns:4|offset:[ -72, 0 ]"
+--icon:	"control:radiobuttons|across:5|align:#CENTER|items:#('END', 'MIDDLE', 'THIRD', 'QUATER')|columns:4|offset:[ -72, -4 ]"
 --(
 --	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
 --
