@@ -59,6 +59,8 @@ struct SupportOptions_v
 	pin_height	= 5.0, -- outter diametter of outter pin
 	pin_gap 	= 0.2, -- size of gap between inner and outter pin
 
+	/* DRAIN HOLES */
+	drain_width = 2,
 
 	/* PRIVATE PROPERTIES */
 	display_units = 1, -- correct size of platforms, E.g.: IF MODEL IS MADE IN METERS BUT IT IS PRINTED SCALED DOWN TO MILIMETERS

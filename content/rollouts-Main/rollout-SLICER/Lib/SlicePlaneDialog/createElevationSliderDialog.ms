@@ -77,34 +77,7 @@ function createElevationSliderDialog =
 			--		deleteModifier obj obj.modifiers[mod_name]
 		)
 
-		/** Get Layer index by position in world
-		 */
-		function posToLayerIndex pos =
-		(
-			--format "\n"; print ".posToLayerIndex()"
 
-			/*  Round float to iteger
-			*/
-			fn roundToInteger val = floor (val  + 0.5)  as integer
-
-			display_units = case units.SystemType of -- convert to milimeters
-			(
-				#millimeters:	1
-				#centimeters:	10
-				#meters:	1000
-				#kilometers:	1000000
-				default:	1 -- non metric units
-			)
-
-			export_size = DIALOG_content.SPIN_export_size.value
-			layer_height	= DIALOG_content.SPIN_layer_height.value
-			current_layer = DIALOG_elevation_slider.SPIN_layer_current.value
-
-			/* MOVE SLICE PLANE TO SELCTION BOTTOM */
-			layer_index = roundToInteger ((pos * display_units) / layer_height	/ export_size)
-
-			layer_index --return
-		)
 
 
 		--/** Get layer number to move
@@ -132,13 +105,15 @@ function createElevationSliderDialog =
 
 		local viewport_height = (getViewportHeight())
 
+		local layers_count = 5000
+
 		/*------------------------------------------------------------------------------
 			CONTROLS
 		--------------------------------------------------------------------------------*/
 
 		button BTN_exit_dialog "EXIT" width:36 height:22  pos:[ -2, -2 ] tooltip:"Exit and remove slicer from all objects"
 
-		slider SLIDER_elevation "" range:[0,5000,0] type:#integer ticks:5000 orient:#vertical width:32 height:(viewport_height - 40) pos:[ 10, 22 ] tooltip:"Set positioon of slice plane.\n\nRMB: Circle slice plane on obejct min, center and maximum.\n\nRMB+CTRL: SET SLICE PLANE TO BOTTOM OF OBJECT"
+		slider SLIDER_elevation "" range:[0, layers_count,0] type:#integer ticks:layers_count orient:#vertical width:32 height:(viewport_height - 40) pos:[ 10, 22 ] tooltip:"Set positioon of slice plane.\n\nRMB: Circle slice plane on obejct min, center and maximum.\n\nRMB+CTRL: SET SLICE PLANE TO BOTTOM OF OBJECT"
 
 		button BTN_move_layer_increment "+ \ -" width:48 height:28  pos:[ -10, viewport_height - 24 ] tooltip:"LMB: Shift layer UP\n\nRMB: Shift layer DOWN\n\n   ————————————————————   \n\nTooltip:CTRL:SHIFT:ALT: 5|25|25 Layers incremnet by number of mod keys pressed 1|2|3"
 

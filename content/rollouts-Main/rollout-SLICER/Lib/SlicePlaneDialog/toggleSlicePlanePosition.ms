@@ -1,3 +1,32 @@
+		/** Get Layer index by position in world
+		 */
+		function posToLayerIndex pos =
+		(
+			--format "\n"; print ".posToLayerIndex()"
+
+			/*  Round float to iteger
+			*/
+			fn roundToInteger val = floor (val  + 0.5)  as integer
+
+			display_units = case units.SystemType of -- convert to milimeters
+			(
+				#millimeters:	1
+				#centimeters:	10
+				#meters:	1000
+				#kilometers:	1000000
+				default:	1 -- non metric units
+			)
+
+			export_size = DIALOG_content.SPIN_export_size.value
+			layer_height	= DIALOG_content.SPIN_layer_height.value
+			current_layer = DIALOG_elevation_slider.SPIN_layer_current.value
+
+			/* MOVE SLICE PLANE TO SELCTION BOTTOM */
+			layer_index = roundToInteger ((pos * display_units) / layer_height	/ export_size)
+
+			layer_index --return
+		)
+
 		/** Toggle slice plane position
 		  * @param #TOP|BOTTOM|CENTER pos
 		 */

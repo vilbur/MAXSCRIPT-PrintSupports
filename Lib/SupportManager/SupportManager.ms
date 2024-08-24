@@ -98,37 +98,8 @@ struct SupportManager_v
 	(
 		--format "\n"; print "SupportManager_v.generateSupports()"
 		--format "obj_type: %\n" obj_type
-		--format "source_obj: %\n" source_obj
-		--SUPPORT_OPTIONS.getValuesFroUi()
+		SourceObject = this._getSourceObject(source_obj)
 
-		pointer = (getHandleByAnim source_obj) as string
-
-		sync_key = getUserPropVal source_obj "SOURCE_KEY"
-
-		if sync_key == undefined then
-		(
-			sync_key = pointer
-
-			setUserPropVal source_obj "SOURCE_KEY" sync_key asString:true
-		)
-
-
-		if SourceObjects[sync_key] == undefined then
-		(
-			SourceObjects[sync_key] = SourceObject_v(source_obj) (sync_key)
-
-			bindSourceObjectTransformEvent (source_obj)
-		)
-
-		SourceObject = SourceObjects[sync_key]
-
-
-		/*------------------------------------------------------------------------------
-			DEV
-		------------------------------------------------------------------------------*/
-
-		--modifiers = if (supports_old = SourceObject.getSupportNodes obj_type:obj_type).count > 0 then
-			 --other_supports[1].modifiers
 		supports_exists  = SourceObject.getSupportNodes obj_type:obj_type
 
 		new_nodes = SourceObject.generateSupports obj_type:obj_type
@@ -888,6 +859,35 @@ struct SupportManager_v
 		obj_key =  getUserPropVal obj type_full asString:true
 		--format "OBJ_KEY: %\n" obj_key
 		obj_key --return
+	),
+
+
+	/** Get source object
+	 */
+	function _getSourceObject source_obj =
+	(
+		--format "\n"; print "SupportManager_v._getSourceObject()"
+		pointer = (getHandleByAnim source_obj) as string
+
+		sync_key = getUserPropVal source_obj "SOURCE_KEY"
+
+		if sync_key == undefined then
+		(
+			sync_key = pointer
+
+			setUserPropVal source_obj "SOURCE_KEY" sync_key asString:true
+		)
+
+
+		if SourceObjects[sync_key] == undefined then
+		(
+			SourceObjects[sync_key] = SourceObject_v(source_obj) (sync_key)
+
+			bindSourceObjectTransformEvent (source_obj)
+		)
+
+		--SourceObject = SourceObjects[sync_key]
+		SourceObjects[sync_key] --return
 	),
 
 	/**
