@@ -18,8 +18,11 @@ icon:	"across:3|offset:[ -8, 4 ]|width:96|height:32|tooltip:GENERATE BEAMS for s
 	on execute do
 		undo "Generate Beams" on
 		(
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-GENERATOR\BEAMS.mcr"
-			SUPPORT_MANAGER.generateBeams use_only_selected_supports:keyboard.controlPressed use_max_distance:ROLLOUT_generator.CBX_max_distance.state
+			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-GENERATOR\BEAMS.mcr"
+			--SUPPORT_MANAGER.generateBeams \
+			--	use_only_selected_supports:keyboard.controlPressed	\
+			--	use_max_distance:ROLLOUT_generator.CBX_max_distance.state	\
+			--	max_connections:ROLLOUT_generator.RB_connections_count.state
 		)
 )
 
@@ -34,7 +37,7 @@ tooltip:	"OPEN MENU"
 		undo "Generate Beams" on
 		(
 			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-GENERATOR\BEAMS.mcr"
+			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-GENERATOR\BEAMS.mcr"
 
 			--category = "_Epoly-Vertex-Color"
 			--
@@ -83,9 +86,9 @@ macroscript	_print_generator_beams_count_per_support
 category:	"_Export"
 buttontext:	"[Connections count]"
 --toolTip:	"Beams Count"
-icon:	"control:radiobuttons|across:3|offset:[ 8, -4 ]|items:#( '1', '2', '3', '4', '5' )|tooltip:Number of beams allowed per support"
+icon:	"control:radiobuttons|across:3|offset:[ 8, -4 ]|items:#( '1', '2', '3', '4' )|unselect:true|tooltip:Number of beams allowed per support"
 (
-	--format "EventFired	= % \n" EventFired
+	format "EventFired	= % \n" EventFired
 	--SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )
 
@@ -119,24 +122,10 @@ icon:	"across:5|control:checkbox|offset:[ 108, -16 ]|tooltip:USE MAX DISTANCE be
 (
 	on execute do
 	(
-
-		format "EventFired:	% \n" EventFired
-
+		--format "EventFired:	% \n" EventFired
 		ROLLOUT_generator.SPIN_max_distance.enabled = EventFired.val
-
-		--/** Get size
-		-- */
-		--function getSize obj = (bbox	= nodeGetBoundingBox obj ( Matrix3 1))[2].z - bbox[1].z
-		--
-		--if EventFired.inSpin and EventFired.Control.value == EventFired.Control.range[1] and selection.count >= 2 then
-		--(
-		--	--sizes = for obj in selection collect  getSize obj
-		--
-		--	EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue(distance selection[1].pos selection[2].pos )
-		--)
-		--else
-		--	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.Control.value)
 	)
+
 )
 
 /**
@@ -177,8 +166,8 @@ icon:	"across:5|control:spinner|id:#SPIN_max_distance|event:#entered|type:#integ
 macroscript	_print_generator_beams_max_length
 category:	"_3D-Print"
 buttontext:	"Min Height"
-tooltip:	"Min Height of supports where beam is created"
-icon:	"across:5|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:64|offset:[ 148, -16 ]"
+--tooltip:	""
+icon:	"across:5|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:72|offset:[ 148, -16 ]|tooltip:Min Height of supports where beam is created"
 (
 	format "EventFired:	% \n" EventFired
 

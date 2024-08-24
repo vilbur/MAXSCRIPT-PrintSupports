@@ -281,5 +281,9 @@ struct SupportOptions_v
 	on create do
 	(
 		--format "\n"; print "SupportOptions_v.create()"
+
+		if _rollout == undefined then
+			messageBox ("UNDEFINED STRICT PROPERTY\n\nSTRUCT: SupportOptions_v\n\nPROPERTY: _rollout") title:"UNDEFINED PROPETRY"
+
 	)
 )

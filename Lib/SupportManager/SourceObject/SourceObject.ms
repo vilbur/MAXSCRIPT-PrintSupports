@@ -256,14 +256,14 @@ struct SourceObject_v
 	 */
 	function _setLocalVertexNormals verts =
 	(
-		format "\n"; print "SourceObject_v._setLocalVertexNormals()"
+		--format "\n"; print "SourceObject_v._setLocalVertexNormals()"
 
 		--normals_local = this._getLocalVertexNormalsByModifier(Supports.keys as BitArray )
 
 
 		if ( normals_local_loaded = getUserPropVal obj "normals_local" ) != undefined then
 		(
-			format "normals_local_loaded: %\n" normals_local_loaded
+			--format "normals_local_loaded: %\n" normals_local_loaded
 			normals_local = normals_local_loaded
 
 			normals_exists = for i = 1 to normals_local.count where normals_local[i] != point3 0 0 0 collect i
@@ -273,7 +273,7 @@ struct SourceObject_v
 
 		timer_NORMLAS = timeStamp()
 
-		format "VERTS: %\n" verts
+		--format "VERTS: %\n" verts
 
 		if not verts.isEmpty then
 			this._updateLocalVertexNormalsByModifier( verts )
@@ -281,7 +281,7 @@ struct SourceObject_v
 		setUserPropVal obj "normals_local"	normals_local
 
 		--this._updateLocalNormals( verts )
-		format "NORMALS: % seconds\n" ((( timeStamp()) - timer_NORMLAS) / 1000.0)
+		--format "NORMALS: % seconds\n" ((( timeStamp()) - timer_NORMLAS) / 1000.0)
 
 	),
 
@@ -389,8 +389,8 @@ struct SourceObject_v
 	function _setWorldSpaceVertexNormals verts =
 	(
 		format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
-		format "verts: %\n" verts
-		format "verts.numberSet: %\n" verts.numberSet
+		--format "verts: %\n" verts
+		--format "verts.numberSet: %\n" verts.numberSet
 		obj_pos	= obj.pos
 		obj_transform	= obj.transform
 
@@ -405,12 +405,12 @@ struct SourceObject_v
 	function _getVertsPositions verts =
 	(
 		format "\n"; print "SourceObject_v._getVertsPositions()"
-		format "obj: %\n" obj
+		--format "obj: %\n" obj
 		--format "verts_process: %\n" verts_process
-		format "verts: %\n" verts
-		format "all_verts: %\n" all_verts
-		format "all_verts.numberSet: %\n" all_verts.numberSet
-		format "verts.numberSet: %\n" verts.numberSet
+		--format "verts: %\n" verts
+		--format "all_verts: %\n" all_verts
+		--format "all_verts.numberSet: %\n" all_verts.numberSet
+		--format "verts.numberSet: %\n" verts.numberSet
 		timer__getVertsPositions = timeStamp()
 
 		if verts_pos == undefined then
