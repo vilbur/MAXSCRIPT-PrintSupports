@@ -170,6 +170,116 @@ struct SupportManager_v
 		)
 	),
 
+	/** Generate drain holes
+	 */
+	function generateDrainHoles =
+	(
+		--format "\n"; print "SupportManager_v.generateDrainHoles()"
+		/** SWEEP Modifier
+		  *
+		  */
+		function _sweepSetup sweep_mod diameter =
+		(
+			--format "\n"; print "SupportModifiers_v._sweep()"
+
+			/** Reset mod propertis -- sweep mpdofoer keeps its settings if newly created, i dont know why.. oteh modifiers dont do that :D
+
+				QUICK SOLUTION - FOR MORE MODIFIERS OR PROPERTIES SHOULD COMPLEX SOLUTUION EXISTS
+
+			 */
+			function resetSweepModProperties sweep_mod =
+			(
+				sweep_mod.MirrorXZPlane = off
+				sweep_mod.MirrorXYPlane = off
+
+				sweep_mod.XOffset = 0
+				sweep_mod.yOffset = 0
+
+				sweep_mod.angle = 0
+				sweep_mod.SmoothSection = off
+				sweep_mod.SmoothPath = off
+				sweep_mod.PivotAlignment = 4
+
+
+				sweep_mod.GenMatIDs = on
+				sweep_mod.UseSectionIDs = off
+				sweep_mod.UsePathIDs = off
+			)
+
+			resetSweepModProperties(sweep_mod)
+
+			sweep_mod.CurrentBuiltInShape = 4 -- Set cylinder
+
+			/* GENERATE MATERIAL ID */
+			sweep_mod.UseSectionIDs	= false
+			sweep_mod.UsePathIDs	= true
+
+			sweep_mod[#Cylinder_Section].radius = diameter / 2
+
+			sweep_mod.PivotAlignment = 6 -- align shape to corner
+
+			sweep_mod --return
+		)
+
+
+		sweep_mod = sweep ()
+
+		shapes_to_update = #()
+
+		source_obj = selection[1]
+
+		verts	= getVertSelection source_obj.mesh
+
+		verts_pos = in coordsys world meshop.getVerts source_obj.mesh verts node:source_obj
+
+		direction = [ 0, 0, 1 ]
+
+		knots = #()
+
+		for i = 1 to verts.numberSet do
+		(
+			--format "knots: %\n" knots
+
+			knots[1] = verts_pos[i] + ( 2 * direction ) -- make raft longer by multiplying normal length 10x
+			knots[2] = verts_pos[i] + ( 2 * (direction * -1 ) ) -- make raft longer by multiplying normal length 10x
+
+			drain_obj = SplineShape()
+
+			--format "\n"; print "SupportObject_v._drawRaftLine()"
+			addNewSpline drain_obj
+
+			/*------------------------------------------------------------------------------
+				ADD KNOTS BY POINTS FROM TOP TO BOTTOM
+			--------------------------------------------------------------------------------*/
+			for pos in knots do
+				addKnot drain_obj 1 #corner #line pos
+
+
+
+			drain_obj.pivot = knots[1]
+
+			drain_obj.parent = source_obj
+
+			setUserPropVal drain_obj "SYNC_KEY" (this._getSyncSourceKey(source_obj))
+
+
+			append shapes_to_update drain_obj
+		)
+
+		with redraw off
+			for _shape in shapes_to_update do
+				updateShape _shape
+
+		redrawViews()
+
+		select shapes_to_update
+
+		modPanel.addModToSelection sweep_mod ui:on
+
+		_sweepSetup sweep_mod SUPPORT_OPTIONS.drain_width
+
+
+	),
 
 	/** Update supports
 	 */

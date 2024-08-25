@@ -388,7 +388,7 @@ struct SourceObject_v
 	 */
 	function _setWorldSpaceVertexNormals verts =
 	(
-		format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
+		--format "\n"; print "SourceObject_v._setWorldSpaceVertexNormals()"
 		--format "verts: %\n" verts
 		--format "verts.numberSet: %\n" verts.numberSet
 		obj_pos	= obj.pos
@@ -404,7 +404,7 @@ struct SourceObject_v
 	 */
 	function _getVertsPositions verts =
 	(
-		format "\n"; print "SourceObject_v._getVertsPositions()"
+		--format "\n"; print "SourceObject_v._getVertsPositions()"
 		--format "obj: %\n" obj
 		--format "verts_process: %\n" verts_process
 		--format "verts: %\n" verts
@@ -417,7 +417,7 @@ struct SourceObject_v
 			this.verts_pos = all_verts as Array
 
 		verts_process_pos = in coordsys world meshop.getVerts obj.mesh verts node:obj
-		format "verts_process_pos: %\n" verts_process_pos
+		--format "verts_process_pos: %\n" verts_process_pos
 
 		for i = 1 to verts_process_pos.count do
 		(
@@ -427,7 +427,7 @@ struct SourceObject_v
 			verts_pos[vert] = verts_process_pos[i]
 		)
 
-		format "_getVertsPositions: % ms\n" (( timeStamp()) - timer__getVertsPositions)
+		--format "_getVertsPositions: % ms\n" (( timeStamp()) - timer__getVertsPositions)
 
 		verts_pos --return
 

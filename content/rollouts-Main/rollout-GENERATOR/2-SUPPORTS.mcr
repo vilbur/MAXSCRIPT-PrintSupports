@@ -89,16 +89,6 @@ function generateSupportsOrRafts obj_type: =
 ================================================================================*/
 
 
-
-
-
-/*==============================================================================
-
-		COTNROLS ROW 2
-
-================================================================================*/
-
-
 /** BAR WIDTH
  */
 macroscript	_print_platform_generator_bar_width
@@ -107,7 +97,7 @@ buttontext:	"WIDTH"
 tooltip:	"Bar width in mm of printed model.\n\nExported scale is used"
 icon:	"control:spinner|id:SPIN_bar_width|across:3|range:[ 0.8, 3, 1.0 ]|width:64|offset:[ 0, 0 ]"
 (
-		format "EventFired:	% \n" EventFired
+		--format "EventFired:	% \n" EventFired
 	on execute do
 		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )
@@ -143,7 +133,7 @@ icon:	"control:spinner|id:SPIN_extend_top|across:3|width:64|range:[ 0, 99, 0.5 ]
 
 /*==============================================================================
 
-		COTNROLS ROW 3
+		COTNROLS ROW 2
 
 ================================================================================*/
 
@@ -162,7 +152,7 @@ icon:	"across:3|height:32|width:96|offset:[ -16, 0 ]"
 	on execute do
 		undo "Generate Supports" on
 		(
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SUPPORTS\2-SUPPORTS.mcr"
+			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-GENERATOR\2-SUPPORTS.mcr"
 			generateSupportsOrRafts obj_type:#SUPPORT
 		)
 )

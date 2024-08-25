@@ -32,6 +32,8 @@ struct ModifiersManager_v
 		format "supports_exists: %\n" supports_exists
 		--format "SupportModifiers: %\n" SupportModifiers["default"].mod_names
 
+		supports_exists = for support in supports_exists where isValidNode support collect support
+
 		this.supports =	supports
 		--this.supports_exists =	supports_exists
 		support_with_modifiers	= (this._getSupportsWithModfiers(supports_exists))[1]

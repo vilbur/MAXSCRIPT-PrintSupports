@@ -159,7 +159,7 @@ function getLayerNumberToMove direction =
 		(1):	10
 		default: 1
 	)
-
+ 
 	if direction == #MINUS then
 		increment_val *= -1
 

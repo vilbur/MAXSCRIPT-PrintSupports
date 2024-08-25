@@ -21,9 +21,32 @@ macroscript	_print_platform_generator_normal_length
 category:	"_3D-Print"
 buttontext:	"Normal Length"
 tooltip:	"Length of first segment of platform facing to vertex normal"
-icon:	"across:3|control:spinner|offset:[ 0, 20 ]|fieldwidth:24|range:[ 0.1, 999, 3 ]"
+icon:	"across:3|control:spinner|offset:[ 0, 20 ]|fieldwidth:24|range:[ 0.1, 999, 0.5 ]"
 (
-	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+	on execute do
+	(
+		format "EventFired	= % \n" EventFired
+
+		bar_radius = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+
+		range = ROLLOUT_generator.SPIN_normal_length.range
+
+		/* SET MIN VALUE */
+		--if range.x > bar_radius then
+
+		if EventFired.val < bar_radius then
+		(
+			EventFired.val = bar_radius
+
+			range.x = bar_radius
+			range.z = bar_radius
+
+			ROLLOUT_generator.SPIN_normal_length.range = range
+		)
+
+		SUPPORT_MANAGER.updateModifiers (EventFired.control) ( EventFired.val)
+	)
+
 )
 
 
@@ -36,7 +59,6 @@ icon:	"across:3|control:spinner|offset:[ 0, 20 ]|fieldwidth:24|range:[ 0.1, 999,
 ----toolTip:	"For objects to keep position on export\n\n(Create boxes in corners of print plane to keep exported position)"
 --icon:	"control:checkbox|across:3|offset:[ 12, 2 ]"
 --(
---	--format "EventFired	= % \n" EventFired
 --	--(PrinterVolume_v()).createVolume(#box)(ROLLOUT_export.SPIN_export_size.value)
 --)
 
