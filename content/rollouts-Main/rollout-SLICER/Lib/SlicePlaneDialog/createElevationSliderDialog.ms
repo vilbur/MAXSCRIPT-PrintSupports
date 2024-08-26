@@ -57,55 +57,10 @@ function createElevationSliderDialog =
 			(viewport_area_size[2] as integer) + height_of_ui - dialog_title_height --return
 		)
 
-		/** Remove slice plane modifier
-		  *
-		  */
-		function removeSlicePlaneModifier _objects  =
-		(
-			format "\n"; print ".removeSlicePlaneModifier()"
-
-			--if (  select_mod = obj.modifiers[#SLICE_SELECT_OBJ] ) != undefined then
-			--	deleteModifier select_mod
-			--
-			--
-			--if (  slice_mod = obj.modifiers[#SLICE_PLANE_TOP] ) != undefined then
-			--	deleteModifier obj slice_mod
-
-
-			--for mod_name in #( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM, #SELECT_LAYER ) do
-			--	for obj in geometry where obj.modifiers[mod_name] != undefined do
-			--		deleteModifier obj obj.modifiers[mod_name]
-		)
-
-
-
-
-		--/** Get layer number to move
-		-- */
-		--function getLayerNumberToMove direction =
-		--(
-		--	--format "\n"; print ".getLayerNumberToMove()"
-		--	ctrl	= keyboard.controlPressed
-		--	shift 	= keyboard.shiftPressed
-		--	alt 	= keyboard.altPressed
-		--
-		--	increment_val = case of
-		--	(
-		--		(ctrl and shift):	100
-		--		(shift):	10
-		--		(ctrl):	5
-		--		default: 1
-		--	)
-		--
-		--	if direction == #MINUS then
-		--		increment_val *= -1
-		--
-		--	increment_val --return
-		--)
 
 		local viewport_height = (getViewportHeight())
 
-		local layers_count = 5000
+		--local layers_count = 5000
 
 		/*------------------------------------------------------------------------------
 			CONTROLS
@@ -113,7 +68,7 @@ function createElevationSliderDialog =
 
 		button BTN_exit_dialog "EXIT" width:36 height:22  pos:[ -2, -2 ] tooltip:"Exit and remove slicer from all objects"
 
-		slider SLIDER_elevation "" range:[0, layers_count,0] type:#integer ticks:layers_count orient:#vertical width:32 height:(viewport_height - 40) pos:[ 10, 22 ] tooltip:"Set positioon of slice plane.\n\nRMB: Circle slice plane on obejct min, center and maximum.\n\nRMB+CTRL: SET SLICE PLANE TO BOTTOM OF OBJECT"
+		slider SLIDER_elevation "" range:[0, SLICE_PLANE_DIALOG.layers_count,0] type:#integer ticks:SLICE_PLANE_DIALOG.layers_count orient:#vertical width:32 height:(viewport_height - 40) pos:[ 10, 22 ] tooltip:"Set positioon of slice plane.\n\nRMB: Circle slice plane on obejct min, center and maximum.\n\nRMB+CTRL: SET SLICE PLANE TO BOTTOM OF OBJECT"
 
 		button BTN_move_layer_increment "+ \ -" width:48 height:28  pos:[ -10, viewport_height - 24 ] tooltip:"LMB: Shift layer UP\n\nRMB: Shift layer DOWN\n\n   ————————————————————   \n\nTooltip:CTRL:SHIFT:ALT: 5|25|25 Layers incremnet by number of mod keys pressed 1|2|3"
 
@@ -136,17 +91,16 @@ function createElevationSliderDialog =
 			SLIDER EVENTS
 		--------------------------------------------------------------------------------*/
 		on SLIDER_elevation changed val do
-			updateSlicePlaneSystem (val)
+			SLICE_PLANE_DIALOG.updateSlicePlaneSystem (val)
 
 
 		on SLIDER_elevation RIGHTCLICK do
-			toggleSlicePlanePosition()
+			SLICE_PLANE_DIALOG.toggleSlicePlanePosition()
 
 		on SLIDER_elevation BUTTONDOWN do
 		(
 			--for obj in selection where obj.modifiers[ #SELECT_LAYER ] != undefined do
 				 --obj.modifiers[ #SELECT_LAYER ].enabled = false
-
 		)
 
 		on SLIDER_elevation BUTTONUP do
@@ -167,16 +121,16 @@ function createElevationSliderDialog =
 		/* ON BUTTON INCREMENT */
 		on BTN_move_layer_increment PRESSED do
 			macros.run "_3D-Print" "_print_slice_increment_plus"
-			--updateSlicePlaneSystem ( getLayerNumberToMove( #PLUS ) ) incremental:true
+			--SLICE_PLANE_DIALOG.updateSlicePlaneSystem ( getLayerNumberToMove( #PLUS ) ) incremental:true
 
 
 		on BTN_move_layer_increment RIGHTCLICK do
 			macros.run "_3D-Print" "_print_slice_increment_minus"
-			--updateSlicePlaneSystem ( getLayerNumberToMove( #MINUS ) ) incremental:true
+			--SLICE_PLANE_DIALOG.updateSlicePlaneSystem ( getLayerNumberToMove( #MINUS ) ) incremental:true
 
 		/* ON SLIDER CHANGE */
 		on SPIN_layer_current CHANGED val do
-			updateSlicePlaneSystem (val)
+			SLICE_PLANE_DIALOG.updateSlicePlaneSystem (val)
 
 
 		/*------------------------------------------------------------------------------
@@ -185,12 +139,12 @@ function createElevationSliderDialog =
 
 		/* ON OPEN */
 		on DIALOG_elevation_slider OPEN do
-			toggleSlicePlanePosition pos:#CENTER
+			SLICE_PLANE_DIALOG.toggleSlicePlanePosition pos:#CENTER
 			--updateSlicePlaneSystem (DIALOG_elevation_slider.SPIN_layer_current.value)
 
 		/* ON CLOSE */
 		on DIALOG_elevation_slider CLOSE do
-			removeSlicePlaneModifier( selection )
+			SLICE_PLANE_DIALOG.removeSlicePlaneModifier( selection )
 
 		--	updateSlicePlaneSystem (DIALOG_elevation_slider.SPIN_layer_current.value)
 

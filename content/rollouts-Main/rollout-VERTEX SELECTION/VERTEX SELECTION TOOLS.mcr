@@ -62,11 +62,14 @@ function selectConcexOrBottomFacesOrVers mode subobject:#VERTEX =
 
 		sel_old = _getSelection obj subobject
 
-		if mode == #BOTTOM then
+		if mode == #BOTTOM or mode == #TOP then
 		(
 			--PolyToolsSelect.Normal 3 120 true
-			PolyToolsSelect.Normal 3 150 true
 			--PolyToolsSelect.Normal 3 170 true
+			if mode == #BOTTOM then
+				PolyToolsSelect.Normal 3 150 true
+			else /* TOP */
+				PolyToolsSelect.Normal 3 15 false
 
 			sel_new = _getSelection obj subobject
 			--format "not (sel_old * sel_new).isEmpty: %\n" (not (sel_old * sel_new).isEmpty)
@@ -115,7 +118,7 @@ macroscript	maxtoprint_get_convex_verts
 category:	"maxtoprint"
 buttontext:	"CONVEX"
 toolTip:	"VERTS"
-icon:	"tooltip:CTRL: Reset selection"
+icon:	"across:4|tooltip:CTRL: Reset selection"
 (
 	on execute do
 	(
@@ -149,9 +152,9 @@ toolTip:	"FACES"
  */
 macroscript	maxtoprint_get_bottom_verts
 category:	"maxtoprint"
-buttontext:	"BOTTOM"
-toolTip:	"VERTS"
-icon:	"tooltip:CTRL: Reset selection"
+buttontext:	"BOTTOM\TOP"
+toolTip:	"BOTTOM verts"
+icon:	"tooltip:Select bottom or top verts of all or selected verts"
 (
 	on execute do
 	(
@@ -164,22 +167,102 @@ icon:	"tooltip:CTRL: Reset selection"
 /**
  *
  */
-macroscript	maxtoprint_get_bottom_faces
+macroscript	maxtoprint_get_top_verts
 category:	"maxtoprint"
-buttontext:	"BOTTOM"
-toolTip:	"FACES"
+buttontext:	"BOTTOM\TOP"
+toolTip:	"TOP verts"
 --icon:	"tooltip:CTRL: Reset selection"
 (
 	on execute do
 	(
 	--	filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-Points\3-1-2-SELECT CONVEX - CONCAVE .mcr"
 
-		selectConcexOrBottomFacesOrVers #BOTTOM subobject:#FACE
+		selectConcexOrBottomFacesOrVers #TOP
 	)
 )
 
 
+function SelectVisiblePolys polysToUse: selVisiblePolys: =
+(
+	--Get the viewport TMatrix, invert to get the equivalent of a camera transformation
+	poGetNumFaces = polyop.getNumFaces
+	poGetFaceSelection = polyop.getFaceSelection
+	poGetFaceNormal = polyop.getFaceNormal
+	poSetFaceSelection = polyop.setFaceSelection
 
+	--theTM = inverse (viewport.getTM())
+	theTM = matrixFromNormal  [ 0, 0, 1 ]
+
+	selObjsArr = selection as array
+	--Loop through all geometry objects that have EPoly Base Object
+	for theObj in selObjsArr where classof theObj.baseobject == Editable_Poly do
+	(
+		theFacesToSelect = #{} --ini. a bitArray to collect faces to select
+		numFaces = if polysToUse == #all then
+			(
+				#{1..(poGetNumFaces theObj)}
+			)
+			else
+			(
+				poGetFaceSelection theObj
+			)
+		--loop from 1 to the number of polygons and set the corresponding bit in the bitArray
+		--to true if the normal of the polygon as seen in camera space has a positive Z,
+		--and false if it is negative or zero (facing away from the camera)
+		if selVisiblePolys == #visible then
+		(
+			for f in numFaces do
+			(
+				theFacesToSelect[f] = (in coordsys theTM poGetFaceNormal theObj f).z > 0
+			)
+		)
+		else
+		(
+			for f in numFaces do
+			(
+				theFacesToSelect[f] = (in coordsys theTM poGetFaceNormal theObj f).z < 0
+			)
+		)
+		--finally, set the selection in the object
+		poSetFaceSelection theObj theFacesToSelect
+	)
+	--when done with all, redraw the views - if a Poly SO level is selected,
+	--the selection will be updated in the viewport...
+	redrawViews()
+)
+/** Select
+ *
+ */
+macroscript	maxtoprint_select_verts_by_z_axis
+category:	"maxtoprint"
+buttontext:	"BY CAMERA"
+toolTip:	"TOP verts"
+--icon:	"tooltip:CTRL: Reset selection"
+(
+	on execute do
+	(
+	--	filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-Points\3-1-2-SELECT CONVEX - CONCAVE .mcr"
+
+		--	"use all polys of the object and select the visible ones"
+		SelectVisiblePolys polysToUse:#all selVisiblePolys:#visible
+
+	-- 	--	"use all polys of the object and select the hidden ones"
+	-- 	SelectVisiblePolys polysToUse:#all selVisiblePolys:#invisible
+
+		--	"use selected polys of the object and select the visible ones"
+	-- 	SelectVisiblePolys polysToUse:#selected selVisiblePolys:#visible
+
+		--	"use all selected of the object and select the hidden ones"
+	-- 	SelectVisiblePolys polysToUse:#selected selVisiblePolys:#invisible
+	)
+)
+
+
+/*==============================================================================
+
+	ROW 2
+
+================================================================================*/
 
 /**
   *
@@ -238,4 +321,3 @@ icon:	"MENU:false|across:4|height:24"
 
 	)
 )
-

@@ -25,7 +25,7 @@
 			layer_index = roundToInteger ((pos * display_units) / layer_height	/ export_size)
 
 			layer_index --return
-		)
+		),
 
 		/** Toggle slice plane position
 		  * @param #TOP|BOTTOM|CENTER pos
@@ -122,4 +122,4 @@
 				/* DEVELOP FIXING */
 				SET_ELEVATION = undefined
 			)
-		)
+		),

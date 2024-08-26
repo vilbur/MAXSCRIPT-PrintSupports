@@ -55,8 +55,8 @@ function updateSlicePlaneSystem layer_index incremental:false =
 	slice_top	= true
 	slice_bottom	= false
 
-
 	layers_count	= volume_height / layer_height
+
 
 	if layer_index == undefined then
 		layer_index = layer_current
@@ -91,6 +91,8 @@ function updateSlicePlaneSystem layer_index incremental:false =
 
 		/* UPDATE UI */
 		--ROLLOUT_export.SPIN_current_layer.value	= layer_index
+
+
 		DIALOG_elevation_slider.SPIN_layer_current.value	= layer_index
 		DIALOG_elevation_slider.SLIDER_elevation.value	= layer_index
 

@@ -1,20 +1,21 @@
 global ROLLOUT_slicer
 global DIALOG_elevation_slider
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/PrinterVolume/PrinterVolume.ms" )	--"./Lib/PrinterVolume/PrinterVolume.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/PrinterVolume/PrinterVolume.ms" )	--"./Lib/PrinterVolume/PrinterVolume.ms"
+--
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/getPlaneZpozition.ms" )	--"./Lib/SlicePlaneDialog/getPlaneZpozition.ms"
+--
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/setSlicePlaneModifier.ms" )	--"./Lib/SlicePlaneDialog/setSlicePlaneModifier.ms"
+--
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/setSelectPlaneModifier.ms" )	-- "./Lib/SlicePlaneDialog/setSelectPlaneModifier.ms"
+--
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/updateSlicePlaneSystem.ms" )	-- "./Lib/SlicePlaneDialog/updateSlicePlaneSystem.ms"
+--
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/toggleSlicePlanePosition.ms" )	--"./Lib/SlicePlaneDialog/toggleSlicePlanePosition.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/getPlaneZpozition.ms" )	--"./Lib/SlicePlaneDialog/getPlaneZpozition.ms"
-
-filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/setSlicePlaneModifier.ms" )	--"./Lib/SlicePlaneDialog/setSlicePlaneModifier.ms"
-
-filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/setSelectPlaneModifier.ms" )	-- "./Lib/SlicePlaneDialog/setSelectPlaneModifier.ms"
-
-filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/updateSlicePlaneSystem.ms" )	-- "./Lib/SlicePlaneDialog/updateSlicePlaneSystem.ms"
-
-filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/toggleSlicePlanePosition.ms" )	--"./Lib/SlicePlaneDialog/toggleSlicePlanePosition.ms"
+filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/SlicePlaneDialog.ms" )	--"./Lib/SlicePlaneDialog/SlicePlaneDialog.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/createElevationSliderDialog.ms" )	-- "./Lib/SlicePlaneDialog/createElevationSliderDialog.ms"
-
 
 /**
   *
@@ -27,8 +28,8 @@ icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 (
 	on execute do
 		(
-			--clearListener(); print("Cleared in:\n"+getSourceFileName())
-			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-SLICER\SLICE PLANE.mcr"
+			clearListener(); print("Cleared in:\n"+getSourceFileName())
+			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SLICER\[SLICE PLANE].mcr"
 			--format "EventFired	= % \n" EventFired
 
 			/* DEVELOP: KILL SLICE DIALOG */
@@ -39,57 +40,15 @@ icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 
 			)catch()
 
-			/** Add slice mod
-			 */
-			function addSliceMod obj slice_mod =
-			(
-				--format "\n"; print ".addSliceMod()"
-				addModifier obj slice_mod
+			SLICE_PLANE_DIALOG = SlicePlaneDialog_v()
 
-				mod_TM =	(getModContextTM obj slice_mod)	* (  obj.transform )
-				--format "mod_TM	= % \n" mod_TM
-				setModContextTM obj slice_mod mod_TM
-			)
-
-			/* CHOOSE SLICE TOP OR BOTTOM, UNUSED CURENTLY
-				slice_modes = Dictionary #( #SLICE_PLANE_TOP, ROLLOUT_slicer.CBX_slice_top.state ) #( #SLICE_PLANE_BOTTOM, ROLLOUT_slicer.CBX_slice_bottom.state )
-
-				if not (slice_modes[ #SLICE_PLANE_TOP ]and slice_modes[ #SLICE_PLANE_BOTTOM ])  then
-					slice_modes[ #SLICE_PLANE_TOP ] = true
-			*/
-
-
-			slice_modes = Dictionary #( #SLICE_PLANE_TOP, true ) #( #SLICE_PLANE_BOTTOM, false )
-
-			for slice_mode_data in slice_modes where slice_mode_data.value do
-			(
-				format "slice_mode_data	= % \n" slice_mode_data
-				mod_name = slice_mode_data.key
-
-				/* GET ALL INSANCES OF MODIFIER IN SCENE */
-				modifiers_in_scene = for mod_in_scene in getClassInstances ( SliceModifier ) where mod_in_scene.name as name == mod_name collect mod_in_scene
-
-				/* GET NEW INSANCE MODIFIER */
-				if ( slice_modifier = modifiers_in_scene[1] ) == undefined then
-					slice_modifier = SliceModifier name:( mod_name as string ) Faces___Polygons_Toggle:1
-
-				/* GET OBJECTS WITH MODIFIER INS */
-				objects_with_modifier = refs.dependentNodes slice_modifier
-
-				/* ADD MODIIFER WHERE IS NOT */
-				for obj in selection where superClassOf obj == GeometryClass and findItem objects_with_modifier obj == 0 do
-				(
-					addModifier obj  (Poly_Select name:"SLICE_SELECT_OBJ" )
-
-					addSliceMod (obj)	(slice_modifier)
-				)
-			)
+			SLICE_PLANE_DIALOG.addModifiers()
 
 
 			/* CREATE SLICE DIALOG */
 			createElevationSliderDialog()
 
-			updateSlicePlaneSystem (DIALOG_elevation_slider.SPIN_layer_current.value)
+			--updateSlicePlaneSystem (DIALOG_elevation_slider.SPIN_layer_current.value)
 
 		)
 )
@@ -103,7 +62,7 @@ macroscript	print_remove_slice_modifiers
 category:	"_3D-Print"
 buttontext:	"Slice Object"
 tooltip:	"EXIT SLICE MODE"
-icon:	"across:3|height:32"
+icon:	""
 (
 	on execute do
 		(
@@ -159,7 +118,7 @@ function getLayerNumberToMove direction =
 		(1):	10
 		default: 1
 	)
- 
+
 	if direction == #MINUS then
 		increment_val *= -1
 
@@ -173,13 +132,12 @@ macroscript	_print_slice_increment_plus
 category:	"_3D-Print"
 buttontext:	"+ \ -"
 tooltip:	"Shift layer UP"
-icon:	"across:3|height:32|Tooltip:CTRL:SHIFT:ALT: 10\25\25 Layers incremnet by number of mod keys pressed 1\2\3"
+icon:	"Tooltip:CTRL:SHIFT:ALT: 10\25\25 Layers incremnet by number of mod keys pressed 1\2\3"
 (
-
-
 	on execute do
 		updateSlicePlaneSystem ( getLayerNumberToMove( #PLUS ) ) incremental:true
 )
+
 /**
   *
   */
@@ -187,14 +145,63 @@ macroscript	_print_slice_increment_minus
 category:	"_3D-Print"
 buttontext:	"+ \ -"
 tooltip:	"RMB: Shift layer DOWN"
-icon:	"across:3|height:32"
+icon:	""
 (
-
 	on execute do
 		updateSlicePlaneSystem ( getLayerNumberToMove( #MINUS ) ) incremental:true
 )
 
+/**
+  *
+  */
+macroscript	_print_slice_se_slice_materia
+category:	"_3D-Print"
+buttontext:	"MATERIAL"
+tooltip:	""
+icon:	""
+(
+	on execute do
+	(
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SLICER\[SLICE PLANE].mcr"
+		obj	= selection[1]
 
+		mat_name = "SLICE MATERIAL"
+
+		if obj.material.name != mat_name then
+		(
+			_materials = for mat in sceneMaterials where mat.name == mat_name collect mat
+			--print ( "_materials = " + _materials.count as string )
+			mat = if( _materials.count == 0 ) then
+			(
+				mat = Multimaterial name:mat_name numsubs:3
+
+				mat[2].base_color = color 0 75 255
+
+				mat[3].base_color = color 255 0 0
+
+				mat --return
+			)
+			else
+				_materials[1]
+
+			setUserPropVal obj "SLICE_MATERIAL_ORIGINAL" obj.material.name
+
+			obj.material = mat
+		)
+		else if ( mat_name = getUserPropVal obj "SLICE_MATERIAL_ORIGINAL" ) != undefined then
+		(
+			_materials = for mat in sceneMaterials where mat.name == mat_name collect mat
+
+			mat = if _materials.count > 0 then
+				obj.material = _materials[1]
+
+			deleteUserProp obj "SLICE_MATERIAL_ORIGINAL"
+		)
+
+
+
+	)
+)
 
 
 

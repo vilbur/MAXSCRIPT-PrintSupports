@@ -6,7 +6,7 @@
  */
 macroscript	_print_select_vets_grid_resolution
 category:	"_Print-Points-Tools"
-buttonText:	"GRID"
+buttonText:	"[GRID SIZE]"
 toolTip:	"Size of cell in grid."
 icon:	"MENU:false|id:#SPIN_grid_step|control:spinner|across:4|range:[1, 100, 10]|type:#integer|height:24|offset:[ 12, 4]|align:#left|fieldwidth:32"
 (
@@ -19,7 +19,7 @@ icon:	"MENU:false|id:#SPIN_grid_step|control:spinner|across:4|range:[1, 100, 10]
  */
 macroscript	_print_select_middle_verts_in_grid
 category:	"_Print-Points-Tools"
-buttonText:	"GRID MIDDLE"
+buttonText:	"Grid MIDDLE"
 toolTip:	"SELECT LOWEST SINGLE VERTEX of each face island.\n\Vert with lowest position on Z axis is selected"
 icon:	"MENU:true|across:4|height:24"
 (
@@ -43,7 +43,7 @@ icon:	"MENU:true|across:4|height:24"
  */
 macroscript	_print_select_lowest_verts_in_grid
 category:	"_Print-Points-Tools"
-buttonText:	"GRID LOWEST"
+buttonText:	"Grid LOWEST"
 toolTip:	"SELECT LOWEST SINGLE VERTEX of each face island.\n\Vert with lowest position on Z axis is selected"
 icon:	"MENU:true|across:4|height:24"
 (
