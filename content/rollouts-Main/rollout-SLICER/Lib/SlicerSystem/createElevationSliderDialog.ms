@@ -56,7 +56,7 @@ function createElevationSliderDialog =
 		CONTROLS
 	--------------------------------------------------------------------------------*/
 
-	btn_exit = _Controls.control #BUTTON "EXIT" width:42 height:24 offset:	[ 0, -4 ] tooltip:"Exit and remove slicer from all objects"
+	btn_exit = _Controls.control #BUTTON "IN\OUT" width:42 height:24 offset:	[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
 
 
     /*------ SLIDER ------*/
@@ -69,31 +69,32 @@ function createElevationSliderDialog =
                     width:	44	\
                     height:	slider_height	\
                     across:	1	\
-                    offset:	[ -8, -4 ]	\
+                    offset:	[ -6, -4 ]	\
                     ini:	false
                     --pos:	pos_slider
 
-	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:42 offset:[ -4, -8 ] tooltip:"LMB: Shift layer UP\n\nRMB: Shift layer DOWN\n\n   ————————————————————   \n\nTooltip:CTRL:SHIFT:ALT: 5|25|25 Layers incremnet by number of mod keys pressed 1|2|3"
+	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:44 offset:[ -4, -8 ] tooltip:""
 
 
 	_spinner = _Controls.control #SPINNER "" id:#SPIN_layer_current across:1 range:[ 0, SLICER_SYSTEM.layers_count, 0] width:42 type:#integer offset:[ -4, 0 ]
 
-	_dropdown = _Controls.control #DROPDOWNLIST "" id:#DD_slider_snaps  width:64  items:#( "layers", "verts", "islands" ) offset:[ -16, 0 ] ini:false --params:#( #UNSELECT, true ) across:1 offset:[ 4, 2 ] --align:#center  --width:96
+	_dropdown = _Controls.control #DROPDOWNLIST "" id:#DDL_slider_snaps  width:64  items:#( "layers", "verts", "islands" ) offset:[ -16, 0 ] --ini:false --params:#( #UNSELECT, true ) across:1 offset:[ 4, 2 ] --align:#center  --width:96
 
 
 
 	/*------------------------------------------------------------------------------
 		EVENTS
 	--------------------------------------------------------------------------------*/
-	btn_exit.Event #PRESSED "SLICER_SYSTEM.desroySliderDialog()"
+	btn_exit.Event #PRESSED    "macros.run \"_3D-Print\" \"print_create_slicerdialog\" " tooltip:"SLICE CURRENT SELECTED OBJECT"
+	btn_exit.Event #RIGHTCLICK "SLICER_SYSTEM.desroySliderDialog()" tooltip:"EXIT SLICE MODE"
 
 	_slider.Event #CHANGED     "SLICER_SYSTEM.updateSlicePlaneSystem"
 	--_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"
 
 	_spinner.Event #CHANGED "SLICER_SYSTEM.updateSlicePlaneSystem(val)"
 
-	btn_plus_minus.Event #PRESSED    "SLICER_SYSTEM.updateSlicePlaneSystem( 1 ) incremental:true"
-	btn_plus_minus.Event #RIGHTCLICK "SLICER_SYSTEM.updateSlicePlaneSystem( -1 )incremental:true"
+	btn_plus_minus.Event #PRESSED    "SLICER_SYSTEM.shiftLayerIncremental( 1 )"
+	btn_plus_minus.Event #RIGHTCLICK "SLICER_SYSTEM.shiftLayerIncremental( -1 )"
 
 	--_dropdown.Event #CHANGED "SLICER_SYSTEM.changeSliderSnamps"
 

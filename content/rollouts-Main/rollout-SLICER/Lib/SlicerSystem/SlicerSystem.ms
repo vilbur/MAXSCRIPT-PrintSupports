@@ -106,90 +106,81 @@ struct SlicerSystem_v
 		)
 	),
 
-	/** Set print elevation
+
+/** Set print elevation
 	  *
 	  */
-	function updateSlicePlaneSystem layer_index incremental:false =
+	function updateSlicePlaneSystem layer_index =
 	(
 		--format "\n"; print "SlicerSystem_v.updateSlicePlaneSystem()"
-		--format "layer_index:	% \n" layer_index
-		--format "incremental: %\n" incremental
+		----objects_with_modifier = refs.dependentNodes modifiers[#SLICE_PLANE_TOP]
+		----update_selection = for obj in selection where findItem objects_with_modifier obj > 0 and findItem _objects obj == 0 collect obj
+
+		/* SET DEAUFLT SLICE TOP */
+		if not (slice_modes[#SLICE_PLANE_TOP] and slice_modes[#SLICE_PLANE_BOTTOM]) then
+			slice_modes[#SLICE_PLANE_TOP] = true
+
+		/* ADD MODIFIERS */
+		if slice_modes[#SLICE_PLANE_TOP] then
+			this.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_index) (true)
+
+		if slice_modes[#SLICE_PLANE_BOTTOM] then
+			this.setSlicePlaneModifier (#SLICE_PLANE_BOTTOM) (#TRUE) (layer_index - 1) (true)
+
+		/* UPDATE UI */
+		this._updateUi(layer_index)
+	),
+
+	/** Shift layer incremental
+	 */
+	function shiftLayerIncremental layer_index =
+	(
+		--format "\n"; print "SlicerSystem_v.shiftLayerIncremental()"
 
 		/* TODO: ACCESS TO UI VALUES SHOULD BE OUTSIDE FUNCTION
 
 		*/
 		layer_current	= DIALOG_elevation_slider.SLIDER_elevation.value
 
+		shift_mode	= #( #LAYERS, #VERTS, #ISLANDS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
+
+		if keyboard.controlPressed and shift_mode == #ISLANDS and DIALOG_island_manager != undefined then
+		(
+			islands_indexes = (for item in DIALOG_island_manager.ML_island_listbox.items collect (filterString item " ")[1] as integer ) as BitArray -- get list items strings to bitarray
+
+			format "islands_indexes: %\n" islands_indexes
+			format "islands_indexes.count: %\n" islands_indexes.count
+			--format "islands_indexes.numberSet: %\n" islands_indexes.numberSet
+
+
+--
+--			for i = layer_current to islands_indexes.count while not islands_indexes[i] do
+--			format "i: %\n" i
+			layer_current += layer_index
+				format "layer_current: %\n" layer_current
+			if layer_current == 0 then
+				layer_current = 1
+
+			if layer_index > 0 and layer_current < islands_indexes.count then
+				for i = layer_current to islands_indexes.count while not islands_indexes[i] do
+					layer_index = i + 1
+			else if layer_index < 0 and layer_current > 1  then
+				for i = layer_current to 1 by -1 while not islands_indexes[i]  do
+					layer_index = i - 1
+
+		)
+		else
+			layer_index += layer_current
+
+
 		/* SETUP BY UI
 			cap_slice	= ROLLOUT_slicer.CBX_cap_slice.state
 			select_plane	= ROLLOUT_slicer.CBX_slice_select_plane.state
-			slice_top	= ROLLOUT_slicer.CBX_slice_top.state
-			slice_bottom	= ROLLOUT_slicer.CBX_slice_bottom.state
 		*/
-		cap_slice	= true
-		select_plane	= false
-		slice_top	= true
-		slice_bottom	= false
+		--cap_slice	= true
+		--select_plane	= false
 
-		/* SET DEAUFLT SLICE TOP */
-		if not (slice_top and slice_bottom) then
-			slice_top = true
-
-		/* GET INCREMENTAL LAYER INDEX */
-		if incremental then
-			layer_index += layer_current
-
-		--
-		--objects_with_modifier = refs.dependentNodes modifiers[#SLICE_PLANE_TOP]
-		----format "objects_with_modifier: %\n" objects_with_modifier
-		--
-		----reset_slider = false
-		--
-		--update_selection = for obj in selection where findItem objects_with_modifier obj > 0 and findItem _objects obj == 0 collect obj
-		--
-		--if update_selection.count > 0 then
-		--(
-			--format "UPDATE_SELECTION: %\n" update_selection
-		--	format "this.layers_count: %\n" this.layers_count
-		--
-		--	select update_selection
-		--
-		--	this.setObejctsBySelection()
-		--
-		--	range = DIALOG_elevation_slider.SPIN_layer_current.range
-		--	format "RANGE: %\n" DIALOG_elevation_slider.SPIN_layer_current.range
-		--	range.y = this.layers_count
-		--
-		--	DIALOG_elevation_slider.SPIN_layer_current.range = range
-		--	format "RANGE: %\n" DIALOG_elevation_slider.SPIN_layer_current.range
-		--	--this._setSliderParams()
-		--)
-
-
-		/* ADD MODIFIERS */
-		if slice_top then
-			this.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_index) (cap_slice)
-
-		if slice_bottom then
-			this.setSlicePlaneModifier (#SLICE_PLANE_BOTTOM) (#TRUE) (layer_index - 1) (cap_slice)
-
-		----format "select_plane	= % \n" select_plane
-		--if select_plane then
-		--	setSelectPlaneModifier(layer_index) slice_top:slice_top slice_bottom:slice_bottom
-
-		/* UPDATE UI */
-		this._updateUi(layer_index)
-
-
-		--if update_selection.count > 0 then
-		--(
-		--	select update_selection
-		--
-		--	this.setObejctsBySelection()
-		--
-		--	createElevationSliderDialog()
-		--)
-
+		this.updateSlicePlaneSystem (layer_index )
 	),
 
 	/** Set slice plane modifier
