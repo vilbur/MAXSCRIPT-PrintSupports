@@ -1,21 +1,22 @@
 global ROLLOUT_slicer
 global DIALOG_elevation_slider
+global SLICER_SYSTEM
 
 --filein( getFilenamePath(getSourceFileName()) + "/Lib/PrinterVolume/PrinterVolume.ms" )	--"./Lib/PrinterVolume/PrinterVolume.ms"
 --
---filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/getPlaneZpozition.ms" )	--"./Lib/SlicePlaneDialog/getPlaneZpozition.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/getPlaneZpozition.ms" )	--"./Lib/SlicerSystem/getPlaneZpozition.ms"
 --
---filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/setSlicePlaneModifier.ms" )	--"./Lib/SlicePlaneDialog/setSlicePlaneModifier.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/setSlicePlaneModifier.ms" )	--"./Lib/SlicerSystem/setSlicePlaneModifier.ms"
 --
---filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/setSelectPlaneModifier.ms" )	-- "./Lib/SlicePlaneDialog/setSelectPlaneModifier.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/setSelectPlaneModifier.ms" )	-- "./Lib/SlicerSystem/setSelectPlaneModifier.ms"
 --
---filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/updateSlicePlaneSystem.ms" )	-- "./Lib/SlicePlaneDialog/updateSlicePlaneSystem.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/updateSlicePlaneSystem.ms" )	-- "./Lib/SlicerSystem/updateSlicePlaneSystem.ms"
 --
---filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/toggleSlicePlanePosition.ms" )	--"./Lib/SlicePlaneDialog/toggleSlicePlanePosition.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/toggleSlicePlanePosition.ms" )	--"./Lib/SlicerSystem/toggleSlicePlanePosition.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/SlicePlaneDialog.ms" )	--"./Lib/SlicePlaneDialog/SlicePlaneDialog.ms"
+filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/SlicerSystem.ms" )	--"./Lib/SlicerSystem/SlicerSystem.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicePlaneDialog/createElevationSliderDialog.ms" )	-- "./Lib/SlicePlaneDialog/createElevationSliderDialog.ms"
+filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/createElevationSliderDialog.ms" )	-- "./Lib/SlicerSystem/createElevationSliderDialog.ms"
 
 /**
   *
@@ -27,30 +28,32 @@ tooltip:	"Slice selected object."
 icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY: RESET OBJECT XFORM\n\nIF Z POZITION OF SLICE PLANE DOES NOT WORK PROPERLY"
 (
 	on execute do
-		(
-			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SLICER\[SLICE PLANE].mcr"
-			--format "EventFired	= % \n" EventFired
+	(
+		clearListener(); print("Cleared in:\n"+getSourceFileName())
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SLICER\[SLICE PLANE].mcr"
+		--format "EventFired	= % \n" EventFired
 
-			/* DEVELOP: KILL SLICE DIALOG */
-			try(
-				cui.UnRegisterDialogBar DIALOG_elevation_slider
-
-				destroyDialog DIALOG_elevation_slider
-
-			)catch()
-
-			SLICE_PLANE_DIALOG = SlicePlaneDialog_v()
-
-			SLICE_PLANE_DIALOG.addModifiers()
+		/* DEVELOP: KILL SLICE DIALOG */
+		--try(
+		--	cui.UnRegisterDialogBar DIALOG_elevation_slider
+		--
+		--	destroyDialog DIALOG_elevation_slider
+		--
+		--)catch()
 
 
-			/* CREATE SLICE DIALOG */
-			createElevationSliderDialog()
 
-			--updateSlicePlaneSystem (DIALOG_elevation_slider.SPIN_layer_current.value)
+		SLICER_SYSTEM = SlicerSystem_v()
 
-		)
+		SLICER_SYSTEM.addModifiers()
+
+
+		/* CREATE SLICE DIALOG */
+		createElevationSliderDialog()
+
+		--updateSlicePlaneSystem (DIALOG_elevation_slider.SPIN_layer_current.value)
+
+	)
 )
 
 
@@ -134,8 +137,8 @@ buttontext:	"+ \ -"
 tooltip:	"Shift layer UP"
 icon:	"Tooltip:CTRL:SHIFT:ALT: 10\25\25 Layers incremnet by number of mod keys pressed 1\2\3"
 (
-	on execute do
-		updateSlicePlaneSystem ( getLayerNumberToMove( #PLUS ) ) incremental:true
+	--on execute do
+		--updateSlicePlaneSystem ( getLayerNumberToMove( #PLUS ) ) incremental:true
 )
 
 /**
@@ -147,8 +150,8 @@ buttontext:	"+ \ -"
 tooltip:	"RMB: Shift layer DOWN"
 icon:	""
 (
-	on execute do
-		updateSlicePlaneSystem ( getLayerNumberToMove( #MINUS ) ) incremental:true
+	--on execute do
+		--updateSlicePlaneSystem ( getLayerNumberToMove( #MINUS ) ) incremental:true
 )
 
 /**

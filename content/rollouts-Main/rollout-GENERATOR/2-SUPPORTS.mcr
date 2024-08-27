@@ -1,7 +1,7 @@
 
 --DEV
 
-print("DEV IMPORT in:\n"+getSourceFileName());filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
+--print("DEV IMPORT in:\n"+getSourceFileName());filein( getFilenamePath(getSourceFileName()) + "/../../../Lib/SupportManager/SupportManager.ms" )	--"./../../../Lib/SupportManager/SupportManager.ms"
 
 /** Generate support or raft
  */

@@ -1,9 +1,8 @@
 
-global SLICE_PLANE_DIALOG
 
 /** Slice plane dialog
  */
-struct SlicePlaneDialog_v
+struct SlicerSystem_v
 (
 	/* construct */
 	_objects,
@@ -19,6 +18,8 @@ struct SlicePlaneDialog_v
 
 	/* private */
 	slice_modes = Dictionary #( #SLICE_PLANE_TOP, true ) #( #SLICE_PLANE_BOTTOM, false ),
+	viewport_height,
+
 	/* dependency */
 	/* reference */
 	/* inhered */
@@ -30,7 +31,7 @@ struct SlicePlaneDialog_v
 	  */
 	function updateSlicePlaneSystem layer_index incremental:false =
 	(
-		format "\n"; print "updateSlicePlaneSystem.ms.updateSlicePlaneSystem()"
+		--format "\n"; print "SlicerSystem_v.updateSlicePlaneSystem()"
 		--format "layer_index:	% \n" layer_index
 
 		/* TODO: ACCESS TO UI VALUES SHOULD BE OUTSIDE FUNCTION
@@ -78,12 +79,12 @@ struct SlicePlaneDialog_v
 	 */
 	function addModifiers =
 	(
-		--format "\n"; print "SlicePlaneDialog_v.addModifiers()"
+		--format "\n"; print "SlicerSystem_v.addModifiers()"
 		/** Add slice mod
 		 */
 		function addSliceMod obj slice_mod =
 		(
-			--format "\n"; print "SlicePlaneDialog_v.addSliceMod()"
+			--format "\n"; print "SlicerSystem_v.addSliceMod()"
 			addModifier obj slice_mod
 
 			mod_TM =	(getModContextTM obj slice_mod)	* (  obj.transform )
@@ -100,7 +101,7 @@ struct SlicePlaneDialog_v
 			*/
 		for slice_mode_data in slice_modes where slice_mode_data.value do
 		(
-			format "slice_mode_data	= % \n" slice_mode_data
+			--format "slice_mode_data	= % \n" slice_mode_data
 			mod_name = slice_mode_data.key
 
 			/* GET ALL INSANCES OF MODIFIER IN SCENE */
@@ -133,10 +134,10 @@ struct SlicePlaneDialog_v
 	  */
 	function setSlicePlaneModifier mode state layer_index_or_z_pos cap_state =
 	(
-		format "\n"; print ("setSlicePlaneModifier.ms.setSlicePlaneModifier( #"+mode as string +" )")
-		format "state:	% \n" state
-		format "mode:	% \n" mode
-		format "layer_index_or_z_pos:	% \n" layer_index_or_z_pos
+		--format "\n"; print ("SlicerSystem_v.setSlicePlaneModifier( #"+mode as string +" )")
+		--format "state:	% \n" state
+		--format "mode:	% \n" mode
+		--format "layer_index_or_z_pos:	% \n" layer_index_or_z_pos
 
 		mod_name = "SLICE_PLANE_" + toUpper (mode as string )
 
@@ -147,7 +148,7 @@ struct SlicePlaneDialog_v
 
 		z_pos = if classOf layer_index_or_z_pos == integer then this.getPlaneZpozition (layer_index_or_z_pos) else layer_index_or_z_pos
 
-		format "z_pos: %\n" z_pos
+		--format "z_pos: %\n" z_pos
 
 		/* SET SLICE PLANE POSITION */
 		final_TM = Matrix3 1
@@ -180,7 +181,7 @@ struct SlicePlaneDialog_v
 	 */
 	function posToLayerIndex pos =
 	(
-		format "\n"; print "SlicePlaneDialog_v.posToLayerIndex()"
+		--format "\n"; print "SlicerSystem_v.posToLayerIndex()"
 
 		/*  Round float to iteger
 		*/
@@ -210,7 +211,7 @@ struct SlicePlaneDialog_v
 	 */
 	function toggleSlicePlanePosition pos: =
 	(
-		--format "\n"; print "SlicePlaneDialog_v.toggleIcepPlanePosition()"
+		--format "\n"; print "SlicerSystem_v.toggleIcepPlanePosition()"
 		--print "createElevationSliderDialog SLIDER_elevation rightClick"
 		/** Toggle slice modifiers
 		 */
@@ -233,7 +234,6 @@ struct SlicePlaneDialog_v
 
 		if selection.count > 0 then
 		(
-
 			if SET_ELEVATION == undefined then
 				SET_ELEVATION = Dictionary #("SELECTION", "" ) #("TRANSFROM", Matrix3 1 )
 
@@ -256,19 +256,15 @@ struct SlicePlaneDialog_v
 				layer_index_max = posToLayerIndex( selection_max )
 				layer_index_center = posToLayerIndex( selection_center )
 
-				--layer_index_min+=10
-
 				layer_positions = #( layer_index_min, layer_index_center, layer_index_max )
 
 				SET_ELEVATION["SELECTION"]	= selection_pointer
 				SET_ELEVATION["LAYER_POSITIONS"]	= layer_positions
-
 			)
 
 			layer_positions = SET_ELEVATION["LAYER_POSITIONS"]
 
 			current_pos_index = findItem layer_positions current_layer
-
 
 			layer_index = case pos of
 			(
@@ -284,18 +280,9 @@ struct SlicePlaneDialog_v
 				)
 			)
 
-
-
-
-			--format "BBOX	= % \n" ( nodeGetBoundingBox selection[1] ( Matrix3 1))
-			--format "Z MIN	= % \n" ( amin(for obj in selection collect getBbox (obj) (#min) (#z) ))
-			--format "LAYER_POSITIONS	= % \n" layer_positions
-			--format "LAYER_INDEX	= % \n" layer_index
 			toggleSliceModifiers (true)
 
-
 			updateSlicePlaneSystem ( layer_index )
-
 
 			/* DEVELOP FIXING */
 			SET_ELEVATION = undefined
@@ -305,12 +292,40 @@ struct SlicePlaneDialog_v
 
 	private
 
+
+	/** Get height of maximized viewport to find out height of docked dialog
+	 */
+	function getViewportHeight =
+	(
+		--print "Dialog_v._getViewportHeight()"
+		is_maximized	= viewport.numViews == 1
+
+		height_of_ui	= 0 -- Add heigh
+		dialog_title_height	= 30
+
+		--if( trackbar.visible ) then
+		--	height_of_ui	+= 27
+		--
+		--if( timeSlider.isVisible() ) then
+		--	height_of_ui	+= 18
+
+		if not( is_maximized ) then
+			actionMan.executeAction 0 "50026"  -- Tools: Maximize Viewport Toggle
+
+		viewport_area_size = getViewSize()
+		--format "viewport_area_size	= % \n" viewport_area_size
+		if not( is_maximized ) then
+			actionMan.executeAction 0 "50026"  -- Tools: Maximize Viewport Toggle
+
+		(viewport_area_size[2] as integer) + height_of_ui - dialog_title_height --return
+	),
+
 	/** Set print elevation
 	  *
 	  */
 	function getPlaneZpozition layer_index =
 	(
-		format "\n"; print "SlicePlaneDialog_v.getPlaneZpozition()"
+		--format "\n"; print "SlicerSystem_v.getPlaneZpozition()"
 		--volume_height	= (PrinterVolume_v(DIALOG_content.SPIN_export_size.value)).printer_size.z
 		--layer_height	= DIALOG_content.SPIN_layer_height.value
 		--layer_current	= DIALOG_elevation_slider.SLIDER_elevation.value
@@ -326,16 +341,17 @@ struct SlicePlaneDialog_v
 	 */
 	on create do
 	(
-		--format "\n"; print "SlicePlaneDialog.onCreate()"
+		--format "\n"; print "SlicerSystem.onCreate()"
 		_objects = for obj in selection where superClassOf obj == GeometryClass collect obj
+
+		viewport_height = this.getViewportHeight()
 
 		min_max_z = #( selection.min.z, selection.max.z )
 
 		select _objects
 
-		layers_count = ( min_max_z[2] - min_max_z[1] ) / layer_height
+		layers_count = (( min_max_z[2] - min_max_z[1] ) / layer_height ) as integer
 
 	)
 
 )
-
