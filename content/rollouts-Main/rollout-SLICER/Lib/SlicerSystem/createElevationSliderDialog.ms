@@ -3,17 +3,7 @@ global DIALOG_elevation_slider
 
 global SET_ELEVATION
 
-/** Desroy
- */
-function desroyElevationSliderDialog =
-(
-	--format "\n"; print ".desroy()"
-	--removeSlicePlaneModifier( selection )
 
-	cui.UnRegisterDialogBar DIALOG_elevation_slider
-
-	destroyDialog DIALOG_elevation_slider
-)
 
 /*------------------------------------------------------------------------------
 	DEV DESTROY
@@ -95,23 +85,23 @@ function createElevationSliderDialog =
 	/*------------------------------------------------------------------------------
 		EVENTS
 	--------------------------------------------------------------------------------*/
-	btn_exit.Event #PRESSED "desroyElevationSliderDialog()"
+	btn_exit.Event #PRESSED "SLICER_SYSTEM.desroySliderDialog()"
 
 	_slider.Event #CHANGED     "SLICER_SYSTEM.updateSlicePlaneSystem"
-	_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"
+	--_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"
 
-	_spinner.Event #CHANGED "SLICER_SYSTEM.updateSlicePlaneSystem"
+	_spinner.Event #CHANGED "SLICER_SYSTEM.updateSlicePlaneSystem(val)"
 
-	btn_plus_minus.Event #PRESSED    "SLICER_SYSTEM.updateSlicePlaneSystem(#PLUS)"
-	btn_plus_minus.Event #RIGHTCLICK "SLICER_SYSTEM.updateSlicePlaneSystem(#MINUS)"
+	btn_plus_minus.Event #PRESSED    "SLICER_SYSTEM.updateSlicePlaneSystem( 1 ) incremental:true"
+	btn_plus_minus.Event #RIGHTCLICK "SLICER_SYSTEM.updateSlicePlaneSystem( -1 )incremental:true"
 
-	_dropdown.Event #CHANGED "SLICER_SYSTEM.changeSliderSnamps"
+	--_dropdown.Event #CHANGED "SLICER_SYSTEM.changeSliderSnamps"
 
 	/*------------------------------------------------------------------------------
 		CREATE DIALOG
 	--------------------------------------------------------------------------------*/
-	--Dialog.create width:(42) height:#VIEWPORT --lockWidth:false --style:#()   --bgcolor:( color 60 130 140 )
-	Dialog.create width:(42) height:#VIEWPORT lockWidth:false --style:#()   --bgcolor:( color 60 130 140 )
+	Dialog.create width:(42) height:#VIEWPORT --lockWidth:false --style:#()   --bgcolor:( color 60 130 140 )
+	--Dialog.create width:(42) height:#VIEWPORT lockWidth:false --style:#()   --bgcolor:( color 60 130 140 )
 
 	Dialog.dock #RIGHT
 

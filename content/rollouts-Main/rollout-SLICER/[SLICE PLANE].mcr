@@ -42,14 +42,17 @@ icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 		--)catch()
 
 
+		--if SLICER_SYSTEM == undefined then
+			SLICER_SYSTEM = SlicerSystem_v()
 
-		SLICER_SYSTEM = SlicerSystem_v()
+		SLICER_SYSTEM.setObejctsBySelection()
 
 		SLICER_SYSTEM.addModifiers()
 
-
 		/* CREATE SLICE DIALOG */
 		createElevationSliderDialog()
+
+		SLICER_SYSTEM.setSliderByModifier()
 
 		--updateSlicePlaneSystem (DIALOG_elevation_slider.SPIN_layer_current.value)
 
