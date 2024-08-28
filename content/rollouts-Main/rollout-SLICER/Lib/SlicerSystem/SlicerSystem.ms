@@ -112,7 +112,8 @@ struct SlicerSystem_v
 	  */
 	function updateSlicePlaneSystem layer_index =
 	(
-		--format "\n"; print "SlicerSystem_v.updateSlicePlaneSystem()"
+		format "\n"; print "SlicerSystem_v.updateSlicePlaneSystem()"
+		format "layer_index: %\n" layer_index
 		----objects_with_modifier = refs.dependentNodes modifiers[#SLICE_PLANE_TOP]
 		----update_selection = for obj in selection where findItem objects_with_modifier obj > 0 and findItem _objects obj == 0 collect obj
 
@@ -124,8 +125,8 @@ struct SlicerSystem_v
 		if slice_modes[#SLICE_PLANE_TOP] then
 			this.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_index) (true)
 
-		if slice_modes[#SLICE_PLANE_BOTTOM] then
-			this.setSlicePlaneModifier (#SLICE_PLANE_BOTTOM) (#TRUE) (layer_index - 1) (true)
+		--if slice_modes[#SLICE_PLANE_BOTTOM] then
+			--this.setSlicePlaneModifier (#SLICE_PLANE_BOTTOM) (#TRUE) (layer_index - 1) (true)
 
 		/* UPDATE UI */
 		this._updateUi(layer_index)
@@ -167,7 +168,12 @@ struct SlicerSystem_v
 
 			)
 			else if shift_mode == #LAYERS then
-				layer_index = layer_current + layer_index * (1 * display_units / layer_height) -- add or remove 1mm of current layer
+			(
+				layers_per_mm = ( 1 * display_units / layer_height ) -- add or remove 1mm of current layer
+
+
+				layer_index = (layer_current + layer_index * layers_per_mm) as integer
+			)
 
 		)
 		else
@@ -193,7 +199,7 @@ struct SlicerSystem_v
 	  */
 	function setSlicePlaneModifier mode state layer_index_or_z_pos cap_state =
 	(
-		--format "\n"; print ("SlicerSystem_v.setSlicePlaneModifier()")
+		format "\n"; print ("SlicerSystem_v.setSlicePlaneModifier()")
 		--format "state:	% \n" state
 		--format "mode:	% \n" mode
 		--format "layer_index_or_z_pos:	% \n" layer_index_or_z_pos
@@ -285,7 +291,8 @@ struct SlicerSystem_v
 	 */
 	function posToLayerIndex pos =
 	(
-		--format "\n"; print "SlicerSystem_v.posToLayerIndex()"
+		format "\n"; print "SlicerSystem_v.posToLayerIndex()"
+
 
 		/*  Round float to iteger
 		*/
@@ -304,13 +311,15 @@ struct SlicerSystem_v
 		--layer_height	= DIALOG_content.SPIN_layer_height.value
 		--current_layer = DIALOG_elevation_slider.SPIN_layer_current.value
 
-		--format "pos: %\n" pos
-		--format "display_units: %\n" display_units
-		--format "layer_height: %\n" layer_height
-		--format "export_size: %\n" export_size
+		pos -= min_max_z[1]
+
+		format "pos: %\n" pos
+		format "display_units: %\n" display_units
+		format "layer_height: %\n" layer_height
+		format "export_size: %\n" export_size
 		/* MOVE SLICE PLANE TO SELCTION BOTTOM */
 		layer_index = roundToInteger ((pos * display_units) / layer_height	/ export_size)
-		--format "layer_index: %\n" layer_index
+
 		layer_index --return
 	),
 
@@ -499,8 +508,8 @@ struct SlicerSystem_v
 	 */
 	function _updateUi layer_index =
 	(
-		--format "\n"; print "SlicerSystem_v._updateUi()"
-		--format "layer_index: %\n" layer_index
+		format "\n"; print "SlicerSystem_v._updateUi()"
+		format "layer_index: %\n" layer_index
 		DIALOG_elevation_slider.SPIN_layer_current.value	= layer_index
 		DIALOG_elevation_slider.SLIDER_elevation.value	= layer_index
 		--DIALOG_elevation_slider.SPIN_layer_current.value	= DIALOG_elevation_slider.SLIDER_elevation.value

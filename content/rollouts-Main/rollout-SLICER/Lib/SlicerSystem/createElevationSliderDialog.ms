@@ -73,7 +73,7 @@ function createElevationSliderDialog =
                     ini:	false
                     --pos:	pos_slider
 
-	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:44 offset:[ -4, -8 ] tooltip:""
+	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:44 offset:[ -4, -8 ] tooltip:"Shift slider 1 layer\n\nCTRL: Shift about 1 mm or next island"
 
 
 	_spinner = _Controls.control #SPINNER "" id:#SPIN_layer_current across:1 range:[ 0, SLICER_SYSTEM.layers_count, 0] width:42 type:#integer offset:[ -4, 0 ]
