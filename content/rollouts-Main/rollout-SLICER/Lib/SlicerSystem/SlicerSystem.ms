@@ -25,7 +25,7 @@ struct SlicerSystem_v
 	linked_to_obj,
 
 	viewport_height,
-
+	display_units,
 	/* dependency */
 	/* reference */
 	/* inhered */
@@ -144,29 +144,30 @@ struct SlicerSystem_v
 
 		shift_mode	= #( #LAYERS, #VERTS, #ISLANDS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
 
-		if keyboard.controlPressed and shift_mode == #ISLANDS and DIALOG_island_manager != undefined then
+		if keyboard.controlPressed then
 		(
-			islands_indexes = (for item in DIALOG_island_manager.ML_island_listbox.items collect (filterString item " ")[1] as integer ) as BitArray -- get list items strings to bitarray
+			if shift_mode == #ISLANDS and DIALOG_island_manager != undefined then
+			(
+				islands_indexes = (for item in DIALOG_island_manager.ML_island_listbox.items collect (filterString item " ")[1] as integer ) as BitArray -- get list items strings to bitarray
 
-			format "islands_indexes: %\n" islands_indexes
-			format "islands_indexes.count: %\n" islands_indexes.count
-			--format "islands_indexes.numberSet: %\n" islands_indexes.numberSet
+				layer_current += layer_index
 
+				if layer_current == 0 then
+					layer_current = 1
 
---
---			for i = layer_current to islands_indexes.count while not islands_indexes[i] do
---			format "i: %\n" i
-			layer_current += layer_index
-				format "layer_current: %\n" layer_current
-			if layer_current == 0 then
-				layer_current = 1
+				/* GO ISLAND UP */
+				if layer_index > 0 and layer_current < islands_indexes.count then
+					for i = layer_current to islands_indexes.count while not islands_indexes[i] do
+						layer_index = i + 1
 
-			if layer_index > 0 and layer_current < islands_indexes.count then
-				for i = layer_current to islands_indexes.count while not islands_indexes[i] do
-					layer_index = i + 1
-			else if layer_index < 0 and layer_current > 1  then
-				for i = layer_current to 1 by -1 while not islands_indexes[i]  do
-					layer_index = i - 1
+				/* GO ISLAND DOWN */
+				else if layer_index < 0 and layer_current > 1  then
+					for i = layer_current to 1 by -1 while not islands_indexes[i]  do
+						layer_index = i - 1
+
+			)
+			else if shift_mode == #LAYERS then
+				layer_index = layer_current + layer_index * (1 * display_units / layer_height) -- add or remove 1mm of current layer
 
 		)
 		else
@@ -290,14 +291,14 @@ struct SlicerSystem_v
 		*/
 		fn roundToInteger val = floor (val  + 0.5)  as integer
 
-		display_units = case units.SystemType of -- convert to milimeters
-		(
-			#millimeters:	1
-			#centimeters:	10
-			#meters:	1000
-			#kilometers:	1000000
-			default:	1 -- non metric units
-		)
+		--display_units = case units.SystemType of -- convert to milimeters
+		--(
+		--	#millimeters:	1
+		--	#centimeters:	10
+		--	#meters:	1000
+		--	#kilometers:	1000000
+		--	default:	1 -- non metric units
+		--)
 
 		--export_size = DIALOG_content.SPIN_export_size.value
 		--layer_height	= DIALOG_content.SPIN_layer_height.value
@@ -509,6 +510,13 @@ struct SlicerSystem_v
 	on create do
 	(
 		--format "\n"; print "SlicerSystem.onCreate()"
-
+		display_units = case units.SystemType of -- convert to milimeters
+		(
+			#millimeters:	1
+			#centimeters:	10
+			#meters:	1000
+			#kilometers:	1000000
+			default:	1 -- non metric units
+		)
 	)
 )
