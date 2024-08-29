@@ -27,11 +27,6 @@ function createElevationSliderDialog =
 	--format "DIALOG_elevation_slider == undefined	= % \n" (DIALOG_elevation_slider == undefined)
 	--if DIALOG_elevation_slider == undefined then
 
-
-	/*------------------------------------------------------------------------------
-		DIALOG
-	--------------------------------------------------------------------------------*/
-
 	slider_ticks  = SLICER_SYSTEM.layers_count
 	--slider_height = SLICER_SYSTEM.viewport_height - ( mod SLICER_SYSTEM.viewport_height 10 ) - 70 -- round viewport height to ceil 10 E.G.: 1789 >>> 1780
 	slider_height = SLICER_SYSTEM.viewport_height - 85 -- round viewport height to ceil 10 E.G.: 1789 >>> 1780
@@ -43,10 +38,14 @@ function createElevationSliderDialog =
 	slider_ticks = (ceil ( slider_ticks / 100 ) ) * 10
 	--slider_ticks = 100
 
-	format "SLICER_SYSTEM.layers_count: %\n" SLICER_SYSTEM.layers_count
-	format "SLICER_SYSTEM.viewport_height: %\n" SLICER_SYSTEM.viewport_height
-	format "slider_height: %\n" slider_height
-	format "slider_ticks: %\n" slider_ticks
+	--format "SLICER_SYSTEM.layers_count: %\n" SLICER_SYSTEM.layers_count
+	--format "SLICER_SYSTEM.viewport_height: %\n" SLICER_SYSTEM.viewport_height
+	--format "slider_height: %\n" slider_height
+	--format "slider_ticks: %\n" slider_ticks
+
+	/*------------------------------------------------------------------------------
+		DIALOG
+	--------------------------------------------------------------------------------*/
 
     Dialog 	    = Dialog_v "" id:#DIALOG_elevation_slider --ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
 
@@ -57,6 +56,7 @@ function createElevationSliderDialog =
 	--------------------------------------------------------------------------------*/
 
 	btn_exit = _Controls.control #BUTTON "IN\OUT" width:42 height:24 offset:	[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
+
 
 
     /*------ SLIDER ------*/
@@ -73,7 +73,7 @@ function createElevationSliderDialog =
                     ini:	false
                     --pos:	pos_slider
 
-	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:44 offset:[ -4, -8 ] tooltip:"Shift slider 1 layer\n\nCTRL: Shift about 1 mm or next island"
+	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -8 ] tooltip:"Shift slider 1 layer\n\nCTRL: Shift about 1 mm or next island"
 
 
 	_spinner = _Controls.control #SPINNER "" id:#SPIN_layer_current across:1 range:[ 0, SLICER_SYSTEM.layers_count, 0] width:42 type:#integer offset:[ -4, 0 ]

@@ -84,7 +84,8 @@ function createIslandManagerDialog relaunch:false =
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 
-	pos_y_start = 92
+	--pos_y_start = 92
+	--pos_y_start = 32
 
 	step_height = 13
 
@@ -94,6 +95,10 @@ function createIslandManagerDialog relaunch:false =
 	format "items_count: %\n" items_count
 
 	slider_height =  ( items_count +1 ) * step_height + 2
+
+	pos_y_start = viewport_height - ( items_count * step_height ) - 76
+
+
 
     max_item_length = amax(for i = ISLANDS_DATA.count to 1 by -1 collect (ISLANDS_DATA[i][#BOTTOM] as string ).count)
 	--format "MAX_ITEM_LENGTH: %\n" max_item_length
@@ -120,19 +125,7 @@ function createIslandManagerDialog relaunch:false =
 	/*------------------------------------------------------------------------------
 		CONTROLS
 	--------------------------------------------------------------------------------*/
-
-	_size_min = _Controls.control #SPINNER "" id:#SPIN_island_size_min across:2 type:#integer range:[0,100,2]  width:48 offset:[ -10, 0]
-	_size_max = _Controls.control #SPINNER "" id:#SPIN_island_size_max across:2 type:#integer range:[0,100,5] width:48
-
-	_size_min.Event #CHANGED     "format \"EventFired: %\n\" EventFired"
-
-	/*------ CECKBUTTON ------*/
-	_button = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate height:32
-    --_button.Event #CHANGED 	"EventFired.control.text = \"XXX\"" -- called when select action ends
-
-
-	/*------ RADIOBUTTONS ------*/
-	_radio = _Controls.control #RADIOBUTTONS "" id:#RB_slider_mode items:#("   ↓   ","   ↑   ") params:#( #UNSELECT, true ) across:1 offset:[ 4, 2 ] --align:#center  --width:96
+     btn_exit = _Controls.control #BUTTON "Exit" width:42 height:24 offset:	[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
 
 	/*------ MULTILISTBOX ------*/
 	_multilistbox = _Controls.control #MULTILISTBOX "" id:#ML_island_listbox \
@@ -143,9 +136,6 @@ function createIslandManagerDialog relaunch:false =
 						ini:false	\
 								        pos:pos_listbox
 
-    _multilistbox.Event #SELECTIONEND 	"updateListbox()" -- called when select action ends
-    --_multilistbox.Event #SELECTED 	"updateListbox()" -- called when select action ends
-    _multilistbox.Event #RIGHTCLICK 	"openNewIslandsMenu()" -- called when select action ends
 
 
 	--/*------ SLIDER ------*/
@@ -159,6 +149,29 @@ function createIslandManagerDialog relaunch:false =
                     ini:false	\
                     pos:pos_slider
 
+
+
+
+	/*------ CECKBUTTON ------*/
+	_button = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate height:32
+    --_button.Event #CHANGED 	"EventFired.control.text = \"XXX\"" -- called when select action ends
+
+
+	/*------ RADIOBUTTONS ------*/
+	_radio = _Controls.control #RADIOBUTTONS "" id:#RB_slider_mode items:#("   ↓   ","   ↑   ") params:#( #UNSELECT, true ) across:1 offset:[ 4, 2 ] --align:#center  --width:96
+
+	/*------ SPINNER ------*/
+	_size_min = _Controls.control #SPINNER "" id:#SPIN_island_size_min across:2 type:#integer range:[0,100,2] width:48 offset:[ -10, 0]
+	_size_max = _Controls.control #SPINNER "" id:#SPIN_island_size_max across:2 type:#integer range:[0,100,5] width:48
+	/*------------------------------------------------------------------------------
+		EVENTS
+	--------------------------------------------------------------------------------*/
+
+	_size_min.Event #CHANGED "format \"EventFired: %\n\" EventFired"
+
+	_multilistbox.Event #SELECTIONEND "updateListbox()" -- called when select action ends
+    --_multilistbox.Event #SELECTED "updateListbox()" -- called when select action ends
+    _multilistbox.Event #RIGHTCLICK "openNewIslandsMenu()" -- called when select action ends
 
 	_slider.Event #CHANGED     "selectLayerBySlider"
 	_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"
