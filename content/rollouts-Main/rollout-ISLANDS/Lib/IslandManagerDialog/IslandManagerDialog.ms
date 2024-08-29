@@ -169,7 +169,17 @@ function createIslandManagerDialog relaunch:false =
 	Dialog.create width:(96) height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
 	--Dialog.create height:#VIEWPORT --bgcolor:( color 60 130 140 )
 
+	/* KEEP SLICER AND ISLAND DILOGS IN SAME ORDER HWEN DILAG IS DOCKED #RIGHT */
+	if DIALOG_elevation_slider != undefined and GetDialogPos DIALOG_elevation_slider != [0,0] and cui.getDockState DIALOG_elevation_slider == #CUI_DOCK_RIGHT then
+	(
+		cui.FloatDialogBar DIALOG_elevation_slider
 
-	Dialog.dock #LEFT
+		Dialog.dock #RIGHT
+
+		cui.DockDialogBar DIALOG_elevation_slider #CUI_DOCK_RIGHT
+	)
+	else
+		Dialog.dock #RIGHT
+
 
 )

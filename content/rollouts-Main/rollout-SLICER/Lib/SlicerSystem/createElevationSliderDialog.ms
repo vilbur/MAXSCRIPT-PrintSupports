@@ -48,7 +48,7 @@ function createElevationSliderDialog =
 	format "slider_height: %\n" slider_height
 	format "slider_ticks: %\n" slider_ticks
 
-    Dialog 	    = Dialog_v "" id:#DIALOG_elevation_slider ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
+    Dialog 	    = Dialog_v "" id:#DIALOG_elevation_slider --ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 

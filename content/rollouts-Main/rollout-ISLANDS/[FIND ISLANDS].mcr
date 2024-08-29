@@ -1,12 +1,13 @@
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/IslandManagerDialog/IslandManagerDialog.ms" )	--"./Lib/IslandManagerDialog/IslandManagerDialog.ms"
 
+
 /**
  *
  */
-macroscript	maxtoprint_find_islands
+macroscript	maxtoprint_islands_dialog
 category:	"maxtoprint"
-buttontext:	"FIND ISLANDS"
+buttontext:	"SHOW islands"
 toolTip:	"Refresh islands"
 icon:	"across:3"
 (
@@ -47,3 +48,24 @@ icon:	"across:3"
 
 	)
 )
+
+/**
+ *
+ */
+macroscript	maxtoprint_find_islands
+category:	"maxtoprint"
+buttontext:	"FIND islands"
+toolTip:	"Refresh islands"
+icon:	"across:3"
+(
+
+	on execute do
+	(
+		obj	= selection[1]
+
+		deleteUserProp selection[1] "ISLANDS_DATA"
+
+		macros.run "maxtoprint" "maxtoprint_islands_dialog"
+	)
+)
+
