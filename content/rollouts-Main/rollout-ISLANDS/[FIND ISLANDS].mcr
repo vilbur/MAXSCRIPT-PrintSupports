@@ -1,6 +1,9 @@
 
+filein( getFilenamePath(getSourceFileName()) + "/Lib/IslandsSystem/IslandsSystem.ms" )	--"./Lib/IslandsSystem/IslandsSystem.ms"
+
 filein( getFilenamePath(getSourceFileName()) + "/Lib/IslandManagerDialog/IslandManagerDialog.ms" )	--"./Lib/IslandManagerDialog/IslandManagerDialog.ms"
 
+global ISLANDS_SYSTEM
 
 /**
  *
@@ -24,13 +27,15 @@ icon:	"across:3"
 
 			layer_height = 0.05
 
-			VertSelector 	= VertSelector_v(obj )
+			ISLANDS_SYSTEM = IslandsSystem_v(obj)
+
+			VertSelector 	= VertSelector_v(obj)
 
 			--VertIslandFinder = VertSelector.VertIslandFinder
 			--if subobject == #FACE then polyop.getFaceSelection obj else polyop.getVertSelection obj -- return
 
-			if ( islands_data = getUserPropVal obj "ISLANDS_DATA" ) == undefined then
-				islands_data = VertSelector.findIslandsPerLayer(layer_height)
+			if ( ISLANDS_SYSTEM.islands_data = getUserPropVal obj "ISLANDS_DATA" ) == undefined then
+				ISLANDS_SYSTEM.islands_data = VertSelector.findIslandsPerLayer(layer_height)
 
 			format "islands_data COUNT: %\n" VertSelector.VertIslandFinder.islands_data.count
 			format "islands_data: %\n" islands_data
@@ -41,7 +46,7 @@ icon:	"across:3"
 
 			VertSelector.setSelection ( lowest_verts )
 
-			setUserPropVal obj "ISLANDS_DATA" VertSelector.VertIslandFinder.islands_data
+			setUserPropVal obj "ISLANDS_DATA" ISLANDS_SYSTEM.islands_data
 
 			createIslandManagerDialog()
 		)
@@ -68,4 +73,3 @@ icon:	"across:3"
 		macros.run "maxtoprint" "maxtoprint_islands_dialog"
 	)
 )
-

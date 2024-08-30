@@ -7,6 +7,7 @@ struct SlicerSystem_v
 	/* construct */
 	/* required */
 	_objects,
+	obj,
 
 	export_size = DIALOG_content.SPIN_export_size.value,
 	layer_height	= DIALOG_content.SPIN_layer_height.value,
@@ -22,7 +23,6 @@ struct SlicerSystem_v
 
 	modifiers = Dictionary #NAME,
 
-	linked_to_obj,
 
 	viewport_height,
 	display_units,
@@ -37,7 +37,7 @@ struct SlicerSystem_v
 		--format "\n"; print "SlicerSystem_v.setObejctsBySelection()"
 		_objects = for obj in selection where superClassOf obj == GeometryClass collect obj
 
-		linked_to_obj = getHandleByAnim _objects[1]
+		obj = _objects[1]
 
 		viewport_height = this.getViewportHeight()
 
@@ -143,39 +143,46 @@ struct SlicerSystem_v
 		*/
 		layer_current	= DIALOG_elevation_slider.SLIDER_elevation.value
 
-		shift_mode	= #( #LAYERS, #VERTS, #ISLANDS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
+		--shift_mode	= #( #LAYERS, #VERTS, #ISLANDS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
+		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
 
-		if keyboard.controlPressed then
+
+		/* SHIFT: Go 1mm up\down */
+		if keyboard.shiftPressed then
 		(
-			if shift_mode == #ISLANDS and DIALOG_island_manager != undefined then
-			(
-				islands_indexes = (for item in DIALOG_island_manager.ML_island_listbox.items collect (filterString item " ")[1] as integer ) as BitArray -- get list items strings to bitarray
-
-				layer_current += layer_index
-
-				if layer_current == 0 then
-					layer_current = 1
-
-				/* GO ISLAND UP */
-				if layer_index > 0 and layer_current < islands_indexes.count then
-					for i = layer_current to islands_indexes.count while not islands_indexes[i] do
-						layer_index = i + 1
-
-				/* GO ISLAND DOWN */
-				else if layer_index < 0 and layer_current > 1  then
-					for i = layer_current to 1 by -1 while not islands_indexes[i]  do
-						layer_index = i - 1
-
-			)
-			else if shift_mode == #LAYERS then
+			if not keyboard.controlPressed then
 			(
 				layers_per_mm = ( 1 * display_units / layer_height ) -- add or remove 1mm of current layer
 
-
 				layer_index = (layer_current + layer_index * layers_per_mm) as integer
 			)
+			/* CTRL + SHIFT: Go 100 layers up\down */
+			else
+				layer_index = layer_current + ( layer_index * 100 )
 
 		)
+		/* CTRL: Go next\previous island - if slider dialog is opened */
+		else if keyboard.controlPressed and DIALOG_island_manager != undefiand then
+		(
+			islands_indexes = (for item in DIALOG_island_manager.ML_island_listbox.items collect (filterString item " ")[1] as integer ) as BitArray -- get list items strings to bitarray
+
+			layer_current += layer_index
+
+			if layer_current < 1 then
+				layer_current = 1
+
+			/* GO ISLAND UP */
+			if layer_index > 0 and layer_current < islands_indexes.count then
+				for i = layer_current to islands_indexes.count while not islands_indexes[i] do
+					layer_index = i + 1
+
+			/* GO ISLAND DOWN */
+			else if layer_index < 0 and layer_current > 1  then
+				for i = layer_current to 1 by -1 while not islands_indexes[i]  do
+					layer_index = i - 1
+
+		)
+		/* GO 1 layer up\down */
 		else
 			layer_index += layer_current
 
@@ -188,6 +195,9 @@ struct SlicerSystem_v
 		--select_plane	= false
 
 		this.updateSlicePlaneSystem (layer_index )
+
+		--selectLayerItemInListbox (layer_index)
+		--updateListbox ()
 	),
 
 	/** Set slice plane modifier

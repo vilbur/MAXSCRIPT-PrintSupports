@@ -8,7 +8,7 @@ function openNewIslandsMenu =
 	--format "\n"; print ".openNewIslandsMenu()"
 
 	/* DEFINE MAIN MENU */
-	Menu = RcMenu_v name:"TestMenu"
+	Menu = RcMenu_v name:"IslandsMenu"
 
 	listbox_items_count = DIALOG_island_manager.ML_island_listbox.items.count
 	listbox_selection = DIALOG_island_manager.ML_island_listbox.selection

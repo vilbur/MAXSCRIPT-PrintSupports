@@ -1,44 +1,7 @@
 
-global ISLANDS_DATA
 global DIALOG_island_manager
 
-filein( getFilenamePath(getSourceFileName()) + "/methods.ms" )	--"./methods.ms"
-filein( getFilenamePath(getSourceFileName()) + "/callbacks.ms" )	--"./callbacks.ms"
 filein( getFilenamePath(getSourceFileName()) + "/rcMenu.ms" )	--"./rcMenu.ms"
-
-/** Get selected islands from list box
- */
-function getSelectedIslandsFromListBox =
-(
-	--format "\n"; print ".getSelectedIslandsFromListBox()"
-	selected_islands = #{}
-
-	if DIALOG_island_manager != undefined then
-	(
-		_listbox = DIALOG_island_manager.ML_island_listbox
-
-		list_items = _listbox.items
-		items_count = _listbox.items.count
-		items_sel = _listbox.selection
-
-		/* FLIP INDEX - first item == last siland */
-
-		selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect _getIslandIndexFromTitle(list_items[i])) as BitArray
-		--format "SELECTED_ISLANDS: %\n" selected_islands
-	)
-
-	selected_islands --return
-)
-
-/** Get first island from listbox
- */
-function getFirstIslandFromListbox =
-(
-	--format "\n"; print ".getFirstIslandFromListbox()"
-	_listbox = DIALOG_island_manager.ML_island_listbox
-
-	_getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
-)
 
 /** Create island manager dialog
  */
@@ -46,7 +9,7 @@ function createIslandManagerDialog relaunch:false =
 (
 	--clearListener(); print("Cleared in:\n"+getSourceFileName())
 	format "\n"; print ".createIslandManagerDialog()"
-	--format "ISLANDS_DATA: %\n" ISLANDS_DATA
+	--format "ISLANDS_SYSTEM.islands_data: %\n" ISLANDS_SYSTEM.islands_data
 
 	/** Get heigh island
 	 */
@@ -58,8 +21,9 @@ function createIslandManagerDialog relaunch:false =
 	function getItemTitile island_index =
 	(
 		--format "\n"; print ".getItemTitile()"
-		ISLANDS_DATA[island_index][#BOTTOM] as string +  "                          #" + island_index as string
+		ISLANDS_SYSTEM.islands_data[island_index][#BOTTOM] as string +  "                          #" + island_index as string
 	)
+
 
 	/*------------------------------------------------------------------------------
 		GET ITEMS
@@ -70,10 +34,10 @@ function createIslandManagerDialog relaunch:false =
     (
         (relaunch and selected_islands.numberSet >  1):	selected_islands                     -- SHOW ONLY SELECTED ITEMS ON RELAUNCH
         (relaunch and selected_islands.numberSet == 1):	#{(getFirstIslandFromListbox())..(selected_islands as Array )[1]} -- SHOW ISLANDS UP TO SELECTED ITEM ON RELAUNCH IF ONLY SINGLE ISLAND IS SELECTED
-        default:		#{1..ISLANDS_DATA.count}             -- SHOW ALL ISLANDS
+        default:		#{1..ISLANDS_SYSTEM.islands_data.count}             -- SHOW ALL ISLANDS
     )
 
-	items = for i = ISLANDS_DATA.count to 1 by -1 where islands_to_show[i] collect  getItemTitile (i)
+	items = for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 where islands_to_show[i] collect  getItemTitile (i)
 
 
 
@@ -100,7 +64,7 @@ function createIslandManagerDialog relaunch:false =
 
 
 
-    max_item_length = amax(for i = ISLANDS_DATA.count to 1 by -1 collect (ISLANDS_DATA[i][#BOTTOM] as string ).count)
+    max_item_length = amax(for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 collect (ISLANDS_SYSTEM.islands_data[i][#BOTTOM] as string ).count)
 	--format "MAX_ITEM_LENGTH: %\n" max_item_length
 	--width_listbox = 32
 	--character_width = 4
@@ -136,8 +100,6 @@ function createIslandManagerDialog relaunch:false =
 						ini:false	\
 								        pos:pos_listbox
 
-
-
 	--/*------ SLIDER ------*/
     _slider = _Controls.control #SLIDER "" id:#SLIDER_island_select	\
                     range:[0, items_count - 1 ,0]	\
@@ -149,12 +111,9 @@ function createIslandManagerDialog relaunch:false =
                     ini:false	\
                     pos:pos_slider
 
-
-
-
 	/*------ CECKBUTTON ------*/
-	_button = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate height:32
-    --_button.Event #CHANGED 	"EventFired.control.text = \"XXX\"" -- called when select action ends
+	btn_isloate = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate height:32
+    --btn_isloate.Event #CHANGED 	"EventFired.control.text = \"XXX\"" -- called when select action ends
 
 
 	/*------ RADIOBUTTONS ------*/
@@ -163,18 +122,20 @@ function createIslandManagerDialog relaunch:false =
 	/*------ SPINNER ------*/
 	_size_min = _Controls.control #SPINNER "" id:#SPIN_island_size_min across:2 type:#integer range:[0,100,2] width:48 offset:[ -10, 0]
 	_size_max = _Controls.control #SPINNER "" id:#SPIN_island_size_max across:2 type:#integer range:[0,100,5] width:48
+
 	/*------------------------------------------------------------------------------
 		EVENTS
 	--------------------------------------------------------------------------------*/
+	btn_isloate.Event #CHANGED "ISLANDS_SYSTEM.isolateSlectedIslands"
 
 	_size_min.Event #CHANGED "format \"EventFired: %\n\" EventFired"
 
-	_multilistbox.Event #SELECTIONEND "updateListbox()" -- called when select action ends
-    --_multilistbox.Event #SELECTED "updateListbox()" -- called when select action ends
+	_multilistbox.Event #SELECTIONEND "ISLANDS_SYSTEM.updateListboxCallback()" -- called when select action ends
+    --_multilistbox.Event #SELECTED "ISLANDS_SYSTEM.updateListboxCallback()" -- called when select action ends
     _multilistbox.Event #RIGHTCLICK "openNewIslandsMenu()" -- called when select action ends
 
-	_slider.Event #CHANGED     "selectLayerBySlider"
-	_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"
+	_slider.Event #CHANGED     "ISLANDS_SYSTEM.selectLayerBySlider"
+	_slider.Event #RIGHTCLICK  "ISLANDS_SYSTEM.toggleSelectIslandMode()"
 
 
 	--Dialog.min_size = [32, -1]

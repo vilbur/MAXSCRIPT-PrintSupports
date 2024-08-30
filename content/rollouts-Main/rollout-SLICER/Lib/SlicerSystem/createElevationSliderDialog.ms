@@ -73,12 +73,12 @@ function createElevationSliderDialog =
                     ini:	false
                     --pos:	pos_slider
 
-	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -8 ] tooltip:"Shift slider 1 layer\n\nCTRL: Shift about 1 mm or next island"
+	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -8 ] tooltip:"Shift slider 1 layer up\down\n\nCTRL: Go next\previous island\n\nSHIFT: Go 1mm up\down\n\nCTRL + SHIFT: Go 100 layers up\down"
 
 
 	_spinner = _Controls.control #SPINNER "" id:#SPIN_layer_current across:1 range:[ 0, SLICER_SYSTEM.layers_count, 0] width:42 type:#integer offset:[ -4, 0 ]
 
-	_dropdown = _Controls.control #DROPDOWNLIST "" id:#DDL_slider_snaps  width:64  items:#( "layers", "verts", "islands" ) offset:[ -16, 0 ] --ini:false --params:#( #UNSELECT, true ) across:1 offset:[ 4, 2 ] --align:#center  --width:96
+	_dropdown = _Controls.control #DROPDOWNLIST "" id:#DDL_slider_snaps  width:64  items:#( "layers", "verts" ) offset:[ -16, 0 ] --ini:false --params:#( #UNSELECT, true ) across:1 offset:[ 4, 2 ] --align:#center  --width:96
 
 
 
