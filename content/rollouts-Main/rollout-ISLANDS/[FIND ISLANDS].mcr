@@ -11,7 +11,7 @@ global ISLANDS_SYSTEM
 macroscript	maxtoprint_islands_dialog
 category:	"maxtoprint"
 buttontext:	"SHOW islands"
-toolTip:	"Refresh islands"
+toolTip:	"SHOW islands Dialog"
 icon:	"across:3"
 (
 
@@ -40,7 +40,7 @@ icon:	"across:3"
 			format "islands_data COUNT: %\n" VertSelector.VertIslandFinder.islands_data.count
 			format "islands_data: %\n" islands_data
 
-			new_islands = for island_data in islands_data collect island_data[#NEW_ISLAND]
+			new_islands = for island_data in ISLANDS_SYSTEM.islands_data collect island_data[#NEW_ISLAND]
 
 			lowest_verts = VertSelector.getLowestVerts ( new_islands )
 

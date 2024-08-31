@@ -1,7 +1,8 @@
 
 global DIALOG_island_manager
 
-filein( getFilenamePath(getSourceFileName()) + "/rcMenu.ms" )	--"./rcMenu.ms"
+filein( getFilenamePath(getSourceFileName()) + "/islandsRcMenu.ms" )	--"./rcMenu.ms"
+
 
 /** Create island manager dialog
  */
@@ -11,17 +12,27 @@ function createIslandManagerDialog relaunch:false =
 	format "\n"; print ".createIslandManagerDialog()"
 	--format "ISLANDS_SYSTEM.islands_data: %\n" ISLANDS_SYSTEM.islands_data
 
-	/** Get heigh island
-	 */
-	function getHeighIslandX island_data = if island_data[#TOP] != undefined and island_data[#TOP] - island_data[#BOTTOM] > 10  then " ↕" else ""
-	function getIslandSizeCharacter island_data = if island_data[#SIZE] != undefined and island_data[#SIZE] > 5  then " ↔" else ""
-
 	/** Get item titile
 	 */
 	function getItemTitile island_index =
 	(
+
+		/** Get heigh island
+		 */
+		function getHeighIslandX island_data        = if island_data[#TOP] != undefined and island_data[#TOP] - island_data[#BOTTOM] > 10  then "↕" else ""
+		function getIslandSizeCharacter island_data = if island_data[#SIZE] != undefined and (island_data[#SIZE].x > 5 or island_data[#SIZE].y > 5)  then "↔" else ""
 		--format "\n"; print ".getItemTitile()"
-		ISLANDS_SYSTEM.islands_data[island_index][#BOTTOM] as string +  "                          #" + island_index as string
+		island_data = ISLANDS_SYSTEM.islands_data[island_index]
+
+		whitespace = "                          "
+
+		size_marks = getHeighIslandX(island_data) + getIslandSizeCharacter(island_data)
+
+		if size_marks.count > 0 then
+			size_marks = " " + size_marks
+
+		--ISLANDS_SYSTEM.islands_data[island_index][#BOTTOM] as string +  "                          #" + island_index as string
+		ISLANDS_SYSTEM.islands_data[island_index][#BOTTOM] as string + size_marks + whitespace+ "#" + island_index as string
 	)
 
 
@@ -68,7 +79,8 @@ function createIslandManagerDialog relaunch:false =
 	--format "MAX_ITEM_LENGTH: %\n" max_item_length
 	--width_listbox = 32
 	--character_width = 4
-	width_listbox = (max_item_length * 10 ) + 28
+	width_listbox = (max_item_length * 10 ) + 16
+
 	slider_width = 32
 
 	if slider_height > viewport_height then
@@ -113,7 +125,6 @@ function createIslandManagerDialog relaunch:false =
 
 	/*------ CECKBUTTON ------*/
 	btn_isloate = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate height:32
-    --btn_isloate.Event #CHANGED 	"EventFired.control.text = \"XXX\"" -- called when select action ends
 
 
 	/*------ RADIOBUTTONS ------*/
@@ -123,10 +134,14 @@ function createIslandManagerDialog relaunch:false =
 	_size_min = _Controls.control #SPINNER "" id:#SPIN_island_size_min across:2 type:#integer range:[0,100,2] width:48 offset:[ -10, 0]
 	_size_max = _Controls.control #SPINNER "" id:#SPIN_island_size_max across:2 type:#integer range:[0,100,5] width:48
 
+
 	/*------------------------------------------------------------------------------
 		EVENTS
 	--------------------------------------------------------------------------------*/
 	btn_isloate.Event #CHANGED "ISLANDS_SYSTEM.isolateSlectedIslands"
+
+	_radio.Event #CHANGED "ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()"
+	_radio.Event #RIGHTCLICK "ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()"
 
 	_size_min.Event #CHANGED "format \"EventFired: %\n\" EventFired"
 

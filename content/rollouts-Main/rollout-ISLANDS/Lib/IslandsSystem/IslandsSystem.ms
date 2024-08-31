@@ -292,9 +292,9 @@ struct IslandsSystem_v
 
 	/** Select first verts
 	 */
-	function selectFirstVerts vertex_type =
+	function selectVertsOfIslands vertex_type =
 	(
-		format "\n"; print ".selectFirstVerts()"
+		format "\n"; print ".selectVertsOfIslands()"
 		format "vertex_type: %\n" (classOf vertex_type)
 		_listbox = DIALOG_island_manager.ML_island_listbox
 
@@ -309,7 +309,6 @@ struct IslandsSystem_v
 
 		for layer_index in selected_islands collect
 		(
-
 			if vertex_type == #LOWEST_VERT then
 				verts[islands_data[layer_index][vertex_type]] = true
 
@@ -333,6 +332,42 @@ struct IslandsSystem_v
 
 		( for i = 1 to  list_items.count where island_indexes[ _getIslandIndexFromTitle list_items[i] ] collect i ) as BitArray
 	),
+
+
+	/** Remove selected islands
+	 */
+	function removeSelectedIslands =
+	(
+		format "\n"; print "IslandsSystem_v.removeSelectedIslands()"
+
+		selected_islands = ( this.getSelectedIslandsFromListBox() )
+
+		format "SELECTED_ISLANDS: %\n" selected_islands
+
+		if ( islands_props_data = getUserPropVal obj "ISLANDS_DATA" ) != undefined then
+		(
+			format "islands_props_data.count: %\n" islands_props_data.count
+
+			for i = islands_props_data.count to 1 by -1 where selected_islands[i] do
+				deleteItem islands_props_data i
+			--for island_data in islands_props_data do
+				--format "island_data: %\n" island_data
+
+			setUserPropVal obj "ISLANDS_DATA" islands_props_data
+		)
+	),
+
+	/** Update island selection by radiobuttons state
+	 */
+	function updateIslandSelectionByRadiobuttonsState =
+	(
+		format "\n"; print "IslandsSystem_v.updateIslandSelectionByRadiobuttonsState()"
+
+		states = #( #NEW_ISLAND, #LOWEST_VERT, #WHOLE_ISLAND )
+
+		this.selectVertsOfIslands ( states[DIALOG_island_manager.RB_slider_mode.state +1] )
+	),
+
 
 	private
 

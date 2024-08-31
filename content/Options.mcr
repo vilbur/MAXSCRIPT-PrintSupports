@@ -8,8 +8,18 @@ buttontext:	"Layer Height"
 tooltip:	"Height of printed layer in mm"
 icon:	"across:4|control:spinner|fieldwidth:32|range:[ 0.03, 0.1, 0.05 ]|scale:0.01|offset:[ 8, 0 ]"
 (
-	format "EventFired:	% \n" EventFired
 	--updateSlicePlaneSystem(undefined)
+	on execute do
+	(
+		format "EventFired:	% \n" EventFired
+		_spinner = EventFired.control
+
+		/* RESET SPINNER TO VALUE HIGHER THEN MIN RANGE */
+		if not EventFired.inSpin and EventFired.val == _spinner.range.x then
+			EventFired.control.value = 0.05
+
+
+	)
 )
 
 /**
