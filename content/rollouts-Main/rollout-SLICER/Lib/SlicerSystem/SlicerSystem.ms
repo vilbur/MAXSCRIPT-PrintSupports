@@ -1,6 +1,4 @@
-
-
-/** Slice plane dialog
+/** Methods synchronizing islands dialog controls functions
  */
 struct SlicerSystem_v
 (
@@ -41,16 +39,40 @@ struct SlicerSystem_v
 
 		viewport_height = this.getViewportHeight()
 
-		this.toggleMofifiers(false)
+		this.toggleModifiers(false)
 
 		min_max_z = #( selection.min.z, selection.max.z )
 
-		this.toggleMofifiers(true)
+		this.toggleModifiers(true)
 
 		select _objects
 
 		layers_count = (( min_max_z[2] - min_max_z[1] ) / layer_height ) as integer
+	),
 
+	/** Set print elevation
+	  *
+	  */
+	function updateSlicePlaneSystem layer_index =
+	(
+		format "\n"; print "SlicerSystem_v.updateSlicePlaneSystem()"
+		format "layer_index: %\n" layer_index
+		----objects_with_modifier = refs.dependentNodes modifiers[#SLICE_PLANE_TOP]
+		----update_selection = for obj in selection where findItem objects_with_modifier obj > 0 and findItem _objects obj == 0 collect obj
+
+		/* SET DEAUFLT SLICE TOP */
+		if not (slice_modes[#SLICE_PLANE_TOP] and slice_modes[#SLICE_PLANE_BOTTOM]) then
+			slice_modes[#SLICE_PLANE_TOP] = true
+
+		/* ADD MODIFIERS */
+		if slice_modes[#SLICE_PLANE_TOP] then
+			this.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_index) (true)
+
+		--if slice_modes[#SLICE_PLANE_BOTTOM] then
+			--this.setSlicePlaneModifier (#SLICE_PLANE_BOTTOM) (#TRUE) (layer_index - 1) (true)
+
+		/* UPDATE UI */
+		this._updateUi(layer_index)
 	),
 
 	/** Add modifiers
@@ -90,15 +112,19 @@ struct SlicerSystem_v
 		)
 	),
 
-	/** Toggle mofifiers
+	/** Toggle modifiers
 	 */
-	function toggleMofifiers state =
+	function toggleModifiers state =
 	(
-		--format "\n"; print "SlicerSystem_v.toggleMofifiers()"
+		format "\n"; print "SlicerSystem_v.toggleModifiers()"
+		format "slice_modes: %\n" slice_modes
+
 		for slice_mode_data in slice_modes where slice_mode_data.value do
 		(
 			/* GET ALL INSANCES OF MODIFIER IN SCENE */
 			modifiers_in_scene = this._getModifiersInScene( slice_mode_data.key )
+			format "%: %\n" slice_mode_data.key modifiers_in_scene
+			format "slice_modifier.enabled: %\n" modifiers_in_scene[1].enabled
 
 			/* GET NEW INSANCE MODIFIER */
 			if ( slice_modifier = modifiers_in_scene[1] ) != undefined and slice_modifier.enabled != state then
@@ -107,54 +133,29 @@ struct SlicerSystem_v
 	),
 
 
-	/** Set print elevation
-	  *
-	  */
-	function updateSlicePlaneSystem layer_index =
-	(
-		format "\n"; print "SlicerSystem_v.updateSlicePlaneSystem()"
-		format "layer_index: %\n" layer_index
-		----objects_with_modifier = refs.dependentNodes modifiers[#SLICE_PLANE_TOP]
-		----update_selection = for obj in selection where findItem objects_with_modifier obj > 0 and findItem _objects obj == 0 collect obj
-
-		/* SET DEAUFLT SLICE TOP */
-		if not (slice_modes[#SLICE_PLANE_TOP] and slice_modes[#SLICE_PLANE_BOTTOM]) then
-			slice_modes[#SLICE_PLANE_TOP] = true
-
-		/* ADD MODIFIERS */
-		if slice_modes[#SLICE_PLANE_TOP] then
-			this.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_index) (true)
-
-		--if slice_modes[#SLICE_PLANE_BOTTOM] then
-			--this.setSlicePlaneModifier (#SLICE_PLANE_BOTTOM) (#TRUE) (layer_index - 1) (true)
-
-		/* UPDATE UI */
-		this._updateUi(layer_index)
-	),
-
 	/** Shift layer incremental
+	  *
+	  * @param -1|1 layer_index
 	 */
 	function shiftLayerIncremental layer_index =
 	(
-		--format "\n"; print "SlicerSystem_v.shiftLayerIncremental()"
-
-		/* TODO: ACCESS TO UI VALUES SHOULD BE OUTSIDE FUNCTION
-
-		*/
+		format "\n"; print "SlicerSystem_v.shiftLayerIncremental()"
 		layer_current	= DIALOG_elevation_slider.SLIDER_elevation.value
 
 		--shift_mode	= #( #LAYERS, #VERTS, #ISLANDS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
 		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
 
+		format "TEST: %\n" (keyboard.controlPressed and DIALOG_island_manager != undefined)
 
 		/* SHIFT: Go 1mm up\down */
 		if keyboard.shiftPressed then
 		(
-			if not keyboard.controlPressed then
+			format "shiftPressed\n"
+			layer_next = if not keyboard.controlPressed then
 			(
 				layers_per_mm = ( 1 * display_units / layer_height ) -- add or remove 1mm of current layer
 
-				layer_index = (layer_current + layer_index * layers_per_mm) as integer
+				(layer_current + layer_index * layers_per_mm) as integer
 			)
 			/* CTRL + SHIFT: Go 100 layers up\down */
 			else
@@ -162,29 +163,40 @@ struct SlicerSystem_v
 
 		)
 		/* CTRL: Go next\previous island - if slider dialog is opened */
-		else if keyboard.controlPressed and DIALOG_island_manager != undefiand then
+		else if keyboard.controlPressed and DIALOG_island_manager != undefined then
 		(
 			islands_indexes = (for item in DIALOG_island_manager.ML_island_listbox.items collect (filterString item " ")[1] as integer ) as BitArray -- get list items strings to bitarray
+			format "ISLANDS_INDEXES: %\n" islands_indexes
+			format "islands_indexes.count: %\n" islands_indexes.count
 
-			layer_current += layer_index
+			layer_next = layer_current + layer_index
 
-			if layer_current < 1 then
-				layer_current = 1
+			if layer_next < 1 then layer_next = 1
 
-			/* GO ISLAND UP */
-			if layer_index > 0 and layer_current < islands_indexes.count then
-				for i = layer_current to islands_indexes.count while not islands_indexes[i] do
-					layer_index = i + 1
+			format "layer_current: %\n" layer_current
+			format "layer_next: %\n" layer_next
+			--format "TEST: %\n" (layer_index > 0 and layer_current < islands_indexes.count)
+			format "islands_indexes[layer_next]: %\n" islands_indexes[layer_next]
 
-			/* GO ISLAND DOWN */
-			else if layer_index < 0 and layer_current > 1  then
-				for i = layer_current to 1 by -1 while not islands_indexes[i]  do
-					layer_index = i - 1
+			if islands_indexes[layer_next] == false then
+			(
+				/* GO ISLAND UP */
+				if layer_index > 0 and layer_current < islands_indexes.count then
+					for i = layer_next to islands_indexes.count while not islands_indexes[i] do
+						layer_next = i + 1
+
+				/* GO ISLAND DOWN */
+				else if layer_index < 0 and layer_current > 1  then
+					for i = layer_next to 1 by -1 while not islands_indexes[i]  do
+						layer_next = i - 1
+
+			)
+
 
 		)
 		/* GO 1 layer up\down */
 		else
-			layer_index += layer_current
+			layer_next = layer_current + layer_index
 
 
 		/* SETUP BY UI
@@ -194,9 +206,13 @@ struct SlicerSystem_v
 		--cap_slice	= true
 		--select_plane	= false
 
-		this.updateSlicePlaneSystem (layer_index )
+		this.updateSlicePlaneSystem ( layer_next )
 
-		--selectLayerItemInListbox (layer_index)
+
+
+		if DIALOG_island_manager != undefined and layer_next> 0 then
+			ISLANDS_SYSTEM.selectIslandByLayerInListbox (layer_next)
+
 		--updateListbox ()
 	),
 
@@ -209,7 +225,7 @@ struct SlicerSystem_v
 	  */
 	function setSlicePlaneModifier mode state layer_index_or_z_pos cap_state =
 	(
-		format "\n"; print ("SlicerSystem_v.setSlicePlaneModifier()")
+		--format "\n"; print ("SlicerSystem_v.setSlicePlaneModifier()")
 		--format "state:	% \n" state
 		--format "mode:	% \n" mode
 		--format "layer_index_or_z_pos:	% \n" layer_index_or_z_pos
@@ -260,10 +276,9 @@ struct SlicerSystem_v
 	 */
 	function setSliderByModifier =
 	(
-		format "\n"; print "SlicerSystem_v.setSliderByModifier()"
-
+		--format "\n"; print "SlicerSystem_v.setSliderByModifier()"
 		slice_pos = modifiers[#SLICE_PLANE_TOP].slice_plane.transform.position.z
-		format "slice_pos: %\n" slice_pos
+		--format "slice_pos: %\n" slice_pos
 
 		layer_index = this.posToLayerIndex(slice_pos)
 
@@ -407,9 +422,9 @@ struct SlicerSystem_v
 				)
 			)
 
-			toggleSliceModifiers (true)
+			this.toggleSliceModifiers (true)
 
-			updateSlicePlaneSystem ( layer_index )
+			this.updateSlicePlaneSystem ( layer_index )
 
 			/* DEVELOP FIXING */
 			SET_ELEVATION = undefined
@@ -518,9 +533,11 @@ struct SlicerSystem_v
 	 */
 	function _updateUi layer_index =
 	(
-		format "\n"; print "SlicerSystem_v._updateUi()"
-		format "layer_index: %\n" layer_index
+		--format "\n"; print "SlicerSystem_v._updateUi()"
+		--format "layer_index: %\n" layer_index
+
 		DIALOG_elevation_slider.SPIN_layer_current.value	= layer_index
+
 		DIALOG_elevation_slider.SLIDER_elevation.value	= layer_index
 		--DIALOG_elevation_slider.SPIN_layer_current.value	= DIALOG_elevation_slider.SLIDER_elevation.value
 	),

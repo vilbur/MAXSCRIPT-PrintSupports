@@ -29,7 +29,7 @@ function createElevationSliderDialog =
 
 	slider_ticks  = SLICER_SYSTEM.layers_count
 	--slider_height = SLICER_SYSTEM.viewport_height - ( mod SLICER_SYSTEM.viewport_height 10 ) - 70 -- round viewport height to ceil 10 E.G.: 1789 >>> 1780
-	slider_height = SLICER_SYSTEM.viewport_height - 85 -- round viewport height to ceil 10 E.G.: 1789 >>> 1780
+	slider_height = SLICER_SYSTEM.viewport_height - 78 -- round viewport height to ceil 10 E.G.: 1789 >>> 1780
 
 	--if slider_height > slider_ticks then
 		--slider_ticks /= 10
@@ -58,7 +58,6 @@ function createElevationSliderDialog =
 	btn_exit = _Controls.control #BUTTON "IN\OUT" width:42 height:24 offset:	[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
 
 
-
     /*------ SLIDER ------*/
     _slider = _Controls.control #SLIDER "" \
                     id:	#SLIDER_elevation	\
@@ -73,13 +72,12 @@ function createElevationSliderDialog =
                     ini:	false
                     --pos:	pos_slider
 
-	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -8 ] tooltip:"Shift slider 1 layer up\down\n\nCTRL: Go next\previous island\n\nSHIFT: Go 1mm up\down\n\nCTRL + SHIFT: Go 100 layers up\down"
+	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -4 ] tooltip:"Shift slider 1 layer up\down\n\nCTRL: Go next\previous island\n\nSHIFT: Go 1mm up\down\n\nCTRL + SHIFT: Go 100 layers up\down"
 
 
 	_spinner = _Controls.control #SPINNER "" id:#SPIN_layer_current across:1 range:[ 0, SLICER_SYSTEM.layers_count, 0] width:42 type:#integer offset:[ -4, 0 ]
 
 	_dropdown = _Controls.control #DROPDOWNLIST "" id:#DDL_slider_snaps  width:64  items:#( "layers", "verts" ) offset:[ -16, 0 ] --ini:false --params:#( #UNSELECT, true ) across:1 offset:[ 4, 2 ] --align:#center  --width:96
-
 
 
 	/*------------------------------------------------------------------------------

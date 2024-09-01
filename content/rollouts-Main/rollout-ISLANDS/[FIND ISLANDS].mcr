@@ -1,6 +1,3 @@
-global ISLANDS_SYSTEM
-
-filein( getFilenamePath(getSourceFileName()) + "/Lib/IslandsSystem/IslandsSystem.ms" )	--"./Lib/IslandsSystem/IslandsSystem.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/IslandManagerDialog/IslandManagerDialog.ms" )	--"./Lib/IslandManagerDialog/IslandManagerDialog.ms"
 
@@ -18,11 +15,15 @@ icon:	"across:3"
 	on execute do
 	(
 	--	filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-Points\3-1-2-SELECT CONVEX - CONCAVE .mcr"
-		gc light:true
-		gc()
+		--gc light:true
+		--gc()
 
-		undo off
+		--undo off
 		(
+			--DisableSceneRedraw()
+			format "SLICER_SYSTEM: %\n" SLICER_SYSTEM
+			SLICER_SYSTEM.toggleModifiers false
+
 			obj	= selection[1]
 
 			layer_height = 0.05
@@ -31,11 +32,11 @@ icon:	"across:3"
 
 			VertSelector 	= VertSelector_v(obj)
 
-			--VertIslandFinder = VertSelector.VertIslandFinder
-			--if subobject == #FACE then polyop.getFaceSelection obj else polyop.getVertSelection obj -- return
-
 			if ( ISLANDS_SYSTEM.islands_data = getUserPropVal obj "ISLANDS_DATA" ) == undefined then
 				ISLANDS_SYSTEM.islands_data = VertSelector.findIslandsPerLayer(layer_height)
+
+
+				--EnableSceneRedraw()
 
 			format "islands_data COUNT: %\n" VertSelector.VertIslandFinder.islands_data.count
 			format "islands_data: %\n" islands_data
@@ -51,6 +52,8 @@ icon:	"across:3"
 
 
 			setUserPropVal obj "ISLANDS_DATA" ISLANDS_SYSTEM.islands_data
+
+			SLICER_SYSTEM.toggleModifiers true
 
 			createIslandManagerDialog()
 		)

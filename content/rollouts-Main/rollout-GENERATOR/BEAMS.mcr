@@ -102,6 +102,7 @@ buttontext:	"[Beams Count]"
 icon:	"control:radiobuttons|across:3|align:#CENTER|items:#('1', '2')|offset:[ 32, -4 ]|tooltip:Number of bars on beam"
 (
 	--format "EventFired	= % \n" EventFired
+	on execute do
 	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
 )
 
@@ -169,8 +170,6 @@ buttontext:	"Min Height"
 --tooltip:	""
 icon:	"across:5|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]|width:72|offset:[ 148, -16 ]|tooltip:Min Height of supports where beam is created"
 (
-	format "EventFired:	% \n" EventFired
-
 	/** Get size
 	 */
 	function getSize obj = (bbox	= nodeGetBoundingBox obj ( Matrix3 1))[2].z - bbox[1].z
@@ -178,14 +177,15 @@ icon:	"across:5|control:spinner|event:#entered|type:#integer|range:[ 1, 999, 5 ]
 
 	--bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
 
-	if EventFired.inSpin and EventFired.Control.value == EventFired.Control.range[1] and selection.count > 0 then
-	(
-		sizes = for obj in selection collect  getSize obj
+	on execute do
+		if EventFired.inSpin and EventFired.Control.value == EventFired.Control.range[1] and selection.count > 0 then
+		(
+			sizes = for obj in selection collect  getSize obj
 
-		EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue(amax sizes)
-	)
-	else
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.Control.value)
+			EventFired.Control.value = SUPPORT_OPTIONS.getMilimeterValue(amax sizes)
+		)
+		else
+			SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.Control.value)
 
 		--print "\nSpinner test #rightclick or spinner RESETED\n\n3Ds Max BUG ?\n\nArgument inCancel DOESN'T WORK"
 	--else

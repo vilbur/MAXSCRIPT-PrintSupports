@@ -148,7 +148,7 @@ function createIslandManagerDialog relaunch:false =
 	_multilistbox.Event #SELECTIONEND "ISLANDS_SYSTEM.updateListboxCallback()" -- called when select action ends
     _multilistbox.Event #RIGHTCLICK "openNewIslandsMenu()" -- called when select action ends
 
-	_slider.Event #CHANGED     "ISLANDS_SYSTEM.selectLayerBySlider"
+	_slider.Event #CHANGED     "ISLANDS_SYSTEM.selectIslandBySlider"
 	_slider.Event #RIGHTCLICK  "ISLANDS_SYSTEM.toggleSelectIslandMode()"
 
 

@@ -105,12 +105,8 @@ function selectConcexOrBottomFacesOrVers mode subobject:#VERTEX =
 	--if subobject == #FACE then polyop.getFaceSelection obj else polyop.getVertSelection obj -- return
 )
 
-
-
-
 /**
- *
- */
+  */
 macroscript	maxtoprint_get_convex_verts
 category:	"maxtoprint"
 buttontext:	"CONVEX"
@@ -126,8 +122,7 @@ icon:	"across:4|tooltip:CTRL: Reset selection"
 )
 
 /**
- *
- */
+  */
 macroscript	maxtoprint_get_convex_faces
 category:	"maxtoprint"
 buttontext:	"CONVEX"
@@ -142,11 +137,8 @@ toolTip:	"FACES"
 	)
 )
 
-
-
 /**
- *
- */
+  */
 macroscript	maxtoprint_get_bottom_verts
 category:	"maxtoprint"
 buttontext:	"BOTTOM\TOP"
@@ -162,8 +154,7 @@ icon:	"tooltip:Select bottom or top verts of all or selected verts."
 )
 
 /**
- *
- */
+  */
 macroscript	maxtoprint_get_top_verts
 category:	"maxtoprint"
 buttontext:	"BOTTOM\TOP"
@@ -178,7 +169,40 @@ toolTip:	"TOP verts\n\nCTRL: ISOLATE selected verts"
 	)
 )
 
+/**
+  */
+macroscript	maxtoprint_get_top_verts_inner
+category:	"maxtoprint"
+buttontext:	"INNER\OUTTER"
+toolTip:	"BOTTOM verts"
+icon:	"tooltip:"
+(
+	on execute do
+	(
+	--	filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-Points\3-1-2-SELECT CONVEX - CONCAVE .mcr"
 
+		(VertSelector_v( selection[1] )).selectInnerOutterVerts #INNER
+	)
+)
+
+/**
+  */
+macroscript	maxtoprint_get_top_verts_outer
+category:	"maxtoprint"
+buttontext:	"INNER\OUTTER"
+toolTip:	"TOP verts\n\nCTRL: ISOLATE selected verts"
+--icon:	"tooltip:CTRL: Reset selection"
+(
+	on execute do
+	(
+	--	filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-Points\3-1-2-SELECT CONVEX - CONCAVE .mcr"
+		(VertSelector_v( selection[1] )).selectInnerOutterVerts #OUTTER
+
+	)
+)
+
+/**
+  */
 function SelectVisiblePolys polysToUse: selVisiblePolys: =
 (
 	--Get the viewport TMatrix, invert to get the equivalent of a camera transformation

@@ -5,7 +5,7 @@ filein( getFilenamePath(getSourceFileName()) + "/../../../../MAXSCRIPT-UI-framew
 
 global VERTEX_COLOR_PARAM
 
-global COLOR_NAMES = Dictionary #( #BLUE, color 0 135 255 ) #(#PINK, color 225 88 199 ) -- KEY:#COLOR_NAME VALUE:color value
+global COLOR_NAMES = Dictionary #( #BLUE, color 0 135 255 ) #(#PINK, color 225 88 199 ) #(#MAGENTA, color 225 0 255 )-- KEY:#COLOR_NAME VALUE:color value
 
 
 
@@ -58,13 +58,12 @@ function callMethodByVertexColor method _color =
 --)
 
 /**
-  *
   */
 macroscript	epoly_vertex_color_set_red
 category:	"_Epoly-Vertex-Color"
 buttonText:	"RED"
 toolTip:	""
-icon:	"MENU:Set &RED|across:7|width:56"
+icon:	"MENU:Set &RED|across:4|width:64"
 (
 	on isVisible return subObjectLevel != 0
 
@@ -73,7 +72,6 @@ icon:	"MENU:Set &RED|across:7|width:56"
 )
 
 /**
-  *
   */
 macroscript	epoly_vertex_color_set_green
 category:	"_Epoly-Vertex-Color"
@@ -88,7 +86,6 @@ icon:	"MENU:Set &GREEN"
 )
 
 /**
-  *
   */
 macroscript	epoly_vertex_color_set_blue
 category:	"_Epoly-Vertex-Color"
@@ -103,7 +100,20 @@ icon:	"MENU:Set &BLUE"
 )
 
 /**
-  *
+  */
+macroscript	epoly_vertex_color_set_white
+category:	"_Epoly-Vertex-Color"
+buttonText:	"WHITE"
+toolTip:	""
+icon:	"MENU:Set &WHITE"
+(
+	on isVisible return subObjectLevel != 0
+
+	on execute do
+		callMethodByVertexColor #SET white
+)
+
+/**
   */
 macroscript	epoly_vertex_color_set_orange
 category:	"_Epoly-Vertex-Color"
@@ -117,7 +127,6 @@ icon:	"MENU:Set &ORANGE"
 		callMethodByVertexColor #SET orange
 )
 /**
-  *
   */
 macroscript	epoly_vertex_color_set_yellow
 category:	"_Epoly-Vertex-Color"
@@ -131,7 +140,6 @@ icon:	"MENU:Set &YELLOW"
 		callMethodByVertexColor #SET yellow
 )
 /**
-  *
   */
 macroscript	epoly_vertex_color_set_pink
 category:	"_Epoly-Vertex-Color"
@@ -144,17 +152,17 @@ icon:	"MENU:Set &PINK"
 	on execute do
 		callMethodByVertexColor #SET COLOR_NAMES[#PINK]
 )
+
 /**
-  *
   */
-macroscript	epoly_vertex_color_set_white
+macroscript	epoly_vertex_color_set_magenta
 category:	"_Epoly-Vertex-Color"
-buttonText:	"WHITE"
+buttonText:	"MAGENTA"
 toolTip:	""
-icon:	"MENU:Set &WHITE"
+icon:	"MENU:Set &MAGENTA"
 (
 	on isVisible return subObjectLevel != 0
 
 	on execute do
-		callMethodByVertexColor #SET white
+		callMethodByVertexColor #SET COLOR_NAMES[#MAGENTA]
 )

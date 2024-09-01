@@ -3,7 +3,12 @@ clearListener(); print("Cleared in:\n"+getSourceFileName())
 
 
 
-/** Select inner upper verts
+/** select verts which normal points
+  *
+  * #INNER  - verts VISIBLE form top view
+  * #OUTTER - verts INVISIBLE form top view
+  *
+  * @param #INNER|#OUTTER
  */
 function selectInnerUpperVerts mode =
 (
@@ -12,11 +17,11 @@ function selectInnerUpperVerts mode =
 
 	obj	= selection[1]
 
-	rmgi = RayMeshGridIntersect()
+	ray_grid = RayMeshGridIntersect()
 
-	rmgi.initialize 10
-	rmgi.addNode obj
-	rmgi.buildGrid()
+	ray_grid.initialize 10
+	ray_grid.addNode obj
+	ray_grid.buildGrid()
 
 	direction = point3 0 0 1
 
@@ -26,7 +31,7 @@ function selectInnerUpperVerts mode =
 
 	subObjectLevel = 1
 
-	if mode == #INNER then
+	--if mode == #INNER then
 		PolyToolsSelect.Normal 3 15 false
 
 	vertex_sel	= getVertSelection obj.mesh
@@ -44,19 +49,27 @@ function selectInnerUpperVerts mode =
 	processed = copy verts_all * #{}
 
 	result = #{}
+	result_grid = #{}
 
 	timer_get_verts = timeStamp()
 
 	for vert in vertex_sel do
 	(
-		hits = rmgi.intersectRay ( verts_pos[vert] + offset ) direction true
-		if( mode == #INNER and hits == 0 ) or ( mode != #INNER and hits > 0 ) then
-			result[vert] = true
+		--hits = ray_grid.intersectRay ( verts_pos[vert] + offset ) direction true
+		--if( mode == #INNER and hits == 0 ) or ( mode != #INNER and hits > 0 ) then
+		--	result_grid[vert] = true
 
-		--hits = intersectRay obj ( Ray ( verts_pos[vert] + offset ) direction )
-		--if( mode == #INNER and hits != undefined ) or ( mode != #INNER and hits == undefined ) then
-			--result[vert] = true
+		hits = intersectRay obj ( Ray ( verts_pos[vert] + offset ) direction )
+		if( mode == #INNER and hits != undefined ) or ( mode != #INNER and hits == undefined ) then
+			result[vert] = true
 	)
+
+	format "GRID.numberSet: %\n" result_grid.numberSet
+	format "%\n" result_grid
+	format "\n"
+
+	format "RESULT.numberSet: %\n" result.numberSet
+	format "%\n" result
 
 	obj.EditablePoly.SetSelection #Vertex #{}
 	obj.EditablePoly.SetSelection #Vertex result
@@ -64,5 +77,5 @@ function selectInnerUpperVerts mode =
 )
 
 
---selectInnerUpperVerts #INNER
-selectInnerUpperVerts #OUTTER
+selectInnerUpperVerts #INNER
+--selectInnerUpperVerts #OUTTER

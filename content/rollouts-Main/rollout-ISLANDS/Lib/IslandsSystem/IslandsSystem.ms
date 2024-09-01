@@ -44,6 +44,15 @@ struct IslandsSystem_v
 		)
 	),
 
+	/** Select all islands in listbox
+	 */
+	function selectAllIslandsInListbox =
+	(
+		--format "\n"; print "IslandsSystem_v.selectAllIslandsInListbox()"
+		DIALOG_island_manager.ML_island_listbox.selection = #{1..DIALOG_island_manager.ML_island_listbox.items.count}
+
+		this.updateIslandSelectionByRadiobuttonsState()
+	),
 	/** Get selected islands from list box
 	 */
 	function getSelectedIslandsFromListBox =
@@ -79,9 +88,9 @@ struct IslandsSystem_v
 	),
 	/** Select layer
 	 */
-	function selectLayerBySlider slider_val =
+	function selectIslandBySlider slider_val =
 	(
-		format "\n"; print ".selectLayerBySlider()"
+		format "\n"; print "IslandsSystem_v.selectIslandBySlider()"
 		--format "slider_val: %\n" slider_val
 
 		if slider_val == undefined then
@@ -115,14 +124,14 @@ struct IslandsSystem_v
 
 		)
 
-		this.selectLayerItemInListbox (layer_index)
+		this.selectIslandByLayerInListbox (layer_index)
 	),
 
 	/** Select layer
 	 */
 	function updateListboxCallback =
 	(
-		format "\n"; print ".updateListboxCallback()"
+		format "\n"; print "IslandsSystem_v.updateListboxCallback()"
 		--format "EventFired	= % \n" EventFired
 		selected_islands = ( this.getSelectedIslandsFromListBox() ) as Array
 
@@ -205,28 +214,34 @@ struct IslandsSystem_v
 
 	/** Select layer listbox
 	 */
-	function selectLayerItemInListbox layer_index =
+	function selectIslandByLayerInListbox layer_indexes =
 	(
-		format "\n"; print ".selectLayerItemInListbox()"
-		format "layer_index: %\n" layer_index
-		_listbox = DIALOG_island_manager.ML_island_listbox
+		format "\n"; print "IslandsSystem_v.selectIslandByLayerInListbox()"
+		if classOf layer_indexes != BitArray then
+			layer_indexes = #{layer_indexes}
 
-		items = _listbox.items
-		items_count = _listbox.items.count
-		items_sel = _listbox.selection
+		format "layer_indexes: %\n" layer_indexes
 
-		new_index = DIALOG_island_manager.ML_island_listbox.items.count - layer_index + 1
+		--items = _listbox.items
+		--items_count = _listbox.items.count
+		--items_sel = _listbox.selection
+		--
+		--new_index = DIALOG_island_manager.ML_island_listbox.items.count - layer_index + 1
+		--
+		----format "TEST: %\n" (if keyboard.shiftPressed then items_sel + #{new_index} else new_index)
+		--
+		--DIALOG_island_manager.ML_island_listbox.selection = if keyboard.shiftPressed then items_sel + #{new_index} else #{new_index}
 
-		--format "TEST: %\n" (if keyboard.shiftPressed then items_sel + #{new_index} else new_index)
+		--this._getIslandByLayer (layer_indexes)
 
-		DIALOG_island_manager.ML_island_listbox.selection = if keyboard.shiftPressed then items_sel + #{new_index} else #{new_index}
+		DIALOG_island_manager.ML_island_listbox.selection = this._getIslandByLayer (layer_indexes)
 	),
 
 	/** Select islands by size
 	 */
 	function selectIslandsBySize size =
 	(
-		format "\n"; print ".selectIslandsBySize()"
+		format "\n"; print "IslandsSystem_v.selectIslandsBySize()"
 
 		/** Is island matchin size
 		 */
@@ -252,7 +267,7 @@ struct IslandsSystem_v
 		/* GET ISLANDS MATHING SIZE */
 		islands_by_size = (for i = 1 to islands_data.count where islands_data[i][#SIZE] != undefined and isIslandMatchinSize(islands_data[i][#SIZE])(size) collect i) as BitArray
 
-		DIALOG_island_manager.ML_island_listbox.selection = _getListboxItemsByIslandsIndex (islands_by_size)
+		DIALOG_island_manager.ML_island_listbox.selection = this._getListboxItemsByIslandsIndex (islands_by_size)
 
 		updateListbox()
 	),
@@ -261,7 +276,7 @@ struct IslandsSystem_v
 	 */
 	function selectIslandsByVerts =
 	(
-		--format "\n"; print ".selectIslandsByVerts()"
+		--format "\n"; print "IslandsSystem_v.selectIslandsByVerts()"
 		verts_sel = polyop.getVertSelection selection[1]
 
 		verts_of_islands = #{}
@@ -282,13 +297,6 @@ struct IslandsSystem_v
 
 	),
 
-	/** Get island item title
-	 */
-	function _getIslandIndexFromTitle list_item =
-	(
-		--format "\n"; print "._getIslandIndexFromTitle()"
-		( substring list_item (( findString list_item "#" )+1) -1 ) as Number
-	),
 
 	/** Select first verts
 	 */
@@ -321,16 +329,51 @@ struct IslandsSystem_v
 
 
 	/** Get listbox items by island index
+	  *
+	  * @prams BitArray indexes of islands from this.islands_data
+	  *
+	  * @returnn BitArray indexes of listbox items
 	 */
 	function _getListboxItemsByIslandsIndex island_indexes =
 	(
-		--format "\n"; print "._getListboxItemsByIslandIndex()"
+		--format "\n"; print "IslandsSystem_v._getListboxItemsByIslandIndex()"
 		--_listbox = DIALOG_island_manager.ML_island_listbox
 
 		list_items = DIALOG_island_manager.ML_island_listbox.items
 
 
 		( for i = 1 to  list_items.count where island_indexes[ this._getIslandIndexFromTitle list_items[i] ] collect i ) as BitArray
+	),
+
+	/** Get island by layer
+	 */
+	function _getIslandByLayer layer_indexes =
+	(
+		--format "\n"; print "IslandsSystem_v._getIslandByLayer()"
+		--format "layer_indexes: %\n" layer_indexes
+
+		list_items = DIALOG_island_manager.ML_island_listbox.items
+
+		( for i = 1 to  list_items.count where layer_indexes[ this._getIslandLayerFromTitle list_items[i] ] collect i ) as BitArray
+
+	),
+
+	/** Get island item title
+	 */
+	function _getIslandIndexFromTitle list_item =
+	(
+		--format "\n"; print "IslandsSystem_v._getIslandIndexFromTitle()"
+		( substring list_item (( findString list_item "#" )+1) -1 ) as Number
+	),
+
+	/** Get island item title
+	 */
+	function _getIslandLayerFromTitle list_item =
+	(
+		--format "\n"; print "IslandsSystem_v._getIslandIndexFromTitle()"
+		--format "TEST: %\n" ((filterString list_item " ")[1] as Number)
+
+		(filterString list_item " ")[1] as Number
 	),
 
 

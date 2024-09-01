@@ -12,6 +12,12 @@ global ROLLOUT_generator
 global SUPPORT_OPTIONS -- global SUPPORT_OPTIONS must be defined before SUPPORT_MANAGER
 global SUPPORT_MANAGER
 global MODIFIERS_MANAGER
+global ISLANDS_SYSTEM
+global SLICER_SYSTEM
+
+filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms" )	--"./content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms"
+
+filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms" )	--"./content/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManager.ms" )	--"./Lib/SupportManager/SupportManager.ms"
 
@@ -52,7 +58,10 @@ try(
 
 	MODIFIERS_MANAGER = ModifiersManager_v()
 
+	SLICER_SYSTEM = SlicerSystem_v()
+
 	SUPPORT_MANAGER = SupportManager_v()
+
 
 
 )catch(

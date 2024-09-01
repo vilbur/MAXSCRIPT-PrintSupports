@@ -1005,11 +1005,19 @@ struct SupportManager_v
 	on create do
 	(
 		--format "\n"; print "SupportManager_v.onCreate()"
+
+		--DisableSceneRedraw()
+		SLICER_SYSTEM.toggleModifiers false
+
 		this._loadSourceObjectsFromScene()
 
 		this._loadSupportsFromScene()
 
 		this._loadBeamsFromScene()
+
+
+		SLICER_SYSTEM.toggleModifiers true
+		--EnableSceneRedraw()
 
 		--SUPPORT_OPTIONS.getValuesFroUi()
 

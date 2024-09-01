@@ -1,20 +1,5 @@
-global ROLLOUT_slicer
-global DIALOG_elevation_slider
-global SLICER_SYSTEM
+filein( getFilenamePath(getSourceFileName()) + "/globals.ms" )	--"./globals.ms"
 
---filein( getFilenamePath(getSourceFileName()) + "/Lib/PrinterVolume/PrinterVolume.ms" )	--"./Lib/PrinterVolume/PrinterVolume.ms"
---
---filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/getPlaneZpozition.ms" )	--"./Lib/SlicerSystem/getPlaneZpozition.ms"
---
---filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/setSlicePlaneModifier.ms" )	--"./Lib/SlicerSystem/setSlicePlaneModifier.ms"
---
---filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/setSelectPlaneModifier.ms" )	-- "./Lib/SlicerSystem/setSelectPlaneModifier.ms"
---
---filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/updateSlicePlaneSystem.ms" )	-- "./Lib/SlicerSystem/updateSlicePlaneSystem.ms"
---
---filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/toggleSlicePlanePosition.ms" )	--"./Lib/SlicerSystem/toggleSlicePlanePosition.ms"
-
-filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/SlicerSystem.ms" )	--"./Lib/SlicerSystem/SlicerSystem.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/createElevationSliderDialog.ms" )	-- "./Lib/SlicerSystem/createElevationSliderDialog.ms"
 
@@ -43,7 +28,7 @@ icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 
 
 		--if SLICER_SYSTEM == undefined then
-			SLICER_SYSTEM = SlicerSystem_v()
+			--SLICER_SYSTEM = SlicerSystem_v()
 
 		SLICER_SYSTEM.setObejctsBySelection()
 
