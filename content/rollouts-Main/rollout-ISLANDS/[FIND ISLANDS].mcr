@@ -1,9 +1,9 @@
+global ISLANDS_SYSTEM
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/IslandsSystem/IslandsSystem.ms" )	--"./Lib/IslandsSystem/IslandsSystem.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/IslandManagerDialog/IslandManagerDialog.ms" )	--"./Lib/IslandManagerDialog/IslandManagerDialog.ms"
 
-global ISLANDS_SYSTEM
 
 /**
  *
@@ -45,6 +45,10 @@ icon:	"across:3"
 			lowest_verts = VertSelector.getLowestVerts ( new_islands )
 
 			VertSelector.setSelection ( lowest_verts )
+
+			if ISLANDS_SYSTEM.islands_data.count == 0 then
+				messageBox "EMPTY ISLANDS DATA" title:"[FIND ISLANDS].mcr"
+
 
 			setUserPropVal obj "ISLANDS_DATA" ISLANDS_SYSTEM.islands_data
 

@@ -36,16 +36,13 @@ function openNewIslandsMenu =
 	Menu.item "Select whole Islands"	"ISLANDS_SYSTEM.selectVertsOfIslands(#WHOLE_ISLAND)"
 	Menu.item "Remove selected islands"	"ISLANDS_SYSTEM.removeSelectedIslands()"
 
-
-	--format "listbox_items_count: %\n" listbox_items_count
-	--format "ISLANDS_DATA.count: %\n" ISLANDS_DATA.count
-
+	Menu.separator()
 
 	if listbox_selection.numberSet > 1 and listbox_items_count > 0 then
 		Menu.item "SHOW SELECTED" "createIslandManagerDialog relaunch:true"
 
 
-	if listbox_items_count < ISLANDS_DATA.count then
+	if listbox_items_count < ISLANDS_SYSTEM.islands_data.count then
 		Menu.item "SHOW ALL" "createIslandManagerDialog()"
 
 	popUpMenu (Menu.create())

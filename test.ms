@@ -1,43 +1,68 @@
-clearListener(); print("Cleared in:"+getSourceFileName())
+/* ISLANDS VIA VERTS */
+clearListener(); print("Cleared in:\n"+getSourceFileName())
 
 
-	_objects = selection as Array
 
-	source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
+/** Select inner upper verts
+ */
+function selectInnerUpperVerts mode =
+(
+	--format "\n"; print ".selectInnerUpperVerts()"
+	gc light:true
 
-	format "source_objects: %\n" source_objects
+	obj	= selection[1]
+
+	rmgi = RayMeshGridIntersect()
+
+	rmgi.initialize 10
+	rmgi.addNode obj
+	rmgi.buildGrid()
+
+	direction = point3 0 0 1
+
+	offset = point3 0 0 0.1
+
+	--max modify mode
+
+	subObjectLevel = 1
+
+	if mode == #INNER then
+		PolyToolsSelect.Normal 3 15 false
+
+	vertex_sel	= getVertSelection obj.mesh
+	--format "vertex_sel.numberSet: %\n" vertex_sel.numberSet
+
+	format "\n\nESTIMATED TIME of processing % vertices: % seconds\n" vertex_sel.numberSet ((vertex_sel.numberSet / 100) as integer )
 
 
-	supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
+	vertex_count = getNumVerts obj.mesh
 
-	format "supports: %\n" supports
+	verts_all = #{1..vertex_count}
 
-	SourceObjects = SUPPORT_MANAGER.getSourceObjects source_objects
+	verts_pos = in coordsys world meshop.getVerts obj.mesh verts_all node:obj
 
-	for SourceObject in SourceObjects do
+	processed = copy verts_all * #{}
+
+	result = #{}
+
+	timer_get_verts = timeStamp()
+
+	for vert in vertex_sel do
 	(
-		--format "SourceObject: %\n" SourceObject
-		indexes =( for index in SourceObject.Supports.keys where SourceObject.Supports[index].support_obj.isSelected collect index) as BitArray
+		hits = rmgi.intersectRay ( verts_pos[vert] + offset ) direction true
+		if( mode == #INNER and hits == 0 ) or ( mode != #INNER and hits > 0 ) then
+			result[vert] = true
 
-		format "indexes: %\n" indexes
-
-		obj = SourceObject.obj.baseobject
-
-		max modify mode
-
-		verts_hidden = polyop.getHiddenVerts obj
-
-		polyop.setHiddenVerts obj (verts_hidden - indexes )
-
-		obj.SetSelection #VERTEX indexes
-
+		--hits = intersectRay obj ( Ray ( verts_pos[vert] + offset ) direction )
+		--if( mode == #INNER and hits != undefined ) or ( mode != #INNER and hits == undefined ) then
+			--result[vert] = true
 	)
 
-	if SourceObjects.count == 1 then
-	(
-		select SourceObjects[1].obj
+	obj.EditablePoly.SetSelection #Vertex #{}
+	obj.EditablePoly.SetSelection #Vertex result
 
-		subObjectLevel = 1
-	)
-	else if SourceObjects.count > 1 then
-		select ( 	for SourceObject in SourceObjects collect SourceObject.obj )
+)
+
+
+--selectInnerUpperVerts #INNER
+selectInnerUpperVerts #OUTTER

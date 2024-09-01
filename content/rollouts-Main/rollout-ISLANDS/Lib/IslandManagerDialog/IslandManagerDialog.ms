@@ -39,7 +39,7 @@ function createIslandManagerDialog relaunch:false =
 	/*------------------------------------------------------------------------------
 		GET ITEMS
 	--------------------------------------------------------------------------------*/
-	selected_islands = getSelectedIslandsFromListBox()
+	selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
 
 	islands_to_show = case of
     (
@@ -62,18 +62,18 @@ function createIslandManagerDialog relaunch:false =
 	--pos_y_start = 92
 	--pos_y_start = 32
 
-	step_height = 13
+	item_height = 13
 
 	viewport_height = Dialog.getViewportHeight()
 
 	items_count = items.count
 	format "items_count: %\n" items_count
 
-	slider_height =  ( items_count +1 ) * step_height + 2
+	--slider_height =  ( items_count +1 ) * item_height + 2
 
-	pos_y_start = viewport_height - ( items_count * step_height ) - 76
+	--pos_y_start = viewport_height - ( items_count * item_height ) - 76
 
-
+	pos_y_start = 24
 
     max_item_length = amax(for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 collect (ISLANDS_SYSTEM.islands_data[i][#BOTTOM] as string ).count)
 	--format "MAX_ITEM_LENGTH: %\n" max_item_length
@@ -83,16 +83,28 @@ function createIslandManagerDialog relaunch:false =
 
 	slider_width = 32
 
-	if slider_height > viewport_height then
-		slider_height = viewport_height - 16
+	height_other_controls = 84
 
-	listbox_height = items_count
+	slider_height = viewport_height - height_other_controls
 
-	if items_count * step_height > viewport_height then
+	listbox_height = (slider_height / item_height) as integer
+	--format "LISTBOX_HEIGHT: %\n" listbox_height
+	--slider_height = 512
+	slider_height = (listbox_height + 1) * item_height
+
+	--listbox_height = 60
+
+
+	--if slider_height > viewport_height then
+		--slider_height = viewport_height - 16
+
+	--listbox_height = items_count
+
+	if items_count > listbox_height then
 	(
-		listbox_height = ceil( (viewport_height - pos_y_start) / step_height ) + 2
+		--listbox_height = ceil( (viewport_height - pos_y_start) / item_height ) + 2
 
-		width_listbox += 16
+		width_listbox += 20
 	)
 
 	pos_listbox = [ 4, pos_y_start ]
@@ -101,7 +113,8 @@ function createIslandManagerDialog relaunch:false =
 	/*------------------------------------------------------------------------------
 		CONTROLS
 	--------------------------------------------------------------------------------*/
-     btn_exit = _Controls.control #BUTTON "Exit" width:42 height:24 offset:	[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
+    btn_exit = _Controls.control #BUTTON "Exit" width:42 height:24 offset:[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
+    --btn_exit = _Controls.control #BUTTON "Exit" width:42 height:24
 
 	/*------ MULTILISTBOX ------*/
 	_multilistbox = _Controls.control #MULTILISTBOX "" id:#ML_island_listbox \
@@ -112,7 +125,7 @@ function createIslandManagerDialog relaunch:false =
 						ini:false	\
 								        pos:pos_listbox
 
-	--/*------ SLIDER ------*/
+	/*------ SLIDER ------*/
     _slider = _Controls.control #SLIDER "" id:#SLIDER_island_select	\
                     range:[0, items_count - 1 ,0]	\
                     params:#(#orient, #vertical, #type, #integer)	\
@@ -146,7 +159,6 @@ function createIslandManagerDialog relaunch:false =
 	_size_min.Event #CHANGED "format \"EventFired: %\n\" EventFired"
 
 	_multilistbox.Event #SELECTIONEND "ISLANDS_SYSTEM.updateListboxCallback()" -- called when select action ends
-    --_multilistbox.Event #SELECTED "ISLANDS_SYSTEM.updateListboxCallback()" -- called when select action ends
     _multilistbox.Event #RIGHTCLICK "openNewIslandsMenu()" -- called when select action ends
 
 	_slider.Event #CHANGED     "ISLANDS_SYSTEM.selectLayerBySlider"

@@ -16,6 +16,7 @@ function selectConcexOrBottomFacesOrVers mode subobject:#VERTEX =
 (
 
 		fn _getSelection obj subobject = if subobject == #FACE then polyop.getFaceSelection obj else polyop.getVertSelection obj -- return
+
 		/** Select final selection
 		 */
 		fn setSelection obj verts subobject:#VERTEX =
@@ -41,20 +42,18 @@ function selectConcexOrBottomFacesOrVers mode subobject:#VERTEX =
 	--format "\n"; print ".selectVertsByCavity()"
 		obj	= selection[1]
 
-		--VertSelector 	= VertSelector_v( obj  )
+		--ctrl	= keyboard.controlPressed
+		--alt	= keyboard.altPressed
+		--shift	= keyboard.shiftPressed
 
-		ctrl	= keyboard.controlPressed
-		alt	= keyboard.altPressed
-		shift	= keyboard.shiftPressed
+		--hidden_verts =	polyop.getHiddenVerts obj
 
-
-
-		if ctrl then
-		(
-			obj.EditablePoly.unhideAll subobject
-
-			obj.EditablePoly.SetSelection subobject #{}
-		)
+		--if ctrl then
+		--(
+		--	--obj.EditablePoly.unhideAll subobject
+		--
+		--	--obj.EditablePoly.SetSelection subobject #{}
+		--)
 
 		max modify mode
 
@@ -87,22 +86,20 @@ function selectConcexOrBottomFacesOrVers mode subobject:#VERTEX =
 			--if not sel_old.isEmpty and not (sel_old - sel_new).isEmpty then
 			if not sel_old.isEmpty then
 				setSelection obj ( sel_new * sel_old) subobject:subobject
-
 		)
 
+		--if alt then
+			--obj.EditablePoly.unhideAll subobject
 
-		if alt then
+		if keyboard.controlPressed and subobject != #FACE then
+		(
 			obj.EditablePoly.unhideAll subobject
 
-
-		if subobject != #FACE and not alt then
-		(
 			actionMan.executeAction 0 "40044"  -- Selection: Select Invert
 
 			obj.EditablePoly.hide subobject
 
 			actionMan.executeAction 0 "40021"  -- Selection: Select All
-
 		)
 
 	--if subobject == #FACE then polyop.getFaceSelection obj else polyop.getVertSelection obj -- return
@@ -154,7 +151,7 @@ macroscript	maxtoprint_get_bottom_verts
 category:	"maxtoprint"
 buttontext:	"BOTTOM\TOP"
 toolTip:	"BOTTOM verts"
-icon:	"tooltip:Select bottom or top verts of all or selected verts"
+icon:	"tooltip:Select bottom or top verts of all or selected verts."
 (
 	on execute do
 	(
@@ -170,7 +167,7 @@ icon:	"tooltip:Select bottom or top verts of all or selected verts"
 macroscript	maxtoprint_get_top_verts
 category:	"maxtoprint"
 buttontext:	"BOTTOM\TOP"
-toolTip:	"TOP verts"
+toolTip:	"TOP verts\n\nCTRL: ISOLATE selected verts"
 --icon:	"tooltip:CTRL: Reset selection"
 (
 	on execute do

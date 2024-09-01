@@ -61,7 +61,7 @@ struct IslandsSystem_v
 
 			/* FLIP INDEX - first item == last siland */
 
-			selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect _getIslandIndexFromTitle(list_items[i])) as BitArray
+			selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect this._getIslandIndexFromTitle(list_items[i])) as BitArray
 			--format "SELECTED_ISLANDS: %\n" selected_islands
 		)
 
@@ -75,7 +75,7 @@ struct IslandsSystem_v
 		--format "\n"; print ".getFirstIslandFromListbox()"
 		_listbox = DIALOG_island_manager.ML_island_listbox
 
-		_getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
+		this._getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
 	),
 	/** Select layer
 	 */
@@ -111,11 +111,11 @@ struct IslandsSystem_v
 				verts += polyop.getVertSelection obj
 
 			--format "VERTS: %\n" verts
-			selectIslandsVerts (verts)
+			this.selectIslandsVerts (verts)
 
 		)
 
-		selectLayerItemInListbox (layer_index)
+		this.selectLayerItemInListbox (layer_index)
 	),
 
 	/** Select layer
@@ -129,7 +129,7 @@ struct IslandsSystem_v
 		verts = this._getVertsOfSelectedIslands(selected_islands)
 
 		/* SLECT VERTS OF SELECTED ISLANDS */
-		selectIslandsVerts (verts)
+		this.selectIslandsVerts (verts)
 
 		/* UPDATE SLIDER */
 		if selected_islands.count > 0 then
@@ -278,7 +278,7 @@ struct IslandsSystem_v
 			_mod.SetSelection #VERTEX verts_of_islands
 
 
-		DIALOG_island_manager.ML_island_listbox.selection = _getListboxItemsByIslandsIndex (islands_of_verts)
+		DIALOG_island_manager.ML_island_listbox.selection = this._getListboxItemsByIslandsIndex (islands_of_verts)
 
 	),
 
@@ -330,7 +330,7 @@ struct IslandsSystem_v
 		list_items = DIALOG_island_manager.ML_island_listbox.items
 
 
-		( for i = 1 to  list_items.count where island_indexes[ _getIslandIndexFromTitle list_items[i] ] collect i ) as BitArray
+		( for i = 1 to  list_items.count where island_indexes[ this._getIslandIndexFromTitle list_items[i] ] collect i ) as BitArray
 	),
 
 
