@@ -59,21 +59,15 @@ function createIslandManagerDialog relaunch:false =
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 
-	--pos_y_start = 92
-	--pos_y_start = 32
-
 	item_height = 13
 
 	viewport_height = Dialog.getViewportHeight()
 
 	items_count = items.count
-	format "items_count: %\n" items_count
-
-	--slider_height =  ( items_count +1 ) * item_height + 2
-
-	--pos_y_start = viewport_height - ( items_count * item_height ) - 76
 
 	pos_y_start = 24
+
+	height_other_controls = 84
 
     max_item_length = amax(for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 collect (ISLANDS_SYSTEM.islands_data[i][#BOTTOM] as string ).count)
 	--format "MAX_ITEM_LENGTH: %\n" max_item_length
@@ -83,47 +77,40 @@ function createIslandManagerDialog relaunch:false =
 
 	slider_width = 32
 
-	height_other_controls = 84
 
-	slider_height = viewport_height - height_other_controls
-
-	listbox_height = (slider_height / item_height) as integer
-	--format "LISTBOX_HEIGHT: %\n" listbox_height
-	--slider_height = 512
-	slider_height = (listbox_height + 1) * item_height
-
-	--listbox_height = 60
+	space_for_listbox = viewport_height - height_other_controls
 
 
-	--if slider_height > viewport_height then
-		--slider_height = viewport_height - 16
+	listbox_height = (space_for_listbox / item_height) as integer -- number of max visible items in listbox
 
-	--listbox_height = items_count
 
-	if items_count > listbox_height then
+	/* FIT LISTBOX HEIGHT TO ITEMS COUNT AND ALIGN TO BOTTOM */
+	if items_count < listbox_height then
 	(
-		--listbox_height = ceil( (viewport_height - pos_y_start) / item_height ) + 2
+		listbox_height_in_px = items.count * item_height
 
-		width_listbox += 20
+		pos_y_start += viewport_height - listbox_height_in_px - height_other_controls - 4 -- 2 px to set position pixel perfect
+
+		listbox_height = items.count
 	)
-
-	pos_listbox = [ 4, pos_y_start ]
-	pos_slider  = [ width_listbox + 4, pos_y_start - 4 ]
+	else
+	/* ADD WIDTH FOR SCROLLBAR IF ITMES IS MORE THEN FIT TO LSITBOX */
+		width_listbox += 20
 
 	/*------------------------------------------------------------------------------
 		CONTROLS
 	--------------------------------------------------------------------------------*/
-    btn_exit = _Controls.control #BUTTON "Exit" width:42 height:24 offset:[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
-    --btn_exit = _Controls.control #BUTTON "Exit" width:42 height:24
+    btn_exit = _Controls.control #BUTTON "Exit" width:48 height:24 offset:[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
 
 	/*------ MULTILISTBOX ------*/
-	_multilistbox = _Controls.control #MULTILISTBOX "" id:#ML_island_listbox \
-						width:width_listbox	\
-						height:listbox_height	\
-						items:items	\
-						across:2	\
-						ini:false	\
-								        pos:pos_listbox
+	_multilistbox = _Controls.control #MULTILISTBOX "" \
+	id:#ML_island_listbox	\
+	width:width_listbox	\
+	height:listbox_height	\
+	items:items			\
+	across:2			\
+	ini:false			\
+                   pos:[ 4, pos_y_start ]
 
 	/*------ SLIDER ------*/
     _slider = _Controls.control #SLIDER "" id:#SLIDER_island_select	\
@@ -131,10 +118,10 @@ function createIslandManagerDialog relaunch:false =
                     params:#(#orient, #vertical, #type, #integer)	\
                     ticks:(items_count - 2)	\
                     width:slider_width	\
-                    height:slider_height	\
+                    height:((listbox_height + 1) * item_height)	\
                     across:2	\
                     ini:false	\
-                    pos:pos_slider
+                    pos:[ width_listbox + 4, pos_y_start - 4 ]
 
 	/*------ CECKBUTTON ------*/
 	btn_isloate = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate height:32
