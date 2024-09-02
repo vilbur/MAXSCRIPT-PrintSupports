@@ -20,6 +20,8 @@ function createIslandManagerDialog relaunch:false =
 
 		   MAX SIZE AND DISPLAY UNITS - HOTFIX CODE
 
+		   CREATE FUNCTION IslandsSystem_v.getMinMaxSize()
+
 		*/
 		display_units = case units.SystemType of -- convert to milimeters
 		(

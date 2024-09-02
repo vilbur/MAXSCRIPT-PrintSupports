@@ -318,31 +318,36 @@ struct IslandsSystem_v
 
 		/** Is island matchin size
 		 */
-		function isIslandMatchinSize island_size size =
+		function isIslandMatchinSize island_size size size_min size_max =
 		(
 			--format "\n"; print ".isIslandMatchinSize()"
 			--format "island_size: %\n" island_size
 			--format "size: %\n" size
-			size_min = DIALOG_island_manager.SPIN_island_size_min.value
-			size_max = DIALOG_island_manager.SPIN_island_size_max.value
 
-			case size of
+			if island_size == undefined and size == #SMALL then
+				true --return
+
+			else if island_size != undefined then
 			(
-				(#SMALL):	island_size.x <= size_min or  island_size.y <= size_min
-				(#MEDIUM):	(island_size.x > size_min and island_size.x < size_max) or (island_size.y > size_min and island_size.y < size_max)
-				(#BIG):	island_size.x >= size_max or  island_size.y >= size_max
+				case size of
+				(
+					(#SMALL):	island_size.x <= size_min or  island_size.y <= size_min
+					(#MEDIUM):	(island_size.x > size_min and island_size.x < size_max) or (island_size.y > size_min and island_size.y < size_max)
+					(#BIG):	island_size.x >= size_max or  island_size.y >= size_max
+				)
 			)
-
 		)
 
 		--islands_by_size = for i = islands_data.count to 1 by -1 where islands_data[i][#SIZE] != undefined and  islands_data[i][#SIZE] > 2 collect i
+		size_min = DIALOG_island_manager.SPIN_island_size_min.value
+		size_max = DIALOG_island_manager.SPIN_island_size_max.value
 
 		/* GET ISLANDS MATHING SIZE */
-		islands_by_size = (for i = 1 to islands_data.count where islands_data[i][#SIZE] != undefined and isIslandMatchinSize(islands_data[i][#SIZE])(size) collect i) as BitArray
+		islands_by_size = (for i = 1 to islands_data.count where isIslandMatchinSize islands_data[i][#SIZE] size size_min size_max collect i) as BitArray
 
 		DIALOG_island_manager.ML_island_listbox.selection = this._getListboxItemsByIslandsIndex (islands_by_size)
 
-		--this.updateListbox()
+		this.updateListboxCallback()
 	),
 
 	/** Select islands by verts
