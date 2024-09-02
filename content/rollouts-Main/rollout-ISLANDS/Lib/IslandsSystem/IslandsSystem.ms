@@ -191,21 +191,19 @@ struct IslandsSystem_v
 		function selectVertsEditablePoly obj verts isolate =
 		(
 			--format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
+			all_verts = #{1..(getNumVerts obj.mesh)}
 
+			hidden_verts =	( polyop.getHiddenVerts obj ) - verts
 
-			hidden_verts =	( polyop.getHiddenVerts obj) - verts
-
-			polyop.unHideAllVerts obj
-
-			if DIALOG_island_manager.CBTN_isolate.state == 1 then
+			/* HIDE HIDDEN VERTS OR ISOALTE ONLY SELECTED */
+			if hidden_verts.numberSet > 0 or isolate then
 			(
-				all_verts = #{1..(getNumVerts obj.mesh)}
+				polyop.unHideAllVerts obj
 
-				polyop.setHiddenVerts obj (all_verts - verts)
+				hidden_verts = if isolate == 1 then (all_verts - verts)
+
+				polyop.setHiddenVerts obj hidden_verts
 			)
-			else
-				polyop.setHiddenVerts obj (hidden_verts - verts) -- unhide selected verts
-
 
 			obj.baseobject.SetSelection #Vertex #{}
 
@@ -244,7 +242,35 @@ struct IslandsSystem_v
 			if verts_base_all.numberSet != verts_mesh_all.numberSet then
 				verts = getVertsByBaseobject(obj)(verts)(verts_mesh_all)
 
-			_mod.Select #VERTEX verts
+			if not isolate then
+			(
+				actionMan.executeAction 0 "40021"  -- Selection: Select All
+
+				visible_verts	= (getVertSelection obj.mesh) + verts
+
+				_mod.ButtonOp #UnhideAllVertex
+
+				_mod.SetSelection #VERTEX #{}
+
+				_mod.Select #VERTEX visible_verts
+
+				_mod.ButtonOp #HideUnselectedVertex
+
+				_mod.SetSelection #VERTEX #{}
+
+				_mod.Select #VERTEX verts
+			)
+			else /* UNHIDE ONLY SELECTED VERTS */
+			(
+				_mod.ButtonOp #UnhideAllVertex
+
+				_mod.SetSelection #VERTEX #{}
+
+				_mod.Select #VERTEX verts
+
+				_mod.ButtonOp #HideUnselectedVertex
+
+			)
 		)
 
 		isolate_verts = DIALOG_island_manager.CBTN_isolate.state == 1
@@ -316,7 +342,7 @@ struct IslandsSystem_v
 
 		DIALOG_island_manager.ML_island_listbox.selection = this._getListboxItemsByIslandsIndex (islands_by_size)
 
-		updateListbox()
+		--this.updateListbox()
 	),
 
 	/** Select islands by verts

@@ -16,17 +16,32 @@ function createIslandManagerDialog relaunch:false =
 	 */
 	function getItemTitile island_index =
 	(
+		/*
 
+		   MAX SIZE AND DISPLAY UNITS - HOTFIX CODE
+
+		*/
+		display_units = case units.SystemType of -- convert to milimeters
+		(
+			#millimeters:	1
+			#centimeters:	10
+			#meters:	1000
+			#kilometers:	1000000
+			default:	1 -- non metric units
+		)
+
+		_size_max = DIALOG_island_manager.SPIN_island_size_max.value / display_units
+		format "_size_max: %\n" _size_max
 		/** Get heigh island
 		 */
 		function getHeighIslandX island_data        = if island_data[#TOP] != undefined and island_data[#TOP] - island_data[#BOTTOM] > 10  then "↕" else ""
-		function getIslandSizeCharacter island_data = if island_data[#SIZE] != undefined and (island_data[#SIZE].x > 5 or island_data[#SIZE].y > 5)  then "↔" else ""
+		function getIslandSizeCharacter island_data _size_max = if island_data[#SIZE] != undefined and (island_data[#SIZE].x > _size_max or island_data[#SIZE].y > _size_max )  then "↔" else ""
 		--format "\n"; print ".getItemTitile()"
 		island_data = ISLANDS_SYSTEM.islands_data[island_index]
 
 		whitespace = "                          "
 
-		size_marks = getHeighIslandX(island_data) + getIslandSizeCharacter(island_data)
+		size_marks = getHeighIslandX(island_data) + getIslandSizeCharacter(island_data)(_size_max)
 
 		if size_marks.count > 0 then
 			size_marks = " " + size_marks
@@ -143,7 +158,6 @@ function createIslandManagerDialog relaunch:false =
 	_radio.Event #CHANGED "ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()"
 	_radio.Event #RIGHTCLICK "ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()"
 
-	_size_min.Event #CHANGED "format \"EventFired: %\n\" EventFired"
 
 	_multilistbox.Event #SELECTIONEND "ISLANDS_SYSTEM.updateListboxCallback()" -- called when select action ends
     _multilistbox.Event #RIGHTCLICK "openNewIslandsMenu()" -- called when select action ends
@@ -151,6 +165,8 @@ function createIslandManagerDialog relaunch:false =
 	_slider.Event #CHANGED     "ISLANDS_SYSTEM.selectIslandBySlider"
 	_slider.Event #RIGHTCLICK  "ISLANDS_SYSTEM.toggleSelectIslandMode()"
 
+	_size_min.Event #CHANGED "format \"EventFired: %\n\" EventFired"
+	_size_max.Event #CHANGED "format \"EventFired: %\n\" EventFired"
 
 	--Dialog.min_size = [32, -1]
 	--Dialog.create width:(width_listbox + slider_width) height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
