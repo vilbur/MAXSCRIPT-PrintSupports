@@ -123,8 +123,6 @@ struct SlicerSystem_v
 		(
 			/* GET ALL INSANCES OF MODIFIER IN SCENE */
 			modifiers_in_scene = this._getModifiersInScene( slice_mode_data.key )
-			format "%: %\n" slice_mode_data.key modifiers_in_scene
-			format "slice_modifier.enabled: %\n" modifiers_in_scene[1].enabled
 
 			/* GET NEW INSANCE MODIFIER */
 			if ( slice_modifier = modifiers_in_scene[1] ) != undefined and slice_modifier.enabled != state then

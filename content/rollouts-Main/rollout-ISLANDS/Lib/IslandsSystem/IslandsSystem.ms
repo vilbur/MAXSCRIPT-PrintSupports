@@ -182,17 +182,16 @@ struct IslandsSystem_v
 	 */
 	function selectIslandsVerts verts =
 	(
-		format "\n"; print ".selectIslandsVerts()"
+		format "\n"; print "IslandsSystem_v.selectIslandsVerts()"
 		format "verts: %\n" verts
 
 
-		if verts != undefined then
-		format "VERTS.COUNT: %\n" verts.count
-		--obj	= selection[1]
-
-		if verts != undefined then
+		/** Select verts editable poly
+		 */
+		function selectVertsEditablePoly obj verts isolate =
 		(
-			subObjectLevel = 1
+			--format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
+
 
 			hidden_verts =	( polyop.getHiddenVerts obj) - verts
 
@@ -207,9 +206,57 @@ struct IslandsSystem_v
 			else
 				polyop.setHiddenVerts obj (hidden_verts - verts) -- unhide selected verts
 
-			--else
-			obj.EditablePoly.SetSelection #Vertex verts
+
+			obj.baseobject.SetSelection #Vertex #{}
+
+			obj.baseobject.SetSelection #VERTEX verts
 		)
+
+		/** Select verts edit poly
+		 */
+		function selectVertsEditPoly _mod verts isolate =
+		(
+			--format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
+			/** Pass vertex selection from editable poly baseobject to edit poly modifier based on vertex position
+			  *
+			  * #return BitArray of vertex indexes of Edit Poly Modifier
+			 */
+			function getVertsByBaseobject obj verts_baseobject verts_mesh_all =
+			(
+				format "\n"; print "VertexColorProcessor_v.getBaseObjectVerts()"
+				verts_edit_poly = #()
+
+				verts_pos_baseobjects = polyop.getVerts obj.baseobject verts_baseobject --node:obj
+
+				verts_mesh_pos  = for vert in verts_mesh_all collect getVert obj.mesh vert
+
+				for vert_pos in verts_pos_baseobjects where (index = findItem verts_mesh_pos (vert_pos)) > 0 do
+					append verts_edit_poly index
+
+				verts_edit_poly as BitArray --return
+			)
+
+
+			verts_mesh_all	= #{1..( getNumVerts obj.mesh  )}
+			verts_base_all	= #{1..( polyop.getNumVerts obj.baseobject)}
+
+			/* GET EDIT POLY VERTS */
+			if verts_base_all.numberSet != verts_mesh_all.numberSet then
+				verts = getVertsByBaseobject(obj)(verts)(verts_mesh_all)
+
+			_mod.Select #VERTEX verts
+		)
+
+		isolate_verts = DIALOG_island_manager.CBTN_isolate.state == 1
+
+		subObjectLevel = 1
+
+		if classOf (_mod = modPanel.getCurrentObject()) == Editable_Poly then
+			selectVertsEditablePoly (obj)(verts)(isolate_verts)
+
+		else if classOf _mod  == Edit_Poly then
+			selectVertsEditPoly (_mod)(verts)(isolate_verts)
+
 	),
 
 	/** Select layer listbox

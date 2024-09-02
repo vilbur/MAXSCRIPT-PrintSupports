@@ -277,21 +277,14 @@ struct VertexColorProcessor_v
 			verts_base_all	= #{1..( polyop.getNumVerts obj.baseobject)} as Array
 
 			verts_pos_baseobjects = polyop.getVerts obj.baseobject verts_base_all --node:obj
-			--verts_pos_baseobjects = in coordsys world (for vert_pos in verts_pos_baseobjects collect round(vert_pos) 3)
-
-			--format "verts_pos_baseobjects[10203]: %\n" verts_pos_baseobjects[10203]
-			--format "VERTS_POS_BASEOBJECTS: %\n" verts_pos_baseobjects
 
 			if verts.count > 0 then
 			(
 				verts_sel_pos  = for vert in verts collect getVert obj.mesh vert
-				--format "verts_sel_pos: %\n" verts_sel_pos
-				--verts_sel_pos  = for vert in verts collect round (getVert obj.mesh vert) 3
 
 				for vert_pos in verts_sel_pos where (index = findItem verts_pos_baseobjects (vert_pos)) > 0 do
 					append verts_baseobject index
 			)
-			--format "VERTS_BASEOBJECT: %\n" verts_baseobject
 
 			verts_baseobject --return
 		)

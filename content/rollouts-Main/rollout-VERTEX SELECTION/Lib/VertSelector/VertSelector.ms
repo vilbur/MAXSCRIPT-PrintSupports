@@ -27,8 +27,8 @@ filein( getFilenamePath(getSourceFileName()) + "/../VertIslandFinder/VertIslandF
 struct VertSelector_v
 (
 	/* construct */
-	obj_original,	-- not collapesd original object
 	obj,	-- editable poly object used to process
+	--obj_original,	-- not collapesd original object
 
 	/* properties */
 	sel_modified = #{},
@@ -365,17 +365,55 @@ struct VertSelector_v
 	(
 		format "\n"; print "VertSelector_v.setSelection()"
 		--format "sel_bitarray: %\n" sel_bitarray
-		max modify mode
 
-		setSelectionLevel obj subobject
+		--/** Pass vertex selection to editable poly
+		--  *
+		--  * 1) Get selected verts in modifier like Edit Poly|Poly Select
+		--  * 2) Find same vertex by position in Editable Poly baseobject
+		--  *
+		--  * #return BitArray of vertex indexes of Editable Poly Baseobject
+		-- */
+		--function getVertsByBaseobject obj verts =
+		--(
+		--	--format "\n"; print "VertexColorProcessor_v.getBaseObjectVerts()"
+		--	verts_baseobject = #()
+		--
+		--	--verts_mesh_all	= #{1..( getNumVerts obj.mesh  )} as Array
+		--	verts_base_all	= #{1..( polyop.getNumVerts obj.baseobject)} as Array
+		--
+		--	verts_pos_baseobjects = polyop.getVerts obj.baseobject verts_base_all --node:obj
+		--
+		--	--if verts.count > 0 then
+		--	(
+		--		verts_sel_pos  = for vert in verts collect getVert obj.mesh vert
+		--
+		--		for vert_pos in verts_sel_pos where (index = findItem verts_pos_baseobjects (vert_pos)) > 0 do
+		--			append verts_baseobject index
+		--	)
+		--
+		--	verts_baseobject --return
+		--)
+
+		max modify mode
 
 		_mod = modPanel.getCurrentObject()
 
+		setSelectionLevel obj subobject
 		--_mod.SetSelection subobject #{}
 
 		if classOf _mod == Edit_Poly then
+		(
+
+			format "SEL_BITARRAY: %\n" sel_bitarray
+			--if obj.modifiers[#SLICE_PLANE_TOP] != undefined then
+			--(
+			--	sel_bitarray = getVertsByBaseobject(obj)(sel_bitarray)
+			--)
+			format "SEL_BITARRAY: %\n" sel_bitarray
+
 			_mod.Select subobject sel_bitarray
 
+		)
 		else if classOf _mod  == Editable_Poly then
 			_mod.SetSelection subobject sel_bitarray
 
@@ -548,18 +586,18 @@ struct VertSelector_v
 		--verts_pos --return
 	),
 
-	/** Set object
-	 */
-	function _setObject =
-	(
-		format "\n"; print "VertSelector_v._setObject()"
-		format "this.obj_original: %\n" this.obj_original
-		this.obj = this.obj_original -- DEV
-
-		--this.obj  = snapshot this.obj_original
-
-		--convertTo this.obj PolyMeshObject
-	),
+	--/** Set object
+	-- */
+	--function _setObject =
+	--(
+	--	format "\n"; print "VertSelector_v._setObject()"
+	--	format "this.obj_original: %\n" this.obj_original
+	--	--this.obj = this.obj_original -- DEV
+	--
+	--	--this.obj  = snapshot this.obj_original
+	--
+	--	--convertTo this.obj PolyMeshObject
+	--),
 
 	/** Merge bit arrays wich shared bits
 	  *
@@ -601,7 +639,7 @@ struct VertSelector_v
 	(
 		format "\n"; print "VertSelector_v.onCreate()"
 		print "***********************\n***********************"
-		this._setObject()
+		--this._setObject()
 
 		VertexLayers 	= VertexLayers_v( obj )
 		VertexGrid 	= VertexGrid_v( obj )
@@ -609,7 +647,4 @@ struct VertSelector_v
 		VertexGridGetter 	= VertexGridGetter_v( obj )
 
 	)
-
-
-
 )
