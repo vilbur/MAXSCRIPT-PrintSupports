@@ -86,6 +86,8 @@ struct IslandsSystem_v
 
 		this._getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
 	),
+
+
 	/** Select layer
 	 */
 	function selectIslandBySlider slider_val =
@@ -96,15 +98,11 @@ struct IslandsSystem_v
 		if slider_val == undefined then
 			slider_val = DIALOG_island_manager.SLIDER_island_select.value
 
-		--obj	= selection[1]
 
 		layer_index = slider_val + 1
-		--format "layer_index: %\n" layer_index
+
 		select_whole_island = DIALOG_island_manager.RB_slider_mode.state
-		--format "select_whole_island: %\n" select_whole_island
-		--format "BOTTOM: %\n" islands_data[#BOTTOM][layer_index]
-		--format "NEW_ISLAND:   %\n" islands_data[#NEW_ISLAND][layer_index]
-		--format "WHOLE_ISLAND: %\n" islands_data[#WHOLE_ISLAND][layer_index]
+
 
 		island_data = islands_data[layer_index]
 		--format "island_data: %\n" island_data
@@ -237,6 +235,7 @@ struct IslandsSystem_v
 
 			verts_mesh_all	= #{1..( getNumVerts obj.mesh  )}
 			verts_base_all	= #{1..( polyop.getNumVerts obj.baseobject)}
+			verts_base_hidden	= polyop.getHiddenVerts obj.baseobject
 
 			/* GET EDIT POLY VERTS */
 			if verts_base_all.numberSet != verts_mesh_all.numberSet then
@@ -305,9 +304,16 @@ struct IslandsSystem_v
 		--
 		--DIALOG_island_manager.ML_island_listbox.selection = if keyboard.shiftPressed then items_sel + #{new_index} else #{new_index}
 
-		--this._getIslandByLayer (layer_indexes)
+		items = this._getIslandByLayer (layer_indexes)
+		--format "ITEMS: %\n" items
+		--format "TICKS: %\n" (DIALOG_island_manager.SLIDER_island_select.ticks )
+		--format "items.count: %\n" items.count
 
-		DIALOG_island_manager.ML_island_listbox.selection = this._getIslandByLayer (layer_indexes)
+
+		DIALOG_island_manager.ML_island_listbox.selection = items
+
+		if ( slider_value = DIALOG_island_manager.ML_island_listbox.items.count - items.count  ) > 0 then
+			DIALOG_island_manager.SLIDER_island_select.value = slider_value
 	),
 
 	/** Select islands by size
@@ -471,11 +477,13 @@ struct IslandsSystem_v
 
 			for i = islands_props_data.count to 1 by -1 where selected_islands[i] do
 				deleteItem islands_props_data i
-			--for island_data in islands_props_data do
-				--format "island_data: %\n" island_data
 
 			setUserPropVal obj "ISLANDS_DATA" islands_props_data
 		)
+
+		--selected_items = DIALOG_island_manager.ML_island_listbox.selection as Array
+
+		macros.run "maxtoprint" "maxtoprint_islands_dialog"
 	),
 
 	/** Update island selection by radiobuttons state

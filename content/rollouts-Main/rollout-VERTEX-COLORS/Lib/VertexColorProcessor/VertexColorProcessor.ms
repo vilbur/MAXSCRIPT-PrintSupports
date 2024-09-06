@@ -265,7 +265,7 @@ struct VertexColorProcessor_v
 	 */
 	function _getBaseObjectVerts verts =
 	(
-		format "\n"; print "VertexColorProcessor_v.getBaseObjectVerts()"
+		--format "\n"; print "VertexColorProcessor_v.getBaseObjectVerts()"
 		----format "verts: %\n" verts
 		--format "classof curr_mod: %\n" (classof curr_mod)
 

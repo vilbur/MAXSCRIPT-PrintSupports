@@ -266,6 +266,8 @@ toolTip:	"Reset Vertex Colors"
 		VertexColorProcessor = VertexColorProcessor_v(obj)
 
 		VertexColorProcessor.resetCPVVerts()
+
+		messageBox "Vertex Colors Reseted" title:"VERTEX COLOR" 
 	)
 )
 

@@ -16,30 +16,18 @@ icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 	(
 		clearListener(); print("Cleared in:\n"+getSourceFileName())
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SLICER\[SLICE PLANE].mcr"
-		--format "EventFired	= % \n" EventFired
-
-		/* DEVELOP: KILL SLICE DIALOG */
-		--try(
-		--	cui.UnRegisterDialogBar DIALOG_elevation_slider
-		--
-		--	destroyDialog DIALOG_elevation_slider
-		--
-		--)catch()
-
-
-		--if SLICER_SYSTEM == undefined then
-			--SLICER_SYSTEM = SlicerSystem_v()
-
 		SLICER_SYSTEM.setObejctsBySelection()
 
 		SLICER_SYSTEM.addModifiers()
+
+		SLICER_SYSTEM.whenSelectionChange()
 
 		/* CREATE SLICE DIALOG */
 		createElevationSliderDialog()
 
 		SLICER_SYSTEM.setSliderByModifier()
 
-		--updateSlicePlaneSystem (DIALOG_elevation_slider.SPIN_layer_current.value)
+		select selection -- fire when selected event -- open modify panel and select Edit or Editable Poly
 
 	)
 )
@@ -56,38 +44,27 @@ tooltip:	"EXIT SLICE MODE"
 icon:	""
 (
 	on execute do
+	(
+		_selection = if selection.count == 0 then selection else geometry
+
+		--for mod_name in #( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM, #SELECT_BY_PRINT_LAYER ) do
+		for mod_name in #( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM ) do
 		(
-			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-SLICER\SLICE PLANE.mcr"
-			--try(
-			--	cui.UnRegisterDialogBar DIALOG_elevation_slider
-			--
-			--	destroyDialog DIALOG_elevation_slider
-			--)catch()
 
-			_selection = if selection.count == 0 then selection else geometry
+			/*  */
+			 if selection.count == 0 then
+			 (
+				modifiers_in_scene = for mod_in_scene in getClassInstances ( SliceModifier ) where mod_in_scene.name as name == mod_name collect mod_in_scene
 
-
-
-			for mod_name in #( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM, #SELECT_BY_PRINT_LAYER ) do
-			(
-
-				/*  */
-				 if selection.count == 0 then
-				 (
-					modifiers_in_scene = for mod_in_scene in getClassInstances ( SliceModifier ) where mod_in_scene.name as name == mod_name collect mod_in_scene
-
-					for mod_in_scene in modifiers_in_scene do
-						for obj in refs.dependentNodes mod_in_scene do
-							deleteModifier obj mod_in_scene
-
-				 )
-				 else
-					for obj in selection where (_mod = obj.modifiers[mod_name]) != undefined do
-						deleteModifier obj _mod
-
-
-			)
+				for mod_in_scene in modifiers_in_scene do
+					for obj in refs.dependentNodes mod_in_scene do
+						deleteModifier obj mod_in_scene
+			 )
+			 else
+				for obj in selection where (_mod = obj.modifiers[mod_name]) != undefined do
+					deleteModifier obj _mod
 		)
+	)
 )
 
 /** Get layer number to move

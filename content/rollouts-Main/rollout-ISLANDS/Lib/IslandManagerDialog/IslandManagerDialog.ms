@@ -32,8 +32,9 @@ function createIslandManagerDialog relaunch:false =
 			default:	1 -- non metric units
 		)
 
-		_size_max = DIALOG_island_manager.SPIN_island_size_max.value / display_units
-		format "_size_max: %\n" _size_max
+		--_size_max = DIALOG_island_manager.SPIN_island_size_max.value / display_units
+		_size_max = 10 / display_units
+		--format "_size_max: %\n" _size_max
 		/** Get heigh island
 		 */
 		function getHeighIslandX island_data        = if island_data[#TOP] != undefined and island_data[#TOP] - island_data[#BOTTOM] > 10  then "↕" else ""

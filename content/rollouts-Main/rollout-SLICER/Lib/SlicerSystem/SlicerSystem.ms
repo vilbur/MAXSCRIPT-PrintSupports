@@ -1,3 +1,50 @@
+/** Wait when modifier stack will be ready
+ */
+function waitOnModifiyStackIsReady_SLICER =
+(
+	--print "Start: waitOnModifiyStackIsReady_SLICER()"
+	callbacks.addScript #modPanelObjPostChange "onModifyStackReady_SLICER()" id:#onModifyStackReady_SLICER
+)
+
+/**
+ */
+function waitOnModifiyStackIsReadyKill_SLICER =
+(
+	--print "Kill: waitOnModifiyStackIsReady_SLICER()"
+	try(callbacks.removeScripts #modPanelObjPostChange id:#onModifyStackReady_SLICER)catch()
+)
+
+/** Call callback when mod panel is fully loaded
+ */
+function onModifyStackReady_SLICER =
+(
+	--format "\n"; print "Callback: onModifyStackReady_SLICER WAIT"
+	max modify mode
+
+	if (_modifier = modPanel.getCurrentObject()) != undefined then -- current object is undefined than Modify panel is fully loaded
+	(
+		--format "\n"; print "Callback: onModifyStackReady_SLICER READY"
+		waitOnModifiyStackIsReadyKill_SLICER()
+
+		obj	= selection[1]
+
+		local edit_poly_mod
+
+		/* ACTIVATE FIRST EDIT POLY MODIFIER IN STACK FROM TOP */
+		for _mod in obj.modifiers while edit_poly_mod != Edit_Poly where (edit_poly_mod = classOf _mod) == Edit_Poly do
+			modPanel.setCurrentObject _mod node:obj
+
+		if edit_poly_mod != Edit_Poly then
+			modPanel.setCurrentObject obj.baseObject --node:obj
+
+
+		if classOf ( _mod = modPanel.getCurrentObject() ) == Editable_Poly then
+			_mod.showcage = off
+
+		showEndResult  = true
+	)
+)
+
 /** Methods synchronizing islands dialog controls functions
  */
 struct SlicerSystem_v
@@ -11,7 +58,8 @@ struct SlicerSystem_v
 	layer_height	= DIALOG_content.SPIN_layer_height.value,
 
 	/* properties */
-	layers_count,
+	layers_start, --
+	layers_count, -- number of prit layers used for objects bbox z dimension
 
 	min_max_z = #(),
 
@@ -27,6 +75,16 @@ struct SlicerSystem_v
 	/* dependency */
 	/* reference */
 	/* inhered */
+
+	/** Move slider
+	 */
+	function moveSlider direction =
+	(
+		--format "\n"; print "IslandsSystem_v.moveSlider()"
+		--format "EventFired:	% \n" EventFired.type
+		format "%\n" EventFired.type
+		format "DIALOG_elevation_slider.SLIDER_elevation.value: %\n" DIALOG_elevation_slider.SLIDER_elevation.value
+	),
 
 	/** Set obejcts
 	 */
@@ -47,7 +105,10 @@ struct SlicerSystem_v
 
 		select _objects
 
+		layers_start = ( min_max_z[1]  / layer_height ) as integer + 1
+
 		layers_count = (( min_max_z[2] - min_max_z[1] ) / layer_height ) as integer
+
 	),
 
 	/** Set print elevation
@@ -131,6 +192,18 @@ struct SlicerSystem_v
 	),
 
 
+	/** When attribute change https://help.autodesk.com/view/MAXDEV/2024/ENU/?guid=GUID-513285B3-DBF6-471E-B587-B5BE14D4D875
+	 */
+	function whenSelectionChange  =
+	(
+		deleteAllChangeHandlers id:#WHEN_SLICED_OBJECTS_SELECTED
+
+		--when select WHEN_SLICED_OBJECTS_SELECTED changes id:#WHEN_SLICED_OBJECTS_SELECTED obj do
+		when select this._objects changes id:#WHEN_SLICED_OBJECTS_SELECTED obj do
+			if obj.isSelected then
+				waitOnModifiyStackIsReady_SLICER()
+	),
+
 	/** Shift layer incremental
 	  *
 	  * @param -1|1 layer_index
@@ -144,6 +217,7 @@ struct SlicerSystem_v
 		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
 
 		format "TEST: %\n" (keyboard.controlPressed and DIALOG_island_manager != undefined)
+
 
 		/* SHIFT: Go 1mm up\down */
 		if keyboard.shiftPressed then
@@ -163,9 +237,11 @@ struct SlicerSystem_v
 		/* CTRL: Go next\previous island - if slider dialog is opened */
 		else if keyboard.controlPressed and DIALOG_island_manager != undefined then
 		(
-			islands_indexes = (for item in DIALOG_island_manager.ML_island_listbox.items collect (filterString item " ")[1] as integer ) as BitArray -- get list items strings to bitarray
-			format "ISLANDS_INDEXES: %\n" islands_indexes
-			format "islands_indexes.count: %\n" islands_indexes.count
+			islands_layers = (for item in DIALOG_island_manager.ML_island_listbox.items collect (filterString item " ")[1] as integer ) as BitArray -- get list items strings to bitarray
+			format "ISLANDS_LAYERS: %\n" islands_layers
+			format "islands_layers.count: %\n" islands_layers.count
+
+			layer_current += layers_start
 
 			layer_next = layer_current + layer_index
 
@@ -173,45 +249,37 @@ struct SlicerSystem_v
 
 			format "layer_current: %\n" layer_current
 			format "layer_next: %\n" layer_next
-			--format "TEST: %\n" (layer_index > 0 and layer_current < islands_indexes.count)
-			format "islands_indexes[layer_next]: %\n" islands_indexes[layer_next]
+			--format "TEST: %\n" (layer_index > 0 and layer_current < islands_layers.count)
+			format "islands_layers[layer_next]: %\n" islands_layers[layer_next]
 
-			if islands_indexes[layer_next] == false then
+
+			if islands_layers[layer_next] == false then
 			(
 				/* GO ISLAND UP */
-				if layer_index > 0 and layer_current < islands_indexes.count then
-					for i = layer_next to islands_indexes.count while not islands_indexes[i] do
+				if layer_index > 0 and layer_current < islands_layers.count then
+					for i = layer_next to islands_layers.count while not islands_layers[i] do
 						layer_next = i + 1
 
 				/* GO ISLAND DOWN */
 				else if layer_index < 0 and layer_current > 1  then
-					for i = layer_next to 1 by -1 while not islands_indexes[i]  do
+					for i = layer_next to 1 by -1 while not islands_layers[i]  do
 						layer_next = i - 1
 
 			)
 
+			--format "LAYER_NEXT: %\n" layer_next
+			--format "LAYER_NEXT: %\n" layer_next
 
+			if DIALOG_island_manager != undefined and layer_next > 0 then
+				ISLANDS_SYSTEM.selectIslandByLayerInListbox (layer_next)
+
+			layer_next -= layers_start
 		)
 		/* GO 1 layer up\down */
 		else
 			layer_next = layer_current + layer_index
 
-
-		/* SETUP BY UI
-			cap_slice	= ROLLOUT_slicer.CBX_cap_slice.state
-			select_plane	= ROLLOUT_slicer.CBX_slice_select_plane.state
-		*/
-		--cap_slice	= true
-		--select_plane	= false
-
 		this.updateSlicePlaneSystem ( layer_next )
-
-
-
-		if DIALOG_island_manager != undefined and layer_next> 0 then
-			ISLANDS_SYSTEM.selectIslandByLayerInListbox (layer_next)
-
-		--updateListbox ()
 	),
 
 	/** Set slice plane modifier
@@ -224,42 +292,15 @@ struct SlicerSystem_v
 	function setSlicePlaneModifier mode state layer_index_or_z_pos cap_state =
 	(
 		--format "\n"; print ("SlicerSystem_v.setSlicePlaneModifier()")
-		--format "state:	% \n" state
-		--format "mode:	% \n" mode
-		--format "layer_index_or_z_pos:	% \n" layer_index_or_z_pos
-
-		--mod_name = "SLICE_PLANE_" + toUpper (mode as string )
-
-
 		if ( slice_mod = modifiers[mode] ) == undefined then
 			return false
 
-
-		--mods_in_scene = this._getModifiersInScene( mod_name )
-		--format "MODS_IN_SCENE: %\n" mods_in_scene
-
-
 		z_pos = if classOf layer_index_or_z_pos == integer then this.getPlaneZpozition (layer_index_or_z_pos) else layer_index_or_z_pos
-
-		--format "z_pos: %\n" z_pos
 
 		/* SET SLICE PLANE POSITION */
 		final_TM = Matrix3 1
 
 		final_TM.position.z = z_pos
-
-
-		--pos01 = [ 0,	0,	z_pos ]
-		--pos02 = [ 10,	0,	z_pos ]
-		--pos03 = [ 0,	10,	z_pos ]
-		--
-		--vect1 = normalize (pos02 - pos01)
-		--vect2 = normalize (pos03 - pos02)
-		--vect3 = normalize (cross vect2 vect1)
-		--
-		--vect2 = cross vect3 vect1
-		--
-		--final_TM =  (( Matrix3 vect1 vect2 vect3 ((pos01 + pos02 + pos03) / 3) ))
 
 		/*  UPDATE MODIFIER PROPERTIES */
 		slice_mod.slice_plane.transform = final_TM
@@ -267,7 +308,6 @@ struct SlicerSystem_v
 		slice_mod.Slice_Type = (if mode == #SLICE_PLANE_TOP then 2 else 3 )
 
 		slice_mod.cap = cap_state
-
 	),
 
 	/** Set slider by modifier

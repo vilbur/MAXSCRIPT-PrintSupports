@@ -62,7 +62,7 @@ struct VertIslandFinder_v
 
 		all_layers_timer = timeStamp()
 
-		format "\nSTART GETTING ISLANDS\n"
+		format "\nSEARCH FOR ISLANDS STARTED\n"
 
 		for l = 1 to used_layers_count do
 		--for layer in layers_with_verts do -- layer has not verts if item is integer ( layer number )
