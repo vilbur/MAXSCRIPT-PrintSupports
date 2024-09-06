@@ -15,8 +15,11 @@ global MODIFIERS_MANAGER
 global ISLANDS_SYSTEM
 global SLICER_SYSTEM
 
+
+filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerCallbacks.ms" )	--"./content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerCallbacks.ms"
 filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms" )	--"./content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms"
 
+filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsCallbacks.ms" )	--"./content/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsCallbacks.ms"
 filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms" )	--"./content/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManager.ms" )	--"./Lib/SupportManager/SupportManager.ms"
