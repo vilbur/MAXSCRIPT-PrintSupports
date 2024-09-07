@@ -125,7 +125,6 @@ struct IslandsSystem_v
 
 		)
 
-		format "LAYER_NEXT: %\n" layer_next
 		--format "LAYER_NEXT: %\n" layer_next
 		--
 		--if DIALOG_island_manager != undefined and layer_next > 0 then
@@ -317,6 +316,9 @@ struct IslandsSystem_v
 			selectVertsEditPoly (_mod)(verts)(isolate_verts)
 
 	),
+
+
+
 
 	/** Select layer listbox
 	 */

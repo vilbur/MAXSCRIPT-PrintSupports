@@ -61,10 +61,11 @@ struct SlicerCallbacks_v
 	(
 		format "\n"; print "SlicerCallbacks_v.plusMinusButton()"
 		layer_current	= DIALOG_elevation_slider.SPIN_layer_current.value
+		format "layer_current: %\n" layer_current
 		format "SLICER_SYSTEM.slice_start: %\n" SLICER_SYSTEM.slice_start
 
 
-		shift_mode	= #( #LAYERS, #VERTS, #ISLANDS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
+		--shift_mode	= #( #LAYERS, #VERTS, #ISLANDS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
 		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
 
 		/* SHIFT: Go 1mm up\down */
@@ -88,7 +89,9 @@ struct SlicerCallbacks_v
 
 		/* GO 1 layer up\down */
 		else
-			layer_next = slice_current + increment
+			layer_next = layer_current + increment
+
+		format "LAYER_NEXT: %\n" layer_next
 
 		/* UPDATE MODIFIER */
 		SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_next) (true)
@@ -100,12 +103,7 @@ struct SlicerCallbacks_v
 		SLICER_SYSTEM.setSpinnerValue(layer_next)
 
 		if keyboard.controlPressed and DIALOG_island_manager != undefined then
-		(
 			ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
-
-
-		)
-
 
 	),
 
