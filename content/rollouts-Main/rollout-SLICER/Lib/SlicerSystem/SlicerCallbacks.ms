@@ -34,11 +34,8 @@ struct SlicerCallbacks_v
 		--if slice_modes[#SLICE_PLANE_TOP] then
 			SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_index) (true)
 
-
-		--DIALOG_elevation_slider.SLIDER_elevation.value = layer_index - SLICER_SYSTEM.slice_start
-
-		DIALOG_elevation_slider.SPIN_layer_current.value = layer_index
-
+		/* UPDATE SPINNER VALUE */
+		this._setSpinnerValue(layer_index)
 	),
 
 	/** Spinner changed
@@ -51,8 +48,9 @@ struct SlicerCallbacks_v
 		SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_index) (true)
 
 		--slice_index = layer_index - SLICER_SYSTEM.slice_start
+		/* UPDATE SLIDER VALUE */
+		this._setSliderValue(layer_index)
 
-		DIALOG_elevation_slider.SLIDER_elevation.value = layer_index - SLICER_SYSTEM.slice_start
 	),
 
 	/** Plus minus button
@@ -60,13 +58,10 @@ struct SlicerCallbacks_v
 	function plusMinusButton increment =
 	(
 		format "\n"; print "SlicerCallbacks_v.plusMinusButton()"
-		layer_current	= DIALOG_elevation_slider.SLIDER_elevation.value
+		layer_current	= DIALOG_elevation_slider.SPIN_layer_current.value
 
 		--shift_mode	= #( #LAYERS, #VERTS, #ISLANDS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
 		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
-
-		format "TEST: %\n" (keyboard.controlPressed and DIALOG_island_manager != undefined)
-
 
 		/* SHIFT: Go 1mm up\down */
 		if keyboard.shiftPressed then
@@ -76,19 +71,38 @@ struct SlicerCallbacks_v
 			(
 				layers_per_mm = ( 1 * display_units / layer_height ) -- add or remove 1mm of current layer
 
-				(layer_current + layer_index * layers_per_mm) as integer
+				(layer_current + increment * layers_per_mm) as integer
 			)
 			/* CTRL + SHIFT: Go 100 layers up\down */
 			else
-				layer_index = layer_current + ( layer_index * 100 )
+				increment = layer_current + ( increment * 100 )
 
 		)
 		/* CTRL: Go next\previous island - if slider dialog is opened */
 		else if keyboard.controlPressed and DIALOG_island_manager != undefined then
-		(
+			layer_next = this._getLayerOfIsland()
+
+		/* GO 1 layer up\down */
+		else
+			layer_next = layer_current + increment
+
+		/* UPDATE SLIDER VALUE */
+		this._setSliderValue(layer_next - SLICER_SYSTEM.slice_start )
+
+		/* UPDATE SPINNER VALUE */
+		this._setSpinnerValue(layer_next)
+	),
+
+	private
+
+	/** Get layer of island
+	 */
+	function _getLayerOfIsland =
+	(
+		--format "\n"; print "SlicerCallbacks_v._getLayerOfIsland()"
 			islands_layers = (for item in DIALOG_island_manager.ML_island_listbox.items collect (filterString item " ")[1] as integer ) as BitArray -- get list items strings to bitarray
-			format "ISLANDS_LAYERS: %\n" islands_layers
-			format "islands_layers.count: %\n" islands_layers.count
+			--format "ISLANDS_LAYERS: %\n" islands_layers
+			--format "islands_layers.count: %\n" islands_layers.count
 
 			layer_current += slice_start
 
@@ -96,10 +110,10 @@ struct SlicerCallbacks_v
 
 			if layer_next < 1 then layer_next = 1
 
-			format "layer_current: %\n" layer_current
-			format "layer_next: %\n" layer_next
+			--format "layer_current: %\n" layer_current
+			--format "layer_next: %\n" layer_next
 			--format "TEST: %\n" (layer_index > 0 and layer_current < islands_layers.count)
-			format "islands_layers[layer_next]: %\n" islands_layers[layer_next]
+			--format "islands_layers[layer_next]: %\n" islands_layers[layer_next]
 
 
 			if islands_layers[layer_next] == false then
@@ -123,16 +137,25 @@ struct SlicerCallbacks_v
 				ISLANDS_SYSTEM.selectIslandByLayerInListbox (layer_next)
 
 			layer_next -= slice_start
-		)
-		/* GO 1 layer up\down */
-		else
-			layer_next = layer_current + layer_index
 
-		this.updateSlicePlaneSystem ( layer_next )
+
 	),
 
-	private
 
+
+	/** Set slider value
+	 */
+	function _setSliderValue val =
+	(
+		DIALOG_elevation_slider.SLIDER_elevation.value = val
+	),
+
+	/** Set spinner value
+	 */
+	function _setSpinnerValue val =
+	(
+		DIALOG_elevation_slider.SPIN_layer_current.value = val
+	),
 
 	/**
 	 */

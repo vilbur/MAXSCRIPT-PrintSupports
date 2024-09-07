@@ -27,6 +27,8 @@ function createElevationSliderDialog =
 	--format "DIALOG_elevation_slider == undefined	= % \n" (DIALOG_elevation_slider == undefined)
 	--if DIALOG_elevation_slider == undefined then
 
+	SlicerCallbacks = "(SlicerCallbacks_v())"
+
 	slider_ticks  = SLICER_SYSTEM.slice_count
 	--slider_height = SLICER_SYSTEM.viewport_height - ( mod SLICER_SYSTEM.viewport_height 10 ) - 70 -- round viewport height to ceil 10 E.G.: 1789 >>> 1780
 	slider_height = SLICER_SYSTEM.viewport_height - 78 -- round viewport height to ceil 10 E.G.: 1789 >>> 1780
@@ -84,22 +86,22 @@ function createElevationSliderDialog =
 		EVENTS
 	--------------------------------------------------------------------------------*/
 	btn_exit.Event #PRESSED    "macros.run \"_3D-Print\" \"print_create_slicerdialog\" " tooltip:"SLICE CURRENT SELECTED OBJECT"
-	btn_exit.Event #RIGHTCLICK "::SlicerCallbacks_v.desroySliderDialog()" tooltip:"EXIT SLICE MODE"
+	btn_exit.Event #RIGHTCLICK "(SlicerCallbacks_v()).desroySliderDialog()" tooltip:"EXIT SLICE MODE"
 
-	_slider.Event #CHANGED     "::SlicerCallbacks_v.sliderChanged(val)"
+	_slider.Event #CHANGED     "(SlicerCallbacks_v()).onSliderChanged(val)"
 	----_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"
 	--_slider.Event #LEFTCLICK	""
 
-	--_slider.Event #CHANGED     "::SlicerCallbacks_v.moveSlider(#DOWN)"
-	--_slider.Event #buttondown      "::SlicerCallbacks_v.moveSlider(#DOWN)"
-	--_slider.Event #buttonup      "::SlicerCallbacks_v.moveSlider(#DOWN)"
-	--_slider.Event #RIGHTCLICK     "::SlicerCallbacks_v.moveSlider(#DOWN)"
+	--_slider.Event #CHANGED     "(SlicerCallbacks_v()).moveSlider(#DOWN)"
+	--_slider.Event #buttondown      "(SlicerCallbacks_v()).moveSlider(#DOWN)"
+	--_slider.Event #buttonup      "(SlicerCallbacks_v()).moveSlider(#DOWN)"
+	--_slider.Event #RIGHTCLICK     "(SlicerCallbacks_v()).moveSlider(#DOWN)"
 	--_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"
 
-	_spinner.Event #CHANGED "::SlicerCallbacks_v.spinnerChanged(val)"
+	_spinner.Event #CHANGED "(SlicerCallbacks_v()).onSpinnerChanged(val)"
 
-	btn_plus_minus.Event #PRESSED    "::SlicerCallbacks_v.plusMinusButton( 1 )"
-	btn_plus_minus.Event #RIGHTCLICK "::SlicerCallbacks_v.plusMinusButton( -1 )"
+	btn_plus_minus.Event #PRESSED    "(SlicerCallbacks_v()).onPlusMinusButton( 1 )"
+	btn_plus_minus.Event #RIGHTCLICK "(SlicerCallbacks_v()).onPlusMinusButton( -1 )"
 
 	--_dropdown.Event #CHANGED "SLICER_SYSTEM.changeSliderSnamps"
 

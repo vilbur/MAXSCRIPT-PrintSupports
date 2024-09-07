@@ -156,17 +156,17 @@ function createIslandManagerDialog relaunch:false =
 	/*------------------------------------------------------------------------------
 		EVENTS
 	--------------------------------------------------------------------------------*/
-	btn_isloate.Event #CHANGED "ISLANDS_SYSTEM.isolateSlectedIslands"
+	btn_isloate.Event #CHANGED "(IslandsCallbacks_v()).isolateSlectedIslands()"
 
-	_radio.Event #CHANGED "ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()"
-	_radio.Event #RIGHTCLICK "ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()"
+	_radio.Event #CHANGED "(IslandsCallbacks_v()).updateIslandSelectionByRadiobuttonsState()"
+	_radio.Event #RIGHTCLICK "(IslandsCallbacks_v()).updateIslandSelectionByRadiobuttonsState()"
 
 
-	_multilistbox.Event #SELECTIONEND "ISLANDS_SYSTEM.updateListboxCallback()" -- called when select action ends
+	_multilistbox.Event #SELECTIONEND "(IslandsCallbacks_v()).onListboxSelectionEnd()" -- called when select action ends
     _multilistbox.Event #RIGHTCLICK "openNewIslandsMenu()" -- called when select action ends
 
-	_slider.Event #CHANGED     "ISLANDS_SYSTEM.selectIslandBySlider"
-	_slider.Event #RIGHTCLICK  "ISLANDS_SYSTEM.toggleSelectIslandMode()"
+	_slider.Event #CHANGED     "(IslandsCallbacks_v()).onSliderChanged(val)"
+	_slider.Event #RIGHTCLICK  "(IslandsCallbacks_v()).toggleSelectIslandMode()"
 
 	_size_min.Event #CHANGED "format \"EventFired: %\n\" EventFired"
 	_size_max.Event #CHANGED "format \"EventFired: %\n\" EventFired"

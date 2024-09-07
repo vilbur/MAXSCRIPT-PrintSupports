@@ -297,7 +297,7 @@ struct SlicerSystem_v
 	(
 		--format "\n"; print ("SlicerSystem_v.setSlicePlaneModifier()")
 		--format "slice_mod: %\n" modifiers[mode]
-		format "layer_index_or_z_pos: %\n" layer_index_or_z_pos
+		--format "layer_index_or_z_pos: %\n" layer_index_or_z_pos
 		if ( slice_mod = modifiers[mode] ) == undefined then
 			return false
 
@@ -537,7 +537,7 @@ struct SlicerSystem_v
 	  */
 	function _getPlaneZpozition layer_index =
 	(
-		format "\n"; print "SlicerSystem_v._getPlaneZpozition()"
+		--format "\n"; print "SlicerSystem_v._getPlaneZpozition()"
 		--volume_height	= (PrinterVolume_v(DIALOG_content.SPIN_export_size.value)).printer_size.z
 		--layer_height	= DIALOG_content.SPIN_layer_height.value
 		--layer_current	= DIALOG_elevation_slider.SLIDER_elevation.value
@@ -545,14 +545,11 @@ struct SlicerSystem_v
 
 		layers_count = slice_start + slice_count
 
-		format "layer_index: %\n" layer_index
 		if layer_index < 0 or layer_index > layers_count then
 			layer_index = 	if layer_index < 0  then 0 else layers_count
-		format "layer_index: %\n" layer_index
-		--layer_index * layer_height + min_max_z[1] --return z poz
+
 		layer_index * layer_height  --return z poz
 	),
-
 
 	/** Get modifiers in scene
 	 */
