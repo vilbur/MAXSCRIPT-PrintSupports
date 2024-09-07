@@ -166,6 +166,7 @@ function createIslandManagerDialog relaunch:false =
     _multilistbox.Event #RIGHTCLICK "openNewIslandsMenu()" -- called when select action ends
 
 	_slider.Event #CHANGED     "(IslandsCallbacks_v()).onSliderChanged(val)"
+	_slider.Event #SLIDE       "(IslandsCallbacks_v()).onListboxSelectionEnd()"
 	_slider.Event #RIGHTCLICK  "(IslandsCallbacks_v()).toggleSelectIslandMode()"
 
 	_size_min.Event #CHANGED "format \"EventFired: %\n\" EventFired"

@@ -26,9 +26,17 @@ struct IslandsCallbacks_v
 
 		item = _listbox.items.count - slider_val
 
+		/* UPDATE LISTBOX SELECTION */
+		_listbox.selection = if keyboard.shiftPressed then
+		(
+			listbox_selection = _listbox.selection
 
-		--_listbox.selection =	 #{1.._listbox.items.count}
-		_listbox.selection = #{item}
+			listbox_selection[item] = true
+
+			listbox_selection --return
+		)
+		else
+			#{item}
 
 		--select_whole_island = DIALOG_island_manager.RB_slider_mode.state
 		--
@@ -51,32 +59,37 @@ struct IslandsCallbacks_v
 		--this.selectIslandByLayerInListbox (item)
 	),
 
+	/** On slide end
+	 */
+	function onSlideEnd =
+	(
+		format "\n"; print "IslandsCallbacks_v.onSlideEnd()"
+		format "EventFired	= % \n" EventFired
+
+	),
+
 	/** On listbox item selected
 	 */
 	function onListboxSelectionEnd =
 	(
-		format "\n"; print "IslandsCallbacks_v.onListboxSelectionEnd()"
-		format "EventFired	= % \n" EventFired
-
+		--format "\n"; print "IslandsCallbacks_v.onListboxSelectionEnd()"
+		--format "EventFired	= % \n" EventFired
 		selected_islands = ISLANDS_SYSTEM.selectIslandsOfVerts()
 
-		/* UPDATE SLIDER */
+		/* SET SLIDER VALUE TO TOP MOST OF SELECTED ISLANDS */
 		if selected_islands.count > 0 then
 			DIALOG_island_manager.SLIDER_island_select.value = selected_islands[selected_islands.count] - 1
 	),
-
 
 	/** Update island selection by radiobuttons state
 	 */
 	function updateIslandSelectionByRadiobuttonsState =
 	(
-		format "\n"; print "IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
-
+		--format "\n"; print "IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
 		islands_states = #( #NEW_ISLAND, #LOWEST_VERT, #WHOLE_ISLAND )
 
 		ISLANDS_SYSTEM.selectVertsOfIslands ( islands_states[DIALOG_island_manager.RB_slider_mode.state +1] )
 	),
-
 
 	/** Select all islands in listbox
 	 */
