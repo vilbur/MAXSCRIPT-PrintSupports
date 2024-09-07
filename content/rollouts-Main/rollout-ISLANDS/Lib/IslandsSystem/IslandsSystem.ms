@@ -32,7 +32,6 @@ struct IslandsSystem_v
 		selected_islands --return
 	),
 
-
 	/** Select first verts
 	 */
 	function selectVertsOfIslands vertex_type =
@@ -91,6 +90,50 @@ struct IslandsSystem_v
 		)
 	),
 
+	/** Get layer of island
+	 */
+	function getLayerOfClosestIsland layer_current increment =
+	(
+		format "\n"; print "SlicerCallbacks_v.getLayerOfClosestIsland()"
+		format "layer_current: %\n" layer_current
+		islands_layers = (for item in DIALOG_island_manager.ML_island_listbox.items collect (filterString item " ")[1] as integer ) as BitArray -- get list items strings to bitarray
+		format "ISLANDS_LAYERS: %\n" islands_layers
+		--format "islands_layers.count: %\n" islands_layers.count
+
+
+		layer_next = layer_current + increment
+
+		if layer_next < 1 then layer_next = 1
+
+		--format "layer_current: %\n" layer_current
+		--format "layer_next: %\n" layer_next
+		--format "TEST: %\n" (increment > 0 and layer_current < islands_layers.count)
+		--format "islands_layers[layer_next]: %\n" islands_layers[layer_next]
+
+
+		if islands_layers[layer_next] == false then
+		(
+			/* GO ISLAND UP */
+			if increment > 0 and layer_current < islands_layers.count then
+				for i = layer_next to islands_layers.count while not islands_layers[i] do
+					layer_next = i + 1
+
+			/* GO ISLAND DOWN */
+			else if increment < 0 and layer_current > 1  then
+				for i = layer_next to 1 by -1 while not islands_layers[i]  do
+					layer_next = i - 1
+
+		)
+
+		format "LAYER_NEXT: %\n" layer_next
+		--format "LAYER_NEXT: %\n" layer_next
+		--
+		--if DIALOG_island_manager != undefined and layer_next > 0 then
+		--	this.selectIslandByLayerInListbox (layer_next)
+
+		layer_next
+	),
+
 	--/** Select all islands in listbox
 	-- */
 	--function selectAllIslandsInListbox =
@@ -117,7 +160,6 @@ struct IslandsSystem_v
 			items_sel = _listbox.selection
 
 			/* FLIP INDEX - first item == last siland */
-
 			selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect this._getIslandIndexFromTitle(list_items[i])) as BitArray
 			--format "SELECTED_ISLANDS: %\n" selected_islands
 		)
@@ -134,62 +176,6 @@ struct IslandsSystem_v
 
 		this._getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
 	),
-
-
-	--/** Select layer
-	-- */
-	--function selectIslandBySlider slider_val =
-	--(
-	--	format "\n"; print "IslandsSystem_v.selectIslandBySlider()"
-		--format "slider_val: %\n" slider_val
-		--
-		--if slider_val == undefined then
-		--	slider_val = DIALOG_island_manager.SLIDER_island_select.value
-		--
-		--
-		--layer_index = slider_val + 1
-		--
-		--select_whole_island = DIALOG_island_manager.RB_slider_mode.state
-		--
-		--
-		--island_data = islands_data[layer_index]
-		----format "island_data: %\n" island_data
-		----format "island_data[#WHOLE_ISLAND]: %\n" island_data[#WHOLE_ISLAND]
-		--
-		--if island_data[#NEW_ISLAND] != undefined then
-		--(
-		--	--verts = islands_data[#WHOLE_ISLAND]
-		--	--verts = islands_data[#NEW_ISLAND]
-		--	verts = this.getVertsFromIslandData (island_data)
-		--
-		--	if keyboard.shiftPressed then
-		--		verts += polyop.getVertSelection obj
-		--
-		--	--format "VERTS: %\n" verts
-		--	this.selectIslandsVerts (verts)
-		--
-		--)
-		--
-		--this.selectIslandByLayerInListbox (layer_index)
-	--),
-
-	--/** Select layer
-	-- */
-	--function updateListboxCallback =
-	--(
-	--	format "\n"; print "IslandsSystem_v.updateListboxCallback()"
-	--	--format "EventFired	= % \n" EventFired
-	--	selected_islands = ( this.getSelectedIslandsFromListBox() ) as Array
-	--
-	--	verts = this._getVertsOfSelectedIslands(selected_islands)
-	--
-	--	/* SLECT VERTS OF SELECTED ISLANDS */
-	--	this.selectIslandsVerts (verts)
-	--
-	--	/* UPDATE SLIDER */
-	--	if selected_islands.count > 0 then
-	--		DIALOG_island_manager.SLIDER_island_select.value = selected_islands[selected_islands.count] - 1
-	--),
 
 	/** Toggle select island mode
 	 */
@@ -503,17 +489,6 @@ struct IslandsSystem_v
 
 		macros.run "maxtoprint" "maxtoprint_islands_dialog"
 	),
-
-	--/** Update island selection by radiobuttons state
-	-- */
-	--function updateIslandSelectionByRadiobuttonsState =
-	--(
-	--	format "\n"; print "IslandsSystem_v.updateIslandSelectionByRadiobuttonsState()"
-	--
-	--	states = #( #NEW_ISLAND, #LOWEST_VERT, #WHOLE_ISLAND )
-	--
-	--	this.selectVertsOfIslands ( states[DIALOG_island_manager.RB_slider_mode.state +1] )
-	--),
 
 
 	private

@@ -22,7 +22,7 @@ struct IslandsCallbacks_v
 	(
 		format "\n"; print "IslandsCallbacks_v.sliderChanged()"
 		format "slider_val: %\n" slider_val
-		_listbox = this._listbox()
+		_listbox = IALOG_island_manager.ML_island_listbox
 
 		item = _listbox.items.count - slider_val
 
@@ -96,46 +96,15 @@ struct IslandsCallbacks_v
 	function selectAllIslandsInListbox =
 	(
 		--format "\n"; print "IslandsCallbacks_v.selectAllIslandsInListbox()"
-		_listbox = this._listbox()
+		_listbox = IALOG_island_manager.ML_island_listbox
 
 		_listbox.selection = #{1.._listbox.items.count}
 
-		ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()
+		--ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()
 	),
 
 	private
 
-	/** Get selected islands from list box
-	 */
-	function _getSelectedIslandsFromListBox =
-	(
-		--format "\n"; print "._getSelectedIslandsFromListBox()"
-		selected_islands = #{}
-
-		if DIALOG_island_manager != undefined then
-		(
-			_listbox = this._listbox()
-
-			list_items = _listbox.items
-			items_count = _listbox.items.count
-			items_sel = _listbox.selection
-
-			/* FLIP INDEX - first item == last siland */
-
-			selected_islands = ( for i = 1 to list_items.count where items_sel[i] collect this._getIslandIndexFromTitle(list_items[i])) as BitArray
-			--format "SELECTED_ISLANDS: %\n" selected_islands
-		)
-
-		selected_islands --return
-	),
-
-	/** Listbox
-	 */
-	function _listbox =
-	(
-		--format "\n"; print "IslandsCallbacks_v._listbox()"
-		DIALOG_island_manager.ML_island_listbox --return
-	),
 
 	/**
 	 */

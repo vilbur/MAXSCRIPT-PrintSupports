@@ -285,6 +285,7 @@ struct SlicerSystem_v
 	--
 	--	this.updateSlicePlaneSystem ( layer_next )
 	--),
+	
 
 	/** Set slice plane modifier
 	  *
@@ -475,6 +476,21 @@ struct SlicerSystem_v
 		)
 	),
 
+
+
+	/** Set slider value
+	 */
+	function setSliderValue val =
+	(
+		DIALOG_elevation_slider.SLIDER_elevation.value = val
+	),
+
+	/** Set spinner value
+	 */
+	function setSpinnerValue val =
+	(
+		DIALOG_elevation_slider.SPIN_layer_current.value = val
+	),
 
 	private
 
