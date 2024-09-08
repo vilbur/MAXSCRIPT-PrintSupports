@@ -1,3 +1,4 @@
+filein( getFilenamePath(getSourceFileName()) + "/IslandsCallbacks.ms" )	--"./IslandsCallbacks.ms"
 
 /** Islands system
  */
@@ -24,42 +25,12 @@ struct IslandsSystem_v
 		--format "\n"; print "IslandsSystem_v.selectIslandsOfVerts()"
 		selected_islands = ( this.getSelectedIslandsFromListBox() ) as Array
 
-		verts = this._getVertsOfSelectedIslands(selected_islands)
+		verts = this._getVertsOfIslands(selected_islands)
 
 		/* SLECT VERTS OF SELECTED ISLANDS */
 		this.selectIslandsVerts (verts)
 
 		selected_islands --return
-	),
-
-	/** Select first verts
-	 */
-	function selectVertsOfIslands vertex_type =
-	(
-		format "\n"; print ".selectVertsOfIslands()"
-		format "vertex_type: %\n" (classOf vertex_type)
-		_listbox = DIALOG_island_manager.ML_island_listbox
-
-		selected_islands = this.getSelectedIslandsFromListBox()
-
-		if selected_islands.count == 0 then
-			selected_islands = #{1..islands_data.count} as Array
-
-		format "SELECTED_ISLANDS: %\n" selected_islands
-
-		verts = #{}
-
-		for layer_index in selected_islands collect
-		(
-			if vertex_type == #LOWEST_VERT then
-				verts[islands_data[layer_index][vertex_type]] = true
-
-			else if ( island_verts = ISLANDS_DATA[layer_index][vertex_type] ) != undefined then
-				verts += island_verts
-		)
-
-		if verts.numberSet > 0 then
-			this.selectIslandsVerts( verts as BitArray )
 	),
 
 	/** Isolate slected islands
@@ -73,7 +44,7 @@ struct IslandsSystem_v
 		(
 			selected_islands = ( this.getSelectedIslandsFromListBox() ) as Array
 
-			verts = this._getVertsOfSelectedIslands(selected_islands)
+			verts = this._getVertsOfIslands(selected_islands)
 
 			subObjectLevel = 1
 
@@ -216,7 +187,6 @@ struct IslandsSystem_v
 		format "\n"; print "IslandsSystem_v.selectIslandsVerts()"
 		format "verts: %\n" verts
 
-
 		/** Select verts editable poly
 		 */
 		function selectVertsEditablePoly obj verts isolate =
@@ -317,9 +287,6 @@ struct IslandsSystem_v
 
 	),
 
-
-
-
 	/** Select layer listbox
 	 */
 	function selectIslandByLayerInListbox layer_indexes =
@@ -350,71 +317,6 @@ struct IslandsSystem_v
 
 		if ( slider_value = DIALOG_island_manager.ML_island_listbox.items.count - items.count  ) > 0 then
 			DIALOG_island_manager.SLIDER_island_select.value = slider_value
-	),
-
-	/** Select islands by size
-	 */
-	function selectIslandsBySize size =
-	(
-		format "\n"; print "IslandsSystem_v.selectIslandsBySize()"
-
-		/** Is island matchin size
-		 */
-		function isIslandMatchinSize island_size size size_min size_max =
-		(
-			--format "\n"; print ".isIslandMatchinSize()"
-			--format "island_size: %\n" island_size
-			--format "size: %\n" size
-
-			if island_size == undefined and size == #SMALL then
-				true --return
-
-			else if island_size != undefined then
-			(
-				case size of
-				(
-					(#SMALL):	island_size.x <= size_min or  island_size.y <= size_min
-					(#MEDIUM):	(island_size.x > size_min and island_size.x < size_max) or (island_size.y > size_min and island_size.y < size_max)
-					(#BIG):	island_size.x >= size_max or  island_size.y >= size_max
-				)
-			)
-		)
-
-		--islands_by_size = for i = islands_data.count to 1 by -1 where islands_data[i][#SIZE] != undefined and  islands_data[i][#SIZE] > 2 collect i
-		size_min = DIALOG_island_manager.SPIN_island_size_min.value
-		size_max = DIALOG_island_manager.SPIN_island_size_max.value
-
-		/* GET ISLANDS MATHING SIZE */
-		islands_by_size = (for i = 1 to islands_data.count where isIslandMatchinSize islands_data[i][#SIZE] size size_min size_max collect i) as BitArray
-
-		DIALOG_island_manager.ML_island_listbox.selection = this._getListboxItemsByIslandsIndex (islands_by_size)
-
-		this.updateListboxCallback()
-	),
-
-	/** Select islands by verts
-	 */
-	function selectIslandsByVerts =
-	(
-		--format "\n"; print "IslandsSystem_v.selectIslandsByVerts()"
-		verts_sel = polyop.getVertSelection selection[1]
-
-		verts_of_islands = #{}
-
-		islands_of_verts = ( for i = 1 to islands_data.count where not (islands_data[i][#NEW_ISLAND] * verts_sel ).isEmpty collect i) as BitArray
-
-		for index in islands_of_verts do verts_of_islands += islands_data[index][#NEW_ISLAND]
-
-
-		if classOf (_mod = modPanel.getCurrentObject()) == Edit_Poly then
-			_mod.Select #VERTEX verts_of_islands
-
-		else if classOf _mod  == Editable_Poly then
-			_mod.SetSelection #VERTEX verts_of_islands
-
-
-		DIALOG_island_manager.ML_island_listbox.selection = this._getListboxItemsByIslandsIndex (islands_of_verts)
-
 	),
 
 
@@ -467,55 +369,143 @@ struct IslandsSystem_v
 	),
 
 
-	/** Remove selected islands
-	 */
-	function removeSelectedIslands =
-	(
-		format "\n"; print "IslandsSystem_v.removeSelectedIslands()"
-
-		selected_islands = ( this.getSelectedIslandsFromListBox() )
-
-		format "SELECTED_ISLANDS: %\n" selected_islands
-
-		if ( islands_props_data = getUserPropVal obj "ISLANDS_DATA" ) != undefined then
-		(
-			format "islands_props_data.count: %\n" islands_props_data.count
-
-			for i = islands_props_data.count to 1 by -1 where selected_islands[i] do
-				deleteItem islands_props_data i
-
-			setUserPropVal obj "ISLANDS_DATA" islands_props_data
-		)
-
-		--selected_items = DIALOG_island_manager.ML_island_listbox.selection as Array
-
-		macros.run "maxtoprint" "maxtoprint_islands_dialog"
-	),
 
 
 	private
 
 	/** Get verts of selected islands from listbox
 	 */
-	function _getVertsOfSelectedIslands selected_islands =
+	function _getVertsOfIslands islads_indexes =
 	(
 		--format "\n"; print "IslandsSystem_v.getVertsOfSelectedIslands()"
-		/* FLIP INDEX - first item == last siland */
-
 		verts = #{1..(getNumVerts obj.mesh)} * #{}
 
-		for layer_index in selected_islands do
-			verts += this.getVertsFromIslandData (islands_data[layer_index])
+		for islad_index in islads_indexes do
+			verts += this.getVertsFromIslandData (islands_data[islad_index])
 
 		verts --return
 	),
-	--/** Set islands data
+
+	--/** Remove selected islands
 	-- */
-	--function setIslandsData =
+	--function removeSelectedIslands =
 	--(
-	--	--format "\n"; print "IslandsSystem_v.setIslandsData()"
+	--	format "\n"; print "IslandsSystem_v.removeSelectedIslands()"
+	--
+	--	selected_islands = ( this.getSelectedIslandsFromListBox() )
+	--
+	--	format "SELECTED_ISLANDS: %\n" selected_islands
+	--
+	--	if ( islands_props_data = getUserPropVal obj "ISLANDS_DATA" ) != undefined then
+	--	(
+	--		format "islands_props_data.count: %\n" islands_props_data.count
+	--
+	--		for i = islands_props_data.count to 1 by -1 where selected_islands[i] Do
+	--			deleteItem islands_props_data i
+	--
+	--		setUserPropVal obj "ISLANDS_DATA" islands_props_data
+	--	)
+	--
+	--	--selected_items = DIALOG_island_manager.ML_island_listbox.selection as Array
+	--
+	--	macros.run "maxtoprint" "maxtoprint_islands_dialog"
+	--),
+
+	--/** Select first verts
+	-- */
+	--function selectVertsOfIslands vertex_type =
+	--(
+	--	format "\n"; print ".selectVertsOfIslands()"
+	--	format "vertex_type: %\n" (classOf vertex_type)
+	--	_listbox = DIALOG_island_manager.ML_island_listbox
+	--
+	--	selected_islands = this.getSelectedIslandsFromListBox()
+	--
+	--	if selected_islands.count == 0 then
+	--		selected_islands = #{1..islands_data.count} as Array
+	--
+	--	format "SELECTED_ISLANDS: %\n" selected_islands
+	--
+	--	verts = #{}
+	--
+	--	for layer_index in selected_islands collect
+	--	(
+	--		if vertex_type == #LOWEST_VERT then
+	--			verts[islands_data[layer_index][vertex_type]] = true
+	--
+	--		else if ( island_verts = ISLANDS_DATA[layer_index][vertex_type] ) != undefined then
+	--			verts += island_verts
+	--	)
+	--
+	--	if verts.numberSet > 0 then
+	--		this.selectIslandsVerts( verts as BitArray )
+	--),
+
+	--/** Select islands by size
+	-- */
+	--function selectIslandsBySize size =
+	--(
+	--	format "\n"; print "IslandsSystem_v.selectIslandsBySize()"
+	--
+	--	/** Is island matchin size
+	--	 */
+	--	function isIslandMatchinSize island_size size size_min size_max =
+	--	(
+	--		--format "\n"; print ".isIslandMatchinSize()"
+	--		--format "island_size: %\n" island_size
+	--		--format "size: %\n" size
+	--
+	--		if island_size == undefined and size == #SMALL then
+	--			true --return
+	--
+	--		else if island_size != undefined then
+	--		(
+	--			case size of
+	--			(
+	--				(#SMALL):	island_size.x <= size_min or  island_size.y <= size_min
+	--				(#MEDIUM):	(island_size.x > size_min and island_size.x < size_max) or (island_size.y > size_min and island_size.y < size_max)
+	--				(#BIG):	island_size.x >= size_max or  island_size.y >= size_max
+	--			)
+	--		)
+	--	)
+	--
+	--	--islands_by_size = for i = islands_data.count to 1 by -1 where islands_data[i][#SIZE] != undefined and  islands_data[i][#SIZE] > 2 collect i
+	--	size_min = DIALOG_island_manager.SPIN_island_size_min.value
+	--	size_max = DIALOG_island_manager.SPIN_island_size_max.value
+	--
+	--	/* GET ISLANDS MATHING SIZE */
+	--	islands_by_size = (for i = 1 to islands_data.count where isIslandMatchinSize islands_data[i][#SIZE] size size_min size_max collect i) as BitArray
+	--
+	--	DIALOG_island_manager.ML_island_listbox.selection = this._getListboxItemsByIslandsIndex (islands_by_size)
+	--
+	--	this.updateListboxCallback()
+	--),
+
+	--/** Select islands by verts
+	-- */
+	--function selectIslandsByVerts =
+	--(
+	--	--format "\n"; print "IslandsSystem_v.selectIslandsByVerts()"
+	--	verts_sel = polyop.getVertSelection selection[1]
+	--
+	--	verts_of_islands = #{}
+	--
+	--	islands_of_verts = ( for i = 1 to islands_data.count where not (islands_data[i][#NEW_ISLAND] * verts_sel ).isEmpty collect i) as BitArray
+	--
+	--	for index in islands_of_verts do verts_of_islands += islands_data[index][#NEW_ISLAND]
+	--
+	--
+	--	if classOf (_mod = modPanel.getCurrentObject()) == Edit_Poly then
+	--		_mod.Select #VERTEX verts_of_islands
+	--
+	--	else if classOf _mod  == Editable_Poly then
+	--		_mod.SetSelection #VERTEX verts_of_islands
+	--
+	--
+	--	DIALOG_island_manager.ML_island_listbox.selection = this._getListboxItemsByIslandsIndex (islands_of_verts)
 	--
 	--),
+
 
 	/**
 	 */

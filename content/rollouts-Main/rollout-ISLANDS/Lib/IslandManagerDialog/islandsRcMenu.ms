@@ -1,4 +1,4 @@
-
+filein( getFilenamePath(getSourceFileName()) + "/islandsRcMenuCallbacks.ms" )	--"./islandsRcMenuCallbacks.ms"
 
 /** Open new islands menu
  */
@@ -17,24 +17,24 @@ function openNewIslandsMenu =
 	/* ADD ITEMS */
 
 	if listbox_selection.numberSet != listbox_items_count then
-		Menu.item "Select All"	"ISLANDS_SYSTEM.selectAllIslandsInListbox()"
+		Menu.item "Select All"	"::IslandsRcMenuCallbacks_v.selectAllIslandsInListbox()"
 
 	if (verts_sel = polyop.getVertSelection selection[1]).numberSet > 0 then
-		Menu.item "Select Islands by verts"	"ISLANDS_SYSTEM.selectIslandsByVerts()"
+		Menu.item "Select Islands by verts"	"::IslandsRcMenuCallbacks_v.selectIslandsByVerts()"
 
-	--Menu.item "Select Lowest Verts"	"ISLANDS_SYSTEM.selectVertsOfIslands(#LOWEST_VERT)"
-	--Menu.item "Select New Islands"	"ISLANDS_SYSTEM.selectVertsOfIslands(#NEW_ISLAND)"
-
-	Menu.separator()
-
-	Menu.item "Select SMALL Islands"	"ISLANDS_SYSTEM.selectIslandsBySize(#SMALL)"
-	Menu.item "Select MEDIUM Islands"	"ISLANDS_SYSTEM.selectIslandsBySize(#MEDIUM)"
-	Menu.item "Select BIG Islands"	"ISLANDS_SYSTEM.selectIslandsBySize(#BIG)"
+	--Menu.item "Select Lowest Verts"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#LOWEST_VERT)"
+	--Menu.item "Select New Islands"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#NEW_ISLAND)"
 
 	Menu.separator()
 
-	Menu.item "Select whole Islands"	"ISLANDS_SYSTEM.selectVertsOfIslands(#WHOLE_ISLAND)"
-	Menu.item "Remove selected islands"	"ISLANDS_SYSTEM.removeSelectedIslands()"
+	Menu.item "Select SMALL Islands"	"::IslandsRcMenuCallbacks_v.selectIslandsBySize(#SMALL)"
+	Menu.item "Select MEDIUM Islands"	"::IslandsRcMenuCallbacks_v.selectIslandsBySize(#MEDIUM)"
+	Menu.item "Select BIG Islands"	"::IslandsRcMenuCallbacks_v.selectIslandsBySize(#BIG)"
+
+	Menu.separator()
+
+	Menu.item "Select whole Islands"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#WHOLE_ISLAND)"
+	Menu.item "Remove selected islands"	"::IslandsRcMenuCallbacks_v.removeSelectedIslands()"
 
 	Menu.separator()
 

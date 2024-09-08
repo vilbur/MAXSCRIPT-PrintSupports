@@ -1,3 +1,5 @@
+filein( getFilenamePath(getSourceFileName()) + "/SlicerCallbacks.ms" )	--"./SlicerCallbacks.ms"
+
 /** Wait when modifier stack will be ready
  */
 function waitOnModifiyStackIsReady_SLICER =
