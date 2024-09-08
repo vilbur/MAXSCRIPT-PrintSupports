@@ -4,11 +4,10 @@ filein( getFilenamePath(getSourceFileName()) + "/globals.ms" )	--"./globals.ms"
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/createElevationSliderDialog.ms" )	-- "./Lib/SlicerSystem/createElevationSliderDialog.ms"
 
 /**
-  *
   */
 macroscript	print_create_slicerdialog
 category:	"_3D-Print"
-buttontext:	"SLICE OBJECT"
+buttontext:	"S L I C E R"
 tooltip:	"Slice selected object."
 icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY: RESET OBJECT XFORM\n\nIF Z POZITION OF SLICE PLANE DOES NOT WORK PROPERLY"
 (
@@ -32,14 +31,11 @@ icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 	)
 )
 
-
-
 /**
-  *
   */
 macroscript	print_remove_slice_modifiers
 category:	"_3D-Print"
-buttontext:	"Slice Object"
+buttontext:	"S L I C E R"
 tooltip:	"EXIT SLICE MODE"
 icon:	""
 (
@@ -94,7 +90,6 @@ function getLayerNumberToMove direction =
 )
 
 /**
-  *
   */
 macroscript	_print_slice_increment_plus
 category:	"_3D-Print"
@@ -107,7 +102,6 @@ icon:	"Tooltip:CTRL:SHIFT:ALT: 10\25\25 Layers incremnet by number of mod keys p
 )
 
 /**
-  *
   */
 macroscript	_print_slice_increment_minus
 category:	"_3D-Print"
@@ -120,12 +114,11 @@ icon:	""
 )
 
 /**
-  *
   */
 macroscript	_print_slice_se_slice_materia
 category:	"_3D-Print"
-buttontext:	"MATERIAL"
-tooltip:	""
+buttontext:	"Material"
+tooltip:	"Toggle ID multimaterial on selected object"
 icon:	""
 (
 	on execute do

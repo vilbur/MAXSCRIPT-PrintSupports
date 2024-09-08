@@ -88,7 +88,7 @@ struct IslandsCallbacks_v
 		--format "\n"; print "IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
 		islands_states = #( #NEW_ISLAND, #LOWEST_VERT, #WHOLE_ISLAND )
 
-		ISLANDS_SYSTEM.selectVertsOfIslands ( islands_states[DIALOG_island_manager.RB_slider_mode.state +1] )
+		::IslandsRcMenuCallbacks_v.selectVertsOfIslands ( islands_states[DIALOG_island_manager.RB_slider_mode.state +1] )
 	),
 
 	/** Select all islands in listbox
@@ -101,6 +101,39 @@ struct IslandsCallbacks_v
 		_listbox.selection = #{1.._listbox.items.count}
 
 		--ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()
+	),
+
+	/** Unhide all verts
+	 */
+	function unhideVerts =
+	(
+		--format "\n"; print "IslandsCallbacks_v.unhideAllVerts()"
+		max modify mode
+
+		if classOf (_mod = modPanel.getCurrentObject()) == Editable_Poly then
+			_mod.unhideAll #Vertex
+
+		else if classOf _mod  == Edit_Poly then
+			_mod.ButtonOp #UnhideAllVertex
+
+	),
+	
+	/** Toggle select island mode
+	 */
+	function toggleSelectIslandMode =
+	(
+		--format "\n"; print ".toggleSelectIslandMode()"
+		--format "DIALOG_island_manager.RB_slider_mode.state: %\n" DIALOG_island_manager.RB_slider_mode.state
+		--DIALOG_island_manager.RB_slider_mode.state = not DIALOG_island_manager.RB_slider_mode.state
+		--format "DIALOG_island_manager.RB_slider_mode_last_state: %\n" DIALOG_island_manager.RB_slider_mode_last_state
+		--format "DIALOG_island_manager.RB_slider_mode.state: %\n" DIALOG_island_manager.RB_slider_mode.state
+
+		DIALOG_island_manager.RB_slider_mode.state = case DIALOG_island_manager.RB_slider_mode.state of
+		(
+			0:	1
+			1:	2
+			2:	0
+		)
 	),
 
 	private

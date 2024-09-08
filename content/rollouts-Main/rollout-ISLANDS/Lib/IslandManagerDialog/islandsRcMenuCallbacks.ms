@@ -19,7 +19,7 @@ struct IslandsRcMenuCallbacks_v
 		--format "\n"; print "IslandsSystem_v.selectAllIslandsInListbox()"
 		DIALOG_island_manager.ML_island_listbox.selection = #{1..DIALOG_island_manager.ML_island_listbox.items.count}
 
-		ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()
+		::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()
 	),
 
 	/** Select islands by verts
@@ -27,7 +27,9 @@ struct IslandsRcMenuCallbacks_v
 	function selectIslandsByVerts =
 	(
 		--format "\n"; print "IslandsRcMenuCallbacks_v.selectIslandsByVerts()"
-		verts_sel = polyop.getVertSelection selection[1]
+		verts_sel = getVertSelection selection[1].mesh
+
+		islands_data = ISLANDS_SYSTEM.islands_data
 
 		verts_of_islands = #{}
 
@@ -43,7 +45,7 @@ struct IslandsRcMenuCallbacks_v
 			_mod.SetSelection #VERTEX verts_of_islands
 
 
-		DIALOG_island_manager.ML_island_listbox.selection = ISLANDS_SYSTEM._getListboxItemsByIslandsIndex (islands_of_verts)
+		DIALOG_island_manager.ML_island_listbox.selection = ISLANDS_SYSTEM.getListboxItemsByIslandsIndex (islands_of_verts)
 	),
 
 	/** Select islands by size
@@ -73,8 +75,11 @@ struct IslandsRcMenuCallbacks_v
 					(#BIG):	island_size.x >= size_max or  island_size.y >= size_max
 				)
 			)
+			else
+				false -- return fallback
 		)
 
+		islands_data = ISLANDS_SYSTEM.islands_data
 		--islands_by_size = for i = islands_data.count to 1 by -1 where islands_data[i][#SIZE] != undefined and  islands_data[i][#SIZE] > 2 collect i
 		size_min = DIALOG_island_manager.SPIN_island_size_min.value
 		size_max = DIALOG_island_manager.SPIN_island_size_max.value
@@ -82,9 +87,11 @@ struct IslandsRcMenuCallbacks_v
 		/* GET ISLANDS MATHING SIZE */
 		islands_by_size = (for i = 1 to islands_data.count where isIslandMatchinSize islands_data[i][#SIZE] size size_min size_max collect i) as BitArray
 
-		DIALOG_island_manager.ML_island_listbox.selection = ISLANDS_SYSTEM._getListboxItemsByIslandsIndex (islands_by_size)
+		DIALOG_island_manager.ML_island_listbox.selection = ISLANDS_SYSTEM.getListboxItemsByIslandsIndex (islands_by_size)
 
-		ISLANDS_SYSTEM.updateListboxCallback()
+		--::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()
+
+		::IslandsCallbacks_v.onListboxSelectionEnd()
 	),
 
 	/** Select verts of islands
@@ -94,9 +101,11 @@ struct IslandsRcMenuCallbacks_v
 		--format "\n"; print "IslandsRcMenuCallbacks_v.selectVertsOfIslands()"
 
 		format "vertex_type: %\n" (classOf vertex_type)
-		_listbox = DIALOG_island_manager.ML_island_listbox
+		islands_data = ISLANDS_SYSTEM.islands_data
 
 		selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
+
+		_listbox = DIALOG_island_manager.ML_island_listbox
 
 		if selected_islands.count == 0 then
 			selected_islands = #{1..islands_data.count} as Array
@@ -124,24 +133,28 @@ struct IslandsRcMenuCallbacks_v
 	(
 		--format "\n"; print "IslandsRcMenuCallbacks_v.removeSelectedIslands()"
 		format "\n"; print "IslandsSystem_v.removeSelectedIslands()"
+		obj	= selection[1]
 
 		selected_islands = ( ISLANDS_SYSTEM.getSelectedIslandsFromListBox() )
 
-		format "SELECTED_ISLANDS: %\n" selected_islands
-
-		if ( islands_props_data = getUserPropVal obj "ISLANDS_DATA" ) != undefined then
+		if selected_islands.numberSet > 0 and queryBox "REMOVE SELECTED ISALNDS FROM OBJ ?" title:"REMOVE ISLANDS" then
 		(
-			format "islands_props_data.count: %\n" islands_props_data.count
 
-			for i = islands_props_data.count to 1 by -1 where selected_islands[i] do
-				deleteItem islands_props_data i
 
-			setUserPropVal obj "ISLANDS_DATA" islands_props_data
+			if ( islands_props_data = getUserPropVal obj "ISLANDS_DATA" ) != undefined then
+			(
+				format "islands_props_data.count: %\n" islands_props_data.count
+
+				for i = islands_props_data.count to 1 by -1 where selected_islands[i] do
+					deleteItem islands_props_data i
+
+				setUserPropVal obj "ISLANDS_DATA" islands_props_data
+			)
+
+			--selected_items = DIALOG_island_manager.ML_island_listbox.selection as Array
+
+			macros.run "maxtoprint" "maxtoprint_islands_dialog"
 		)
-
-		--selected_items = DIALOG_island_manager.ML_island_listbox.selection as Array
-
-		macros.run "maxtoprint" "maxtoprint_islands_dialog"
 	),
 
 	private

@@ -6,7 +6,7 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/IslandManagerDialog/IslandM
  */
 macroscript	maxtoprint_islands_dialog
 category:	"maxtoprint"
-buttontext:	"SHOW islands"
+buttontext:	"V I E W E R"
 toolTip:	"SHOW islands Dialog"
 icon:	"across:3"
 (
@@ -54,7 +54,7 @@ icon:	"across:3"
  */
 macroscript	maxtoprint_find_islands
 category:	"maxtoprint"
-buttontext:	"FIND islands"
+buttontext:	"Search Islands"
 toolTip:	"Refresh islands"
 icon:	"across:3"
 (

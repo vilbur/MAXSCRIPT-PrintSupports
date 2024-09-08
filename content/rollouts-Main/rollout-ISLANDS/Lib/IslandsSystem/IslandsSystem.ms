@@ -147,23 +147,6 @@ struct IslandsSystem_v
 		this._getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
 	),
 
-	/** Toggle select island mode
-	 */
-	function toggleSelectIslandMode =
-	(
-		--format "\n"; print ".toggleSelectIslandMode()"
-		--format "DIALOG_island_manager.RB_slider_mode.state: %\n" DIALOG_island_manager.RB_slider_mode.state
-		--DIALOG_island_manager.RB_slider_mode.state = not DIALOG_island_manager.RB_slider_mode.state
-		--format "DIALOG_island_manager.RB_slider_mode_last_state: %\n" DIALOG_island_manager.RB_slider_mode_last_state
-		--format "DIALOG_island_manager.RB_slider_mode.state: %\n" DIALOG_island_manager.RB_slider_mode.state
-
-		DIALOG_island_manager.RB_slider_mode.state = case DIALOG_island_manager.RB_slider_mode.state of
-		(
-			0:	1
-			1:	2
-			2:	0
-		)
-	),
 
 	/** Get verts from island data
 	 */
@@ -326,7 +309,7 @@ struct IslandsSystem_v
 	  *
 	  * @returnn BitArray indexes of listbox items
 	 */
-	function _getListboxItemsByIslandsIndex island_indexes =
+	function getListboxItemsByIslandsIndex island_indexes =
 	(
 		--format "\n"; print "IslandsSystem_v._getListboxItemsByIslandIndex()"
 		--_listbox = DIALOG_island_manager.ML_island_listbox
@@ -369,9 +352,6 @@ struct IslandsSystem_v
 	),
 
 
-
-
-	private
 
 	/** Get verts of selected islands from listbox
 	 */
@@ -441,6 +421,9 @@ struct IslandsSystem_v
 	--		this.selectIslandsVerts( verts as BitArray )
 	--),
 
+
+	private
+
 	--/** Select islands by size
 	-- */
 	--function selectIslandsBySize size =
@@ -476,7 +459,7 @@ struct IslandsSystem_v
 	--	/* GET ISLANDS MATHING SIZE */
 	--	islands_by_size = (for i = 1 to islands_data.count where isIslandMatchinSize islands_data[i][#SIZE] size size_min size_max collect i) as BitArray
 	--
-	--	DIALOG_island_manager.ML_island_listbox.selection = this._getListboxItemsByIslandsIndex (islands_by_size)
+	--	DIALOG_island_manager.ML_island_listbox.selection = this.getListboxItemsByIslandsIndex (islands_by_size)
 	--
 	--	this.updateListboxCallback()
 	--),
@@ -502,7 +485,7 @@ struct IslandsSystem_v
 	--		_mod.SetSelection #VERTEX verts_of_islands
 	--
 	--
-	--	DIALOG_island_manager.ML_island_listbox.selection = this._getListboxItemsByIslandsIndex (islands_of_verts)
+	--	DIALOG_island_manager.ML_island_listbox.selection = this.getListboxItemsByIslandsIndex (islands_of_verts)
 	--
 	--),
 

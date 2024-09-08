@@ -13,17 +13,20 @@ function openNewIslandsMenu =
 	listbox_selection = DIALOG_island_manager.ML_island_listbox.selection
 
 
-
 	/* ADD ITEMS */
-
 	if listbox_selection.numberSet != listbox_items_count then
 		Menu.item "Select All"	"::IslandsRcMenuCallbacks_v.selectAllIslandsInListbox()"
 
-	if (verts_sel = polyop.getVertSelection selection[1]).numberSet > 0 then
+	if (verts_sel = getVertSelection selection[1].mesh ).numberSet > 0 then
 		Menu.item "Select Islands by verts"	"::IslandsRcMenuCallbacks_v.selectIslandsByVerts()"
 
 	--Menu.item "Select Lowest Verts"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#LOWEST_VERT)"
 	--Menu.item "Select New Islands"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#NEW_ISLAND)"
+
+	Menu.separator()
+
+	Menu.item "Select whole Islands"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#WHOLE_ISLAND)"
+	Menu.item "Remove selected islands"	"::IslandsRcMenuCallbacks_v.removeSelectedIslands()"
 
 	Menu.separator()
 
@@ -33,17 +36,12 @@ function openNewIslandsMenu =
 
 	Menu.separator()
 
-	Menu.item "Select whole Islands"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#WHOLE_ISLAND)"
-	Menu.item "Remove selected islands"	"::IslandsRcMenuCallbacks_v.removeSelectedIslands()"
-
-	Menu.separator()
-
 	if listbox_selection.numberSet > 1 and listbox_items_count > 0 then
-		Menu.item "SHOW SELECTED" "createIslandManagerDialog relaunch:true"
+		Menu.item "Show ONLY selected" "createIslandManagerDialog relaunch:true"
 
 
 	if listbox_items_count < ISLANDS_SYSTEM.islands_data.count then
-		Menu.item "SHOW ALL" "createIslandManagerDialog()"
+		Menu.item "Show ALL" "createIslandManagerDialog()"
 
 	popUpMenu (Menu.create())
 )

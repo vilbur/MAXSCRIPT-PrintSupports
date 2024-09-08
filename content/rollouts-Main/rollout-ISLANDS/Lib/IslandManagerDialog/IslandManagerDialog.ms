@@ -156,18 +156,19 @@ function createIslandManagerDialog relaunch:false =
 	/*------------------------------------------------------------------------------
 		EVENTS
 	--------------------------------------------------------------------------------*/
-	btn_isloate.Event #CHANGED "(IslandsCallbacks_v()).isolateSlectedIslands()"
+	btn_isloate.Event #CHANGED    "::IslandsCallbacks_v.isolateSlectedIslands()" tooltip:"Show only verts of selected islands"
+	btn_isloate.Event #RIGHTCLICK "::IslandsCallbacks_v.unhideVerts()" tooltip:"Unhide Verts"
 
-	_radio.Event #CHANGED "(IslandsCallbacks_v()).updateIslandSelectionByRadiobuttonsState()"
-	_radio.Event #RIGHTCLICK "(IslandsCallbacks_v()).updateIslandSelectionByRadiobuttonsState()"
+	_radio.Event #CHANGED "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
+	_radio.Event #RIGHTCLICK "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
 
 
-	_multilistbox.Event #SELECTIONEND "(IslandsCallbacks_v()).onListboxSelectionEnd()" -- called when select action ends
-    _multilistbox.Event #RIGHTCLICK "openNewIslandsMenu()" -- called when select action ends
+	_multilistbox.Event #SELECTIONEND "::IslandsCallbacks_v.onListboxSelectionEnd()"
+    _multilistbox.Event #RIGHTCLICK "openNewIslandsMenu()"
 
-	_slider.Event #CHANGED     "(IslandsCallbacks_v()).onSliderChanged(val)"
-	_slider.Event #SLIDE       "(IslandsCallbacks_v()).onListboxSelectionEnd()"
-	_slider.Event #RIGHTCLICK  "(IslandsCallbacks_v()).toggleSelectIslandMode()"
+	_slider.Event #CHANGED     "::IslandsCallbacks_v.onSliderChanged(val)"
+	_slider.Event #SLIDE       "::IslandsCallbacks_v.onListboxSelectionEnd()"
+	_slider.Event #RIGHTCLICK  "::IslandsCallbacks_v.toggleSelectIslandMode()"
 
 	_size_min.Event #CHANGED "format \"EventFired: %\n\" EventFired"
 	_size_max.Event #CHANGED "format \"EventFired: %\n\" EventFired"
