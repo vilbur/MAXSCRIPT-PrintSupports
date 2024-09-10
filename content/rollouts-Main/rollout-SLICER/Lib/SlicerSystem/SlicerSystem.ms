@@ -116,7 +116,7 @@ struct SlicerSystem_v
 		--format "\n"; print "IslandsSystem_v.moveSlider()"
 		--format "EventFired:	% \n" EventFired.type
 		format "%\n" EventFired.type
-		format "DIALOG_elevation_slider.SLIDER_elevation.value: %\n" DIALOG_elevation_slider.SLIDER_elevation.value
+		format "DIALOG_slicer_slider.SLIDER_slicer.value: %\n" DIALOG_slicer_slider.SLIDER_slicer.value
 	),
 
 	/** Set obejcts
@@ -257,9 +257,9 @@ struct SlicerSystem_v
 	(
 		--format "\n"; print ".desroy()"
 		--removeSlicePlaneModifiers( selection )
-		cui.UnRegisterDialogBar DIALOG_elevation_slider
+		cui.UnRegisterDialogBar DIALOG_slicer_slider
 
-		destroyDialog DIALOG_elevation_slider
+		destroyDialog DIALOG_slicer_slider
 	),
 
 	/** Get Layer index by position in world
@@ -284,7 +284,7 @@ struct SlicerSystem_v
 
 		--export_size = DIALOG_content.SPIN_export_size.value
 		--layer_height	= DIALOG_content.SPIN_layer_height.value
-		--current_layer = DIALOG_elevation_slider.SPIN_layer_current.value
+		--current_layer = DIALOG_slicer_slider.SPIN_layer_current.value
 
 		pos -= min_max_z[1]
 
@@ -304,7 +304,7 @@ struct SlicerSystem_v
 	function toggleSlicePlanePosition pos: =
 	(
 		--format "\n"; print "SlicerSystem_v.toggleIcepPlanePosition()"
-		--print "createElevationSliderDialog SLIDER_elevation rightClick"
+		--print "createslicerSliderDialog SLIDER_slicer rightClick"
 		/** Toggle slice slice_modifiers
 		 */
 		function toggleSliceModifiers state mod_names:#( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM ) =
@@ -326,17 +326,17 @@ struct SlicerSystem_v
 
 		if selection.count > 0 then
 		(
-			if SET_ELEVATION == undefined then
-				SET_ELEVATION = Dictionary #("SELECTION", "" ) #("TRANSFROM", Matrix3 1 )
+			if SET_slicer == undefined then
+				SET_slicer = Dictionary #("SELECTION", "" ) #("TRANSFROM", Matrix3 1 )
 
-			current_layer	= DIALOG_elevation_slider.SPIN_layer_current.value
+			current_layer	= DIALOG_slicer_slider.SPIN_layer_current.value
 			selection_pointer = (for obj in selection collect getHandleByAnim obj) as string
 
 
 			/* GET OBEJCT DIMENSIONS AND Z POSITIONS OF LAYERS */
-			if SET_ELEVATION["SELECTION"] != selection_pointer or SET_ELEVATION["TRANSFROM"] != $.transform then -- get new data if selection or transform of selection changed
+			if SET_slicer["SELECTION"] != selection_pointer or SET_slicer["TRANSFROM"] != $.transform then -- get new data if selection or transform of selection changed
 			(
-				--format "SELECTION CHANGED	= % \n" SET_ELEVATION
+				--format "SELECTION CHANGED	= % \n" SET_slicer
 
 				toggleSliceModifiers (false)
 
@@ -350,11 +350,11 @@ struct SlicerSystem_v
 
 				layer_positions = #( layer_index_min, layer_index_center, layer_index_max )
 
-				SET_ELEVATION["SELECTION"]	= selection_pointer
-				SET_ELEVATION["LAYER_POSITIONS"]	= layer_positions
+				SET_slicer["SELECTION"]	= selection_pointer
+				SET_slicer["LAYER_POSITIONS"]	= layer_positions
 			)
 
-			layer_positions = SET_ELEVATION["LAYER_POSITIONS"]
+			layer_positions = SET_slicer["LAYER_POSITIONS"]
 
 			current_pos_index = findItem layer_positions current_layer
 
@@ -377,7 +377,7 @@ struct SlicerSystem_v
 			this.updateSlicePlaneSystem ( layer_index )
 
 			/* DEVELOP FIXING */
-			SET_ELEVATION = undefined
+			SET_slicer = undefined
 		)
 	),
 
@@ -385,16 +385,16 @@ struct SlicerSystem_v
 	 */
 	function setSliderValue val =
 	(
-		if DIALOG_elevation_slider != undefined then
-			DIALOG_elevation_slider.SLIDER_elevation.value = val
+		if DIALOG_slicer_slider != undefined then
+			DIALOG_slicer_slider.SLIDER_slicer.value = val
 	),
 
 	/** Set spinner value
 	 */
 	function setSpinnerValue val =
 	(
-		if DIALOG_elevation_slider != undefined then
-			DIALOG_elevation_slider.SPIN_layer_current.value = val
+		if DIALOG_slicer_slider != undefined then
+			DIALOG_slicer_slider.SPIN_layer_current.value = val
 	),
 
 	private
@@ -443,9 +443,9 @@ struct SlicerSystem_v
 	 */
 	function _setSliderParams =
 	(
-		--_slider = DIALOG_elevation_slider.SPIN_layer_current
+		--_slider = DIALOG_slicer_slider.SPIN_layer_current
 
-		--DIALOG_elevation_slider.SPIN_layer_current.range.y = this.slice_count
+		--DIALOG_slicer_slider.SPIN_layer_current.range.y = this.slice_count
 	),
 
 	/** Get height of maximized viewport to find out height of docked dialog
@@ -475,7 +475,7 @@ struct SlicerSystem_v
 		(viewport_area_size[2] as integer) + height_of_ui - dialog_title_height --return
 	),
 
-	/** Set print elevation
+	/** Set print slicer
 	  *
 	  */
 	function _getPlaneZpozition layer_index =
@@ -483,7 +483,7 @@ struct SlicerSystem_v
 		--format "\n"; print "SlicerSystem_v._getPlaneZpozition()"
 		--volume_height	= (PrinterVolume_v(DIALOG_content.SPIN_export_size.value)).printer_size.z
 		--layer_height	= DIALOG_content.SPIN_layer_height.value
-		--layer_current	= DIALOG_elevation_slider.SLIDER_elevation.value
+		--layer_current	= DIALOG_slicer_slider.SLIDER_slicer.value
 		--slice_count	= volume_height / layer_height
 
 		layers_count = slice_start + slice_count

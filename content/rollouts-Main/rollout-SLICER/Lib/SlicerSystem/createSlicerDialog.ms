@@ -1,7 +1,7 @@
 
-global DIALOG_elevation_slider
+global DIALOG_slicer_slider
 
-global SET_ELEVATION
+global SET_slicer
 
 
 
@@ -9,23 +9,23 @@ global SET_ELEVATION
 	DEV DESTROY
 --------------------------------------------------------------------------------*/
 	--try(
-	--	cui.UnRegisterDialogBar DIALOG_elevation_slider
+	--	cui.UnRegisterDialogBar DIALOG_slicer_slider
 	--
-	--	destroyDialog DIALOG_elevation_slider
+	--	destroyDialog DIALOG_slicer_slider
 	--
 	--)catch()
 
 /** Create slicer dialog
   *
   */
-function createElevationSliderDialog =
+function createslicerSliderDialog =
 (
-	format "\n"; print "createElevationSliderDialog()"
+	format "\n"; print "createslicerSliderDialog()"
 
 
 	--getViewportHeight()
-	--format "DIALOG_elevation_slider == undefined	= % \n" (DIALOG_elevation_slider == undefined)
-	--if DIALOG_elevation_slider == undefined then
+	--format "DIALOG_slicer_slider == undefined	= % \n" (DIALOG_slicer_slider == undefined)
+	--if DIALOG_slicer_slider == undefined then
 
 	SlicerCallbacks = "::SlicerCallbacks_v"
 
@@ -49,7 +49,7 @@ function createElevationSliderDialog =
 		DIALOG
 	--------------------------------------------------------------------------------*/
 
-    Dialog 	    = Dialog_v "" id:#DIALOG_elevation_slider --ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
+    Dialog 	    = Dialog_v "" id:#DIALOG_slicer_slider --ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 
@@ -62,7 +62,7 @@ function createElevationSliderDialog =
 
     /*------ SLIDER ------*/
     _slider = _Controls.control #SLIDER "" \
-                    id:	#SLIDER_elevation	\
+                    id:	#SLIDER_slicer	\
                     range:	[0, SLICER_SYSTEM.slice_count, 0]	\
                     type:	#INTEGER	\
                     params:	#(#orient, #vertical  )	\

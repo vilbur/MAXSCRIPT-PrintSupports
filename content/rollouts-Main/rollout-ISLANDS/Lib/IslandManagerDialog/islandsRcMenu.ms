@@ -55,7 +55,7 @@ function openNewIslandsMenu =
 		Menu.item "Show ALL" "createIslandManagerDialog islands_to_show:#{}"
 
 
-	if DIALOG_elevation_slider != undefined then
+	if DIALOG_slicer_slider != undefined then
 		Menu.item "Slice here"	"::IslandsRcMenuCallbacks_v.sliceAtIsland()"
 
 

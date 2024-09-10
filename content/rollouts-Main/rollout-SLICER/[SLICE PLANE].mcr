@@ -1,7 +1,7 @@
 filein( getFilenamePath(getSourceFileName()) + "/globals.ms" )	--"./globals.ms"
 
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/createElevationSliderDialog.ms" )	-- "./Lib/SlicerSystem/createElevationSliderDialog.ms"
+filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/createSlicerDialog.ms" )	-- "./Lib/SlicerSystem/createSlicerDialog.ms"
 
 /**
   */
@@ -22,7 +22,7 @@ icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 		SLICER_SYSTEM.whenSelectionChange()
 
 		/* CREATE SLICE DIALOG */
-		createElevationSliderDialog()
+		createslicerSliderDialog()
 
 		SLICER_SYSTEM.setSliderByModifier()
 

@@ -35,7 +35,7 @@ icon:	"across:4|height:32"
 			clearListener(); print("Cleared in:\n"+getSourceFileName())
 			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-viltools3\VilTools\rollouts-Tools\rollout-PRINT-3D\PLATFORM-TOOLS.mcr"
 
-			--createElevationSliderDialog()
+			--createslicerSliderDialog()
 			--verts_pos = #()
 
 			obj = selection[1]

@@ -9,7 +9,7 @@ struct SlicerCallbacks_v
 
 
 	/* properties */
-	--dialog = DIALOG_elevation_slider,
+	--dialog = DIALOG_slicer_slider,
 
 	/* private */
 	/* dependency */
@@ -60,13 +60,13 @@ struct SlicerCallbacks_v
 	function onPlusMinusButton increment =
 	(
 		format "\n"; print "SlicerCallbacks_v.plusMinusButton()"
-		layer_current	= DIALOG_elevation_slider.SPIN_layer_current.value
+		layer_current	= DIALOG_slicer_slider.SPIN_layer_current.value
 		format "layer_current: %\n" layer_current
 		format "SLICER_SYSTEM.slice_start: %\n" SLICER_SYSTEM.slice_start
 
 
-		--shift_mode	= #( #LAYERS, #VERTS, #ISLANDS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
-		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_elevation_slider.DDL_slider_snaps.selection as integer ]
+		--shift_mode	= #( #LAYERS, #VERTS, #ISLANDS )[DIALOG_slicer_slider.DDL_slider_snaps.selection as integer ]
+		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_slicer_slider.DDL_slider_snaps.selection as integer ]
 
 		/* SHIFT: Go 1mm up\down */
 		if keyboard.shiftPressed then

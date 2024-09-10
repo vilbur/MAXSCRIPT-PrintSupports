@@ -1,2 +1,2 @@
 global ROLLOUT_slicer
-global DIALOG_elevation_slider
+global DIALOG_slicer_slider
