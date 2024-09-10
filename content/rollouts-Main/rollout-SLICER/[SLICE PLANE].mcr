@@ -7,7 +7,7 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/createSlicerDi
   */
 macroscript	print_create_slicerdialog
 category:	"_3D-Print"
-buttontext:	"S L I C E R"
+buttontext:	"S L I C E R  ☰"
 tooltip:	"Slice selected object."
 icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY: RESET OBJECT XFORM\n\nIF Z POZITION OF SLICE PLANE DOES NOT WORK PROPERLY"
 (
@@ -35,7 +35,7 @@ icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
   */
 macroscript	print_remove_slice_modifiers
 category:	"_3D-Print"
-buttontext:	"S L I C E R"
+buttontext:	"S L I C E R  ☰"
 tooltip:	"EXIT SLICE MODE"
 icon:	""
 (

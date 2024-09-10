@@ -22,7 +22,7 @@ struct IslandsCallbacks_v
 	(
 		format "\n"; print "IslandsCallbacks_v.sliderChanged()"
 		format "slider_val: %\n" slider_val
-		_listbox = IALOG_island_manager.ML_island_listbox
+		_listbox = DIALOG_island_manager.ML_island_listbox
 
 		item = _listbox.items.count - slider_val
 
@@ -72,9 +72,11 @@ struct IslandsCallbacks_v
 	 */
 	function onListboxSelectionEnd =
 	(
-		--format "\n"; print "IslandsCallbacks_v.onListboxSelectionEnd()"
+		format "\n"; print "IslandsCallbacks_v.onListboxSelectionEnd()"
 		--format "EventFired	= % \n" EventFired
-		selected_islands = ISLANDS_SYSTEM.selectIslandsOfVerts()
+		selected_islands = ( ISLANDS_SYSTEM.getSelectedIslandsFromListBox() ) as Array
+
+		verts = ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
 
 		/* SET SLIDER VALUE TO TOP MOST OF SELECTED ISLANDS */
 		if selected_islands.count > 0 then
@@ -102,6 +104,19 @@ struct IslandsCallbacks_v
 		_listbox.selection = #{1.._listbox.items.count}
 
 		--ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()
+	),
+
+	/** Isolate slected islands
+	 */
+	function isolateSlectedIslands state =
+	(
+		--format "\n"; print "IslandsCallbacks_v.isolateSlectedIslands()"
+		if state then
+		(
+			selected_islands = ( ISLANDS_SYSTEM.getSelectedIslandsFromListBox() ) as Array
+
+			ISLANDS_SYSTEM.isolateIslands(selected_islands)
+		)
 	),
 
 	/** Unhide all verts

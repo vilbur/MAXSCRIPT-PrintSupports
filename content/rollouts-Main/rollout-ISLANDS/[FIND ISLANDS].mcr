@@ -6,9 +6,9 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/IslandManagerDialog/IslandM
  */
 macroscript	maxtoprint_islands_dialog
 category:	"maxtoprint"
-buttontext:	"V I E W E R"
+buttontext:	"V I E W E R  ☰"
 toolTip:	"SHOW islands Dialog"
-icon:	"across:3"
+icon:	"across:3|height:32"
 (
 	on execute do
 	(

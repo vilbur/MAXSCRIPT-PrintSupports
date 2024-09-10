@@ -97,14 +97,19 @@ struct SlicerCallbacks_v
 		SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_next) (true)
 
 		/* UPDATE SLIDER VALUE */
-		SLICER_SYSTEM.setSliderValue( layer_next - SLICER_SYSTEM.slice_start )
+		SLICER_SYSTEM.setSliderValueByLayerIndex( layer_next )
 
 		/* UPDATE SPINNER VALUE */
 		SLICER_SYSTEM.setSpinnerValue(layer_next)
 
 		if keyboard.controlPressed and DIALOG_island_manager != undefined then
+		(
 			ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
 
+			selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
+
+			ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+		)
 	),
 
 	/** Desroy slider dialog and delete modifiers

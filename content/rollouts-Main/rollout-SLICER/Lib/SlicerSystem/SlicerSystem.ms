@@ -101,12 +101,15 @@ struct SlicerSystem_v
 
 		slice_mod.cap = cap_state
 
-		this._saveEditPolyVertsVisibily()
+		--this._saveEditPolyVertsVisibily()
 
 		/*  UPDATE MODIFIER PROPERTIES */
 		slice_mod.slice_plane.transform = final_TM
 
 		slice_mod.Slice_Type = (if mode == #SLICE_PLANE_TOP then 2 else 3 )
+
+		redrawViews()
+
 	),
 
 	/** Move slider
@@ -389,12 +392,19 @@ struct SlicerSystem_v
 			DIALOG_slicer_slider.SLIDER_slicer.value = val
 	),
 
+	/** Set slider value
+	 */
+	function setSliderValueByLayerIndex layer_index =
+	(
+		this.setSliderValue(layer_index - SLICER_SYSTEM.slice_start)
+	),
+
 	/** Set spinner value
 	 */
-	function setSpinnerValue val =
+	function setSpinnerValue layer_index =
 	(
 		if DIALOG_slicer_slider != undefined then
-			DIALOG_slicer_slider.SPIN_layer_current.value = val
+			DIALOG_slicer_slider.SPIN_layer_current.value = layer_index
 	),
 
 	private
@@ -480,8 +490,9 @@ struct SlicerSystem_v
 	  */
 	function _getPlaneZpozition layer_index =
 	(
-		--format "\n"; print "SlicerSystem_v._getPlaneZpozition()"
+		format "\n"; print "SlicerSystem_v._getPlaneZpozition()"
 		--volume_height	= (PrinterVolume_v(DIALOG_content.SPIN_export_size.value)).printer_size.z
+		format "LAYER_INDEX: %\n" layer_index
 		--layer_height	= DIALOG_content.SPIN_layer_height.value
 		--layer_current	= DIALOG_slicer_slider.SLIDER_slicer.value
 		--slice_count	= volume_height / layer_height

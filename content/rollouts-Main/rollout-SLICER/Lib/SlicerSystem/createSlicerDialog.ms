@@ -89,6 +89,9 @@ function createslicerSliderDialog =
 	btn_exit.Event #RIGHTCLICK "::SlicerCallbacks_v.desroySliderDialogAndDeleteModifiers()" tooltip:"EXIT SLICE MODE"
 
 	_slider.Event #CHANGED     "::SlicerCallbacks_v.onSliderChanged(val)"
+	_slider.Event #BUTTONDOWN	"flagForeground selection[1] true"
+	_slider.Event #BUTTONUP	"flagForeground selection[1] false"
+
 	----_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"
 	--_slider.Event #LEFTCLICK	""
 

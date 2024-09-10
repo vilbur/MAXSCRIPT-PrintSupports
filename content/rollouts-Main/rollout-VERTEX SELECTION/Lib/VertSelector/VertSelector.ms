@@ -2,7 +2,7 @@
 
 import_browse
 
-filein( getFilenamePath(getSourceFileName()) + "/../VertexLayers/VertexLayers.ms" )	--"./../VertexLayers/VertexLayers.ms"
+--filein( getFilenamePath(getSourceFileName()) + "/../VertexLayers/VertexLayers.ms" )	--"./../VertexLayers/VertexLayers.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../VertexGrid/VertexGrid.ms" )	--"./../VertexGrid/VertexGrid.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../VertexGridGetter/VertexGridGetter.ms" )	--"./../VertexGridGetter/VertexGridGetter.ms"
 filein( getFilenamePath(getSourceFileName()) + "/../VertIslandFinder/VertIslandFinder.ms" )	--"./../VertIslandFinder/VertIslandFinder.ms"
@@ -42,7 +42,7 @@ struct VertSelector_v
 	/* dependency */
 	--MeshDataGetter,
 	VertexGridGetter,
-	VertexLayers,
+	--VertexLayers,
 	VertIslandFinder,
 
 	/* reference */
@@ -57,29 +57,30 @@ struct VertSelector_v
 		vertex_count = getNumVerts obj.mesh
 
 		verts_all = #{1..(vertex_count)}
-		format "vertex_count: %\n" vertex_count
+
 		/* GET VERTS WITH NORMAL POINTING DOWN */
 		--bottom_verts = this.getBottom()
-
 		/* GET ONLY CONVEX VERTS */
 		--convex_verts = this.selectConvex()
 
 		visible_verts = -( polyop.getHiddenVerts obj)
-		format "verts_sel: %\n" (polyop.getVertSelection obj)
-		format "visible_verts.numberSet: %\n" visible_verts.numberSet
-
 
 		verts_process = if (verts_sel = polyop.getVertSelection obj ).numberSet > 0 then verts_sel else verts_all
-		format "verts_process.numberSet: %\n" verts_process.numberSet
+
 		verts_process *= visible_verts
-		format "verts_process.numberSet: %\n" verts_process.numberSet
+
+		VertIslandFinder.verts_all	= verts_all
+		VertIslandFinder.verts_process	= verts_process
 
 
-		if ( verts_layers = VertexLayers.findVertsOfNewIslands(verts_all)(verts_process)(layer_height)) != undefined then
+		--if ( VertIslandFinder.findVertsOfNewIslands()) != undefined then
 		(
-			VertIslandFinder.verts_all	= verts_all
-			VertIslandFinder.verts_process	= verts_process
-			VertIslandFinder.verts_layers	= verts_layers
+			VertIslandFinder.sortVertsToLayers()
+
+			 --for layer_index = 1 to VertIslandFinder.verts_layers.count where classOf ( verts_in_layer = VertIslandFinder.verts_layers[layer_index] ) == BitArray do
+				--format "%: %\n" layer_index verts_in_layer
+
+			--format "VertIslandFinder.verts_layers: %\n" VertIslandFinder.verts_layers
 
 			VertIslandFinder.getNewIslandsPerLayer()
 
@@ -641,7 +642,7 @@ struct VertSelector_v
 		print "***********************\n***********************"
 		--this._setObject()
 
-		VertexLayers 	= VertexLayers_v( obj )
+		--VertexLayers 	= VertexLayers_v( obj )
 		VertexGrid 	= VertexGrid_v( obj )
 		VertIslandFinder 	= VertIslandFinder_v(obj)
 		VertexGridGetter 	= VertexGridGetter_v( obj )

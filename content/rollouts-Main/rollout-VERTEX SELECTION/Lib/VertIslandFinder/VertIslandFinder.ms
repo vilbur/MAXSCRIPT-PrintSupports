@@ -20,7 +20,8 @@ struct VertIslandFinder_v
 	verts_all	= #{},
 
 	face_islands	= #(),
-	verts_layers	= #(),	-- each item is BitArray of verts in layer
+	--verts_layers	= #(),	-- each item is BitArray of verts in layer
+	verts_layers = #(), -- #( #{3..8}, 2 ) vertex numbers in layer, if layer is empty, then layer index is stored
 	verts_above	= #{},	-- store verts above last layer, or not yet iterated layers
 	verts_processed	= #{},
 
@@ -32,7 +33,61 @@ struct VertIslandFinder_v
 	/* dependency */
 	/* reference */
 	/* inhered */
-	layer_height,
+	--layer_height,
+
+	/** Find points
+	 */
+	function sortVertsToLayers =
+	(
+		format "\n"; print "VertIslandFinder_v.sortVertsToLayers()"
+
+		/* ========= DEV DESELECT ALL VERTS ========= */
+		--obj.EditablePoly.SetSelection #Vertex #{}
+
+		format "VERTS_PROCESS: %\n" verts_process
+
+
+		verts_pos = in coordsys world meshop.getVerts obj.mesh verts_all node:obj
+
+		/* SET ALL VERTS TO LAYERS */
+		--if verts_process.numberSet == verts_all.numberSet then
+		(
+			print "SET ALL VERTS TO LAYERS"
+			bbox = nodeGetBoundingBox obj ( Matrix3 1)
+
+			pos_z_min = bbox[1].z
+
+			--mesh_height = bbox[2].z - pos_z_min
+			mesh_height = bbox[2].z
+
+			verts_fit = copy verts_all
+		)
+
+		if pos_z_min < 0 then
+		(
+			messageBox ("OBJECT IS BELLOW THE GROUND.\n\nMove object "+obj.name+" above ground please.") title:"FIND ISLANDS ERROR"
+
+			return false
+		)
+
+		layers_count = ceil ( mesh_height / SUPPORT_OPTIONS.layer_height)
+		format "LAYERS_COUNT: %\n" layers_count
+
+		this.verts_layers  = #{1..(layers_count + 1)} as Array -- create with
+
+		for vert in verts_fit do
+		(
+			layer = ( (verts_pos[vert].z ) / SUPPORT_OPTIONS.layer_height ) as integer + 1
+
+			if classOf this.verts_layers [layer] == BitArray then
+				this.verts_layers[layer][vert] = true
+
+			else
+				this.verts_layers[layer] = #{vert} -- set first vert in layer
+		)
+
+		verts_layers --return --return
+	),
 
 	/** GET NEW NEW_ISLANDS PER LAYER
 	  *
@@ -307,8 +362,9 @@ struct VertIslandFinder_v
 		--format "\n"; print "VertIslandFinder_v._addIslandDataToNewIslands()"
 		for new_island in new_islands do
 		(
+			--format "\n"; print "VertIslandFinder_v._addIslandDataToNewIslands()"
 			island_data = Dictionary()
-
+			--format "%: %\n" layer new_island
 			island_data[#NEW_ISLAND] = (new_island * verts_in_layer)
 
 			island_data[#BOTTOM] = layer
@@ -338,41 +394,41 @@ struct VertIslandFinder_v
 
 		found --return
 	),
-
-	/** Test new islands
-	 */
-	function _testNewIslands =
-	(
-		format "\n"; print "VertIslandFinder_v._testNewIslands()"
-		--for x = islands_data.count to 1 by -1 do
-		--(
-		--	--format "x: %\n" x
-		--
-		--	island_data = islands_data[x][#NEW_ISLAND]
-		--
-		--		--format "island_data: %\n" island_data
-		--	--if island_data != undefined then
-		--
-		--
-		--		for y = islands_data.count to 1 by -1 where x != y and ( island_data * islands_data[y][#NEW_ISLAND] ).numberSet > 0 do
-		--		(
-		--			format "\n\n=========================\n"
-		--			format "x: % \ny: %\n\n" x y
-		--			format "NEW_ISLAND: %\n" islands_data[y][#NEW_ISLAND]
-		--		)
-		--		--else
-		--		--(
-		--		--	format "\n\n=========================\n"
-		--		--	format "UNDEFINED: %\n" x
-		--		--)
-		--	gc light:true
-		--
-		--)
-
-		for island_data in islands_data do
-			format "island_data[#NEW_ISLAND]: %\n" island_data[#NEW_ISLAND]
-
-	),
+	--
+	--/** Test new islands
+	-- */
+	--function _testNewIslands =
+	--(
+	--	--format "\n"; print "VertIslandFinder_v._testNewIslands()"
+	--	--for x = islands_data.count to 1 by -1 do
+	--	--(
+	--	--	--format "x: %\n" x
+	--	--
+	--	--	island_data = islands_data[x][#NEW_ISLAND]
+	--	--
+	--	--		--format "island_data: %\n" island_data
+	--	--	--if island_data != undefined then
+	--	--
+	--	--
+	--	--		for y = islands_data.count to 1 by -1 where x != y and ( island_data * islands_data[y][#NEW_ISLAND] ).numberSet > 0 do
+	--	--		(
+	--	--			format "\n\n=========================\n"
+	--	--			format "x: % \ny: %\n\n" x y
+	--	--			format "NEW_ISLAND: %\n" islands_data[y][#NEW_ISLAND]
+	--	--		)
+	--	--		--else
+	--	--		--(
+	--	--		--	format "\n\n=========================\n"
+	--	--		--	format "UNDEFINED: %\n" x
+	--	--		--)
+	--	--	gc light:true
+	--	--
+	--	--)
+	--
+	--	for island_data in islands_data do
+	--		format "island_data[#NEW_ISLAND]: %\n" island_data[#NEW_ISLAND]
+	--
+	--),
 
 	/** Set vertex color to new islands
 	 */

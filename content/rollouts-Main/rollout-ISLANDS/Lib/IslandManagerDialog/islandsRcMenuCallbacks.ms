@@ -124,7 +124,7 @@ struct IslandsRcMenuCallbacks_v
 		)
 
 		if verts.numberSet > 0 then
-			ISLANDS_SYSTEM.selectIslandsVerts( verts as BitArray )
+			ISLANDS_SYSTEM.selectVerts( verts as BitArray )
 	),
 
 	/** Isolate slected islands
@@ -203,15 +203,31 @@ struct IslandsRcMenuCallbacks_v
 	(
 		format "\n"; print "IslandsCallbacks_v.sliceAtIsland()"
 		_listbox = DIALOG_island_manager.ML_island_listbox
-		--format "_listbox.items: %\n" _listbox.items
-		islands_layers = (for item in _listbox.items collect (filterString item " ")[1] as integer ) --as BitArray -- get list items strings to bitarray
+		format "_listbox.items: %\n" _listbox.items
+		--islands_layers = (for item in _listbox.items collect (filterString item " ")[1] as integer ) --as BitArray -- get list items strings to bitarray
+
+		selected_islands = ( ISLANDS_SYSTEM.getSelectedIslandsFromListBox() )
+		format "SELECTED_ISLANDS: %\n" selected_islands
+
+		island_data = ISLANDS_SYSTEM.islands_data[selected_islands.count]
+		format "ISLAND_DATA: %\n" island_data
+
+		verts = ISLANDS_SYSTEM.getVertsFromIslandData(island_data)
 
 		--format "islands_layers: %\n" islands_layers
 		--format "_listbox.selection.count: %\n" _listbox.selection.count
-		layer_of_island = (islands_layers)[( _listbox.selection as Array )[1] ]
+		--layer_of_island = (islands_layers)[( _listbox.selection as Array )[1] ]
+
+		layer_of_island = if DIALOG_island_manager.RB_slider_mode.state == 2 and island_data[#TOP] != undefined then island_data[#TOP] else island_data[#BOTTOM]
+		format "LAYER_OF_ISLAND: %\n" layer_of_island
 
 		SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_of_island) (true)
-		--format "LAYER_OF_ISLAND: %\n" layer_of_island
+
+		SLICER_SYSTEM.setSliderValueByLayerIndex(layer_of_island)
+
+		SLICER_SYSTEM.setSpinnerValue(layer_of_island)
+
+		ISLANDS_SYSTEM.selectVerts(verts)
 	),
 
 	--/** Create island manager dialog only selected islands

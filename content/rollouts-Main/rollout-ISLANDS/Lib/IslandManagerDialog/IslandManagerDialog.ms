@@ -157,7 +157,7 @@ function createIslandManagerDialog islands_to_show: =
 	/*------------------------------------------------------------------------------
 		EVENTS
 	--------------------------------------------------------------------------------*/
-	btn_isloate.Event #CHANGED    "::IslandsCallbacks_v.isolateSlectedIslands()" tooltip:"Show only verts of selected islands"
+	btn_isloate.Event #CHANGED    "::IslandsCallbacks_v.isolateSlectedIslands(val)" tooltip:"Show only verts of selected islands"
 	btn_isloate.Event #RIGHTCLICK "::IslandsCallbacks_v.unhideVerts()" tooltip:"Unhide Verts"
 
 	_radio.Event #CHANGED "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
@@ -178,6 +178,10 @@ function createIslandManagerDialog islands_to_show: =
 	--Dialog.create width:(width_listbox + slider_width) height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
 	Dialog.create width:(96) height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
 	--Dialog.create height:#VIEWPORT --bgcolor:( color 60 130 140 )
+
+	--format "DIALOG_slicer_slider: %\n" DIALOG_slicer_slider
+	--format "cui.getDockState DIALOG_slicer_slider: %\n" (cui.getDockState DIALOG_slicer_slider)
+
 
 	/* KEEP SLICER AND ISLAND DILOGS IN SAME ORDER HWEN DILAG IS DOCKED #RIGHT */
 	if DIALOG_slicer_slider != undefined and GetDialogPos DIALOG_slicer_slider != [0,0] and cui.getDockState DIALOG_slicer_slider == #CUI_DOCK_RIGHT then

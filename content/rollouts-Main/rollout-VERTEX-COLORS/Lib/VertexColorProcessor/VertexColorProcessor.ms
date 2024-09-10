@@ -265,8 +265,8 @@ struct VertexColorProcessor_v
 	 */
 	function _getBaseObjectVerts verts =
 	(
-		--format "\n"; print "VertexColorProcessor_v.getBaseObjectVerts()"
-		----format "verts: %\n" verts
+		format "\n"; print "VertexColorProcessor_v._getBaseObjectVerts()"
+		format "verts: %\n" verts
 		--format "classof curr_mod: %\n" (classof curr_mod)
 
 		if classof curr_mod != Editable_Poly then
@@ -276,7 +276,9 @@ struct VertexColorProcessor_v
 			verts_mesh_all	= #{1..( getNumVerts obj.mesh  )} as Array
 			verts_base_all	= #{1..( polyop.getNumVerts obj.baseobject)} as Array
 
+			timer_verts_pos_baseobjects = timeStamp()
 			verts_pos_baseobjects = polyop.getVerts obj.baseobject verts_base_all --node:obj
+			format "verts_pos_baseobjects: % seconds\n" ((( timeStamp()) - timer_verts_pos_baseobjects) / 1000.0)
 
 			if verts.count > 0 then
 			(
