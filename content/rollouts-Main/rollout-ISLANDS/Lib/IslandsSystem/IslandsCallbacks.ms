@@ -98,6 +98,7 @@ struct IslandsCallbacks_v
 		--format "\n"; print "IslandsCallbacks_v.selectAllIslandsInListbox()"
 		_listbox = IALOG_island_manager.ML_island_listbox
 
+
 		_listbox.selection = #{1.._listbox.items.count}
 
 		--ISLANDS_SYSTEM.updateIslandSelectionByRadiobuttonsState()
@@ -117,7 +118,7 @@ struct IslandsCallbacks_v
 			_mod.ButtonOp #UnhideAllVertex
 
 	),
-	
+
 	/** Toggle select island mode
 	 */
 	function toggleSelectIslandMode =

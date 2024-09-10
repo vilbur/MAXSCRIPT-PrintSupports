@@ -26,7 +26,7 @@ icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 
 		SLICER_SYSTEM.setSliderByModifier()
 
-		select selection -- fire when selected event -- open modify panel and select Edit or Editable Poly
+		--select selection -- fire when selected event -- open modify panel and select Edit or Editable Poly
 
 	)
 )

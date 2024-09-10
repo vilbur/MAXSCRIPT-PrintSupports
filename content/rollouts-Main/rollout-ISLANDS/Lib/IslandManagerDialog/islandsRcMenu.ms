@@ -13,20 +13,30 @@ function openNewIslandsMenu =
 	listbox_selection = DIALOG_island_manager.ML_island_listbox.selection
 
 
-	/* ADD ITEMS */
-	if listbox_selection.numberSet != listbox_items_count then
-		Menu.item "Select All"	"::IslandsRcMenuCallbacks_v.selectAllIslandsInListbox()"
+	/*------------------------------------------------------------------------------
+		SELECTIOJN
+	--------------------------------------------------------------------------------*/
+
 
 	if (verts_sel = getVertSelection selection[1].mesh ).numberSet > 0 then
 		Menu.item "Select Islands by verts"	"::IslandsRcMenuCallbacks_v.selectIslandsByVerts()"
 
 	--Menu.item "Select Lowest Verts"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#LOWEST_VERT)"
 	--Menu.item "Select New Islands"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#NEW_ISLAND)"
+	Menu.item "Select whole Islands"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#WHOLE_ISLAND)"
 
 	Menu.separator()
 
-	Menu.item "Select whole Islands"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#WHOLE_ISLAND)"
-	Menu.item "Remove selected islands"	"::IslandsRcMenuCallbacks_v.removeSelectedIslands()"
+	/* ADD ITEMS */
+	if listbox_selection.numberSet != listbox_items_count then
+		Menu.item "Select All"	"::IslandsRcMenuCallbacks_v.selectAllIslandsInListbox()"
+
+	if listbox_selection.numberSet > 0 then
+		Menu.item "Invert selection"	"::IslandsRcMenuCallbacks_v.invertSelection()"
+
+	/*------------------------------------------------------------------------------
+		SELECT BY SIZE
+	--------------------------------------------------------------------------------*/
 
 	Menu.separator()
 
@@ -36,12 +46,28 @@ function openNewIslandsMenu =
 
 	Menu.separator()
 
-	if listbox_selection.numberSet > 1 and listbox_items_count > 0 then
-		Menu.item "Show ONLY selected" "createIslandManagerDialog relaunch:true"
+	if listbox_selection.numberSet > 0 then
+		--Menu.item "Show ONLY selected" "::IslandsRcMenuCallbacks_v.createIslandManagerDialogOnlySelectedIslands()"
+		Menu.item "Show ONLY selected" "createIslandManagerDialog islands_to_show:(ISLANDS_SYSTEM.getIslandsToShowBySlection())"
 
 
 	if listbox_items_count < ISLANDS_SYSTEM.islands_data.count then
-		Menu.item "Show ALL" "createIslandManagerDialog()"
+		Menu.item "Show ALL" "createIslandManagerDialog islands_to_show:#{}"
+
+
+	if DIALOG_elevation_slider != undefined then
+		Menu.item "Slice here"	"::IslandsRcMenuCallbacks_v.sliceAtIsland()"
+
+
+	/*------------------------------------------------------------------------------
+		MANAGE ISALNDS
+	--------------------------------------------------------------------------------*/
+
+	Menu.separator()
+
+	Menu.item "Remove selected islands"	"::IslandsRcMenuCallbacks_v.removeSelectedIslands()"
+
+
 
 	popUpMenu (Menu.create())
 )

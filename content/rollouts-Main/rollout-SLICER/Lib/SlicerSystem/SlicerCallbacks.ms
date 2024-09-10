@@ -107,6 +107,17 @@ struct SlicerCallbacks_v
 
 	),
 
+	/** Desroy slider dialog and delete modifiers
+	 */
+	function desroySliderDialogAndDeleteModifiers =
+	(
+		--format "\n"; print "SlicerCallbacks_v.desroySliderDialogAndDeleteModifiers()"
+
+		SLICER_SYSTEM.desroySliderDialog()
+
+		SLICER_SYSTEM.deleteModifiers()
+	),
+
 	/**
 	 */
 	on create do

@@ -127,6 +127,46 @@ struct IslandsRcMenuCallbacks_v
 			ISLANDS_SYSTEM.selectIslandsVerts( verts as BitArray )
 	),
 
+	/** Isolate slected islands
+	 */
+	function isolateSlectedIslands state =
+	(
+		format "\n"; print "IslandsSystem_v.isolateSlectedIslands()"
+		--format "state: %\n" state
+		obj	= selection[1]
+
+		if state then
+		(
+			selected_islands = ( ISLANDS_SYSTEM.getSelectedIslandsFromListBox() ) as Array
+
+			verts = ISLANDS_SYSTEM.getVertsOfIslands(selected_islands)
+
+			subObjectLevel = 1
+
+			hidden_verts =	( polyop.getHiddenVerts obj) - verts
+
+			polyop.unHideAllVerts obj
+
+			if DIALOG_island_manager.CBTN_isolate.state == 1 then
+			(
+				all_verts = #{1..(getNumVerts obj.mesh)}
+
+				polyop.setHiddenVerts obj (all_verts - verts)
+			)
+		)
+	),
+
+	/** Invert selection
+	 */
+	function invertSelection =
+	(
+		--format "\n"; print "IslandsCallbacks_v.invertSelection()"
+
+		_listbox = DIALOG_island_manager.ML_island_listbox
+
+		_listbox.selection = -_listbox.selection
+	),
+
 	/** Remove selected islands
 	 */
 	function removeSelectedIslands =
@@ -137,7 +177,7 @@ struct IslandsRcMenuCallbacks_v
 
 		selected_islands = ( ISLANDS_SYSTEM.getSelectedIslandsFromListBox() )
 
-		if selected_islands.numberSet > 0 and queryBox "REMOVE SELECTED ISALNDS FROM OBJ ?" title:"REMOVE ISLANDS" then
+		if selected_islands.numberSet > 0 and queryBox ("REMOVE SELECTED ISALNDS FROM OBJECT ?\n\n"+obj.name) title:"REMOVE ISLANDS" then
 		(
 
 
@@ -156,6 +196,40 @@ struct IslandsRcMenuCallbacks_v
 			macros.run "maxtoprint" "maxtoprint_islands_dialog"
 		)
 	),
+
+	/** Slice at island
+	 */
+	function sliceAtIsland =
+	(
+		format "\n"; print "IslandsCallbacks_v.sliceAtIsland()"
+		_listbox = DIALOG_island_manager.ML_island_listbox
+		--format "_listbox.items: %\n" _listbox.items
+		islands_layers = (for item in _listbox.items collect (filterString item " ")[1] as integer ) --as BitArray -- get list items strings to bitarray
+
+		--format "islands_layers: %\n" islands_layers
+		--format "_listbox.selection.count: %\n" _listbox.selection.count
+		layer_of_island = (islands_layers)[( _listbox.selection as Array )[1] ]
+
+		SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_of_island) (true)
+		--format "LAYER_OF_ISLAND: %\n" layer_of_island
+	),
+
+	--/** Create island manager dialog only selected islands
+	-- */
+	--function createIslandManagerDialogOnlySelectedIslands =
+	--(
+	--	--format "\n"; print "IslandsRcMenuCallbacks_v.createIslandManagerDialogOnlySelectedIslands()"
+	--	selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
+	--
+	--	islands_to_show = case of
+	--	(
+	--		(relaunch and selected_islands.numberSet >  1):	selected_islands                     -- SHOW ONLY SELECTED ITEMS ON RELAUNCH
+	--		(relaunch and selected_islands.numberSet == 1):	#{(ISLANDS_SYSTEM.getFirstIslandFromListbox())..(selected_islands as Array )[1]} -- SHOW ISLANDS UP TO SELECTED ITEM ON RELAUNCH IF ONLY SINGLE ISLAND IS SELECTED
+	--		default:	#{1..ISLANDS_SYSTEM.islands_data.count}             -- SHOW ALL ISLANDS
+	--	)
+	--
+	--	createIslandManagerDialog islands_to_show:(ISLANDS_SYSTEM.getIslandsToShowBySlection())
+	--),
 
 	private
 

@@ -69,13 +69,45 @@ struct SlicerSystem_v
 	/* private */
 	slice_modes = Dictionary #( #SLICE_PLANE_TOP, true ) #( #SLICE_PLANE_BOTTOM, false ),
 
-	modifiers = Dictionary #NAME,
+	slice_modifiers = Dictionary #NAME,
 
 	viewport_height,
 	display_units,
 	/* dependency */
 	/* reference */
 	/* inhered */
+
+	/** Set slice plane modifier
+	  *
+	  * @param int|float layer_index_or_z_pos position where slice plane is elevated
+	  *		1) FLOAT:	z pozition in world units
+	  *		2) INTEGER:	index of print layer
+	  *
+	  */
+	function setSlicePlaneModifier mode state layer_index_or_z_pos cap_state =
+	(
+		--format "\n"; print ("SlicerSystem_v.setSlicePlaneModifier()")
+		--format "slice_mod: %\n" slice_modifiers[mode]
+		--format "layer_index_or_z_pos: %\n" layer_index_or_z_pos
+		if ( slice_mod = slice_modifiers[mode] ) == undefined then
+			return false
+
+		z_pos = if classOf layer_index_or_z_pos == integer then this._getPlaneZpozition (layer_index_or_z_pos) else layer_index_or_z_pos
+		--format "z_pos: %\n" z_pos
+		/* SET SLICE PLANE POSITION */
+		final_TM = Matrix3 1
+
+		final_TM.position.z = z_pos
+
+		slice_mod.cap = cap_state
+
+		this._saveEditPolyVertsVisibily()
+
+		/*  UPDATE MODIFIER PROPERTIES */
+		slice_mod.slice_plane.transform = final_TM
+
+		slice_mod.Slice_Type = (if mode == #SLICE_PLANE_TOP then 2 else 3 )
+	),
 
 	/** Move slider
 	 */
@@ -111,11 +143,9 @@ struct SlicerSystem_v
 		slice_count = (( min_max_z[2] - min_max_z[1] ) / layer_height ) as integer
 
 		slice_start = ( min_max_z[1]  / layer_height ) as integer + 1
-
-
 	),
 
-	/** Add modifiers
+	/** Add slice_modifiers
 	 */
 	function addModifiers =
 	(
@@ -132,11 +162,9 @@ struct SlicerSystem_v
 			setModContextTM obj slice_mod mod_TM
 		)
 
-		this._setModifiers()
-
 		for slice_mode_data in slice_modes where slice_mode_data.value do
 		(
-			slice_modifier = modifiers[slice_mode_data.key]
+			slice_modifier = slice_modifiers[slice_mode_data.key]
 
 			/* GET OBJECTS WITH MODIFIER INS */
 			objects_with_modifier = refs.dependentNodes slice_modifier
@@ -145,14 +173,40 @@ struct SlicerSystem_v
 			/* ADD MODIIFER WHERE IS NOT */
 			for obj in _objects where findItem objects_with_modifier obj == 0 do
 			(
-				addModifier obj  (Poly_Select name:"SLICE_SELECT_OBJ" )
+				/* ADD POLY SELECT MODIFIER  */
+				--addModifier obj  (Poly_Select name:"SLICE_SELECT_OBJ" )
 
+				/* ADD SLICE MODIFIER  */
 				addSliceMod (obj)	(slice_modifier)
+
+				/* ADD SLICE MODIFIER  */
+				addModifier obj  (Edit_Poly name:"SLICE_EDIT" )
 			)
 		)
 	),
 
-	/** Toggle modifiers
+	/** Delete modifiers
+	 */
+	function deleteModifiers =
+	(
+		--format "\n"; print "SlicerSystem_v.deleteModifiers()"
+		for key in slice_modifiers.keys do
+		(
+			slice_modifier = slice_modifiers[key]
+
+			/* GET OBJECTS WITH MODIFIER INS */
+			if (objects_with_modifier = refs.dependentNodes slice_modifiers[key]).count > 0 then
+				for obj in objects_with_modifier do
+				deleteModifier obj slice_modifiers[key]
+		)
+
+		for obj in objects \
+			where (poly_select_mod = obj.modifiers[#SLICE_SELECT_OBJ]) != undefined \
+			or    (edit_poly_mod  = obj.modifiers[#SLICE_EDIT]) != undefined  do
+				deleteModifier obj (if poly_select_mod != undefined then poly_select_mod else edit_poly_mod )
+	),
+
+	/** Toggle slice_modifiers
 	 */
 	function toggleModifiers state =
 	(
@@ -183,42 +237,12 @@ struct SlicerSystem_v
 				waitOnModifiyStackIsReady_SLICER()
 	),
 
-	/** Set slice plane modifier
-	  *
-	  * @param int|float layer_index_or_z_pos position where slice plane is elevated
-	  *		1) FLOAT:	z pozition in world units
-	  *		2) INTEGER:	index of print layer
-	  *
-	  */
-	function setSlicePlaneModifier mode state layer_index_or_z_pos cap_state =
-	(
-		--format "\n"; print ("SlicerSystem_v.setSlicePlaneModifier()")
-		--format "slice_mod: %\n" modifiers[mode]
-		--format "layer_index_or_z_pos: %\n" layer_index_or_z_pos
-		if ( slice_mod = modifiers[mode] ) == undefined then
-			return false
-
-		z_pos = if classOf layer_index_or_z_pos == integer then this._getPlaneZpozition (layer_index_or_z_pos) else layer_index_or_z_pos
-		--format "z_pos: %\n" z_pos
-		/* SET SLICE PLANE POSITION */
-		final_TM = Matrix3 1
-
-		final_TM.position.z = z_pos
-
-		/*  UPDATE MODIFIER PROPERTIES */
-		slice_mod.slice_plane.transform = final_TM
-
-		slice_mod.Slice_Type = (if mode == #SLICE_PLANE_TOP then 2 else 3 )
-
-		slice_mod.cap = cap_state
-	),
-
 	/** Set slider by modifier
 	 */
 	function setSliderByModifier =
 	(
 		--format "\n"; print "SlicerSystem_v.setSliderByModifier()"
-		slice_pos = modifiers[#SLICE_PLANE_TOP].slice_plane.transform.position.z
+		slice_pos = slice_modifiers[#SLICE_PLANE_TOP].slice_plane.transform.position.z
 
 		layer_index = this.posToLayerIndex(slice_pos)
 
@@ -233,21 +257,6 @@ struct SlicerSystem_v
 	(
 		--format "\n"; print ".desroy()"
 		--removeSlicePlaneModifiers( selection )
-
-		for key in modifiers.keys do
-		(
-			slice_modifier = modifiers[key]
-
-			/* GET OBJECTS WITH MODIFIER INS */
-			if (objects_with_modifier = refs.dependentNodes modifiers[key]).count > 0 then
-				for obj in objects_with_modifier do
-				deleteModifier obj modifiers[key]
-
-		)
-
-		for obj in objects where (select_mod = obj.modifiers[#SLICE_SELECT_OBJ]) != undefined do
-			deleteModifier obj select_mod
-
 		cui.UnRegisterDialogBar DIALOG_elevation_slider
 
 		destroyDialog DIALOG_elevation_slider
@@ -296,7 +305,7 @@ struct SlicerSystem_v
 	(
 		--format "\n"; print "SlicerSystem_v.toggleIcepPlanePosition()"
 		--print "createElevationSliderDialog SLIDER_elevation rightClick"
-		/** Toggle slice modifiers
+		/** Toggle slice slice_modifiers
 		 */
 		function toggleSliceModifiers state mod_names:#( #SLICE_PLANE_TOP, #SLICE_PLANE_BOTTOM ) =
 		(
@@ -372,25 +381,47 @@ struct SlicerSystem_v
 		)
 	),
 
-
-
 	/** Set slider value
 	 */
 	function setSliderValue val =
 	(
-		DIALOG_elevation_slider.SLIDER_elevation.value = val
+		if DIALOG_elevation_slider != undefined then
+			DIALOG_elevation_slider.SLIDER_elevation.value = val
 	),
 
 	/** Set spinner value
 	 */
 	function setSpinnerValue val =
 	(
-		DIALOG_elevation_slider.SPIN_layer_current.value = val
+		if DIALOG_elevation_slider != undefined then
+			DIALOG_elevation_slider.SPIN_layer_current.value = val
 	),
 
 	private
 
-	/** Set modifiers
+	/** Save edit poly verts visibily
+	 */
+	function _saveEditPolyVertsVisibily =
+	(
+		format "\n"; print "SlicerSystem_v._saveEditPolyVertsVisibily()"
+
+		if classOf (obj.modifiers[1] ) == Edit_Poly then
+			max modify mode
+
+		if classOf ( _mod = modPanel.getCurrentObject() ) == Edit_Poly then
+		(
+			hidden_verts = meshop.getHiddenVerts obj.mesh
+
+--$.modifiers[#Edit_Poly].Select #Vertex #{1..100}
+
+
+			--meshop.setHiddenVerts obj.mesh #{1..100}
+
+		)
+
+	),
+
+	/** Set slice_modifiers array
 	 */
 	function _setModifiers =
 	(
@@ -401,7 +432,7 @@ struct SlicerSystem_v
 
 			mods_in_scene = this._getModifiersInScene( mod_name )
 
-			this.modifiers[mod_name] = if ( slice_mod = mods_in_scene[1] ) != undefined then
+			this.slice_modifiers[mod_name] = if ( slice_mod = mods_in_scene[1] ) != undefined then
 				mods_in_scene[1]
 			else
 				SliceModifier name:( mod_name as string ) Faces___Polygons_Toggle:1 setmaterial:on materialID:3
@@ -463,7 +494,7 @@ struct SlicerSystem_v
 		layer_index * layer_height  --return z poz
 	),
 
-	/** Get modifiers in scene
+	/** Get slice_modifiers in scene
 	 */
 	function _getModifiersInScene mod_name =
 	(
@@ -491,6 +522,9 @@ struct SlicerSystem_v
 	on create do
 	(
 		--format "\n"; print "SlicerSystem.onCreate()"
+
+		this._setModifiers()
+
 		display_units = case units.SystemType of -- convert to milimeters
 		(
 			#millimeters:	1

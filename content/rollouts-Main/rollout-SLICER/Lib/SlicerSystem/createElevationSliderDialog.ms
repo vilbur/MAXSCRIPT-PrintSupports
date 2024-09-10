@@ -86,7 +86,7 @@ function createElevationSliderDialog =
 		EVENTS
 	--------------------------------------------------------------------------------*/
 	btn_exit.Event #PRESSED    "macros.run \"_3D-Print\" \"print_create_slicerdialog\" " tooltip:"SLICE CURRENT SELECTED OBJECT"
-	btn_exit.Event #RIGHTCLICK "::SlicerCallbacks_v.desroySliderDialog()" tooltip:"EXIT SLICE MODE"
+	btn_exit.Event #RIGHTCLICK "::SlicerCallbacks_v.desroySliderDialogAndDeleteModifiers()" tooltip:"EXIT SLICE MODE"
 
 	_slider.Event #CHANGED     "::SlicerCallbacks_v.onSliderChanged(val)"
 	----_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"

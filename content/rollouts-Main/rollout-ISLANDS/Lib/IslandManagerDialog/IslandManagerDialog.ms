@@ -5,8 +5,10 @@ filein( getFilenamePath(getSourceFileName()) + "/islandsRcMenu.ms" )	--"./rcMenu
 
 
 /** Create island manager dialog
+  *
+  * @param #ALL|#SAVED
  */
-function createIslandManagerDialog relaunch:false =
+function createIslandManagerDialog islands_to_show: =
 (
 	--clearListener(); print("Cleared in:\n"+getSourceFileName())
 	format "\n"; print ".createIslandManagerDialog()"
@@ -57,17 +59,16 @@ function createIslandManagerDialog relaunch:false =
 	/*------------------------------------------------------------------------------
 		GET ITEMS
 	--------------------------------------------------------------------------------*/
-	selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
+	--selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
 
-	islands_to_show = case of
-    (
-        (relaunch and selected_islands.numberSet >  1):	selected_islands                     -- SHOW ONLY SELECTED ITEMS ON RELAUNCH
-        (relaunch and selected_islands.numberSet == 1):	#{(getFirstIslandFromListbox())..(selected_islands as Array )[1]} -- SHOW ISLANDS UP TO SELECTED ITEM ON RELAUNCH IF ONLY SINGLE ISLAND IS SELECTED
-        default:		#{1..ISLANDS_SYSTEM.islands_data.count}             -- SHOW ALL ISLANDS
-    )
+	if islands_to_show == unsupplied and ( visible_islands_saved = getUserPropVal ISLANDS_SYSTEM.obj "VISIBLE_ISLANDS" ) != undefined then
+		islands_to_show = visible_islands_saved
+
+	else if islands_to_show == unsupplied or islands_to_show.numberSet == 0 then
+		islands_to_show = #{1..ISLANDS_SYSTEM.islands_data.count}
+
 
 	items = for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 where islands_to_show[i] collect  getItemTitile (i)
-
 
 
 	/*------------------------------------------------------------------------------

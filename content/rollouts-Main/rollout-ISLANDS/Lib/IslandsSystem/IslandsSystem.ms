@@ -33,33 +33,33 @@ struct IslandsSystem_v
 		selected_islands --return
 	),
 
-	/** Isolate slected islands
-	 */
-	function isolateSlectedIslands state =
-	(
-		format "\n"; print "IslandsSystem_v.isolateSlectedIslands()"
-		format "state: %\n" state
-
-		if state then
-		(
-			selected_islands = ( this.getSelectedIslandsFromListBox() ) as Array
-
-			verts = this._getVertsOfIslands(selected_islands)
-
-			subObjectLevel = 1
-
-			hidden_verts =	( polyop.getHiddenVerts obj) - verts
-
-			polyop.unHideAllVerts obj
-
-			if DIALOG_island_manager.CBTN_isolate.state == 1 then
-			(
-				all_verts = #{1..(getNumVerts obj.mesh)}
-
-				polyop.setHiddenVerts obj (all_verts - verts)
-			)
-		)
-	),
+	--/** Isolate slected islands
+	-- */
+	--function isolateSlectedIslands state =
+	--(
+	--	format "\n"; print "IslandsSystem_v.isolateSlectedIslands()"
+	--	format "state: %\n" state
+	--
+	--	if state then
+	--	(
+	--		selected_islands = ( this.getSelectedIslandsFromListBox() ) as Array
+	--
+	--		verts = this._getVertsOfIslands(selected_islands)
+	--
+	--		subObjectLevel = 1
+	--
+	--		hidden_verts =	( polyop.getHiddenVerts obj) - verts
+	--
+	--		polyop.unHideAllVerts obj
+	--
+	--		if DIALOG_island_manager.CBTN_isolate.state == 1 then
+	--		(
+	--			all_verts = #{1..(getNumVerts obj.mesh)}
+	--
+	--			polyop.setHiddenVerts obj (all_verts - verts)
+	--		)
+	--	)
+	--),
 
 	/** Get layer of island
 	 */
@@ -198,7 +198,8 @@ struct IslandsSystem_v
 		 */
 		function selectVertsEditPoly _mod verts isolate =
 		(
-			--format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
+			format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
+			format "\n**************************************************\n"
 			/** Pass vertex selection from editable poly baseobject to edit poly modifier based on vertex position
 			  *
 			  * #return BitArray of vertex indexes of Edit Poly Modifier
@@ -302,6 +303,25 @@ struct IslandsSystem_v
 			DIALOG_island_manager.SLIDER_island_select.value = slider_value
 	),
 
+	/** Get islands to show by slection
+	 */
+	function getIslandsToShowBySlection =
+	(
+		--format "\n"; print "IslandsSystem_v.getIslandsToShowBySlection()"
+		selected_islands = this.getSelectedIslandsFromListBox()
+
+		islands_to_show = case of
+		(
+			(selected_islands.numberSet >  1):	selected_islands                     -- SHOW ONLY SELECTED ITEMS ON RELAUNCH
+			(selected_islands.numberSet == 1):	#{(this.getFirstIslandFromListbox())..(selected_islands as Array )[1]} -- SHOW ISLANDS UP TO SELECTED ITEM ON RELAUNCH IF ONLY SINGLE ISLAND IS SELECTED
+			default:		#{1..islands_data.count}             -- SHOW ALL ISLANDS
+		)
+
+		setUserPropVal obj "VISIBLE_ISLANDS" islands_to_show --asString:true
+
+		islands_to_show --return
+
+	),
 
 	/** Get listbox items by island index
 	  *
