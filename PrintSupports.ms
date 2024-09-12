@@ -2,7 +2,7 @@ clearListener(); print("Cleared in:"+getSourceFileName())
 
 filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/ContentLoader/ContentLoader.ms" )	--"./../MAXSCRIPT-UI-framework/Lib/ContentLoader/ContentLoader.ms"
 
-
+filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/Menus/RcMenu/RcMenu.ms" )	--"./../MAXSCRIPT-UI-framework/Lib/Menus/RcMenu/RcMenu.ms"
 
 /* UI GLOBALS */
 global DIALOG_content
@@ -14,6 +14,8 @@ global SUPPORT_MANAGER
 global MODIFIERS_MANAGER
 global ISLANDS_SYSTEM
 global SLICER_SYSTEM
+
+global DIALOG_island_manager
 
 
 filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms" )	--"./content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms"

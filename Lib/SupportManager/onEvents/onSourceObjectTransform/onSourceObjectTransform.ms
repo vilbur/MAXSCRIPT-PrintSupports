@@ -7,7 +7,7 @@ global SOURCE_OBJECT_POSITION
  */
 function onObjectTransformTimeoutCallback sender evt =
 (
-	--format "\n"; print ".onObjectTransformTimeoutCallback()"
+	--format "\n"; print "onSourceObjectTransform.ms.onObjectTransformTimeoutCallback()"
 
 	/* Round position or rotation of object to 3 deciamls
 	 *
@@ -19,7 +19,7 @@ function onObjectTransformTimeoutCallback sender evt =
 	 */
 	fn removeTimeout sender =
 	(
-		--format "\n"; print ".removeTimeout()"
+		--format "\n"; print "onSourceObjectTransform.ms.removeTimeout()"
 		SOURCE_OBJECT_POSITION = undefined
 
 		sender.enabled = false
@@ -62,7 +62,7 @@ function onObjectTransformTimeoutCallback sender evt =
  */
 function startObjectTransformTimeout =
 (
-	--format "\n"; print ".startObjectTransformTimeout()"
+	--format "\n"; print "onSourceObjectTransform.ms.startObjectTransformTimeout()"
 	--delay_ms = 3000
 	delay_ms = 1000
 	--delay_ms = 100
@@ -82,7 +82,7 @@ function startObjectTransformTimeout =
  */
 function bindSourceObjectTransformEvent source_obj =
 (
-	--format "\n"; print ".bindSourceObjectTransformEvent()"
+	--format "\n"; print "onSourceObjectTransform.ms.bindSourceObjectTransformEvent()"
 	SOURCE_OBJECTS_BINDED = for obj in SOURCE_OBJECTS_BINDED where isValidNode obj collect obj
 
 	if classOf source_obj == Array then

@@ -267,7 +267,7 @@ struct VertexColorProcessor_v
 	(
 		format "\n"; print "VertexColorProcessor_v._getBaseObjectVerts()"
 		format "verts: %\n" verts
-		--format "classof curr_mod: %\n" (classof curr_mod)
+		format "classof curr_mod: %\n" (classof curr_mod)
 
 		if classof curr_mod != Editable_Poly then
 		(
@@ -350,8 +350,10 @@ struct VertexColorProcessor_v
 	 */
 	on create do
 	(
-		--format "1) --------------- VERTEXCOLOR\n"
-		--format "obj: %\n" obj
+		format "\n"; print "IslandsSystem.VertexColorProcessor_v()"
+
+		format "\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
+		--messageBox "Yupiii" title:"Title"  beep:false
 		curr_mod	= modPanel.getCurrentObject()
 		--format "curr_mod: %\n" curr_mod
 

@@ -51,7 +51,7 @@ struct VertSelector_v
 	 */
 	function findIslandsPerLayer layer_height =
 	(
-		format "\n"; print "VertSelector_v.findIslandsPerLayer()"
+		--format "\n"; print "VertSelector_v.findIslandsPerLayer()"
 		--format "VertexLayers: %\n" VertexLayers
 
 		vertex_count = getNumVerts obj.mesh
@@ -364,7 +364,7 @@ struct VertSelector_v
 	 */
 	function setSelection sel_bitarray subobject:#VERTEX =
 	(
-		format "\n"; print "VertSelector_v.setSelection()"
+		--format "\n"; print "VertSelector_v.setSelection()"
 		--format "sel_bitarray: %\n" sel_bitarray
 
 		--/** Pass vertex selection to editable poly
@@ -405,12 +405,12 @@ struct VertSelector_v
 		if classOf _mod == Edit_Poly then
 		(
 
-			format "SEL_BITARRAY: %\n" sel_bitarray
+			--format "SEL_BITARRAY: %\n" sel_bitarray
 			--if obj.modifiers[#SLICE_PLANE_TOP] != undefined then
 			--(
 			--	sel_bitarray = getVertsByBaseobject(obj)(sel_bitarray)
 			--)
-			format "SEL_BITARRAY: %\n" sel_bitarray
+			--format "SEL_BITARRAY: %\n" sel_bitarray
 
 			_mod.Select subobject sel_bitarray
 
@@ -553,7 +553,7 @@ struct VertSelector_v
 	 */
 	function _setVertsPositions verts =
 	(
-		format "\n"; print "VertSelector_v._setVertsPositions()"
+		--format "\n"; print "VertSelector_v._setVertsPositions()"
 		--format "verts_process: %\n" verts_process
 		--format "verts: %\n" verts
 		--format "verts.numberSet: %\n" verts.numberSet
@@ -580,11 +580,11 @@ struct VertSelector_v
 		--verts_pos --return
 
 		--verts_pos = in coordsys world meshop.getVerts obj.mesh all_verts node:obj
-		--timer__setVertsPositions = timeStamp()
+		timer_setVertsPositions = timeStamp()
 		verts_pos = in coordsys world polyop.getVerts obj all_verts node:obj
-		--format "_setVertsPositions: % ms\n" (( timeStamp()) - timer__setVertsPositions)
+		format "setVertsPositions: % seconds\n" ((( timeStamp()) - timer_setVertsPositions) / 1000.0)
 
-		--verts_pos --return
+		verts_pos --return
 	),
 
 	--/** Set object
@@ -638,8 +638,8 @@ struct VertSelector_v
 	 */
 	on create do
 	(
-		format "\n"; print "VertSelector_v.onCreate()"
-		print "***********************\n***********************"
+		--format "\n"; print "VertSelector_v.onCreate()"
+		--print "***********************\n***********************"
 		--this._setObject()
 
 		--VertexLayers 	= VertexLayers_v( obj )

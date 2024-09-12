@@ -181,7 +181,6 @@ struct SupportManager_v
 		function _sweepSetup sweep_mod diameter =
 		(
 			--format "\n"; print "SupportModifiers_v._sweep()"
-
 			/** Reset mod propertis -- sweep mpdofoer keeps its settings if newly created, i dont know why.. oteh modifiers dont do that :D
 
 				QUICK SOLUTION - FOR MORE MODIFIERS OR PROPERTIES SHOULD COMPLEX SOLUTUION EXISTS
@@ -260,8 +259,9 @@ struct SupportManager_v
 
 			drain_obj.parent = source_obj
 
-			setUserPropVal drain_obj "SYNC_KEY" (this._getSyncSourceKey(source_obj))
+			setUserPropVal drain_obj "DRAIN_KEY" (getHandleByAnim drain_obj)
 
+			setUserPropVal drain_obj "SYNC_KEY" (this._getSyncSourceKey(source_obj))
 
 			append shapes_to_update drain_obj
 		)

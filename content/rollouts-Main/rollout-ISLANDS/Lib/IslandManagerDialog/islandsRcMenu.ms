@@ -1,8 +1,7 @@
-filein( getFilenamePath(getSourceFileName()) + "/islandsRcMenuCallbacks.ms" )	--"./islandsRcMenuCallbacks.ms"
 
 /** Open new islands menu
  */
-function openNewIslandsMenu =
+function islandsRcMenu =
 (
 	--format "\n"; print ".openNewIslandsMenu()"
 
@@ -56,7 +55,11 @@ function openNewIslandsMenu =
 
 
 	if DIALOG_slicer_slider != undefined then
+	(
+		Menu.separator()
+
 		Menu.item "Slice here"	"::IslandsRcMenuCallbacks_v.sliceAtIsland()"
+	)
 
 
 	/*------------------------------------------------------------------------------

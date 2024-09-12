@@ -1,9 +1,6 @@
-
 global DIALOG_slicer_slider
 
 global SET_slicer
-
-
 
 /*------------------------------------------------------------------------------
 	DEV DESTROY

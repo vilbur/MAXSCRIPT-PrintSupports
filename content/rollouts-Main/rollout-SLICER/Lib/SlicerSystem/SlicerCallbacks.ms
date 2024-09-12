@@ -91,24 +91,30 @@ struct SlicerCallbacks_v
 		else
 			layer_next = layer_current + increment
 
+		--if layer_next == 0 then
+			--layer_next = SLICER_SYSTEM.slice_start
+
 		format "LAYER_NEXT: %\n" layer_next
 
-		/* UPDATE MODIFIER */
-		SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_next) (true)
-
-		/* UPDATE SLIDER VALUE */
-		SLICER_SYSTEM.setSliderValueByLayerIndex( layer_next )
-
-		/* UPDATE SPINNER VALUE */
-		SLICER_SYSTEM.setSpinnerValue(layer_next)
-
-		if keyboard.controlPressed and DIALOG_island_manager != undefined then
+		if layer_next > 0 then
 		(
-			ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
+			/* UPDATE MODIFIER */
+			SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_next) (true)
 
-			selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
+			/* UPDATE SLIDER VALUE */
+			SLICER_SYSTEM.setSliderValueByLayerIndex( layer_next )
 
-			ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+			/* UPDATE SPINNER VALUE */
+			SLICER_SYSTEM.setSpinnerValue(layer_next)
+
+			if keyboard.controlPressed and DIALOG_island_manager != undefined and layer_next != SLICER_SYSTEM.slice_start then
+			(
+				ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
+
+				selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
+
+				ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+			)
 		)
 	),
 

@@ -1,8 +1,6 @@
 filein( getFilenamePath(getSourceFileName()) + "/globals.ms" )	--"./globals.ms"
 
 
-filein( getFilenamePath(getSourceFileName()) + "/Lib/SlicerSystem/createSlicerDialog.ms" )	-- "./Lib/SlicerSystem/createSlicerDialog.ms"
-
 /**
   */
 macroscript	print_create_slicerdialog
@@ -13,7 +11,7 @@ icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 (
 	on execute do
 	(
-		clearListener(); print("Cleared in:\n"+getSourceFileName())
+		--clearListener(); print("Cleared in:\n"+getSourceFileName())
 		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SLICER\[SLICE PLANE].mcr"
 		SLICER_SYSTEM.setObejctsBySelection()
 

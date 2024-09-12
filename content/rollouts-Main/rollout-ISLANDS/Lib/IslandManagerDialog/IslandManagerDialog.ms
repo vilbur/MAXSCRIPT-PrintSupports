@@ -1,9 +1,3 @@
-
-global DIALOG_island_manager
-
-filein( getFilenamePath(getSourceFileName()) + "/islandsRcMenu.ms" )	--"./rcMenu.ms"
-
-
 /** Create island manager dialog
   *
   * @param #ALL|#SAVED
@@ -52,7 +46,7 @@ function createIslandManagerDialog islands_to_show: =
 			size_marks = " " + size_marks
 
 		--ISLANDS_SYSTEM.islands_data[island_index][#BOTTOM] as string +  "                          #" + island_index as string
-		ISLANDS_SYSTEM.islands_data[island_index][#BOTTOM] as string + size_marks + whitespace+ "#" + island_index as string
+		ISLANDS_SYSTEM.islands_data[island_index][#BOTTOM] as string + size_marks + whitespace+ "island_index:" + island_index as string
 	)
 
 
@@ -132,10 +126,11 @@ function createIslandManagerDialog islands_to_show: =
                    pos:[ 4, pos_y_start ]
 
 	/*------ SLIDER ------*/
-    _slider = _Controls.control #SLIDER "" id:#SLIDER_island_select	\
-                    range:[0, items_count - 1 ,0]	\
+    _slider = _Controls.control #SLIDER "" \
+                    id:#SLIDER_island_select	\
+                    range:[ 1, items_count ,0 ]	\
                     params:#(#orient, #vertical, #type, #integer)	\
-                    ticks:(items_count - 2)	\
+                    ticks:(items_count - 1)	\
                     width:slider_width	\
                     height:((listbox_height + 1) * item_height)	\
                     across:2	\
@@ -161,11 +156,11 @@ function createIslandManagerDialog islands_to_show: =
 	btn_isloate.Event #RIGHTCLICK "::IslandsCallbacks_v.unhideVerts()" tooltip:"Unhide Verts"
 
 	_radio.Event #CHANGED "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
-	_radio.Event #RIGHTCLICK "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
+	_radio.Event #RIGHTCLICK "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()" tooltip:"Open submenu.\n\nRMB+CTRL: Select Islands by verts\n\nRMB+SHIFT: Slice on selected island"
 
 
 	_multilistbox.Event #SELECTIONEND "::IslandsCallbacks_v.onListboxSelectionEnd()"
-    _multilistbox.Event #RIGHTCLICK "openNewIslandsMenu()"
+	_multilistbox.Event #RIGHTCLICK   "::IslandsCallbacks_v.onListboxRightclick()"
 
 	_slider.Event #CHANGED     "::IslandsCallbacks_v.onSliderChanged(val)"
 	_slider.Event #SLIDE       "::IslandsCallbacks_v.onListboxSelectionEnd()"
@@ -183,7 +178,9 @@ function createIslandManagerDialog islands_to_show: =
 	--format "cui.getDockState DIALOG_slicer_slider: %\n" (cui.getDockState DIALOG_slicer_slider)
 
 
-	/* KEEP SLICER AND ISLAND DILOGS IN SAME ORDER HWEN DILAG IS DOCKED #RIGHT */
+	/*
+			KEEP DOCKED ON THE LEFT SIDE BY SLICER
+	*/
 	if DIALOG_slicer_slider != undefined and GetDialogPos DIALOG_slicer_slider != [0,0] and cui.getDockState DIALOG_slicer_slider == #CUI_DOCK_RIGHT then
 	(
 		cui.FloatDialogBar DIALOG_slicer_slider

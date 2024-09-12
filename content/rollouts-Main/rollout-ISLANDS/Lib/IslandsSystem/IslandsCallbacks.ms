@@ -20,8 +20,8 @@ struct IslandsCallbacks_v
 	 */
 	function onSliderChanged slider_val =
 	(
-		format "\n"; print "IslandsCallbacks_v.sliderChanged()"
-		format "slider_val: %\n" slider_val
+		--format "\n"; print "IslandsCallbacks_v.sliderChanged()"
+		--format "slider_val: %\n" slider_val
 		_listbox = DIALOG_island_manager.ML_island_listbox
 
 		item = _listbox.items.count - slider_val
@@ -63,8 +63,8 @@ struct IslandsCallbacks_v
 	 */
 	function onSlideEnd =
 	(
-		format "\n"; print "IslandsCallbacks_v.onSlideEnd()"
-		format "EventFired	= % \n" EventFired
+		--format "\n"; print "IslandsCallbacks_v.onSlideEnd()"
+		--format "EventFired	= % \n" EventFired
 
 	),
 
@@ -72,15 +72,40 @@ struct IslandsCallbacks_v
 	 */
 	function onListboxSelectionEnd =
 	(
-		format "\n"; print "IslandsCallbacks_v.onListboxSelectionEnd()"
+		--format "\n"; print "IslandsCallbacks_v.onListboxSelectionEnd()"
 		--format "EventFired	= % \n" EventFired
-		selected_islands = ( ISLANDS_SYSTEM.getSelectedIslandsFromListBox() ) as Array
+		_listbox = DIALOG_island_manager.ML_island_listbox
+
+		selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
 
 		verts = ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
 
-		/* SET SLIDER VALUE TO TOP MOST OF SELECTED ISLANDS */
-		if selected_islands.count > 0 then
-			DIALOG_island_manager.SLIDER_island_select.value = selected_islands[selected_islands.count] - 1
+		/* UPDATE SLIDER VALUE TO TOP MOST OF SELECTED ISLANDS */
+		--if selected_islands.count > 0 then
+		DIALOG_island_manager.SLIDER_island_select.value = _listbox.items.count - (_listbox.selection as Array )[1] + 1
+	),
+
+	/** On listbox rightclick
+	 */
+	function onListboxRightclick =
+	(
+		--format "\n"; print "IslandsCallbacks_v.onListboxRightclick()"
+		selected_items = DIALOG_island_manager.ML_island_listbox.selection.numberSet > 0
+		vertex_sel	    = (getVertSelection selection[1].mesh).numberSet > 0
+
+		--format "selected_items: %\n" selected_items
+		--format "vertex_sel: %\n" vertex_sel
+		--format "(getVertSelection selection[1].mesh).numberSet: %\n" ((getVertSelection selection[1].mesh).numberSet)
+		--format "DIALOG_island_manager.ML_island_listbox.selection: %\n" DIALOG_island_manager.ML_island_listbox.selection.numberSet
+
+		case of
+		(
+			( keyboard.controlPressed and vertex_sel ):	::IslandsRcMenuCallbacks_v.selectIslandsByVerts()
+			( keyboard.shiftPressed and selected_items ):	::IslandsRcMenuCallbacks_v.sliceAtIsland()
+			( keyboard.shiftPressed and vertex_sel not selected_items ):	(::IslandsRcMenuCallbacks_v.selectIslandsByVerts(); ::IslandsRcMenuCallbacks_v.sliceAtIsland())
+
+			default: islandsRcMenu()
+		)
 	),
 
 	/** Update island selection by radiobuttons state
@@ -113,7 +138,7 @@ struct IslandsCallbacks_v
 		--format "\n"; print "IslandsCallbacks_v.isolateSlectedIslands()"
 		if state then
 		(
-			selected_islands = ( ISLANDS_SYSTEM.getSelectedIslandsFromListBox() ) as Array
+			selected_islands = ( ISLANDS_SYSTEM.getIslandsOfSelectedItems() ) as Array
 
 			ISLANDS_SYSTEM.isolateIslands(selected_islands)
 		)

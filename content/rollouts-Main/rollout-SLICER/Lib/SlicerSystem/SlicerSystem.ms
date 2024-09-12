@@ -1,4 +1,8 @@
+filein( getFilenamePath(getSourceFileName()) + "/createSlicerDialog.ms" )	--"./createSlicerDialog.ms"
+
 filein( getFilenamePath(getSourceFileName()) + "/SlicerCallbacks.ms" )	--"./SlicerCallbacks.ms"
+
+
 
 /** Wait when modifier stack will be ready
  */
@@ -213,8 +217,8 @@ struct SlicerSystem_v
 	 */
 	function toggleModifiers state =
 	(
-		format "\n"; print "SlicerSystem_v.toggleModifiers()"
-		format "slice_modes: %\n" slice_modes
+		--format "\n"; print "SlicerSystem_v.toggleModifiers()"
+		--format "slice_modes: %\n" slice_modes
 
 		for slice_mode_data in slice_modes where slice_mode_data.value do
 		(

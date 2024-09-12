@@ -1,5 +1,5 @@
-clearListener(); print("Cleared in:\n"+getSourceFileName())
-filein( getFilenamePath(getSourceFileName()) + "/../VertexColorProcessor.ms" )	--"./../VertexColorProcessor.ms"
+--clearListener(); print("Cleared in:\n"+getSourceFileName())
+--filein( getFilenamePath(getSourceFileName()) + "/../VertexColorProcessor.ms" )	--"./../VertexColorProcessor.ms"
 
 
 

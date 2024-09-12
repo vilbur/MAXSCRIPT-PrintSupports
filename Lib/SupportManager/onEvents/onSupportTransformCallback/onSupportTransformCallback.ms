@@ -6,13 +6,13 @@ global SUPPORTS_TRANSFORM_CHANGED = #()
  */
 function onSupportTransformTimeoutCallback sender evt =
 (
-	--format "\n"; print ".onSupportTransformTimeoutCallback()"
+	--format "\n"; print "onSupportTransformCallback.ms.onSupportTransformTimeoutCallback()"
 
 	/** Remove timeout
 	 */
 	fn removeTimeout sender =
 	(
-		--format "\n"; print ".removeTimeout()"
+		--format "\n"; print "onSupportTransformCallback.ms.removeTimeout()"
 		SUPPORTS_TRANSFORM_CHANGED = #()
 
 		sender.enabled = false
@@ -42,7 +42,7 @@ function onSupportTransformTimeoutCallback sender evt =
  */
 function startSupportTransformTimeout =
 (
-	--format "\n"; print ".startSupportTransformTimeout()"
+	--format "\n"; print "onSupportTransformCallback.ms.startSupportTransformTimeout()"
 	--delay_ms = 3000
 	delay_ms = 1000
 	--delay_ms = 100
@@ -104,13 +104,13 @@ function bindSupportToTransformEvent supports =
  */
 function pauseSupportToTransformEvent =
 (
-	--format "\n"; print ".pauseSupportToTransformEvent()"
+	--format "\n"; print "onSupportTransformCallback.ms.pauseSupportToTransformEvent()"
 	deleteAllChangeHandlers id:#updateSupportsEvent
 )
 /** Resume events
  */
 function resumeSupportToTransformEvent =
 (
-	--format "\n"; print ".resumeSupportToTransformEvent()"
+	--format "\n"; print "onSupportTransformCallback.ms.resumeSupportToTransformEvent()"
 	bindSupportToTransformEvent #()
 )

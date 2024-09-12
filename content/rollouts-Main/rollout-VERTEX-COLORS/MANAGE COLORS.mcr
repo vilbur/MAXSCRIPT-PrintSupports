@@ -44,6 +44,7 @@ function openVertexColorSubmenu method =
 	Menu.item "&ORANGE"	( call_fn + "orange"	)
 	Menu.item "&YELLOW"	( call_fn + "yellow"	)
 	Menu.item "&PINK"	( call_fn + " " + COLOR_NAMES[#PINK] as string	)
+	Menu.item "&MAGENTA"	( call_fn + " " + COLOR_NAMES[#MAGENTA] as string	)
 	Menu.item "&WHITE"	( call_fn + "white"	)
 
 
@@ -267,7 +268,7 @@ toolTip:	"Reset Vertex Colors"
 
 		VertexColorProcessor.resetCPVVerts()
 
-		messageBox "Vertex Colors Reseted" title:"VERTEX COLOR" 
+		messageBox "Vertex Colors Reseted" title:"VERTEX COLOR"
 	)
 )
 

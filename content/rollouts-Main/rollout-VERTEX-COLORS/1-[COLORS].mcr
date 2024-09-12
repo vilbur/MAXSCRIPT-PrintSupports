@@ -62,7 +62,7 @@ function callMethodByVertexColor method _color =
 macroscript	epoly_vertex_color_set_red
 category:	"_Epoly-Vertex-Color"
 buttonText:	"RED"
-toolTip:	""
+toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &RED|across:4|width:64"
 (
 	on isVisible return subObjectLevel != 0
@@ -76,7 +76,7 @@ icon:	"MENU:Set &RED|across:4|width:64"
 macroscript	epoly_vertex_color_set_green
 category:	"_Epoly-Vertex-Color"
 buttonText:	"GREEN"
-toolTip:	""
+toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &GREEN"
 (
 	on isVisible return subObjectLevel != 0
@@ -90,7 +90,7 @@ icon:	"MENU:Set &GREEN"
 macroscript	epoly_vertex_color_set_blue
 category:	"_Epoly-Vertex-Color"
 buttonText:	"BLUE"
-toolTip:	""
+toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &BLUE"
 (
 	on isVisible return subObjectLevel != 0
@@ -104,7 +104,7 @@ icon:	"MENU:Set &BLUE"
 macroscript	epoly_vertex_color_set_white
 category:	"_Epoly-Vertex-Color"
 buttonText:	"WHITE"
-toolTip:	""
+toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &WHITE"
 (
 	on isVisible return subObjectLevel != 0
@@ -118,7 +118,7 @@ icon:	"MENU:Set &WHITE"
 macroscript	epoly_vertex_color_set_orange
 category:	"_Epoly-Vertex-Color"
 buttonText:	"ORANGE"
-toolTip:	""
+toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &ORANGE"
 (
 	on isVisible return subObjectLevel != 0
@@ -131,7 +131,7 @@ icon:	"MENU:Set &ORANGE"
 macroscript	epoly_vertex_color_set_yellow
 category:	"_Epoly-Vertex-Color"
 buttonText:	"YELLOW"
-toolTip:	""
+toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &YELLOW"
 (
 	on isVisible return subObjectLevel != 0
@@ -144,7 +144,7 @@ icon:	"MENU:Set &YELLOW"
 macroscript	epoly_vertex_color_set_pink
 category:	"_Epoly-Vertex-Color"
 buttonText:	"PINK"
-toolTip:	""
+toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &PINK"
 (
 	on isVisible return subObjectLevel != 0
@@ -158,7 +158,7 @@ icon:	"MENU:Set &PINK"
 macroscript	epoly_vertex_color_set_magenta
 category:	"_Epoly-Vertex-Color"
 buttonText:	"MAGENTA"
-toolTip:	""
+toolTip:	"Set vertex color to selected verts"
 icon:	"MENU:Set &MAGENTA"
 (
 	on isVisible return subObjectLevel != 0
