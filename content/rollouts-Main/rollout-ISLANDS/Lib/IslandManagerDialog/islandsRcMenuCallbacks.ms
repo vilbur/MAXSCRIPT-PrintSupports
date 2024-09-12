@@ -19,6 +19,8 @@ struct IslandsRcMenuCallbacks_v
 		--format "\n"; print "IslandsSystem_v.selectAllIslandsInListbox()"
 		DIALOG_island_manager.ML_island_listbox.selection = #{1..DIALOG_island_manager.ML_island_listbox.items.count}
 
+		deleteUserProp ISLANDS_SYSTEM.obj "VISIBLE_ISLANDS"
+
 		::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()
 	),
 
@@ -103,7 +105,7 @@ struct IslandsRcMenuCallbacks_v
 		format "vertex_type: %\n" (classOf vertex_type)
 		islands_data = ISLANDS_SYSTEM.islands_data
 
-		selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
+		selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
 
 		_listbox = DIALOG_island_manager.ML_island_listbox
 
@@ -137,7 +139,7 @@ struct IslandsRcMenuCallbacks_v
 
 		if state then
 		(
-			selected_islands = ( ISLANDS_SYSTEM.getSelectedIslandsFromListBox() ) as Array
+			selected_islands = ( ISLANDS_SYSTEM.getIslandsOfSelectedItems() ) as Array
 
 			verts = ISLANDS_SYSTEM.getVertsOfIslands(selected_islands)
 
@@ -175,7 +177,7 @@ struct IslandsRcMenuCallbacks_v
 		format "\n"; print "IslandsSystem_v.removeSelectedIslands()"
 		obj	= selection[1]
 
-		selected_islands = ( ISLANDS_SYSTEM.getSelectedIslandsFromListBox() )
+		selected_islands = ( ISLANDS_SYSTEM.getIslandsOfSelectedItems() )
 
 		if selected_islands.numberSet > 0 and queryBox ("REMOVE SELECTED ISALNDS FROM OBJECT ?\n\n"+obj.name) title:"REMOVE ISLANDS" then
 		(
@@ -206,28 +208,32 @@ struct IslandsRcMenuCallbacks_v
 		format "_listbox.items: %\n" _listbox.items
 		--islands_layers = (for item in _listbox.items collect (filterString item " ")[1] as integer ) --as BitArray -- get list items strings to bitarray
 
-		selected_islands = ( ISLANDS_SYSTEM.getSelectedIslandsFromListBox() )
+		selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
 		format "SELECTED_ISLANDS: %\n" selected_islands
 
-		island_data = ISLANDS_SYSTEM.islands_data[selected_islands.count]
-		format "ISLAND_DATA: %\n" island_data
+		if selected_islands.numberSet > 0 then
+		(
+			island_data = ISLANDS_SYSTEM.islands_data[selected_islands.count]
+			format "ISLAND_DATA: %\n" island_data
 
-		verts = ISLANDS_SYSTEM.getVertsFromIslandData(island_data)
+			verts = ISLANDS_SYSTEM.getVertsFromIslandData(island_data)
 
-		--format "islands_layers: %\n" islands_layers
-		--format "_listbox.selection.count: %\n" _listbox.selection.count
-		--layer_of_island = (islands_layers)[( _listbox.selection as Array )[1] ]
+			--format "islands_layers: %\n" islands_layers
+			--format "_listbox.selection.count: %\n" _listbox.selection.count
+			--layer_of_island = (islands_layers)[( _listbox.selection as Array )[1] ]
 
-		layer_of_island = if DIALOG_island_manager.RB_slider_mode.state == 2 and island_data[#TOP] != undefined then island_data[#TOP] else island_data[#BOTTOM]
-		format "LAYER_OF_ISLAND: %\n" layer_of_island
+			layer_of_island = if DIALOG_island_manager.RB_slider_mode.state == 2 and island_data[#TOP] != undefined then island_data[#TOP] else island_data[#BOTTOM]
+			format "LAYER_OF_ISLAND: %\n" layer_of_island
 
-		SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_of_island) (true)
+			SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_of_island) (true)
 
-		SLICER_SYSTEM.setSliderValueByLayerIndex(layer_of_island)
+			SLICER_SYSTEM.setSliderValueByLayerIndex(layer_of_island)
 
-		SLICER_SYSTEM.setSpinnerValue(layer_of_island)
+			SLICER_SYSTEM.setSpinnerValue(layer_of_island)
 
-		ISLANDS_SYSTEM.selectVerts(verts)
+			ISLANDS_SYSTEM.selectVerts(verts)
+
+		)
 	),
 
 	--/** Create island manager dialog only selected islands
@@ -235,7 +241,7 @@ struct IslandsRcMenuCallbacks_v
 	--function createIslandManagerDialogOnlySelectedIslands =
 	--(
 	--	--format "\n"; print "IslandsRcMenuCallbacks_v.createIslandManagerDialogOnlySelectedIslands()"
-	--	selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
+	--	selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
 	--
 	--	islands_to_show = case of
 	--	(

@@ -156,11 +156,11 @@ function createIslandManagerDialog islands_to_show: =
 	btn_isloate.Event #RIGHTCLICK "::IslandsCallbacks_v.unhideVerts()" tooltip:"Unhide Verts"
 
 	_radio.Event #CHANGED "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
-	_radio.Event #RIGHTCLICK "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()" tooltip:"Open submenu.\n\nRMB+CTRL: Select Islands by verts\n\nRMB+SHIFT: Slice on selected island"
+	_radio.Event #RIGHTCLICK "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
 
 
 	_multilistbox.Event #SELECTIONEND "::IslandsCallbacks_v.onListboxSelectionEnd()"
-	_multilistbox.Event #RIGHTCLICK   "::IslandsCallbacks_v.onListboxRightclick()"
+	_multilistbox.Event #RIGHTCLICK   "::IslandsCallbacks_v.onListboxRightclick()"  tooltip:"Open submenu.\n\nRMB+CTRL: Select Islands by verts\n\nRMB+SHIFT: Slice on selected island"
 
 	_slider.Event #CHANGED     "::IslandsCallbacks_v.onSliderChanged(val)"
 	_slider.Event #SLIDE       "::IslandsCallbacks_v.onListboxSelectionEnd()"

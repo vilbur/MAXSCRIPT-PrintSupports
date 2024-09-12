@@ -298,19 +298,19 @@ struct IslandsSystem_v
 	--		DIALOG_island_manager.SLIDER_island_select.value = slider_value
 	--),
 
-	--/** Get listbox items by island index
-	--  *
-	--  * @prams BitArray indexes of islands from this.islands_data
-	--  *
-	--  * @returnn BitArray indexes of listbox items
-	-- */
-	--function getListboxItemsByIslandsIndex island_indexes =
-	--(
-	--	--format "\n"; print "IslandsSystem_v._getListboxItemsByIslandIndex()"
-	--	list_items = DIALOG_island_manager.ML_island_listbox.items
-	--
-	--	( for i = 1 to  list_items.count where island_indexes[ this._getIslandIndexFromTitle list_items[i] ] collect i ) as BitArray
-	--),
+	/** Get listbox items by island index
+	  *
+	  * @prams BitArray indexes of islands from this.islands_data
+	  *
+	  * @returnn BitArray indexes of listbox items
+	 */
+	function getListboxItemsByIslandsIndex island_indexes =
+	(
+		--format "\n"; print "IslandsSystem_v._getListboxItemsByIslandIndex()"
+		list_items = DIALOG_island_manager.ML_island_listbox.items
+
+		( for i = 1 to  list_items.count where island_indexes[ this._getIslandIndexFromTitle list_items[i] ] collect i ) as BitArray
+	),
 
 	/** Get selected islands from list box
 	 */
@@ -324,7 +324,6 @@ struct IslandsSystem_v
 		--( for i = 1 to list_items.count where _listbox.selection[i] collect this._getIslandIndexFromTitle(list_items[i])) as BitArray
 		( for i in _listbox.selection collect this._getIslandIndexFromTitle(_listbox.items[i]) ) as BitArray
 	),
-
 
 	/** Get layers of selected items
 	 */
@@ -340,7 +339,6 @@ struct IslandsSystem_v
 
 	),
 
-
 	/** Get first island from listbox
 	 */
 	function _getFirstIslandFromListbox =
@@ -351,9 +349,7 @@ struct IslandsSystem_v
 		this._getIslandIndexFromTitle (_listbox.items[_listbox.items.count]) --return
 	),
 
-
 	private
-
 
 
 	/** Get island by layer

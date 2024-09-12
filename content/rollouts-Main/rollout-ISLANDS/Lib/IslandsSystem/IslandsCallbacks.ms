@@ -78,31 +78,36 @@ struct IslandsCallbacks_v
 
 		selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
 
-		verts = ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+		if selected_islands.numberSet > 0 then
+		(
+			verts = ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
 
-		/* UPDATE SLIDER VALUE TO TOP MOST OF SELECTED ISLANDS */
-		--if selected_islands.count > 0 then
-		DIALOG_island_manager.SLIDER_island_select.value = _listbox.items.count - (_listbox.selection as Array )[1] + 1
+			/* UPDATE SLIDER VALUE TO TOP MOST OF SELECTED ISLANDS */
+			--if selected_islands.count > 0 then
+			DIALOG_island_manager.SLIDER_island_select.value = _listbox.items.count - (_listbox.selection as Array )[1] + 1
+		)
 	),
 
 	/** On listbox rightclick
 	 */
 	function onListboxRightclick =
 	(
-		--format "\n"; print "IslandsCallbacks_v.onListboxRightclick()"
+		format "\n"; print "IslandsCallbacks_v.onListboxRightclick()"
 		selected_items = DIALOG_island_manager.ML_island_listbox.selection.numberSet > 0
 		vertex_sel	    = (getVertSelection selection[1].mesh).numberSet > 0
 
 		--format "selected_items: %\n" selected_items
-		--format "vertex_sel: %\n" vertex_sel
-		--format "(getVertSelection selection[1].mesh).numberSet: %\n" ((getVertSelection selection[1].mesh).numberSet)
-		--format "DIALOG_island_manager.ML_island_listbox.selection: %\n" DIALOG_island_manager.ML_island_listbox.selection.numberSet
+		format "1: %\n" (keyboard.controlPressed and vertex_sel)
+		format "2: %\n" (keyboard.shiftPressed and selected_items)
+		format "3: %\n" (keyboard.shiftPressed and vertex_sel and not selected_items)
+		format "vertex_sel: %\n" (vertex_sel)
+		format "selected_items: %\n" selected_items
 
 		case of
 		(
 			( keyboard.controlPressed and vertex_sel ):	::IslandsRcMenuCallbacks_v.selectIslandsByVerts()
 			( keyboard.shiftPressed and selected_items ):	::IslandsRcMenuCallbacks_v.sliceAtIsland()
-			( keyboard.shiftPressed and vertex_sel not selected_items ):	(::IslandsRcMenuCallbacks_v.selectIslandsByVerts(); ::IslandsRcMenuCallbacks_v.sliceAtIsland())
+			( keyboard.shiftPressed and vertex_sel and not selected_items ):	(::IslandsRcMenuCallbacks_v.selectIslandsByVerts(); ::IslandsRcMenuCallbacks_v.sliceAtIsland())
 
 			default: islandsRcMenu()
 		)
