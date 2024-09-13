@@ -158,47 +158,26 @@ struct IslandsSystem_v
 		 */
 		function selectVertsEditPoly _mod verts isolate =
 		(
-			format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
-			format "\n**************************************************\n"
+			--format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
+			--format "\n**************************************************\n"
 			/** Pass vertex selection from editable poly baseobject to edit poly modifier based on vertex position
 			  *
 			  * #return BitArray of vertex indexes of Edit Poly Modifier
 			 */
 			function getVertsByBaseobject obj verts_baseobject verts_mesh_all =
 			(
-				format "\n"; print "IslandsSystem_v.getBaseObjectVerts()"
+				--format "\n"; print "IslandsSystem_v.getBaseObjectVerts()"
+				--format "verts_baseobject: %\n" verts_baseobject
 				verts_edit_poly = #()
 
-				timer_verts_pos_baseobjects = timeStamp()
-				verts_pos_baseobjects = polyop.getVerts obj.baseobject verts_baseobject --node:obj
-				format "verts_pos_baseobjects: % seconds\n" ((( timeStamp()) - timer_verts_pos_baseobjects) / 1000.0)
+				verts_pos_baseobjects =  in coordsys world polyop.getVerts obj.baseobject verts_baseobject node:obj
 
-
-
-
-				/*
-
-						USE VERTEX COL
-
-
-				*/
-
-
-
-
-
-				timer_verts_mesh_pos = timeStamp()
 				--verts_mesh_pos  = for vert in verts_mesh_all collect getVert obj.mesh vert
-				verts_mesh_pos = polyop.getVerts obj verts_mesh_all --node:obj
+				verts_mesh_pos = in coordsys world  polyop.getVerts obj verts_mesh_all node:obj
+				--format "verts_mesh_pos: %\n" verts_mesh_pos
 
-				format "verts_mesh_pos: % seconds\n" ((( timeStamp()) - timer_verts_mesh_pos) / 1000.0)
-
-
-
-				timer_LOOP = timeStamp()
 				for vert_pos in verts_pos_baseobjects where (index = findItem verts_mesh_pos (vert_pos)) > 0 do
 					append verts_edit_poly index
-				format "LOOP: % seconds\n" ((( timeStamp()) - timer_LOOP) / 1000.0)
 
 				verts_edit_poly as BitArray --return
 			)

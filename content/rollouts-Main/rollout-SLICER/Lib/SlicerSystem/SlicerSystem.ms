@@ -187,7 +187,7 @@ struct SlicerSystem_v
 				addSliceMod (obj)	(slice_modifier)
 
 				/* ADD SLICE MODIFIER  */
-				addModifier obj  (Edit_Poly name:"SLICE_EDIT" )
+				addModifier obj  (Edit_Poly name:"SLICE_EDIT_VERTS" )
 			)
 		)
 	),
@@ -209,7 +209,7 @@ struct SlicerSystem_v
 
 		for obj in objects \
 			where (poly_select_mod = obj.modifiers[#SLICE_SELECT_OBJ]) != undefined \
-			or    (edit_poly_mod  = obj.modifiers[#SLICE_EDIT]) != undefined  do
+			or    (edit_poly_mod  = obj.modifiers[#SLICE_EDIT_VERTS]) != undefined  do
 				deleteModifier obj (if poly_select_mod != undefined then poly_select_mod else edit_poly_mod )
 	),
 
