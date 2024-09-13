@@ -15,7 +15,7 @@ global SET_slicer
 /** Create slicer dialog
   *
   */
-function createslicerSliderDialog =
+function createSlicerSliderDialog =
 (
 	format "\n"; print "createslicerSliderDialog()"
 
@@ -71,7 +71,7 @@ function createslicerSliderDialog =
                     ini:	false
                     --pos:	pos_slider
 
-	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -4 ] tooltip:"Shift slider 1 layer up\down\n\nCTRL: Go next\previous island\n\nSHIFT: Go 1mm up\down\n\nCTRL + SHIFT: Go 100 layers up\down"
+	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -4 ] tooltip:"Shift slider 1 layer UP \ DOWN\n\nCTRL: Go NEXT\PREVIOUS island\n\nSHIFT: Go 1mm UP \ DOWN\n\nCTRL + SHIFT: Go 100 layers UP \ DOWN"
 
 
 	_spinner = _Controls.control #SPINNER "" id:#SPIN_layer_current across:1 range:[ SLICER_SYSTEM.slice_start, SLICER_SYSTEM.layers_count, 0] width:42 type:#integer offset:[ -4, 0 ]

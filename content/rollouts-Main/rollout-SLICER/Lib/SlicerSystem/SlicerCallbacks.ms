@@ -20,8 +20,8 @@ struct SlicerCallbacks_v
 	 */
 	function onSliderChanged slice_index =
 	(
-		format "\n"; print "SlicerCallbacks_v.sliderChanged()"
-		format "SLICER_SYSTEM.slice_start: %\n" SLICER_SYSTEM.slice_start
+		--format "\n"; print "SlicerCallbacks_v.sliderChanged()"
+		--format "SLICER_SYSTEM.slice_start: %\n" SLICER_SYSTEM.slice_start
 
 		layer_index = slice_index + SLICER_SYSTEM.slice_start
 
@@ -43,8 +43,8 @@ struct SlicerCallbacks_v
 	 */
 	function onSpinnerChanged layer_index =
 	(
-		format "\n"; print "SlicerCallbacks_v.spinnerChanged()"
-		format "layer_index: %\n" layer_index
+		--format "\n"; print "SlicerCallbacks_v.spinnerChanged()"
+		--format "layer_index: %\n" layer_index
 
 		/* UPDATE MODIFIER */
 		SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_index) (true)
@@ -59,22 +59,55 @@ struct SlicerCallbacks_v
 	 */
 	function onPlusMinusButton increment =
 	(
-		format "\n"; print "SlicerCallbacks_v.plusMinusButton()"
+		--format "\n"; print "SlicerCallbacks_v.plusMinusButton()"
+
+		/** Get positions of selected verts
+		 */
+		function _getPositionsOfSelectedVerts =
+		(
+			format "\n"; print "SlicerCallbacks_v._getPositionsOfSelectedVerts()"
+			if classOf ( _mod = modPanel.getCurrentObject() ) == Edit_Poly then
+			(
+				obj = ISLANDS_SYSTEM.obj
+
+				vertex_sel	= getVertSelection obj.mesh
+
+				in coordsys world  polyop.getVerts obj vertex_sel node:obj --return vertex positions
+			)
+		)
+		/** Find verts by positions and reselect verts
+		 */
+		function _findAndReselectVerts verts_pos =
+		(
+			if verts_pos != undefined and classOf ( _mod = modPanel.getCurrentObject() ) == Edit_Poly then
+			(
+			--format "\n"; print "SlicerCallbacks_v._findAndReselectVerts()"
+				obj = ISLANDS_SYSTEM.obj
+
+				verts_edit_poly = #{}
+
+				verts_pos_after_slice = in coordsys world  polyop.getVerts obj #{1..( getNumVerts obj.mesh )} node:obj
+
+				for vert_pos in verts_pos where (vert = findItem verts_pos_after_slice (vert_pos)) > 0 do
+					verts_edit_poly[vert] = true
+
+				_mod.SetSelection #VERTEX #{}
+
+				_mod.Select #VERTEX verts_edit_poly
+			)
+		)
+
 		layer_current	= DIALOG_slicer_slider.SPIN_layer_current.value
-		format "layer_current: %\n" layer_current
-		format "SLICER_SYSTEM.slice_start: %\n" SLICER_SYSTEM.slice_start
+		--format "layer_current: %\n" layer_current
 
-
-		--shift_mode	= #( #LAYERS, #VERTS, #ISLANDS )[DIALOG_slicer_slider.DDL_slider_snaps.selection as integer ]
 		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_slicer_slider.DDL_slider_snaps.selection as integer ]
 
 		/* SHIFT: Go 1mm up\down */
 		if keyboard.shiftPressed then
 		(
-			format "shiftPressed\n"
 			layer_next = if not keyboard.controlPressed then
 			(
-				layers_per_mm = ( 1 * display_units / layer_height ) -- add or remove 1mm of current layer
+				layers_per_mm = ( 1 * SLICER_SYSTEM.display_units / SLICER_SYSTEM.layer_height ) -- add or remove 1mm of current layer
 
 				(layer_current + increment * layers_per_mm) as integer
 			)
@@ -91,15 +124,14 @@ struct SlicerCallbacks_v
 		else
 			layer_next = layer_current + increment
 
-		--if layer_next == 0 then
-			--layer_next = SLICER_SYSTEM.slice_start
-
-		format "LAYER_NEXT: %\n" layer_next
-
 		if layer_next > 0 then
 		(
-			/* UPDATE MODIFIER */
+			 vertex_sel_pos = _getPositionsOfSelectedVerts()
+
+			/* UPDATE SLICE MODIFIER */
 			SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_next) (true)
+
+			_findAndReselectVerts(vertex_sel_pos)
 
 			/* UPDATE SLIDER VALUE */
 			SLICER_SYSTEM.setSliderValueByLayerIndex( layer_next )
@@ -109,11 +141,11 @@ struct SlicerCallbacks_v
 
 			if keyboard.controlPressed and DIALOG_island_manager != undefined and layer_next != SLICER_SYSTEM.slice_start then
 			(
-				ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
-
-				selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
-
-				ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+				--ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
+				--
+				--selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
+				--
+				--ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
 			)
 		)
 	),

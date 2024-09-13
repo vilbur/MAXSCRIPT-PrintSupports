@@ -75,7 +75,7 @@ function selectHideUnhideSupports type: state: =
 macroscript	_print_support_visibility_source_show
 category:	"_3D-Print"
 buttontext:	"SOURCE"
-icon:	"id:BTN_visibility_source|across:5|height:32|width:96"
+--icon:	"id:BTN_visibility_source|across:5|height:32|width:96"
 (
 	on execute do
 		undo "Show\Hide Source" on
@@ -115,7 +115,7 @@ buttontext:	"SUPPORTS"
 macroscript	_print_support_visibility_hide
 category:	"_3D-Print"
 buttontext:	"SUPPORTS"
-icon:	"id:BTN_visibility_Supports"
+--icon:	"id:BTN_visibility_Supports"
 (
 	on execute do
 		undo "Show\Hide Supports" on
@@ -169,7 +169,34 @@ buttontext:	"BEAMS"
 )
 
 /*------------------------------------------------------------------------------
-	BEAMS
+	PINS
+--------------------------------------------------------------------------------*/
+/*
+*/
+macroscript	_print_support_visibility_pins_show
+category:	"_3D-Print"
+buttontext:	"PINS"
+--icon:	"id:BTN_visibility_pins|across:5|height:32|width:96|tooltip:GEENERATE DRAINS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
+(
+	on execute do
+		undo "Show\Hide Beams" on
+			selectHideUnhideSupports type:#PIN state:false
+)
+
+/*
+*/
+macroscript	_print_support_visibility_pins_hide
+category:	"_3D-Print"
+buttontext:	"PINS"
+--icon:	"id:BTN_visibility_pins|across:5|height:32|width:96|tooltip:GEENERATE BEAMS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
+(
+	on execute do
+		undo "Show\Hide Beams" on
+			selectHideUnhideSupports type:#PIN state:true
+)
+
+/*------------------------------------------------------------------------------
+	DRAINS
 --------------------------------------------------------------------------------*/
 /*
 */

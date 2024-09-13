@@ -122,7 +122,7 @@ struct SlicerSystem_v
 	(
 		--format "\n"; print "IslandsSystem_v.moveSlider()"
 		--format "EventFired:	% \n" EventFired.type
-		format "%\n" EventFired.type
+		--format "%\n" EventFired.type
 		format "DIALOG_slicer_slider.SLIDER_slicer.value: %\n" DIALOG_slicer_slider.SLIDER_slicer.value
 	),
 
@@ -273,7 +273,7 @@ struct SlicerSystem_v
 	 */
 	function posToLayerIndex pos =
 	(
-		format "\n"; print "SlicerSystem_v.posToLayerIndex()"
+		--format "\n"; print "SlicerSystem_v.posToLayerIndex()"
 
 
 		/*  Round float to iteger
@@ -294,11 +294,11 @@ struct SlicerSystem_v
 		--current_layer = DIALOG_slicer_slider.SPIN_layer_current.value
 
 		pos -= min_max_z[1]
-
-		format "pos: %\n" pos
-		format "display_units: %\n" display_units
-		format "layer_height: %\n" layer_height
-		format "export_size: %\n" export_size
+		--
+		--format "pos: %\n" pos
+		--format "display_units: %\n" display_units
+		--format "layer_height: %\n" layer_height
+		--format "export_size: %\n" export_size
 		/* MOVE SLICE PLANE TO SELCTION BOTTOM */
 		layer_index = roundToInteger ((pos * display_units) / layer_height	/ export_size)
 
@@ -494,9 +494,9 @@ struct SlicerSystem_v
 	  */
 	function _getPlaneZpozition layer_index =
 	(
-		format "\n"; print "SlicerSystem_v._getPlaneZpozition()"
+		--format "\n"; print "SlicerSystem_v._getPlaneZpozition()"
 		--volume_height	= (PrinterVolume_v(DIALOG_content.SPIN_export_size.value)).printer_size.z
-		format "LAYER_INDEX: %\n" layer_index
+		--format "LAYER_INDEX: %\n" layer_index
 		--layer_height	= DIALOG_content.SPIN_layer_height.value
 		--layer_current	= DIALOG_slicer_slider.SLIDER_slicer.value
 		--slice_count	= volume_height / layer_height

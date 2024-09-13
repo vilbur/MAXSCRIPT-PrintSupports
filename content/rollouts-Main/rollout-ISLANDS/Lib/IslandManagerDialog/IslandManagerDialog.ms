@@ -160,7 +160,7 @@ function createIslandManagerDialog islands_to_show: =
 
 
 	_multilistbox.Event #SELECTIONEND "::IslandsCallbacks_v.onListboxSelectionEnd()"
-	_multilistbox.Event #RIGHTCLICK   "::IslandsCallbacks_v.onListboxRightclick()"  tooltip:"Open submenu.\n\nRMB+CTRL: Select Islands by verts\n\nRMB+SHIFT: Slice on selected island"
+	_multilistbox.Event #RIGHTCLICK   "::IslandsCallbacks_v.onListboxRightclick()"  tooltip:"Open submenu.\n\nCTRL+RMB: Select Islands by verts\n\nSHIFT+RMB: Slice on selected island"
 
 	_slider.Event #CHANGED     "::IslandsCallbacks_v.onSliderChanged(val)"
 	_slider.Event #SLIDE       "::IslandsCallbacks_v.onListboxSelectionEnd()"

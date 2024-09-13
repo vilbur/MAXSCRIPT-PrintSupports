@@ -130,7 +130,7 @@ struct IslandsSystem_v
 		 */
 		function selectVertsEditablePoly obj verts isolate =
 		(
-			--format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
+			format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
 
 			if ( hidden_verts = polyop.getHiddenVerts obj ) != undefined then
 			(
@@ -158,16 +158,15 @@ struct IslandsSystem_v
 		 */
 		function selectVertsEditPoly _mod verts isolate =
 		(
-			--format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
-			--format "\n**************************************************\n"
+			format "\n"; print "IslandsSystem_v.selectVertsEditPoly()"
+			format "\n**************************************************\n"
 			/** Pass vertex selection from editable poly baseobject to edit poly modifier based on vertex position
 			  *
 			  * #return BitArray of vertex indexes of Edit Poly Modifier
 			 */
-			function getVertsByBaseobject obj verts_baseobject verts_mesh_all =
+			function getMeshVertsByBaseobject obj verts_baseobject verts_mesh_all =
 			(
-				--format "\n"; print "IslandsSystem_v.getBaseObjectVerts()"
-				--format "verts_baseobject: %\n" verts_baseobject
+				--format "\n"; print "IslandsSystem_v.getMeshVertsByBaseobject()"
 				verts_edit_poly = #()
 
 				verts_pos_baseobjects =  in coordsys world polyop.getVerts obj.baseobject verts_baseobject node:obj
@@ -183,43 +182,45 @@ struct IslandsSystem_v
 			)
 
 
-			verts_mesh_all	= #{1..( getNumVerts obj.mesh  )}
+			verts_mesh_all	= #{1..( getNumVerts obj.mesh )}
 			verts_base_all	= #{1..( polyop.getNumVerts obj.baseobject)}
 			verts_base_hidden	= polyop.getHiddenVerts obj.baseobject
 
+			format "verts: %\n" verts
 			/* GET EDIT POLY VERTS */
 			if verts_base_all.numberSet != verts_mesh_all.numberSet then
-				verts = getVertsByBaseobject(obj)(verts)(verts_mesh_all)
+				verts = getMeshVertsByBaseobject(obj)(verts)(verts_mesh_all)
 
-			--if not isolate then
-			--(
-			--	actionMan.executeAction 0 "40021"  -- Selection: Select All
-			--
-			--	visible_verts	= (getVertSelection obj.mesh) + verts
-			--
-				_mod.ButtonOp #UnhideAllVertex
-			--
-			--	_mod.SetSelection #VERTEX #{}
-			--
-			--	_mod.Select #VERTEX visible_verts
-			--
-			--	_mod.ButtonOp #HideUnselectedVertex
-			--
+			format "verts: %\n" verts
+			if not isolate then
+			(
+				--actionMan.executeAction 0 "40021"  -- Selection: Select All
+				--
+				--visible_verts	= (getVertSelection obj.mesh) + verts
+				--
+				--_mod.ButtonOp #UnhideAllVertex
+
+				--_mod.SetSelection #VERTEX #{}
+				--
+				--_mod.Select #VERTEX visible_verts
+				--
+				--_mod.ButtonOp #HideUnselectedVertex
+
 				_mod.SetSelection #VERTEX #{}
-			--
+
 				_mod.Select #VERTEX verts
-			--)
-			--else /* UNHIDE ONLY SELECTED VERTS */
-			--(
-			--	_mod.ButtonOp #UnhideAllVertex
-			--
-			--	_mod.SetSelection #VERTEX #{}
-			--
-			--	_mod.Select #VERTEX verts
-			--
-			--	_mod.ButtonOp #HideUnselectedVertex
-			--
-			--)
+			)
+			else /* UNHIDE ONLY SELECTED VERTS */
+			(
+				_mod.ButtonOp #UnhideAllVertex
+
+				_mod.SetSelection #VERTEX #{}
+
+				_mod.Select #VERTEX verts
+
+				_mod.ButtonOp #HideUnselectedVertex
+
+			)
 		)
 
 		isolate_verts = DIALOG_island_manager.CBTN_isolate.state == 1
@@ -258,24 +259,24 @@ struct IslandsSystem_v
 
 	/*------------------------------------------------------------------------------
 		LISTBOX
-	--------------------------------------------------------------------------------*/
+	------------------------------------------------------------------------------*/
 
-	--/** Select layer listbox
-	-- */
-	--function selectIslandByLayerInListbox layer_indexes =
-	--(
-	--	format "\n"; print "IslandsSystem_v.selectIslandByLayerInListbox()"
-	--	if classOf layer_indexes != BitArray then
-	--		layer_indexes = #{layer_indexes}
-	--
-	--	items = this._getListItemByLayer (layer_indexes)
-	--	--format "ITEMS: %\n" items
-	--
-	--	DIALOG_island_manager.ML_island_listbox.selection = items
-	--
-	--	if ( slider_value = DIALOG_island_manager.ML_island_listbox.items.count - items.count  ) > 0 then
-	--		DIALOG_island_manager.SLIDER_island_select.value = slider_value
-	--),
+	/** Select layer listbox
+	 */
+	function selectIslandByLayerInListbox layer_indexes =
+	(
+		format "\n"; print "IslandsSystem_v.selectIslandByLayerInListbox()"
+		if classOf layer_indexes != BitArray then
+			layer_indexes = #{layer_indexes}
+
+		items = this._getListItemByLayer (layer_indexes)
+		--format "ITEMS: %\n" items
+
+		DIALOG_island_manager.ML_island_listbox.selection = items
+
+		if ( slider_value = DIALOG_island_manager.ML_island_listbox.items.count - items.count  ) > 0 then
+			DIALOG_island_manager.SLIDER_island_select.value = slider_value
+	),
 
 	/** Get listbox items by island index
 	  *
