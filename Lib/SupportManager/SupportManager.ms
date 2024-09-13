@@ -1,10 +1,10 @@
 --filein( getFilenamePath(getSourceFileName()) + "/../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms" )	--"./../../../MAXSCRIPT-MaxToPrint/content/rollouts-Main/rollout-VERTEX COLORS/Lib/VertexColorProcessor.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rollout-VERTEX-COLORS/Lib/VertexColors/VertexColors.ms" )	--"./../../content/rollouts-Main/rollout-VERTEX-COLORS/Lib/VertexColors/VertexColors.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms" )	--"./../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColors/VertexColors.ms"
 --filein( getFilenamePath(getSourceFileName()) + "/../VertexColors/VertexColors.ms" )	--"./../VertexColors/VertexColors.ms"
 
 --filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-VERTEX COLORS\Lib\VertexColorProcessor.ms"
-filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rollout-VERTEX-COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms" )	--"./../../content/rollouts-Main/rollout-VERTEX-COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms"
+filein( getFilenamePath(getSourceFileName()) + "/../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms" )	--"./../../content/rollouts-Main/rollout-VERTEX_COLORS/Lib/VertexColorProcessor/VertexColorProcessor.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onBeamDeletedCallback/onBeamDeletedCallback.ms" )	--"./onEvents/onBeamDeletedCallback/onBeamDeletedCallback.ms"
 filein( getFilenamePath(getSourceFileName()) + "/onEvents/onSupportTransformCallback/onSupportTransformCallback.ms" )	--"./onEvents/onSupportTransformCallback/onSupportTransformCallback.ms"

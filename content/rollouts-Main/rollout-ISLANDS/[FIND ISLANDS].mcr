@@ -4,7 +4,7 @@
  *
  */
 macroscript	maxtoprint_islands_dialog
-category:	"maxtoprint"
+category:	"_3D-Print"
 buttontext:	"V I E W E R  ☰"
 toolTip:	"SHOW islands Dialog"
 icon:	"across:3|height:32"
@@ -52,7 +52,7 @@ icon:	"across:3|height:32"
  *
  */
 macroscript	maxtoprint_find_islands
-category:	"maxtoprint"
+category:	"_3D-Print"
 buttontext:	"Search Islands"
 toolTip:	"Refresh islands"
 icon:	"across:3"
@@ -63,6 +63,6 @@ icon:	"across:3"
 
 		deleteUserProp selection[1] "ISLANDS_DATA"
 
-		macros.run "maxtoprint" "maxtoprint_islands_dialog"
+		macros.run "_3D-Print" "maxtoprint_islands_dialog"
 	)
 )

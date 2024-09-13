@@ -65,7 +65,13 @@ try(
 
 	SUPPORT_MANAGER = SupportManager_v()
 
+	/* RELAUNCH ISLAND MANAGER */
+	if DIALOG_island_manager != undefined then
+		macros.run "_3D-Print" "maxtoprint_islands_dialog"
 
+	/* RELAUNCH SLICER MANAGER */
+	if DIALOG_slicer_slider != undefined then
+		macros.run "_3D-Print" "maxtoprint_create_slicerdialog"
 
 )catch(
 	format "\n——————————————— ERROR IN FILE ———————————————\n\n%\n" (getSourceFileName())

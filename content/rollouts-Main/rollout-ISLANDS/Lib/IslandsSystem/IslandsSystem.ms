@@ -194,17 +194,17 @@ struct IslandsSystem_v
 			format "verts: %\n" verts
 			if not isolate then
 			(
-				--actionMan.executeAction 0 "40021"  -- Selection: Select All
-				--
-				--visible_verts	= (getVertSelection obj.mesh) + verts
-				--
-				--_mod.ButtonOp #UnhideAllVertex
+				actionMan.executeAction 0 "40021"  -- Selection: Select All
 
-				--_mod.SetSelection #VERTEX #{}
-				--
-				--_mod.Select #VERTEX visible_verts
-				--
-				--_mod.ButtonOp #HideUnselectedVertex
+				visible_verts	= (getVertSelection obj.mesh) + verts
+
+				_mod.ButtonOp #UnhideAllVertex
+
+				_mod.SetSelection #VERTEX #{}
+
+				_mod.Select #VERTEX visible_verts
+
+				_mod.ButtonOp #HideUnselectedVertex
 
 				_mod.SetSelection #VERTEX #{}
 
@@ -244,9 +244,9 @@ struct IslandsSystem_v
 
 		islands_to_show = case of
 		(
-			(selected_islands.numberSet >  1):	selected_islands                     -- SHOW ONLY SELECTED ITEMS ON RELAUNCH
-			(selected_islands.numberSet == 1):	#{(this._getFirstIslandFromListbox())..(selected_islands as Array )[1]} -- SHOW ISLANDS UP TO SELECTED ITEM ON RELAUNCH IF ONLY SINGLE ISLAND IS SELECTED
-			default:		#{1..islands_data.count}             -- SHOW ALL ISLANDS
+			(selected_islands.numberSet >  1):	selected_islands	-- SHOW ONLY SELECTED ITEMS ON RELAUNCH
+			(selected_islands.numberSet == 1):	#{(this._getFirstIslandFromListbox())..(selected_islands as Array )[1]}	-- SHOW ISLANDS UP TO SELECTED ITEM ON RELAUNCH IF ONLY SINGLE ISLAND IS SELECTED
+			default:	#{1..islands_data.count}	-- SHOW ALL ISLANDS
 		)
 
 		setUserPropVal obj "VISIBLE_ISLANDS" islands_to_show --asString:true

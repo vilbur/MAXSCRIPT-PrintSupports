@@ -124,9 +124,13 @@ struct SlicerCallbacks_v
 		else
 			layer_next = layer_current + increment
 
+
+
+
 		if layer_next > 0 then
 		(
-			 vertex_sel_pos = _getPositionsOfSelectedVerts()
+			if not keyboard.controlPressed then
+				vertex_sel_pos = _getPositionsOfSelectedVerts()
 
 			/* UPDATE SLICE MODIFIER */
 			SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_next) (true)
@@ -141,11 +145,11 @@ struct SlicerCallbacks_v
 
 			if keyboard.controlPressed and DIALOG_island_manager != undefined and layer_next != SLICER_SYSTEM.slice_start then
 			(
-				--ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
-				--
-				--selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
-				--
-				--ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+				ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
+
+				selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
+
+				ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
 			)
 		)
 	),

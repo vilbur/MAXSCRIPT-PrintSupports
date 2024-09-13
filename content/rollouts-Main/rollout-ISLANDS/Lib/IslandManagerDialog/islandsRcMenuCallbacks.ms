@@ -28,7 +28,7 @@ struct IslandsRcMenuCallbacks_v
 	 */
 	function selectIslandsByVerts =
 	(
-		--format "\n"; print "IslandsRcMenuCallbacks_v.selectIslandsByVerts()"
+		format "\n"; print "IslandsRcMenuCallbacks_v.selectIslandsByVerts()"
 		verts_sel = getVertSelection selection[1].mesh
 
 		islands_data = ISLANDS_SYSTEM.islands_data
@@ -36,9 +36,11 @@ struct IslandsRcMenuCallbacks_v
 		verts_of_islands = #{}
 
 		islands_of_verts = ( for i = 1 to islands_data.count where not (islands_data[i][#NEW_ISLAND] * verts_sel ).isEmpty collect i) as BitArray
+		format "islands_of_verts: %\n" islands_of_verts
 
-		for index in islands_of_verts do verts_of_islands += islands_data[index][#NEW_ISLAND]
-
+		for index in islands_of_verts do
+			verts_of_islands += islands_data[index][#NEW_ISLAND]
+		format "verts_of_islands: %\n" verts_of_islands
 
 		if classOf (_mod = modPanel.getCurrentObject()) == Edit_Poly then
 			_mod.Select #VERTEX verts_of_islands

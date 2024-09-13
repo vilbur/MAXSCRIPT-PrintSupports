@@ -3,7 +3,7 @@ filein( getFilenamePath(getSourceFileName()) + "/globals.ms" )	--"./globals.ms"
 
 /**
   */
-macroscript	print_create_slicerdialog
+macroscript	maxtoprint_create_slicerdialog
 category:	"_3D-Print"
 buttontext:	"S L I C E R  ☰"
 tooltip:	"Slice selected object."
@@ -31,7 +31,7 @@ icon:	"across:3|height:32|tooltip:\n\n----------------------\n\nFIX IF NOT WORK 
 
 /**
   */
-macroscript	print_remove_slice_modifiers
+macroscript	maxtoprint_remove_slice_modifiers
 category:	"_3D-Print"
 buttontext:	"S L I C E R  ☰"
 tooltip:	"EXIT SLICE MODE"
@@ -89,7 +89,7 @@ function getLayerNumberToMove direction =
 
 /**
   */
-macroscript	_print_slice_increment_plus
+macroscript	_maxtoprint_slice_increment_plus
 category:	"_3D-Print"
 buttontext:	"+ \ -"
 tooltip:	"Shift layer UP"
@@ -101,7 +101,7 @@ icon:	"Tooltip:CTRL:SHIFT:ALT: 10\25\25 Layers incremnet by number of mod keys p
 
 /**
   */
-macroscript	_print_slice_increment_minus
+macroscript	_maxtoprint_slice_increment_minus
 category:	"_3D-Print"
 buttontext:	"+ \ -"
 tooltip:	"RMB: Shift layer DOWN"
@@ -113,7 +113,7 @@ icon:	""
 
 /**
   */
-macroscript	_print_slice_se_slice_materia
+macroscript	_maxtoprint_slice_se_slice_materia
 category:	"_3D-Print"
 buttontext:	"Material"
 tooltip:	"Toggle ID multimaterial on selected object"
@@ -172,7 +172,7 @@ icon:	""
 --/**
 --  *
 --  */
---macroscript	_print_slice_select_volume
+--macroscript	_maxtoprint_slice_select_volume
 --category:	"_3D-Print"
 --buttontext:	"Select"
 --tooltip:	"Select verts in sliced layer"
@@ -193,7 +193,7 @@ icon:	""
 --/**
 --  *
 --  */
---macroscript	_print_slice_plane_top
+--macroscript	_maxtoprint_slice_plane_top
 --category:	"_3D-Print"
 --buttontext:	"Slice Top"
 --tooltip:	"Slice plane top"
@@ -216,7 +216,7 @@ icon:	""
 --/**
 --  *
 --  */
---macroscript	_print_slice_plane_bottom
+--macroscript	_maxtoprint_slice_plane_bottom
 --category:	"_3D-Print"
 --buttontext:	"Slice Bottom"
 --tooltip:	"Slice plane bottom"
@@ -238,7 +238,7 @@ icon:	""
 --/**
 --  *
 --  */
---macroscript	_print_slice_plane_cap
+--macroscript	_maxtoprint_slice_plane_cap
 --category:	"_3D-Print"
 --buttontext:	"Cap Slice"
 --tooltip:	"Cap Slice plane"
