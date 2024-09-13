@@ -126,7 +126,7 @@ icon:	""
 
 		mat_name = "SLICE MATERIAL"
 
-		if obj.material.name != mat_name then
+		if obj.material == undefined or obj.material.name != mat_name then
 		(
 			_materials = for mat in sceneMaterials where mat.name == mat_name collect mat
 			--print ( "_materials = " + _materials.count as string )
@@ -143,7 +143,8 @@ icon:	""
 			else
 				_materials[1]
 
-			setUserPropVal obj "SLICE_MATERIAL_ORIGINAL" obj.material.name
+			if obj.material != undefined  then
+				setUserPropVal obj "SLICE_MATERIAL_ORIGINAL" obj.material.name
 
 			obj.material = mat
 		)
@@ -156,7 +157,8 @@ icon:	""
 
 			deleteUserProp obj "SLICE_MATERIAL_ORIGINAL"
 		)
-
+		else
+			obj.material = undefined
 
 
 	)

@@ -172,7 +172,7 @@ struct IslandsSystem_v
 				verts_pos_baseobjects =  in coordsys world polyop.getVerts obj.baseobject verts_baseobject node:obj
 
 				--verts_mesh_pos  = for vert in verts_mesh_all collect getVert obj.mesh vert
-				verts_mesh_pos = in coordsys world  polyop.getVerts obj verts_mesh_all node:obj
+				verts_mesh_pos = in coordsys world polyop.getVerts obj verts_mesh_all node:obj
 				--format "verts_mesh_pos: %\n" verts_mesh_pos
 
 				for vert_pos in verts_pos_baseobjects where (index = findItem verts_mesh_pos (vert_pos)) > 0 do

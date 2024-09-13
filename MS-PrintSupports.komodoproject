@@ -23,8 +23,6 @@
 </livefolder>
 <livefolder id="74a24c1c-abd1-4b0e-8c4a-b9b736ebabb1" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="SupportManager" url="Lib/SupportManager/">
 </livefolder>
-<livefolder id="8452a694-381a-467f-b728-e699fb1a6ae8" idref="12089a42-ba37-4a31-ace1-064f036ed6fb" name="rollouts-Main" url="content/rollouts-Main/">
-</livefolder>
 <preference-set idref="12089a42-ba37-4a31-ace1-064f036ed6fb" id="project" preftype="project">
   <long id="prefs_version">1</long>
 </preference-set>

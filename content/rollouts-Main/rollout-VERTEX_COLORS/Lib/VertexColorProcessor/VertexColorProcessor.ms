@@ -89,6 +89,10 @@ struct VertexColorProcessor_v
 		--start_setVertColor = timeStamp()
 		polyop.setVertColor obj 0 verts_base (clr)
 		--format "setVertColor: % ms\n" (( timeStamp()) - start_setVertColor)
+
+		/* REDRAW VIEWPORT - redrawViews() is hiding verts */
+		subObjectLevel = 0
+		subObjectLevel = 1
 	),
 
 	/** Process operation on verts by vertex color
@@ -160,7 +164,6 @@ struct VertexColorProcessor_v
 	function _callMethod method verts =
 	(
 		--format "\n"; print "VertexColorProcessor_v._callMethod()"
-
 		subObjectLevel = 1
 
 		case method of
@@ -170,8 +173,6 @@ struct VertexColorProcessor_v
 			 #UNHIDE:	this._unhideVerts	(verts)
 			 #ISOLATE:	this._isolateVerts	(verts)
 		)
-
-
 	),
 
 	/**  hide verts
@@ -228,7 +229,6 @@ struct VertexColorProcessor_v
 
 			polyop.setHiddenVerts obj ( hidden_verts - verts_unhide )
 		)
-
 	),
 
 	/**  hide verts
@@ -269,24 +269,22 @@ struct VertexColorProcessor_v
 		format "verts: %\n" verts
 		format "classof curr_mod: %\n" (classof curr_mod)
 
-		if classof curr_mod != Editable_Poly then
+		if classof curr_mod == Edit_Poly and verts.numberSet > 0 and  verts.numberSet != ( vertex_count_baseobject = polyop.getNumVerts obj.baseobject) then
 		(
-			verts_baseobject = #()
+			verts_baseobject = #{}
 
-			verts_mesh_all	= #{1..( getNumVerts obj.mesh  )} as Array
-			verts_base_all	= #{1..( polyop.getNumVerts obj.baseobject)} as Array
+			--verts_mesh_all	= #{1..( getNumVerts obj.mesh  )} as Array
+			--verts_base_all	= #{1..( polyop.getNumVerts obj.baseobject)} as Array
+			verts_base_all	= #{1..vertex_count_baseobject}
 
-			timer_verts_pos_baseobjects = timeStamp()
-			verts_pos_baseobjects = polyop.getVerts obj.baseobject verts_base_all --node:obj
-			format "verts_pos_baseobjects: % seconds\n" ((( timeStamp()) - timer_verts_pos_baseobjects) / 1000.0)
+			--verts_pos_baseobjects = polyop.getVerts obj.baseobject verts_base_all --node:obj
+			verts_pos_baseobjects = in coordsys world  polyop.getVerts obj.baseobject verts_base_all node:obj
 
-			if verts.count > 0 then
-			(
-				verts_sel_pos  = for vert in verts collect getVert obj.mesh vert
+			--verts_positions  = for vert in verts collect getVert obj.mesh vert
+			verts_positions = in coordsys world polyop.getVerts obj verts node:obj
 
-				for vert_pos in verts_sel_pos where (index = findItem verts_pos_baseobjects (vert_pos)) > 0 do
-					append verts_baseobject index
-			)
+			for vert_pos in verts_positions where (vert = findItem verts_pos_baseobjects (vert_pos)) > 0 do
+				verts_baseobject[vert] = true
 
 			verts_baseobject --return
 		)

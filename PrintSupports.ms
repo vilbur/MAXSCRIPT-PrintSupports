@@ -41,7 +41,7 @@ try(
 
 
 	/* CHANGE PROPERTIES oF ROLLOUTS */
-	ContentLoader.Dialog.title = "PrintSupports"
+	ContentLoader.Dialog.title = "Max Slicer"
 
 
 	--/* CREATE DIALOG */
