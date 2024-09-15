@@ -45,14 +45,16 @@ function createSlicerSliderDialog =
 	/*------------------------------------------------------------------------------
 		DIALOG
 	--------------------------------------------------------------------------------*/
+	min_size = [ 42, -1 ]
 
-    Dialog 	    = Dialog_v "" id:#DIALOG_slicer_slider --ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
+    Dialog 	    = Dialog_v "" id:#DIALOG_slicer_slider min_size:min_size --ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 
 	/*------------------------------------------------------------------------------
 		CONTROLS
 	--------------------------------------------------------------------------------*/
+	tooltip_btn = "Shift slider 1 layer UP \ DOWN\n\nCTRL:  Go 10 layers UP \ DOWN\n\nSHIFT: Go 100 layers UP \ DOWN\n\nALT:  Go NEXT\PREVIOUS island"
 
 	btn_exit = _Controls.control #BUTTON "IN\OUT" width:42 height:24 offset:	[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
 
@@ -71,7 +73,7 @@ function createSlicerSliderDialog =
                     ini:	false
                     --pos:	pos_slider
 
-	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -4 ] tooltip:"Shift slider 1 layer UP \ DOWN\n\nCTRL: Go NEXT\PREVIOUS island\n\nSHIFT: Go 1mm UP \ DOWN\n\nCTRL + SHIFT: Go 100 layers UP \ DOWN"
+	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -4 ] tooltip:tooltip_btn
 
 
 	_spinner = _Controls.control #SPINNER "" id:#SPIN_layer_current across:1 range:[ SLICER_SYSTEM.slice_start, SLICER_SYSTEM.layers_count, 0] width:42 type:#integer offset:[ -4, 0 ]
@@ -108,7 +110,7 @@ function createSlicerSliderDialog =
 	/*------------------------------------------------------------------------------
 		CREATE DIALOG
 	--------------------------------------------------------------------------------*/
-	Dialog.create width:(42) height:#VIEWPORT --lockWidth:false --style:#()   --bgcolor:( color 60 130 140 )
+	Dialog.create width:min_size.x height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
 	--Dialog.create width:(42) height:#VIEWPORT lockWidth:false --style:#()   --bgcolor:( color 60 130 140 )
 
 	Dialog.dock #RIGHT

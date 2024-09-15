@@ -123,8 +123,8 @@ struct IslandsSystem_v
 	 */
 	function selectVerts verts =
 	(
-		format "\n"; print "IslandsSystem_v.selectVerts()"
-		format "VERTS: %\n" verts
+		--format "\n"; print "IslandsSystem_v.selectVerts()"
+		--format "VERTS: %\n" verts
 
 		/** Select verts editable poly
 		 */
@@ -134,6 +134,7 @@ struct IslandsSystem_v
 
 			if ( hidden_verts = polyop.getHiddenVerts obj ) != undefined then
 			(
+				format "HIDDEN_VERTS: %\n" hidden_verts
 				all_verts = #{1..(getNumVerts obj.mesh)}
 
 				hidden_verts -= verts
@@ -143,7 +144,8 @@ struct IslandsSystem_v
 				(
 					polyop.unHideAllVerts obj
 
-					hidden_verts = if isolate == 1 then (all_verts - verts)
+					if isolate == 1 then
+						hidden_verts = (all_verts - verts)
 
 					polyop.setHiddenVerts obj hidden_verts
 				)
@@ -158,8 +160,8 @@ struct IslandsSystem_v
 		 */
 		function selectVertsEditPoly _mod verts isolate =
 		(
-			format "\n"; print "IslandsSystem_v.selectVertsEditPoly()"
-			format "\n**************************************************\n"
+			--format "\n"; print "IslandsSystem_v.selectVertsEditPoly()"
+			--format "\n**************************************************\n"
 			/** Pass vertex selection from editable poly baseobject to edit poly modifier based on vertex position
 			  *
 			  * #return BitArray of vertex indexes of Edit Poly Modifier
@@ -186,12 +188,12 @@ struct IslandsSystem_v
 			verts_base_all	= #{1..( polyop.getNumVerts obj.baseobject)}
 			verts_base_hidden	= polyop.getHiddenVerts obj.baseobject
 
-			format "verts: %\n" verts
+			--format "verts: %\n" verts
 			/* GET EDIT POLY VERTS */
 			if verts_base_all.numberSet != verts_mesh_all.numberSet then
 				verts = getMeshVertsByBaseobject(obj)(verts)(verts_mesh_all)
 
-			format "verts: %\n" verts
+			--format "verts: %\n" verts
 			if not isolate then
 			(
 				actionMan.executeAction 0 "40021"  -- Selection: Select All
@@ -199,12 +201,12 @@ struct IslandsSystem_v
 				visible_verts	= (getVertSelection obj.mesh) + verts
 
 				_mod.ButtonOp #UnhideAllVertex
-
-				_mod.SetSelection #VERTEX #{}
-
-				_mod.Select #VERTEX visible_verts
-
-				_mod.ButtonOp #HideUnselectedVertex
+				--
+				--_mod.SetSelection #VERTEX #{}
+				--
+				--_mod.Select #VERTEX visible_verts
+				--
+				--_mod.ButtonOp #HideUnselectedVertex
 
 				_mod.SetSelection #VERTEX #{}
 
@@ -218,7 +220,7 @@ struct IslandsSystem_v
 
 				_mod.Select #VERTEX verts
 
-				_mod.ButtonOp #HideUnselectedVertex
+				--_mod.ButtonOp #HideUnselectedVertex
 
 			)
 		)
@@ -255,6 +257,42 @@ struct IslandsSystem_v
 
 	),
 
+	/** Get vertex numbers of Editable Poly by verts of Edit Poly
+	  *
+	  * 1) Get selected verts in modifier like Edit Poly|Poly Select
+	  * 2) Find same vertex by position in Editable Poly baseobject
+	  *
+	  * #return BitArray of vertex indexes of Editable Poly Baseobject
+	 */
+	function getBaseObjectVerts verts =
+	(
+		format "\n"; print "IslandsSystem_v._getBaseObjectVerts()"
+		format "verts: %\n" verts
+
+
+		max modify mode
+
+		is_edit_poly = classof (_mod	= modPanel.getCurrentObject() ) == Edit_Poly
+
+		if is_edit_poly and verts.numberSet > 0 \
+		and ( vertex_count_mesh = getNumVerts obj.mesh ) != ( vertex_count_baseobject = polyop.getNumVerts obj.baseobject) then
+		(
+			verts_baseobject = #{}
+
+			verts_base_all	= #{1..vertex_count_baseobject}
+
+			verts_positions = in coordsys world polyop.getVerts obj verts node:obj
+
+			verts_pos_baseobjects = in coordsys world  polyop.getVerts obj.baseobject #{1..vertex_count_baseobject} node:obj
+
+			for vert_pos in verts_positions where (vert = findItem verts_pos_baseobjects (vert_pos)) > 0 do
+				verts_baseobject[vert] = true
+
+			verts_baseobject --return
+		)
+		else
+			verts --return
+	),
 
 
 	/*------------------------------------------------------------------------------

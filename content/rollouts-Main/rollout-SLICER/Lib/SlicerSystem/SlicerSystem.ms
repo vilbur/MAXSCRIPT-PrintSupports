@@ -449,7 +449,7 @@ struct SlicerSystem_v
 			this.slice_modifiers[mod_name] = if ( slice_mod = mods_in_scene[1] ) != undefined then
 				mods_in_scene[1]
 			else
-				SliceModifier name:( mod_name as string ) Faces___Polygons_Toggle:1 setmaterial:on materialID:3
+				SliceModifier name:( mod_name as string ) Faces___Polygons_Toggle:0 setmaterial:on materialID:3
 		)
 	),
 

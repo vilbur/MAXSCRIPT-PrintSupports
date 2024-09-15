@@ -24,7 +24,7 @@ icon:	"across:3|height:32"
 
 			ISLANDS_SYSTEM = IslandsSystem_v(obj)
 
-			VertSelector 	= VertSelector_v(obj)
+            VertSelector = VertSelector_v(obj)
 
 			if ( ISLANDS_SYSTEM.islands_data = getUserPropVal obj "ISLANDS_DATA" ) == undefined then
 				ISLANDS_SYSTEM.islands_data = VertSelector.findIslandsPerLayer(layer_height)

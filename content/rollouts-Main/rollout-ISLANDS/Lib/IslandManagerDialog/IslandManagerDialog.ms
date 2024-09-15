@@ -13,7 +13,6 @@ function createIslandManagerDialog islands_to_show: =
 	function getItemTitile island_index =
 	(
 		/*
-
 		   MAX SIZE AND DISPLAY UNITS - HOTFIX CODE
 
 		   CREATE FUNCTION IslandsSystem_v.getMinMaxSize()
@@ -68,7 +67,11 @@ function createIslandManagerDialog islands_to_show: =
 	/*------------------------------------------------------------------------------
 		DIALOG
 	--------------------------------------------------------------------------------*/
-    Dialog 	    = Dialog_v "" id:#DIALOG_island_manager ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
+    --Dialog 	    = Dialog_v "" id:#DIALOG_island_manager ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
+
+	min_size = [ 96, -1 ]
+
+    Dialog 	    = Dialog_v "" id:#DIALOG_island_manager ini:(getSourceFileName()) min_size:min_size --max_size:[48, -1]
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 
@@ -171,7 +174,8 @@ function createIslandManagerDialog islands_to_show: =
 
 	--Dialog.min_size = [32, -1]
 	--Dialog.create width:(width_listbox + slider_width) height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
-	Dialog.create width:(96) height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
+	--Dialog.create width:(96) height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
+	Dialog.create width:min_size.x height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
 	--Dialog.create height:#VIEWPORT --bgcolor:( color 60 130 140 )
 
 	--format "DIALOG_slicer_slider: %\n" DIALOG_slicer_slider

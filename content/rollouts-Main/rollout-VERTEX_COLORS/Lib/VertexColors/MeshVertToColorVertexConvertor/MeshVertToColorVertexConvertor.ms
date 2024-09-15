@@ -32,7 +32,7 @@ struct MeshVertToColorVertexConvertor_v
 	(
 		--format "\n"; print "MeshVertToColorVertexConvertor_v.meshVertsToMapVerts()"
 
-		obj_mesh = obj.mesh
+		obj_mesh = obj.baseobject.mesh
 
 		/** Get map vert from face
 		 */

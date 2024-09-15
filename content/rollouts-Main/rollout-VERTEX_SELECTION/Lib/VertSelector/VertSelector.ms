@@ -166,7 +166,6 @@ struct VertSelector_v
 
 	),
 
-
 	/** Select sinlge vert per face island
 
 		Point with lowest position on Z
@@ -289,6 +288,7 @@ struct VertSelector_v
 
 		timer_get_verts = timeStamp()
 
+		format "vertex_sel.numberSet: %\n" vertex_sel.numberSet
 		for vert in vertex_sel do
 		(
 			--hits = ray_grid.intersectRay ( verts_pos[vert] + offset ) direction true
@@ -296,6 +296,8 @@ struct VertSelector_v
 			--	result_grid[vert] = true
 
 			hits = intersectRay obj ( Ray ( verts_pos[vert] + offset ) direction )
+
+			format "%: %\n" vert hits
 			if( mode == #INNER and hits != undefined ) or ( mode != #INNER and hits == undefined ) then
 				result[vert] = true
 		)

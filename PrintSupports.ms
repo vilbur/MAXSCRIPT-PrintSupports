@@ -36,7 +36,8 @@ try(
 
 	/** LOAD CONTENT */
 	--ContentLoader	= ContentLoader_v path:(current_dir+"\\content") -- WITHOUT INI FILE --DEV
-	ContentLoader	= ContentLoader_v path:(current_dir+"\\content") ini:( getSourceFileName())
+	--ContentLoader	= ContentLoader_v path:(current_dir+"\\content") ini:( getSourceFileName())
+	ContentLoader	= ContentLoader_v path:(current_dir+"\\content") ini:( getSourceFileName()) min_size:[ 420, -1 ] max_size:[420, -1]
 
 
 
@@ -48,7 +49,9 @@ try(
 	--MaxToPrint = ContentLoader.create width:420 height:1024
 	--MaxToPrint = ContentLoader.create width:420 height:#AUTO
 	--MaxToPrint = ContentLoader.create width:420 height:undefined
-	MaxToPrint = ContentLoader.create width:420
+	MaxToPrint = ContentLoader.create width:420 lockWidth:true
+	--MaxToPrint = ContentLoader.create()
+	--MaxToPrint = ContentLoader.create width:420 height:unsupplied
 
 	MaxToPrint.register()
 
@@ -65,13 +68,17 @@ try(
 
 	SUPPORT_MANAGER = SupportManager_v()
 
-	/* RELAUNCH ISLAND MANAGER */
-	if DIALOG_island_manager != undefined then
-		macros.run "_3D-Print" "maxtoprint_islands_dialog"
+	/*------------------------------------------------------------------------------
+		RELAUNCH SUB DIALOGS
+	--------------------------------------------------------------------------------*/
 
-	/* RELAUNCH SLICER MANAGER */
-	if DIALOG_slicer_slider != undefined then
-		macros.run "_3D-Print" "maxtoprint_create_slicerdialog"
+	--/* RELAUNCH ISLAND MANAGER */
+	--if DIALOG_island_manager != undefined then
+	--	macros.run "_3D-Print" "maxtoprint_islands_dialog"
+	--
+	--/* RELAUNCH SLICER MANAGER */
+	--if DIALOG_slicer_slider != undefined then
+	--	macros.run "_3D-Print" "maxtoprint_create_slicerdialog"
 
 )catch(
 	format "\n——————————————— ERROR IN FILE ———————————————\n\n%\n" (getSourceFileName())

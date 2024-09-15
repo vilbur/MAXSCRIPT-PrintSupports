@@ -1,41 +1,6 @@
---filein( getFilenamePath(getSourceFileName()) + "/../rollout-VERTEX SELECTION/Lib/VertSelector/VertSelector.ms" )	--"./../rollout-VERTEX SELECTION/Lib/VertSelector/VertSelector.ms"
-filein( getFilenamePath(getSourceFileName()) + "/../../../../MAXSCRIPT-UI-framework/Lib/Menus/RcMenu/RcMenu.ms" )	--"./../../../../MAXSCRIPT-UI-framework/Lib/Menus/RcMenu/RcMenu.ms"
---filein( getFilenamePath(getSourceFileName()) + "/Lib/VertexColorProcessor.ms" )	--"./Lib/VertexColorProcessor.ms"
-
-
-global VERTEX_COLOR_PARAM
+--filein( getFilenamePath(getSourceFileName()) + "/Lib/callMethodByVertexColor/callMethodByVertexColor.ms" )	--"./Lib/callMethodByVertexColor/callMethodByVertexColor.ms"
 
 global COLOR_NAMES = Dictionary #( #BLUE, color 0 135 255 ) #(#PINK, color 225 88 199 ) #(#MAGENTA, color 225 0 255 )-- KEY:#COLOR_NAME VALUE:color value
-
-
-
-/** Call vertex color macro
- */
-function callMethodByVertexColor method _color =
-(
-	format "\n"; print "callMethodByVertexColor()"
-	format "method: %\n" method
-	format "VERTEX_COLOR_PARAM: %\n" VERTEX_COLOR_PARAM
-
-	obj = selection[1]
-
-	VERTEX_COLOR_PARAM = _color
-
-	VertexColorProcessor = VertexColorProcessor_v(obj)
-
-	vertex_sel	= getVertSelection obj.mesh
-
-
-	if method == #SET then
-		VertexColorProcessor.setVertexColor vertex_sel VERTEX_COLOR_PARAM
-
-	else
-		VertexColorProcessor.byColor method VERTEX_COLOR_PARAM
-
-
-	--messageBox (param as string ) title:method
-)
-
 
 /*==============================================================================
 	Color Set

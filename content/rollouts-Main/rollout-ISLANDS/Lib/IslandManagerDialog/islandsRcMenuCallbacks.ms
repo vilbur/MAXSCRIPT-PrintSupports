@@ -29,27 +29,49 @@ struct IslandsRcMenuCallbacks_v
 	function selectIslandsByVerts =
 	(
 		format "\n"; print "IslandsRcMenuCallbacks_v.selectIslandsByVerts()"
-		verts_sel = getVertSelection selection[1].mesh
+
+		verts_sel = getVertSelection ISLANDS_SYSTEM.obj.mesh
+		format "verts_sel: %\n" verts_sel
+
+		verts_baseobject = ISLANDS_SYSTEM.getBaseObjectVerts( verts_sel )
+		format "verts_baseobject: %\n" verts_baseobject
 
 		islands_data = ISLANDS_SYSTEM.islands_data
 
 		verts_of_islands = #{}
 
-		islands_of_verts = ( for i = 1 to islands_data.count where not (islands_data[i][#NEW_ISLAND] * verts_sel ).isEmpty collect i) as BitArray
+
+		islands_of_verts = ( for i = 1 to islands_data.count where not (islands_data[i][#NEW_ISLAND] * verts_baseobject ).isEmpty collect i) as BitArray
 		format "islands_of_verts: %\n" islands_of_verts
 
 		for index in islands_of_verts do
 			verts_of_islands += islands_data[index][#NEW_ISLAND]
 		format "verts_of_islands: %\n" verts_of_islands
 
-		if classOf (_mod = modPanel.getCurrentObject()) == Edit_Poly then
-			_mod.Select #VERTEX verts_of_islands
 
-		else if classOf _mod  == Editable_Poly then
-			_mod.SetSelection #VERTEX verts_of_islands
+		format "listbox.items.count: %\n" DIALOG_island_manager.ML_island_listbox.items.count
+
+		items = ISLANDS_SYSTEM.getListboxItemsByIslandsIndex (islands_of_verts)
+		format "items: %\n" items
+
+		if items.numberSet > 0 then
+		(
+
+			if classOf (_mod = modPanel.getCurrentObject()) == Edit_Poly then
+				_mod.Select #VERTEX verts_of_islands
+
+			else if classOf _mod  == Editable_Poly then
+				_mod.SetSelection #VERTEX verts_of_islands
 
 
-		DIALOG_island_manager.ML_island_listbox.selection = ISLANDS_SYSTEM.getListboxItemsByIslandsIndex (islands_of_verts)
+			DIALOG_island_manager.ML_island_listbox.selection = items
+		)
+		else if islands_of_verts.numberSet == 0 then
+			messageBox "Selected verts are not in any island" title:"ISLANDS MISSING"  beep:false
+
+		else
+			messageBox "Islands of selected verts are hidden in list" title:"ISLANDS HIDDEN"  beep:false
+
 	),
 
 	/** Select islands by size
@@ -137,7 +159,7 @@ struct IslandsRcMenuCallbacks_v
 	(
 		format "\n"; print "IslandsSystem_v.isolateSlectedIslands()"
 		--format "state: %\n" state
-		obj	= selection[1]
+		obj	= ISLANDS_SYSTEM.obj
 
 		if state then
 		(
@@ -177,27 +199,49 @@ struct IslandsRcMenuCallbacks_v
 	(
 		--format "\n"; print "IslandsRcMenuCallbacks_v.removeSelectedIslands()"
 		format "\n"; print "IslandsSystem_v.removeSelectedIslands()"
-		obj	= selection[1]
+		obj	= ISLANDS_SYSTEM.obj
 
-		selected_islands = ( ISLANDS_SYSTEM.getIslandsOfSelectedItems() )
+		_listbox = DIALOG_island_manager.ML_island_listbox
 
-		if selected_islands.numberSet > 0 and queryBox ("REMOVE SELECTED ISALNDS FROM OBJECT ?\n\n"+obj.name) title:"REMOVE ISLANDS" then
+		selected_islands	= (ISLANDS_SYSTEM.getIslandsOfSelectedItems()) as Array
+		selected_items 	= _listbox.selection
+
+		/* CHECK IF DELETED LAYERS ARE NOT SLICED
+		*/
+		if classOf ( modPanel.getCurrentObject() ) != Editable_Poly and DIALOG_slicer_slider != undefined then
 		(
+			selected_layers  = ISLANDS_SYSTEM.getLayersOfSelectedItems()
+			visible_layers   = #{1..DIALOG_slicer_slider.SPIN_layer_current.value}
+			invisible_layers = selected_layers - visible_layers
 
+			if not invisible_layers.isEmpty then
+			(
+				messageBox ("You are trying to remove islands in sliced layers.\n\n LAYERS: "+ substituteString ( invisible_layers as string ) "#" "" ) title:"REMOVE ISLANDS"
+
+				return false
+			)
+		)
+
+		/* REMOVE ITEMS FROM LIST AND ISLANDS */
+		if selected_islands.count > 0 and queryBox ("REMOVE SELECTED ISALNDS FROM OBJECT ?\n\n"+obj.name ) title:"REMOVE ISLANDS" then
+		(
+			list_items = _listbox.items
+
+			_listbox.items = for i = 1 to list_items.count where not selected_items[i] collect list_items[i]
 
 			if ( islands_props_data = getUserPropVal obj "ISLANDS_DATA" ) != undefined then
 			(
-				format "islands_props_data.count: %\n" islands_props_data.count
-
-				for i = islands_props_data.count to 1 by -1 where selected_islands[i] do
-					deleteItem islands_props_data i
+				for i = selected_islands.count to 1 by -1 do
+				--for selected_island in selected_islands do
+					deleteItem islands_props_data selected_islands[i]
 
 				setUserPropVal obj "ISLANDS_DATA" islands_props_data
+
+				_listbox.selection = #{}
 			)
 
-			--selected_items = DIALOG_island_manager.ML_island_listbox.selection as Array
-
-			macros.run "maxtoprint" "maxtoprint_islands_dialog"
+			/* SET WHITE VERTEX COLOR */
+			macros.run "_Epoly-Vertex-Color" "epoly_vertex_color_set_white"
 		)
 	),
 

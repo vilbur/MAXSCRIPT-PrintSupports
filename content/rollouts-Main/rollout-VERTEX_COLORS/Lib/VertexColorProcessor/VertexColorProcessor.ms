@@ -101,9 +101,9 @@ struct VertexColorProcessor_v
 	 */
 	function byColor method colors =
 	(
-		format "\n"; print "VertexColorProcessor_v.byColor()"
-		format "colors: %\n" colors
-
+		--format "\n"; print "VertexColorProcessor_v.byColor()"
+		--format "method: %\n" method
+		--format "colors: %\n" colors
 		verts_by_colors = #{}
 
 		all_verts_by_colors = VertexColors.getVertsAndColors()
@@ -124,7 +124,7 @@ struct VertexColorProcessor_v
 	(
 		--format "\n"; print "VertexColorProcessor_v.byVerts()"
 		--format "method: %\n" method
-		--format "verts: %\n" verts
+		--format "3: %\n" verts
 
 		verts_by_colors = #{}
 
@@ -175,6 +175,30 @@ struct VertexColorProcessor_v
 		)
 	),
 
+	/** Select final selection
+	 */
+	function _selectVerts verts_baseobject =
+	(
+		format "\n"; print "VertexColorProcessor_v.selectVerts()"
+		format "verts_baseobject: %\n" verts_baseobject
+		--format "classOf curr_mod: %\n" (classOf curr_mod)
+		--max modify mode
+		--subObjectLevel = 1
+
+		curr_mod.SetSelection #VERTEX #{}
+
+		if classOf curr_mod == Edit_Poly then
+			curr_mod.Select #VERTEX (this._getEditPolyVerts (verts_baseobject))
+		--(
+		--	edit_poly_verts = this._getEditPolyVerts (verts_baseobject)
+		--	format "edit_poly_verts: %\n" edit_poly_verts
+		--	curr_mod.Select #VERTEX (edit_poly_verts)
+		--)
+
+		else if classOf curr_mod  == Editable_Poly then
+			curr_mod.SetSelection #VERTEX verts_baseobject
+	),
+
 	/**  hide verts
 	 */
 	function _hideVerts verts =
@@ -198,29 +222,31 @@ struct VertexColorProcessor_v
 	 */
 	function _unhideVerts verts_unhide =
 	(
-		--format "\n"; print "VertexColorProcessor_v._unhideVerts()"
+		format "\n"; print "VertexColorProcessor_v._unhideVerts()"
 
 		if classOf curr_mod == Edit_Poly then
 		(
-			verts_mesh	= #{1..( getNumVerts obj.mesh)}
+			verts_mesh_all	= #{1..( getNumVerts obj.mesh)}
 
-			curr_mod.SetSelection #VERTEX verts_mesh
+			curr_mod.SetSelection #VERTEX verts_mesh_all
 
 			visible_verts	= curr_mod.GetSelection #Vertex
 
-			hidden_verts = verts_mesh - visible_verts
+			hidden_verts = verts_mesh_all - visible_verts - verts_unhide
 
 			curr_mod.ButtonOp #UnhideAllVertex
 
 			curr_mod.SetSelection #VERTEX #{}
 
-			curr_mod.Select #VERTEX (hidden_verts - verts_unhide)
+			curr_mod.SetSelection #VERTEX hidden_verts
 
 			curr_mod.ButtonOp #HideVertex
+
+			curr_mod.Select #VERTEX visible_verts
 		)
 		else if classOf curr_mod  == Editable_Poly then
 		(
-			--verts_mesh	= #{1..( getNumVerts obj.mesh)} as Array
+			--verts_mesh_all	= #{1..( getNumVerts obj.mesh)} as Array
 			vertex_sel	= getVertSelection obj.mesh
 
 			hidden_verts = 	polyop.getHiddenVerts obj
@@ -236,7 +262,7 @@ struct VertexColorProcessor_v
 	function _isolateVerts isolate_verts =
 	(
 		--format "\n"; print "VertexColorProcessor_v._HideVerts()"
-		verts_mesh	= #{1..( getNumVerts obj.mesh)}
+		verts_mesh_all	= #{1..( getNumVerts obj.mesh)}
 
 		if classOf curr_mod == Edit_Poly then
 			curr_mod.ButtonOp #UnhideAllVertex
@@ -244,7 +270,7 @@ struct VertexColorProcessor_v
 		else if classOf curr_mod  == Editable_Poly then
 			polyop.unHideAllVerts obj
 
-		this._hideVerts( verts_mesh - isolate_verts )
+		this._hideVerts( verts_mesh_all - isolate_verts )
 
 	),
 
@@ -256,7 +282,7 @@ struct VertexColorProcessor_v
 		point3 rp3Arr[1] rp3Arr[2] rp3Arr[3]
 	),
 
-	/** Pass vertex selection to editable poly
+	/** Get vertex numbers of Editable Poly by verts of Edit Poly
 	  *
 	  * 1) Get selected verts in modifier like Edit Poly|Poly Select
 	  * 2) Find same vertex by position in Editable Poly baseobject
@@ -269,22 +295,27 @@ struct VertexColorProcessor_v
 		format "verts: %\n" verts
 		format "classof curr_mod: %\n" (classof curr_mod)
 
-		if classof curr_mod == Edit_Poly and verts.numberSet > 0 and  verts.numberSet != ( vertex_count_baseobject = polyop.getNumVerts obj.baseobject) then
+
+		if classof curr_mod == Edit_Poly and verts.numberSet > 0 and ( vertex_count_mesh = getNumVerts obj.mesh ) != ( vertex_count_baseobject = polyop.getNumVerts obj.baseobject) then
 		(
 			verts_baseobject = #{}
 
-			--verts_mesh_all	= #{1..( getNumVerts obj.mesh  )} as Array
-			--verts_base_all	= #{1..( polyop.getNumVerts obj.baseobject)} as Array
 			verts_base_all	= #{1..vertex_count_baseobject}
 
-			--verts_pos_baseobjects = polyop.getVerts obj.baseobject verts_base_all --node:obj
-			verts_pos_baseobjects = in coordsys world  polyop.getVerts obj.baseobject verts_base_all node:obj
-
-			--verts_positions  = for vert in verts collect getVert obj.mesh vert
+			timer_verts_positions = timeStamp()
 			verts_positions = in coordsys world polyop.getVerts obj verts node:obj
+			format "verts_positions: % ms\n" (( timeStamp()) - timer_verts_positions)
 
+			timer_verts_pos_baseobjects = timeStamp()
+			verts_pos_baseobjects = in coordsys world  polyop.getVerts obj.baseobject verts_base_all node:obj
+			format "verts_pos_baseobjects: % ms\n" (( timeStamp()) - timer_verts_pos_baseobjects)
+
+
+			timer_loop = timeStamp()
 			for vert_pos in verts_positions where (vert = findItem verts_pos_baseobjects (vert_pos)) > 0 do
 				verts_baseobject[vert] = true
+
+			format "loop: % ms\n" (( timeStamp()) - timer_loop)
 
 			verts_baseobject --return
 		)
@@ -292,24 +323,29 @@ struct VertexColorProcessor_v
 			verts --return
 	),
 
-	/** Select final selection
+	/** Pass vertex selection from editable poly baseobject to edit poly modifier based on vertex position
+	  *
+	  * #return BitArray of vertex indexes of Edit Poly Modifier
 	 */
-	function _selectVerts sel_bitarray =
+	function _getEditPolyVerts verts_baseobject  =
 	(
-		--format "\n"; print "VertexColorProcessor_v.selectVerts()"
-		--format "sel_bitarray: %\n" sel_bitarray
-		--format "classOf curr_mod: %\n" (classOf curr_mod)
-		--max modify mode
-		--subObjectLevel = 1
+		format "\n"; print "VertexColorProcessor_v._getEditPolyVerts()"
+		verts_edit_poly = #()
 
-		curr_mod.SetSelection #VERTEX #{}
+		verts_mesh_all = #{1..( getNumVerts obj.mesh)}
 
-		if classOf curr_mod == Edit_Poly then
-			curr_mod.Select #VERTEX sel_bitarray
+		verts_pos_baseobjects =  in coordsys world polyop.getVerts obj.baseobject verts_baseobject node:obj
 
-		else if classOf curr_mod  == Editable_Poly then
-			curr_mod.SetSelection #VERTEX sel_bitarray
+		--verts_mesh_pos  = for vert in verts_mesh_all collect getVert obj.mesh vert
+		verts_mesh_pos = in coordsys world polyop.getVerts obj verts_mesh_all node:obj
+		--format "verts_mesh_pos: %\n" verts_mesh_pos
+
+		for vert_pos in verts_pos_baseobjects where (vert = findItem verts_mesh_pos (vert_pos)) > 0 do
+			append verts_edit_poly vert
+
+		verts_edit_poly as BitArray --return
 	),
+
 
 	/** Update cache
 	 */

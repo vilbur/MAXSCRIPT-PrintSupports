@@ -65,7 +65,7 @@ struct SlicerCallbacks_v
 		 */
 		function _getPositionsOfSelectedVerts =
 		(
-			format "\n"; print "SlicerCallbacks_v._getPositionsOfSelectedVerts()"
+			--format "\n"; print "SlicerCallbacks_v._getPositionsOfSelectedVerts()"
 			if classOf ( _mod = modPanel.getCurrentObject() ) == Edit_Poly then
 			(
 				obj = ISLANDS_SYSTEM.obj
@@ -102,6 +102,19 @@ struct SlicerCallbacks_v
 
 		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_slicer_slider.DDL_slider_snaps.selection as integer ]
 
+		shift_island = keyboard.altPressed
+
+		increment_const = case of
+		(
+			--( keyboard.controlPressed and keyboard.shiftPressed ): 100
+			( keyboard.shiftPressed ):	100
+			( keyboard.controlPressed ):	10
+			default: 1
+		)
+
+		/*------------------------------------------------------------------------------
+			GET NEXT LAYER INDEX
+		--------------------------------------------------------------------------------*/
 		/* SHIFT: Go 1mm up\down */
 		if keyboard.shiftPressed then
 		(
@@ -113,44 +126,48 @@ struct SlicerCallbacks_v
 			)
 			/* CTRL + SHIFT: Go 100 layers up\down */
 			else
-				increment = layer_current + ( increment * 100 )
+				increment = layer_current + ( increment * increment_const )
 
 		)
 		/* CTRL: Go next\previous island - if slider dialog is opened */
-		else if keyboard.controlPressed and DIALOG_island_manager != undefined then
+		else if shift_island and DIALOG_island_manager != undefined then
 			layer_next = ISLANDS_SYSTEM.getLayerOfClosestIsland(layer_current)(increment)
 
 		/* GO 1 layer up\down */
 		else
 			layer_next = layer_current + increment
 
-
-
-
+		/*------------------------------------------------------------------------------
+			UPDATE LAYER
+		--------------------------------------------------------------------------------*/
 		if layer_next > 0 then
 		(
-			if not keyboard.controlPressed then
+			if not shift_island then
 				vertex_sel_pos = _getPositionsOfSelectedVerts()
 
-			/* UPDATE SLICE MODIFIER */
-			SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_next) (true)
-
-			_findAndReselectVerts(vertex_sel_pos)
-
-			/* UPDATE SLIDER VALUE */
-			SLICER_SYSTEM.setSliderValueByLayerIndex( layer_next )
-
-			/* UPDATE SPINNER VALUE */
-			SLICER_SYSTEM.setSpinnerValue(layer_next)
-
-			if keyboard.controlPressed and DIALOG_island_manager != undefined and layer_next != SLICER_SYSTEM.slice_start then
+			with redraw off
 			(
-				ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
+				/* UPDATE SLICE MODIFIER */
+				SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_next) (true)
 
-				selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
+				_findAndReselectVerts(vertex_sel_pos)
 
-				ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+				/* UPDATE SLIDER VALUE */
+				SLICER_SYSTEM.setSliderValueByLayerIndex( layer_next )
+
+				/* UPDATE SPINNER VALUE */
+				SLICER_SYSTEM.setSpinnerValue(layer_next)
+
+				if shift_island and DIALOG_island_manager != undefined and layer_next != SLICER_SYSTEM.slice_start then
+				(
+					ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
+
+					selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
+
+					ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+				)
 			)
+
 		)
 	),
 

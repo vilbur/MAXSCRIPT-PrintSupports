@@ -61,56 +61,6 @@ icon:	""
 	)
 )
 
-/** Get layer number to move
- */
-function getLayerNumberToMove direction =
-(
-	--format "\n"; print ".getLayerNumberToMove()"
-	ctrl	= keyboard.controlPressed
-	shift 	= keyboard.shiftPressed
-	alt 	= keyboard.altPressed
-
-
-	mod_keys_count = (for mod_value in #( ctrl, shift, alt ) where mod_value collect true).count
-	format "mod_keys_count: %\n" mod_keys_count
-	increment_val = case mod_keys_count of
-	(
-		(3):	100
-		(2):	25
-		(1):	10
-		default: 1
-	)
-
-	if direction == #MINUS then
-		increment_val *= -1
-
-	increment_val --return
-)
-
-/**
-  */
-macroscript	_maxtoprint_slice_increment_plus
-category:	"_3D-Print"
-buttontext:	"+ \ -"
-tooltip:	"Shift layer UP"
-icon:	"Tooltip:CTRL:SHIFT:ALT: 10\25\25 Layers incremnet by number of mod keys pressed 1\2\3"
-(
-	--on execute do
-		--updateSlicePlaneSystem ( getLayerNumberToMove( #PLUS ) ) incremental:true
-)
-
-/**
-  */
-macroscript	_maxtoprint_slice_increment_minus
-category:	"_3D-Print"
-buttontext:	"+ \ -"
-tooltip:	"RMB: Shift layer DOWN"
-icon:	""
-(
-	--on execute do
-		--updateSlicePlaneSystem ( getLayerNumberToMove( #MINUS ) ) incremental:true
-)
-
 /**
   */
 macroscript	_maxtoprint_slice_se_slice_materia
@@ -136,7 +86,11 @@ icon:	""
 
 				mat[2].base_color = color 0 75 255
 
+
 				mat[3].base_color = color 255 0 0
+
+				for i = 1 to 3 do
+					mat[i].roughness = 0.6
 
 				mat --return
 			)
@@ -164,6 +118,56 @@ icon:	""
 	)
 )
 
+
+--/** Get layer number to move
+-- */
+--function getLayerNumberToMove direction =
+--(
+--	--format "\n"; print ".getLayerNumberToMove()"
+--	ctrl	= keyboard.controlPressed
+--	shift 	= keyboard.shiftPressed
+--	alt 	= keyboard.altPressed
+--
+--
+--	mod_keys_count = (for mod_value in #( ctrl, shift, alt ) where mod_value collect true).count
+--	format "mod_keys_count: %\n" mod_keys_count
+--	increment_val = case mod_keys_count of
+--	(
+--		(3):	100
+--		(2):	25
+--		(1):	10
+--		default: 1
+--	)
+--
+--	if direction == #MINUS then
+--		increment_val *= -1
+--
+--	increment_val --return
+--)
+--
+--/**
+--  */
+--macroscript	_maxtoprint_slice_increment_plus
+--category:	"_3D-Print"
+--buttontext:	"+ \ -"
+--tooltip:	"Shift layer UP"
+--icon:	"Tooltip:CTRL:SHIFT:ALT: 10\25\25 Layers incremnet by number of mod keys pressed 1\2\3"
+--(
+--	--on execute do
+--		--updateSlicePlaneSystem ( getLayerNumberToMove( #PLUS ) ) incremental:true
+--)
+--
+--/**
+--  */
+--macroscript	_maxtoprint_slice_increment_minus
+--category:	"_3D-Print"
+--buttontext:	"+ \ -"
+--tooltip:	"RMB: Shift layer DOWN"
+--icon:	""
+--(
+--	--on execute do
+--		--updateSlicePlaneSystem ( getLayerNumberToMove( #MINUS ) ) incremental:true
+--)
 
 
 /*------------------------------------------------------------------------------

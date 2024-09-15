@@ -35,7 +35,7 @@ struct VertexColors_v
 
 	/* required */
 	/* properties */
-	obj_mesh = obj.mesh,
+	obj_mesh = obj.baseobject.mesh,
 
 	verts_by_colors	=  Dictionary #STRING, -- KEY:color as string VALUE:#{ verts of color }
 	/* private */
@@ -140,9 +140,9 @@ struct VertexColors_v
 	 */
 	function _getVertColor mesh_vert =
 	(
-		format "\n"; print "VertexColors_v._getVertColor()"
+		--format "\n"; print "VertexColors_v._getVertColor()"
 
-		format "verts_by_colors: %\n" verts_by_colors
+		--format "verts_by_colors: %\n" verts_by_colors
 		--map_verts_of_mesh_vert = makeUniqueArray (MeshVertToColorVertexConvert.meshVertsToMapVerts (mesh_vert) flat:true )
 		map_verts_of_mesh_vert = MeshVertToColorVertexConvert.meshVertsToMapVerts (mesh_vert) flat:true
 

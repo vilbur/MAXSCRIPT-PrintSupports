@@ -92,16 +92,16 @@ struct IslandsCallbacks_v
 	 */
 	function onListboxRightclick =
 	(
-		format "\n"; print "IslandsCallbacks_v.onListboxRightclick()"
+		--format "\n"; print "IslandsCallbacks_v.onListboxRightclick()"
 		selected_items = DIALOG_island_manager.ML_island_listbox.selection.numberSet > 0
 		vertex_sel	    = (getVertSelection selection[1].mesh).numberSet > 0
 
 		--format "selected_items: %\n" selected_items
-		format "1: %\n" (keyboard.controlPressed and vertex_sel)
-		format "2: %\n" (keyboard.shiftPressed and selected_items)
-		format "3: %\n" (keyboard.shiftPressed and vertex_sel and not selected_items)
-		format "vertex_sel: %\n" (vertex_sel)
-		format "selected_items: %\n" selected_items
+		--format "1: %\n" (keyboard.controlPressed and vertex_sel)
+		--format "2: %\n" (keyboard.shiftPressed and selected_items)
+		--format "3: %\n" (keyboard.shiftPressed and vertex_sel and not selected_items)
+		--format "vertex_sel: %\n" (vertex_sel)
+		--format "selected_items: %\n" selected_items
 
 		case of
 		(
