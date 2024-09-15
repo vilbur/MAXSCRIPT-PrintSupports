@@ -20,7 +20,7 @@ function islandsRcMenu =
 	if (verts_sel = getVertSelection selection[1].mesh ).numberSet > 0 then
 		Menu.item "Select Islands by verts"	"::IslandsRcMenuCallbacks_v.selectIslandsByVerts()"
 
-	format "VERTS_SEL.numberSet: %\n" verts_sel.numberSet
+	--format "VERTS_SEL.numberSet: %\n" verts_sel.numberSet
 
 	if DIALOG_slicer_slider != undefined then
 	(
@@ -39,14 +39,14 @@ function islandsRcMenu =
 
 	if listbox_selection.numberSet > 0 then
 		--Menu.item "Show ONLY selected" "::IslandsRcMenuCallbacks_v.createIslandManagerDialogOnlySelectedIslands()"
-		Menu.item "Show ONLY selected" "createIslandManagerDialog islands_to_show:(ISLANDS_SYSTEM.getIslandsToShowBySlection())"
+		Menu.item "Show ONLY selected" "createIslandManagerDialog islands_to_show:(ISLANDS_SYSTEM.getIslandsToShowBySelection())"
 
 
 	if listbox_items_count < ISLANDS_SYSTEM.islands_data.count then
 		Menu.item "Show ALL" "createIslandManagerDialog islands_to_show:#{}"
 
-	Menu.separator()
-
+	if Menu.items.count > 0 then
+		Menu.separator()
 
 	/* ADD ITEMS */
 	if listbox_selection.numberSet != listbox_items_count then

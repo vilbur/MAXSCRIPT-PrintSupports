@@ -1,12 +1,12 @@
 
 
-/**
+/** Open island sdialog with VISIBLE islands
  *
  */
 macroscript	maxtoprint_islands_dialog
 category:	"_3D-Print"
 buttontext:	"V I E W E R  ☰"
-toolTip:	"SHOW islands Dialog"
+toolTip:	"Open islands dialog with VISIBLE islands"
 icon:	"across:3|height:32"
 (
 	on execute do
@@ -48,6 +48,25 @@ icon:	"across:3|height:32"
 	)
 )
 
+
+/** Open island sdialog with ALL islands
+ *
+ */
+macroscript	maxtoprint_islands_dialog_show_all
+category:	"_3D-Print"
+buttontext:	"V I E W E R  ☰"
+toolTip:	"Open islands dialog with ALL islands"
+icon:	"across:3|height:32"
+(
+	on execute do
+	(
+		undo off
+		(
+			if DIALOG_island_manager != undefined then
+				createIslandManagerDialog islands_to_show:#{}
+		)
+	)
+)
 /**
  *
  */

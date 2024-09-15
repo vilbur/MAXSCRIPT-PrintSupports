@@ -102,31 +102,30 @@ struct SlicerCallbacks_v
 
 		shift_mode	= #( #LAYERS, #VERTS )[DIALOG_slicer_slider.DDL_slider_snaps.selection as integer ]
 
-		shift_island = keyboard.altPressed
-
-		increment_const = case of
-		(
-			--( keyboard.controlPressed and keyboard.shiftPressed ): 100
-			( keyboard.shiftPressed ):	100
-			( keyboard.controlPressed ):	10
-			default: 1
-		)
 
 		/*------------------------------------------------------------------------------
 			GET NEXT LAYER INDEX
 		--------------------------------------------------------------------------------*/
 		/* SHIFT: Go 1mm up\down */
-		if keyboard.shiftPressed then
+		if not (shift_island = keyboard.altPressed) then
 		(
-			layer_next = if not keyboard.controlPressed then
+			increment_const = case of
 			(
-				layers_per_mm = ( 1 * SLICER_SYSTEM.display_units / SLICER_SYSTEM.layer_height ) -- add or remove 1mm of current layer
-
-				(layer_current + increment * layers_per_mm) as integer
+				--( keyboard.controlPressed and keyboard.shiftPressed ): 100
+				( keyboard.shiftPressed ):	100
+				( keyboard.controlPressed ):	10
+				default: 1
 			)
-			/* CTRL + SHIFT: Go 100 layers up\down */
-			else
-				increment = layer_current + ( increment * increment_const )
+
+			--layer_next = if not keyboard.controlPressed then
+			--(
+			--	layers_per_mm = ( 1 * SLICER_SYSTEM.display_units / SLICER_SYSTEM.layer_height ) -- add or remove 1mm of current layer
+			--
+			--	(layer_current + increment * layers_per_mm) as integer
+			--)
+			--/* CTRL + SHIFT: Go 100 layers up\down */
+			--else
+				layer_next = layer_current + ( increment * increment_const )
 
 		)
 		/* CTRL: Go next\previous island - if slider dialog is opened */

@@ -54,14 +54,17 @@ function createIslandManagerDialog islands_to_show: =
 	--------------------------------------------------------------------------------*/
 	--selected_islands = ISLANDS_SYSTEM.getSelectedIslandsFromListBox()
 
-	if islands_to_show == unsupplied and ( visible_islands_saved = getUserPropVal ISLANDS_SYSTEM.obj "VISIBLE_ISLANDS" ) != undefined then
-		islands_to_show = visible_islands_saved
+	islands = if islands_to_show == unsupplied and ( visible_islands_saved = ISLANDS_SYSTEM.loadVisibleIslands() ) != undefined then
+		visible_islands_saved
 
 	else if islands_to_show == unsupplied or islands_to_show.numberSet == 0 then
-		islands_to_show = #{1..ISLANDS_SYSTEM.islands_data.count}
+		#{1..ISLANDS_SYSTEM.islands_data.count}
+
+	else
+		islands_to_show
 
 
-	items = for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 where islands_to_show[i] collect  getItemTitile (i)
+	items = for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 where islands[i] collect  getItemTitile (i)
 
 
 	/*------------------------------------------------------------------------------
@@ -81,14 +84,14 @@ function createIslandManagerDialog islands_to_show: =
 
 	items_count = items.count
 
-	pos_y_start = 24
+	pos_y_start = 54
 
-	height_other_controls = 84
+	height_other_controls = 108
 
     max_item_length = amax(for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 collect (ISLANDS_SYSTEM.islands_data[i][#BOTTOM] as string ).count)
-	--format "MAX_ITEM_LENGTH: %\n" max_item_length
-	--width_listbox = 32
-	--character_width = 4
+
+	label_text = if islands_to_show != unsupplied and islands_to_show.numberSet > 0 then islands_to_show.numberSet as string +"\\"+ ISLANDS_SYSTEM.islands_data.count as string else ISLANDS_SYSTEM.islands_data.count as string + " Islands"
+
 	width_listbox = (max_item_length * 10 ) + 16
 
 	slider_width = 32
@@ -116,7 +119,9 @@ function createIslandManagerDialog islands_to_show: =
 	/*------------------------------------------------------------------------------
 		CONTROLS
 	--------------------------------------------------------------------------------*/
-    btn_exit = _Controls.control #BUTTON "Exit" width:48 height:24 offset:[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
+    btn_exit = _Controls.control #BUTTON "Exit" across:1 width:48 height:24 align:#center tooltip:"Exit and remove slicer from all objects"
+
+    label_count = _Controls.control #LABEL label_text id:#LABEL_islands_count across:1 width:64 height:24 offset:[ -8, 2 ]
 
 	/*------ MULTILISTBOX ------*/
 	_multilistbox = _Controls.control #MULTILISTBOX "" \

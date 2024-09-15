@@ -29,17 +29,18 @@ struct IslandsRcMenuCallbacks_v
 	function selectIslandsByVerts =
 	(
 		format "\n"; print "IslandsRcMenuCallbacks_v.selectIslandsByVerts()"
+		verts_of_islands = #{}
 
-		verts_sel = getVertSelection ISLANDS_SYSTEM.obj.mesh
+		islands_data = ISLANDS_SYSTEM.islands_data
+
+		/* Use Editable Poly if it is active, or Edit Poly modifer */
+		obj_get_verts =	if classOf (_mod = modPanel.getCurrentObject()) == Editable_Poly then ISLANDS_SYSTEM.obj.baseobject.mesh else ISLANDS_SYSTEM.obj.mesh
+
+		verts_sel = getVertSelection obj_get_verts
 		format "verts_sel: %\n" verts_sel
 
 		verts_baseobject = ISLANDS_SYSTEM.getBaseObjectVerts( verts_sel )
 		format "verts_baseobject: %\n" verts_baseobject
-
-		islands_data = ISLANDS_SYSTEM.islands_data
-
-		verts_of_islands = #{}
-
 
 		islands_of_verts = ( for i = 1 to islands_data.count where not (islands_data[i][#NEW_ISLAND] * verts_baseobject ).isEmpty collect i) as BitArray
 		format "islands_of_verts: %\n" islands_of_verts
@@ -57,14 +58,15 @@ struct IslandsRcMenuCallbacks_v
 		if items.numberSet > 0 then
 		(
 
-			if classOf (_mod = modPanel.getCurrentObject()) == Edit_Poly then
-				_mod.Select #VERTEX verts_of_islands
-
-			else if classOf _mod  == Editable_Poly then
+			if classOf _mod == Editable_Poly then
 				_mod.SetSelection #VERTEX verts_of_islands
 
+			else if classOf _mod  == Edit_Poly then
+				_mod.Select #VERTEX verts_of_islands
 
 			DIALOG_island_manager.ML_island_listbox.selection = items
+
+			ISLANDS_SYSTEM.saveVisibleIslands()
 		)
 		else if islands_of_verts.numberSet == 0 then
 			messageBox "Selected verts are not in any island" title:"ISLANDS MISSING"  beep:false
@@ -249,18 +251,18 @@ struct IslandsRcMenuCallbacks_v
 	 */
 	function sliceAtIsland =
 	(
-		format "\n"; print "IslandsCallbacks_v.sliceAtIsland()"
+		--format "\n"; print "IslandsCallbacks_v.sliceAtIsland()"
 		_listbox = DIALOG_island_manager.ML_island_listbox
-		format "_listbox.items: %\n" _listbox.items
+		--format "_listbox.items: %\n" _listbox.items
 		--islands_layers = (for item in _listbox.items collect (filterString item " ")[1] as integer ) --as BitArray -- get list items strings to bitarray
 
 		selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
-		format "SELECTED_ISLANDS: %\n" selected_islands
+		--format "SELECTED_ISLANDS: %\n" selected_islands
 
 		if selected_islands.numberSet > 0 then
 		(
 			island_data = ISLANDS_SYSTEM.islands_data[selected_islands.count]
-			format "ISLAND_DATA: %\n" island_data
+			--format "ISLAND_DATA: %\n" island_data
 
 			verts = ISLANDS_SYSTEM.getVertsFromIslandData(island_data)
 
@@ -269,7 +271,7 @@ struct IslandsRcMenuCallbacks_v
 			--layer_of_island = (islands_layers)[( _listbox.selection as Array )[1] ]
 
 			layer_of_island = if DIALOG_island_manager.RB_slider_mode.state == 2 and island_data[#TOP] != undefined then island_data[#TOP] else island_data[#BOTTOM]
-			format "LAYER_OF_ISLAND: %\n" layer_of_island
+			--format "LAYER_OF_ISLAND: %\n" layer_of_island
 
 			SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_of_island) (true)
 

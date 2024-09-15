@@ -239,9 +239,9 @@ struct IslandsSystem_v
 
 	/** Get islands to show by slection
 	 */
-	function getIslandsToShowBySlection =
+	function getIslandsToShowBySelection =
 	(
-		--format "\n"; print "IslandsSystem_v.getIslandsToShowBySlection()"
+		--format "\n"; print "IslandsSystem_v.getIslandsToShowBySelection()"
 		selected_islands = this.getIslandsOfSelectedItems()
 
 		islands_to_show = case of
@@ -299,6 +299,24 @@ struct IslandsSystem_v
 		LISTBOX
 	------------------------------------------------------------------------------*/
 
+	/** Save visible islands
+	 */
+	function saveVisibleIslands =
+	(
+		--format "\n"; print "IslandsSystem_v.saveVisibleIslands()"
+		visible_islands = this._getIslandIndexes (DIALOG_island_manager.ML_island_listbox.items)
+
+		setUserPropVal obj "VISIBLE_ISLANDS" visible_islands
+	),
+
+	/** Load visible islands
+	 */
+	function loadVisibleIslands =
+	(
+		--format "\n"; print "IslandsSystem_v.loadVisibleIslands()"
+		getUserPropVal obj "VISIBLE_ISLANDS"
+	),
+
 	/** Select layer listbox
 	 */
 	function selectIslandByLayerInListbox layer_indexes =
@@ -334,13 +352,12 @@ struct IslandsSystem_v
 	 */
 	function getIslandsOfSelectedItems =
 	(
-		--format "\n"; print ".getIslandsOfSelectedItems()"
+		format "\n"; print ".getIslandsOfSelectedItems()"
 		_listbox = DIALOG_island_manager.ML_island_listbox
-		--list_items = _listbox.items
 
-		--( for i = 1 to list_items.count where _listbox.selection[i] collect this._getIslandIndexFromTitle(list_items[i])) as BitArray
-		--( for i = 1 to list_items.count where _listbox.selection[i] collect this._getIslandIndexFromTitle(list_items[i])) as BitArray
-		( for i in _listbox.selection collect this._getIslandIndexFromTitle(_listbox.items[i]) ) as BitArray
+		selected_items = for i in _listbox.selection collect _listbox.items[i]
+
+		this._getIslandIndexes ( selected_items )
 	),
 
 	/** Get layers of selected items
@@ -369,6 +386,13 @@ struct IslandsSystem_v
 
 	private
 
+	/** Get island indexes
+	 */
+	function _getIslandIndexes list_items =
+	(
+		--format "\n"; print "IslandsSystem_v._getIslandIndexes()"
+		( for list_item in list_items collect this._getIslandIndexFromTitle(list_item) ) as BitArray
+	),
 
 	/** Get island by layer
 	 */
