@@ -12,7 +12,7 @@ icon:	"across:3|offset:[ 0, 0 ]|height:32|width:96|tooltip:GEENERATE PINS for se
 		undo "Generate DRAINS" on
 		(
 			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-PINS & DRAINS\DRAINS.mcr"
+			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-PINS_&_DRAINS\DRAINS.mcr"
 			SUPPORT_MANAGER.generateDrainHoles()
 
 

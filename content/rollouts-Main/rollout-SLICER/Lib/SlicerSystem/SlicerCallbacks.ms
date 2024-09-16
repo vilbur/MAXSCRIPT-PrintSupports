@@ -91,9 +91,13 @@ struct SlicerCallbacks_v
 				for vert_pos in verts_pos where (vert = findItem verts_pos_after_slice (vert_pos)) > 0 do
 					verts_edit_poly[vert] = true
 
+				_mod.ButtonOp #UnhideAllVertex
+
 				_mod.SetSelection #VERTEX #{}
 
 				_mod.Select #VERTEX verts_edit_poly
+
+				_mod.ButtonOp #HideUnselectedVertex
 			)
 		)
 
@@ -157,6 +161,7 @@ struct SlicerCallbacks_v
 				/* UPDATE SPINNER VALUE */
 				SLICER_SYSTEM.setSpinnerValue(layer_next)
 
+				/* UPDATE ISLAND MANAGER */
 				if shift_island and DIALOG_island_manager != undefined and layer_next != SLICER_SYSTEM.slice_start then
 				(
 					ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}

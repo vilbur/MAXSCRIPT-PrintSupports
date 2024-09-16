@@ -108,7 +108,7 @@ function createIslandManagerDialog islands_to_show: =
 	(
 		listbox_height_in_px = items.count * item_height
 
-		pos_y_start += viewport_height - listbox_height_in_px - height_other_controls - 4 -- 2 px to set position pixel perfect
+		pos_y_start += viewport_height - listbox_height_in_px - height_other_controls -- 4 -- 2 px to set position pixel perfect
 
 		listbox_height = items.count
 	)

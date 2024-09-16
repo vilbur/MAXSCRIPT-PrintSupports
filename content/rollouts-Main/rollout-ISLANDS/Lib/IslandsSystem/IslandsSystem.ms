@@ -130,11 +130,11 @@ struct IslandsSystem_v
 		 */
 		function selectVertsEditablePoly obj verts isolate =
 		(
-			format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
+			--format "\n"; print "IslandsSystem_v.selectVertsEditablePoly()"
 
 			if ( hidden_verts = polyop.getHiddenVerts obj ) != undefined then
 			(
-				format "HIDDEN_VERTS: %\n" hidden_verts
+				--format "HIDDEN_VERTS: %\n" hidden_verts
 				all_verts = #{1..(getNumVerts obj.mesh)}
 
 				hidden_verts -= verts

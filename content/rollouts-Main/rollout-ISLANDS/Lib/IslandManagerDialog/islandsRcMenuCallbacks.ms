@@ -37,27 +37,24 @@ struct IslandsRcMenuCallbacks_v
 		obj_get_verts =	if classOf (_mod = modPanel.getCurrentObject()) == Editable_Poly then ISLANDS_SYSTEM.obj.baseobject.mesh else ISLANDS_SYSTEM.obj.mesh
 
 		verts_sel = getVertSelection obj_get_verts
-		format "verts_sel: %\n" verts_sel
+		--format "verts_sel: %\n" verts_sel
 
 		verts_baseobject = ISLANDS_SYSTEM.getBaseObjectVerts( verts_sel )
-		format "verts_baseobject: %\n" verts_baseobject
+		--format "verts_baseobject: %\n" verts_baseobject
 
 		islands_of_verts = ( for i = 1 to islands_data.count where not (islands_data[i][#NEW_ISLAND] * verts_baseobject ).isEmpty collect i) as BitArray
-		format "islands_of_verts: %\n" islands_of_verts
+		--format "islands_of_verts: %\n" islands_of_verts
 
 		for index in islands_of_verts do
 			verts_of_islands += islands_data[index][#NEW_ISLAND]
-		format "verts_of_islands: %\n" verts_of_islands
-
-
-		format "listbox.items.count: %\n" DIALOG_island_manager.ML_island_listbox.items.count
+		--format "verts_of_islands: %\n" verts_of_islands
+		--format "listbox.items.count: %\n" DIALOG_island_manager.ML_island_listbox.items.count
 
 		items = ISLANDS_SYSTEM.getListboxItemsByIslandsIndex (islands_of_verts)
-		format "items: %\n" items
+		--format "items: %\n" items
 
 		if items.numberSet > 0 then
 		(
-
 			if classOf _mod == Editable_Poly then
 				_mod.SetSelection #VERTEX verts_of_islands
 
@@ -200,15 +197,17 @@ struct IslandsRcMenuCallbacks_v
 	function removeSelectedIslands =
 	(
 		--format "\n"; print "IslandsRcMenuCallbacks_v.removeSelectedIslands()"
-		format "\n"; print "IslandsSystem_v.removeSelectedIslands()"
+		--format "\n"; print "IslandsSystem_v.removeSelectedIslands()"
 		obj	= ISLANDS_SYSTEM.obj
 
 		_listbox = DIALOG_island_manager.ML_island_listbox
 
 		selected_islands	= (ISLANDS_SYSTEM.getIslandsOfSelectedItems()) as Array
-		selected_items 	= _listbox.selection
+		selected_items 	= ( _listbox.selection as Array ) as BitArray -- remove false bits from BitArray
+		--format "selected_items: %\n" selected_items
+		--format "selected_items.count: %\n" selected_items.count
 
-		/* CHECK IF DELETED LAYERS ARE NOT SLICED
+		/* CHECK IF DELETED LAYERS ARE NOT aBOVE SLICE PLANE
 		*/
 		if classOf ( modPanel.getCurrentObject() ) != Editable_Poly and DIALOG_slicer_slider != undefined then
 		(
@@ -233,17 +232,20 @@ struct IslandsRcMenuCallbacks_v
 
 			if ( islands_props_data = getUserPropVal obj "ISLANDS_DATA" ) != undefined then
 			(
+				--format "islands_props_data.count: %\n" islands_props_data.count
+
 				for i = selected_islands.count to 1 by -1 do
-				--for selected_island in selected_islands do
 					deleteItem islands_props_data selected_islands[i]
 
 				setUserPropVal obj "ISLANDS_DATA" islands_props_data
 
-				_listbox.selection = #{}
+				/* SELECT FIRST ISLAND UNDER DELETED ITEMS */
+				_listbox.selection = selected_items.count
+
+				/* SET WHITE VERTEX COLOR */
+				macros.run "_Epoly-Vertex-Color" "epoly_vertex_color_set_white"
 			)
 
-			/* SET WHITE VERTEX COLOR */
-			macros.run "_Epoly-Vertex-Color" "epoly_vertex_color_set_white"
 		)
 	),
 
