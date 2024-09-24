@@ -18,9 +18,9 @@ global SLICER_SYSTEM
 global DIALOG_island_manager
 
 
-filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms" )	--"./content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms"
+filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-01-SLICER/Lib/SlicerSystem/SlicerSystem.ms" )	--"./content/rollouts-Main/rollout-SLICER/Lib/SlicerSystem/SlicerSystem.ms"
 
-filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms" )	--"./content/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms"
+filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-02-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms" )	--"./content/rollouts-Main/rollout-ISLANDS/Lib/IslandsSystem/IslandsSystem.ms"
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManager.ms" )	--"./Lib/SupportManager/SupportManager.ms"
 
