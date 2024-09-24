@@ -90,7 +90,7 @@ icon:	""
 				mat[3].base_color = color 255 0 0
 
 				for i = 1 to 3 do
-					mat[i].roughness = 0.6
+					mat[i].roughness = 0.75
 
 				mat --return
 			)

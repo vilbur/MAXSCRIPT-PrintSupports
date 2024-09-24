@@ -166,9 +166,9 @@ struct SlicerCallbacks_v
 				(
 					ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
 
-					selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
 
-					ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+					if subObjectLevel != undefined and subObjectLevel > 0 then
+						ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
 				)
 			)
 

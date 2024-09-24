@@ -2,13 +2,47 @@ filein( getFilenamePath(getSourceFileName()) + "/Lib/callMethodByVertexColor/cal
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/openVertexColorSubmenu/openVertexColorSubmenu.ms" )	--"./Lib/openVertexColorSubmenu/openVertexColorSubmenu.ms"
 
+/*==============================================================================
+	ROW 1
+================================================================================*/
+
+/**
+  */
+macroscript	epoly_vertex_color_property_toggle
+category:	"_Epoly-Vertex-Color"
+buttonText:	"S H O W"
+toolTip:	"SHOW \ HIDE vertex colors on selcted obejcts"
+icon:	"across:3|MENU:true"
+(
+	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
+
+	on execute do
+	undo "Show Vertex Colors" on
+	(
+		--clearListener(); print("Cleared in:\n"+getSourceFileName())
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-VERTEX COLORS\VERTEX COLOR.mcr"
+
+		if selection.count > 0 then
+		(
+			state = not selection[1].showVertexColors
+
+			for obj in selection do
+			(
+				obj.showVertexColors = state
+				obj.vertexColorsShaded = on
+				obj.vertexColorType = 0
+			)
+		)
+	)
+)
+
 /**
   */
 macroscript	epoly_vertex_color_set_by_last_color
 category:	"_Epoly-Vertex-Color"
-buttonText:	"SET"
+buttonText:	"S E T"
 toolTip:	"Set vertex color to selected vertex.\n\nVertex can be selected in modifiers like:\nEdit Poly|Poly Select\n\nLMB: Green\nCTRL:#RED"
-icon:	"across:4|MENU:&Color Set|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY:\\n1) Try clean mesh, weld verts and close borders"
+icon:	"MENU:&Color Set|tooltip:\n\n----------------------\n\nFIX IF NOT WORK PROPERLY:\\n1) Try clean mesh, weld verts and close borders"
 (
 	on isVisible return subObjectLevel != 0
 
@@ -35,7 +69,7 @@ icon:	"across:4|MENU:&Color Set|tooltip:\n\n----------------------\n\nFIX IF NOT
   */
 macroscript	epoly_vertex_color_select_by_selection
 category:	"_Epoly-Vertex-Color"
-buttonText:	"SELECT"
+buttonText:	"S E L E C T"
 toolTip:	"Select verts with same color as selected verts.\n\n   IF NOTHING SELECTED, then select ALL COLORED verts"
 --icon:	"MENU:&Select Color"
 (
@@ -64,7 +98,7 @@ toolTip:	"Select verts with same color as selected verts.\n\n   IF NOTHING SELEC
   */
 macroscript	epoly_vertex_color_select_submenu
 category:	"_Epoly-Vertex-Color"
-buttonText:	"SELECT"
+buttonText:	"S E L E C T"
 toolTip:	"Open Select Vrtex Color Menu"
 icon:	"MENU:&SELECT Color"
 (
@@ -75,17 +109,17 @@ icon:	"MENU:&SELECT Color"
 )
 
 
+/*==============================================================================
+	ROW 2
+================================================================================*/
 
-/*------------------------------------------------------------------------------
-	HIDE BY COLOR
---------------------------------------------------------------------------------*/
 /**
   */
 macroscript	epoly_vertex_color_hide_by_selection
 category:	"_Epoly-Vertex-Color"
 buttonText:	"HIDE"
 toolTip:	"Hide verts with same color as selected verts"
---icon:	"MENU:&Hide Color"
+icon:	"across:3"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
 
@@ -123,9 +157,7 @@ icon:	"MENU:&HIDE Color"
 )
 
 
-/*------------------------------------------------------------------------------
-	HIDE BY COLOR
---------------------------------------------------------------------------------*/
+
 /**
   */
 macroscript	epoly_vertex_color_unhide_by_selection
@@ -165,70 +197,13 @@ icon:	"MENU:&UNHIDE Color"
 )
 
 
-/*------------------------------------------------------------------------------
-	ISOLATE BY COLOR
---------------------------------------------------------------------------------*/
-/**
-  */
-macroscript	epoly_vertex_color_property_toggle
-category:	"_Epoly-Vertex-Color"
-buttonText:	"SHOW"
-toolTip:	"SHOW \ HIDE vertex colors on selcted obejcts"
-icon:	"across:4|MENU:true"
-(
-	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
-
-	on execute do
-	undo "Show Vertex Colors" on
-	(
-		--clearListener(); print("Cleared in:\n"+getSourceFileName())
-		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-MaxToPrint\content\rollouts-Main\rollout-VERTEX COLORS\VERTEX COLOR.mcr"
-
-		if selection.count > 0 then
-		(
-			state = not selection[1].showVertexColors
-
-			for obj in selection do
-			(
-				obj.showVertexColors = state
-				obj.vertexColorsShaded = on
-				obj.vertexColorType = 0
-			)
-		)
-	)
-)
-
-/**
-  */
-macroscript	epoly_vertex_color_reset_vertex_colors
-category:	"_Epoly-Vertex-Color"
-buttonText:	"RESET"
-toolTip:	"Reset Vertex Colors"
---icon:	"across:4|MENU:true"
-(
-	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
-
-	on execute do
-	if queryBox "Reest Vertex Colors ?" title:"RESET VERTEX COLORS" then
-
-	(
-		obj	= selection[1]
-		/* SET NEW CLASS INSTANCE */
-		VertexColorProcessor = VertexColorProcessor_v(obj)
-
-		VertexColorProcessor.resetCPVVerts()
-
-		messageBox "Vertex Colors Reseted" title:"VERTEX COLOR"
-	)
-)
-
 /**
   */
 macroscript	epoly_vertex_color_isolate_by_selection
 category:	"_Epoly-Vertex-Color"
 buttonText:	"ISOLATE"
 toolTip:	"Hide verts by vertex color of selected verts.White color is used, if nothing selected.\n\nCTRL: ISOLATE MODE (Show all verts of selected colors ).\n\nQUICK SCRIPT, TESTED ONLY ON EDITABLE POLY"
-icon:	"across:4"
+icon:	""
 (
 	on execute do if ( obj = selection[1] ) != undefined then
 	undo "Hide Colored Verts" on
@@ -243,8 +218,6 @@ icon:	"across:4"
 
 	)
 )
-
-
 
 /**
   */
@@ -261,6 +234,10 @@ icon:	"MENU:&ISOLATE Color"
 )
 
 
+/*==============================================================================
+	ROW 3
+================================================================================*/
+
 
 /**
   */
@@ -268,7 +245,7 @@ macroscript	epoly_vertex_color_channel_info
 category:	"_Epoly-Vertex-Color"
 buttonText:	"Channel Info"
 toolTip:	"Open or Update Channel Info Dialog"
---icon:	"across:4|MENU:true"
+icon:	"across:3"
 (
 	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
 
@@ -304,6 +281,31 @@ toolTip:	"List Vertex Colors"
 
 	)
 )
+
+/**
+  */
+macroscript	epoly_vertex_color_reset_vertex_colors
+category:	"_Epoly-Vertex-Color"
+buttonText:	"Reset"
+toolTip:	"Reset Vertex Colors"
+--icon:	"across:4|MENU:true"
+(
+	on isVisible return subObjectLevel != undefined and subObjectLevel != 0
+
+	on execute do
+	if queryBox "Reest Vertex Colors ?" title:"RESET VERTEX COLORS" then
+
+	(
+		obj	= selection[1]
+		/* SET NEW CLASS INSTANCE */
+		VertexColorProcessor = VertexColorProcessor_v(obj)
+
+		VertexColorProcessor.resetCPVVerts()
+
+		messageBox "Vertex Colors Reseted" title:"VERTEX COLOR"
+	)
+)
+
 --/**
 --  *
 --  */

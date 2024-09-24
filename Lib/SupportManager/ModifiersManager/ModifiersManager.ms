@@ -48,7 +48,7 @@ struct ModifiersManager_v
 			--max create mode
 
 			for i = modifiers.count to 1 by -1 do
-			--for modi in modifiers do
+			--for _mod in modifiers do
 				modPanel.addModToSelection ( modifiers[i] ) --ui:on
 
 			/* SET SWEEP VALUE WHEN MODIFIER IS ADDED */
@@ -79,16 +79,25 @@ struct ModifiersManager_v
 
 		format "mod_name: %\n" mod_name
 
-		if supports.count > 0 and ( modi = supports[1].modifiers[mod_name] ) != undefined then
-			case mod_name of
+		if supports.count > 0 and ( _mod = supports[1].modifiers[mod_name] ) != undefined then
+		(
+			val = SUPPORT_OPTIONS.getOption #BAR_WIDTH
+
+			case classOf _mod of
 			(
-				#BAR_WIDTH:	modi[#Cylinder_Section].radius	= SUPPORT_OPTIONS.getOption #BAR_WIDTH
-				#BASE_WIDTH:	modi.amount	= SUPPORT_OPTIONS.base_width
-				#EXTEND_END:	modi.amount	= SUPPORT_OPTIONS.extend_end
-				#EXTEND_TOP:	modi.amount	= SUPPORT_OPTIONS.extend_top
+				(sweep):	_mod[#Cylinder_Section].radius	= val
+
+				(Chamfer or Face_Extrude ):	_mod.amount	= val
+
+
+				--#EXTEND_END:	_mod.amount	= SUPPORT_OPTIONS.extend_end
+				--#EXTEND_TOP:	_mod.amount	= SUPPORT_OPTIONS.extend_top
 
 				default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" mod_name -- this should never happen
 			)
+
+
+		)
 
 	),
 
@@ -114,8 +123,8 @@ struct ModifiersManager_v
 			(obj_type == #RAFT):	SupportModifiers["default"].mods_raft
 		)
 
-			for modi in modifiers_add do
-				format "modifier add: %\n" modi
+			for _mod in modifiers_add do
+				format "modifier add: %\n" _mod
 
 		for support in supports do
 		(
@@ -128,8 +137,8 @@ struct ModifiersManager_v
 			for i = modifiers_add.count to 1 by -1 do
 					addModifier support modifiers_add[i]
 			--else
-			--	for modi in modifiers_add do
-			--		addModifier support modi
+			--	for _mod in modifiers_add do
+			--		addModifier support _mod
 		)
 
 
@@ -156,7 +165,7 @@ struct ModifiersManager_v
 		max create mode
 		--
 		--for support in supports do
-		--	for modi in modifiers do
+		--	for _mod in modifiers do
 		--		addModifierWithLocalData support_no_modifiers modifiers_of_supports[i] support_with_modifiers modifiers_of_supports[i] -- instance the modifier
 
 

@@ -171,6 +171,9 @@ struct SupportManager_v
 	),
 
 	/** Generate drain holes
+
+	  TODO: move this method to its own file DrainGenerator.ms
+
 	 */
 	function generateDrainHoles =
 	(
@@ -210,8 +213,8 @@ struct SupportManager_v
 			sweep_mod.CurrentBuiltInShape = 4 -- Set cylinder
 
 			/* GENERATE MATERIAL ID */
-			sweep_mod.UseSectionIDs	= false
-			sweep_mod.UsePathIDs	= true
+            sweep_mod.UseSectionIDs	= false
+            sweep_mod.UsePathIDs		= true
 
 			sweep_mod[#Cylinder_Section].radius = diameter / 2
 
@@ -239,8 +242,9 @@ struct SupportManager_v
 		(
 			--format "knots: %\n" knots
 
-			knots[1] = verts_pos[i] + ( 2 * direction ) -- make raft longer by multiplying normal length 10x
-			knots[2] = verts_pos[i] + ( 2 * (direction * -1 ) ) -- make raft longer by multiplying normal length 10x
+			/* knots[1] is TOP knot */
+			knots[1] = verts_pos[i] + ( SUPPORT_OPTIONS.drain_top * direction )
+			knots[2] = verts_pos[i] + ( SUPPORT_OPTIONS.drain_bottom * (direction * -1 ) )
 
 			drain_obj = SplineShape()
 
