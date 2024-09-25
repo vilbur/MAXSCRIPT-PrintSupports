@@ -29,7 +29,7 @@ icon:	"control:spinner|id:SPIN_raft_width|across:4|range:[ 0.3, 99, 0.5 ]|width:
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 /**
@@ -42,7 +42,7 @@ icon:	"control:spinner|id:SPIN_chamfer_raft|across:4|type:#integer|range:[ 0, 10
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 /** EXTRUDE TOP
@@ -55,5 +55,5 @@ icon:	"control:spinner|id:SPIN_extend_end|across:4|width:64|range:[ 0, 99, 0.5 ]
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
 )

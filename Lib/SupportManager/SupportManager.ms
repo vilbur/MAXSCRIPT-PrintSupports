@@ -89,6 +89,7 @@ struct SupportManager_v
 
 	/* dependency */
 	BeamGenerator = BeamGenerator_v(),
+
 	/* reference */
 	/* inhered */
 
@@ -224,7 +225,7 @@ struct SupportManager_v
 		)
 
 
-		sweep_mod = sweep ()
+		sweep_mod = sweep name:"DRAIN_WIDTH"
 
 		shapes_to_update = #()
 
@@ -406,39 +407,35 @@ struct SupportManager_v
 
 	/** Update modifiers by control value
 	 */
-	function updateModifiers ctrl val =
+	function updateModifiers EventFired =
 	(
-		--format "\n"; print "SupportManager_v.updateModifiers()"
-		/** Remove control type prefix from control nmae
-		*
-		* @param string ctrl E.G.: "SpinnerControl:SPIN_base_width"
-		*
-		* @return string E.G.: "base_width"
-		*/
-		function removeControlTypePrefix ctrl =
-		(
-			--format "\n"; print "SupportManager_v.removeControlTypePrefix()"
-			ctrl_id	= (filterString ( ctrl as string ) ":")[2]
-
-			prop_key = substring ctrl_id ((findString ctrl_id "_")+1) -1
-		)
-
+		format "\n"; print "SupportManager_v.updateModifiers()"
 		_selection = selection as Array
 
-		prop_key = removeControlTypePrefix(ctrl)
+		obj_type = substring EventFired.Roll.name ((findString EventFired.Roll.name "_")+1) -1
+		prop_key = substring EventFired.control.name ((findString EventFired.control.name "_")+1) -1
+
+
+		obj_type = trimRight obj_type "s"
+
+		format "obj_type: %\n" obj_type
+		format "prop_key: %\n" prop_key
 
 		source_objects = this.getSourceObjects ( _selection )
-		supports       = this._getSupportNodes ( _selection )
+		--format "source_objects: %\n" source_objects
+		objects_by_type       = this.getObjectsByType ( _selection ) type:( obj_type as name )
 
-		for SourceObject in source_objects do
-			join supports (SourceObject.getSupportNodes())
+		format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
 
-		SUPPORT_OPTIONS.setOptionValue (prop_key) (val)
+		--for SourceObject in source_objects do
+		--	join objects_by_type (SourceObject.getSupportNodes())
+		--
+		SUPPORT_OPTIONS.setOptionValue (prop_key) (EventFired.val)
 
 		SUPPORT_OPTIONS.init()
 
 		--SPIN_base_width
-		MODIFIERS_MANAGER.updateModifier( makeUniqueArray supports )(prop_key as name )
+		MODIFIERS_MANAGER.updateModifier( makeUniqueArray objects_by_type )(prop_key as name )
 	),
 
 
@@ -652,21 +649,23 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		--format "\n"; print "SupportManager_v.getObjectsByType()"
-
-		/** Is type support
-		 */
-		function isTypeSupport type =
-		(
-			--format "\n"; print "SupportManager_v.isTypeSupport()"
-			type == #SUPPORT or type == #RAFT
-		)
+		format "\n"; print "SupportManager_v.getObjectsByType()"
+		format "type: %\n" type
+		format "_objects: %\n" _objects
+		--/** Is type support
+		-- */
+		--function isTypeSupport type =
+		--(
+		--	--format "\n"; print "SupportManager_v.isTypeSupport()"
+		--	type == #SUPPORT or type == #RAFT
+		--)
 
         source_keys = #()
         supports	= #()
         beams   	= #()
+        drains   	= #()
 
-        objects_to_process = #()
+        objects_by_type = #()
 
 
 		for obj in _objects do
@@ -675,81 +674,92 @@ struct SupportManager_v
                 ((sync_key = this._getKey #SOURCE obj) != undefined ): append source_keys sync_key
                 --((this._isType #SOURCE  obj) != undefined ): append source_keys obj
                 ((this._getKey #SUPPORT obj) != undefined ): append supports obj
-                ((this._getKey #RAFT obj)    != undefined ): append supports obj
+                ((this._getKey #RAFT	obj) != undefined ): append supports obj
                 ((this._getKey #BEAM    obj) != undefined ): append beams obj
+                ((this._getKey #DRAIN   obj) != undefined ): append drains obj
                 --default:
 			)
 
 		--format "source_keys: %\n" source_keys.count
 		--format "supports: %\n" supports.count
 		--format "beams: %\n" beams.count
+		format "drains: %\n" drains
 
-
+		/*==============================================================================
+			GET SOURCE OBJECTS
+		================================================================================*/
 		if type == #SOURCE then
 		(
-			--for source_key in source_keys do append objects_to_process SourceObjects[source_key]
+			--for source_key in source_keys do append objects_by_type SourceObjects[source_key]
 			sync_keys_of_objs = for obj in supports + beams collect this._getSyncKey(obj)
-			--format "sync_keys_of_objs: %\n" sync_keys_of_objs
-			--format "source_keys: %\n" source_keys
 
-			--source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
-			objects_to_process = for key in makeUniqueArray (source_keys + sync_keys_of_objs) where SourceObjects[key] != undefined collect SourceObjects[key].obj
+			objects_by_type = for key in makeUniqueArray (source_keys + sync_keys_of_objs) where SourceObjects[key] != undefined collect SourceObjects[key].obj
 		)
 
+		/*==============================================================================
+			GET DRAINS
+		================================================================================*/
+		else if type == #DRAIN then
+		(
+			--for source_key in source_keys do append objects_by_type SourceObjects[source_key]
+			objects_by_type = drains --return
+
+			if source_keys.count > 0 then
+				for obj in objects where this._getKey #DRAIN obj != undefined and ( sync_key = this._getSyncKey obj) != undefined and findItem source_keys sync_key > 0 do
+                    appendIfUnique objects_by_type obj
+
+		)
+		/*==============================================================================
+			GET BY SOURCE OBEJCT
+		================================================================================*/
 		else if source_keys.count > 0 then
 		(
 			raft_test = type == #RAFT
 
-			--format "BEAMOBJECTS: %\n" BeamObjects
 			/* GET BEAMS OF SOURCE OBJECT */
 			if hierarchy or type == #BEAM  then
 				for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
-					append objects_to_process BeamObjects[key].beam
+					append objects_by_type BeamObjects[key].beam
 
 			/* GET SUPPORTS OF SOURCE OBJECT */
 			if hierarchy or type == #SUPPORT or type == #RAFT  then
 				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 and SupportObjects[key].isRaft() == raft_test do
-					append objects_to_process SupportObjects[key].support_obj
-
+					append objects_by_type SupportObjects[key].support_obj
 		)
+
+		/*==============================================================================
+			GET BY SUPPORTS
+		================================================================================*/
 		else if supports.count > 0 then
 		(
 			/* GET BEAMS OF SOURCE OBJECT */
-			--format "hierarchy: %\n" hierarchy
-			--format "type == #BEAM: %\n" (type == #BEAM)
-
 			if hierarchy or type == #BEAM  then
 				for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
-					append objects_to_process BeamObjects[key].beam
+					append objects_by_type BeamObjects[key].beam
 
 			if  hierarchy or type == #SUPPORT or type == #RAFT then
-				objects_to_process += supports
-
+				objects_by_type += supports
 		)
+		/*==============================================================================
+			GET BY BEAMS
+		================================================================================*/
 		else if beams.count > 0 then
 		(
-
+			/* GET BEAMS */
 			if type == #BEAM  then
-				objects_to_process = beams
+				objects_by_type = beams
 
-
+			/* GET SUPPORTS BY BEAMS */
 			else if type == #SUPPORT then
 				for beam in beams do(
 
-					appendIfUnique objects_to_process SupportObjects[getUserPropVal beam "SUPPORT_A"].support_obj
-					appendIfUnique objects_to_process SupportObjects[getUserPropVal beam "SUPPORT_B"].support_obj
+					appendIfUnique objects_by_type SupportObjects[getUserPropVal beam "SUPPORT_A"].support_obj
+					appendIfUnique objects_by_type SupportObjects[getUserPropVal beam "SUPPORT_B"].support_obj
 				)
-
 		)
 
-
-
-		--format "OBJECTS_TO_PROCESS: %\n" OBJECTS_TO_PROCESS
-
-		objects_to_process --return
+		objects_by_type --return
 	),
-
-
 
 	/** Get source object
 	 */

@@ -89,7 +89,7 @@ buttontext:	"[Connections count]"
 icon:	"control:radiobuttons|across:3|offset:[ 8, -4 ]|items:#( '1', '2', '3', '4' )|unselect:true|tooltip:Number of beams allowed per support"
 (
 	format "EventFired	= % \n" EventFired
-	--SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+	--SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 /**
@@ -103,7 +103,7 @@ icon:	"control:radiobuttons|across:3|align:#CENTER|items:#('1', '2')|offset:[ 32
 (
 	--format "EventFired	= % \n" EventFired
 	on execute do
-	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+	SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 

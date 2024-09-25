@@ -23,13 +23,15 @@ function selectHideUnhideSupports type: state: =
 	format "TEST: %\n" ( type == #SOURCE and not (ctrl and shift and alt ) and source_objects.count == source_objects_selected.count)
 
 
+	/* SELECT|DESELECT SOURCE OBJECT */
 	if type == #SOURCE and not (ctrl and shift and alt ) and source_objects.count == source_objects_selected.count then
 	(
 		--nodes = for obj in _objects where findItem source_objects_selected obj == 0 collect obj
 
 		--select nodes
 
-		deselect source_object_selected
+		if source_object_selected != undefined then
+			deselect source_object_selected
 
 	)
 	else
@@ -41,21 +43,15 @@ function selectHideUnhideSupports type: state: =
 
 			case of
 			(
-				--( ctrl and shift ): selectmore nodes
-				--( alt  and shift):
-				--( ctrl and alt ):
-				--( shift ): selectmore nodes
-				( ctrl ): for obj in nodes do obj.isHidden = not state
-				--( alt ):
+				/* IF CTRL - SELECT MORE */
+				shift: select ( nodes +_objects  )
+				/* IF CTRL - SELECT */
+				ctrl: select nodes
 
-				default: ( if not shift then
-							select nodes
-						   else
-							   --selectmore nodes
-							select ( nodes +_objects  )
-
-						)
+				/* TOGGLE VISIBILITY */
+				default: for obj in nodes do obj.isHidden = not state
 			)
+
 		)
 		--format "select: % ms\n" (( timeStamp()) - timer_select)
 		redrawViews()
@@ -75,11 +71,12 @@ function selectHideUnhideSupports type: state: =
 macroscript	_print_support_visibility_source_show
 category:	"_3D-Print"
 buttontext:	"SOURCE"
---icon:	"id:BTN_visibility_source|across:5|height:32|width:96"
+tooltip:	"Show source objects\n\nCTRL: Select source objects\n\nSHIFT:Select more"
+--icon:	"tooltip:CTRL: Select source objects\n\nSHIFT:Select more"
 (
 	on execute do
 		undo "Show\Hide Source" on
-			selectHideUnhideSupports type:#SOURCE state:false
+			selectHideUnhideSupports type:#SOURCE state:true
 )
 
 /*
@@ -87,7 +84,7 @@ buttontext:	"SOURCE"
 macroscript	_print_support_visibility_source_hide
 category:	"_3D-Print"
 buttontext:	"SOURCE"
---icon:	"id:BTN_visibility_source|across:5|height:32|width:96|tooltip:GEENERATE SUPPORTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT - All supports of object\n\t2) POINTS\n\t3) SUPPORTS - Rebuild selected supports"
+icon:	""
 (
 	on execute do
 		undo "Show\Hide Source" on
@@ -103,11 +100,12 @@ buttontext:	"SOURCE"
 macroscript	_print_support_visibility_show
 category:	"_3D-Print"
 buttontext:	"SUPPORTS"
---icon:	"id:BTN_visibility_Supports|across:5|height:32|width:96|tooltip:GEENERATE SUPPORTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT - All supports of object\n\t2) POINTS\n\t3) SUPPORTS - Rebuild selected supports"
+tooltip:	"Show support objects\n\nCTRL: Select support objects\n\nSHIFT:Select more"
+--icon:	"tooltip:CTRL: Select support objects\n\nSHIFT:Select more"
 (
 	on execute do
 		undo "Show\Hide Supports" on
-			selectHideUnhideSupports type:#SUPPORT state:false
+			selectHideUnhideSupports type:#SUPPORT state:true
 )
 
 /*
@@ -115,11 +113,12 @@ buttontext:	"SUPPORTS"
 macroscript	_print_support_visibility_hide
 category:	"_3D-Print"
 buttontext:	"SUPPORTS"
+tooltip:	"Hide supports"
 --icon:	"id:BTN_visibility_Supports"
 (
 	on execute do
 		undo "Show\Hide Supports" on
-			selectHideUnhideSupports type:#SUPPORT state:true
+			selectHideUnhideSupports type:#SUPPORT state:false
 )
 
 
@@ -131,15 +130,32 @@ buttontext:	"SUPPORTS"
 macroscript	_print_support_visibility_rafts
 category:	"_3D-Print"
 buttontext:	"RAFTS"
---icon:	"id:BTN_visibility_Rafts|across:5|height:32|width:96|tooltip:GEENERATE RAFTS.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS - Turn support into raft"
+tooltip:	"Show raft objects\n\nCTRL: Select raft objects\n\nSHIFT:Select more"
+--icon:	"tooltip:CTRL: Select raft objects\n\nSHIFT:Select more"
 (
 	on execute do
 		undo "Show\Hide Supports" on
 		(
-			selectHideUnhideSupports type:#RAFT state:false
+			selectHideUnhideSupports type:#RAFT state:true
 
 		)
 )
+
+/*
+*/
+macroscript	_print_support_visibility_rafts_hide
+category:	"_3D-Print"
+buttontext:	"RAFTS"
+tooltip:	"Hide rafts"
+--icon:	"id:BTN_visibility_Supports"
+(
+	on execute do
+		undo "Show\Hide Rafts" on
+			selectHideUnhideSupports type:#RAFT state:false
+)
+
+
+
 
 /*------------------------------------------------------------------------------
 	BEAMS
@@ -149,11 +165,12 @@ buttontext:	"RAFTS"
 macroscript	_print_support_visibility_beams_show
 category:	"_3D-Print"
 buttontext:	"BEAMS"
---icon:	"id:BTN_visibility_beams|across:5|height:32|width:96|tooltip:GEENERATE BEAMS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
+tooltip:	"Show source objects\n\nCTRL: Select source objects\n\nSHIFT:Select more"
+--icon:	"tooltip:CTRL: Select source objects\n\nSHIFT:Select more"
 (
 	on execute do
 		undo "Show\Hide Beams" on
-			selectHideUnhideSupports type:#BEAM state:false
+			selectHideUnhideSupports type:#BEAM state:true
 )
 
 /*
@@ -161,11 +178,12 @@ buttontext:	"BEAMS"
 macroscript	_print_support_visibility_beams_hide
 category:	"_3D-Print"
 buttontext:	"BEAMS"
+tooltip:	"Hide beams"
 --icon:	"id:BTN_visibility_beams|across:5|height:32|width:96|tooltip:GEENERATE BEAMS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
 (
 	on execute do
 		undo "Show\Hide Beams" on
-			selectHideUnhideSupports type:#BEAM state:true
+			selectHideUnhideSupports type:#BEAM state:false
 )
 
 /*------------------------------------------------------------------------------
@@ -176,11 +194,12 @@ buttontext:	"BEAMS"
 macroscript	_print_support_visibility_pins_show
 category:	"_3D-Print"
 buttontext:	"PINS"
---icon:	"id:BTN_visibility_pins|across:5|height:32|width:96|tooltip:GEENERATE DRAINS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
+tooltip:	"Show pins objects\n\nCTRL: Select pins objects\n\nSHIFT:Select more"
+--icon:	"tooltip:CTRL: Select pins objects\n\nSHIFT:Select more"
 (
 	on execute do
 		undo "Show\Hide Beams" on
-			selectHideUnhideSupports type:#PIN state:false
+			selectHideUnhideSupports type:#PIN state:true
 )
 
 /*
@@ -188,11 +207,12 @@ buttontext:	"PINS"
 macroscript	_print_support_visibility_pins_hide
 category:	"_3D-Print"
 buttontext:	"PINS"
+tooltip:	"Hide pins"
 --icon:	"id:BTN_visibility_pins|across:5|height:32|width:96|tooltip:GEENERATE BEAMS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
 (
 	on execute do
 		undo "Show\Hide Beams" on
-			selectHideUnhideSupports type:#PIN state:true
+			selectHideUnhideSupports type:#PIN state:false
 )
 
 /*------------------------------------------------------------------------------
@@ -203,11 +223,15 @@ buttontext:	"PINS"
 macroscript	_print_support_visibility_drains_show
 category:	"_3D-Print"
 buttontext:	"DRAINS"
---icon:	"id:BTN_visibility_drains|across:5|height:32|width:96|tooltip:GEENERATE DRAINS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
+tooltip:	"Show drains objects\n\nCTRL: Select drains objects\n\nSHIFT:Select more"
+--icon:	"tooltip:CTRL: Select drains objects\n\nSHIFT:Select more"
 (
 	on execute do
+	(
+		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\Lib\SupportManager\SupportManager.ms"
 		undo "Show\Hide Beams" on
-			selectHideUnhideSupports type:#DRAIN state:false
+			selectHideUnhideSupports type:#DRAIN state:true
+	)
 )
 
 /*
@@ -215,11 +239,13 @@ buttontext:	"DRAINS"
 macroscript	_print_support_visibility_drains_hide
 category:	"_3D-Print"
 buttontext:	"DRAINS"
+tooltip:	"Hide drains"
+
 --icon:	"id:BTN_visibility_drains|across:5|height:32|width:96|tooltip:GEENERATE BEAMS between supports.\n\nWORKS ON SELECTION OF:\n\t1) SOURCE OBJECT\n\t2) POINTS\n\t3) SUPPORTS"
 (
 	on execute do
 		undo "Show\Hide Beams" on
-			selectHideUnhideSupports type:#DRAIN state:true
+			selectHideUnhideSupports type:#DRAIN state:false
 )
 
 
@@ -242,7 +268,7 @@ buttontext:	"DRAINS"
 --			clearListener(); print("Cleared in:\n"+getSourceFileName())
 --			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-viltools3\VilTools\rollouts-Tools\rollout-PRINT-3D\SUPPORT GENERATOR.mcr"
 --
---			selectHideUnhideSupports type:#ALL state:true
+--			selectHideUnhideSupports type:#ALL state:false
 --
 --
 --	--		if ( points_created = (getSupportManagerInstance()).generatePointHelpers( selection ) reset_helpers: keyboard.controlPressed ).count > 0 then

@@ -141,13 +141,13 @@ struct SupportOptions_v
 	(
 		--format "\n"; print "SupportOptions_v.getProp()"
 		--format "prop_key: %\n" prop_key
-
 		/* Mutate value for modifier */
 		case prop_key of
 		(
-			#BAR_WIDTH:	bar_width / 2 -- get radius value
-			#BASE_WIDTH:	base_width / 2 -- get radius value
-			#CHAMFER_BASE:	base_height / 2
+			#BAR_WIDTH:	bar_width	/ 2 -- get radius value
+			#BASE_WIDTH:	base_width	/ 2 -- get radius value
+			#DRAIN_WIDTH:	drain_width	/ 2 -- get radius value
+			#CHAMFER_BASE:	base_height	/ 2
 			#CHAMFER_BAR:	this._getChamferBarValue()
 
 			default: getProperty this ( prop_key as string )

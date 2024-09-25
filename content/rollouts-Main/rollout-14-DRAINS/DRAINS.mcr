@@ -12,6 +12,7 @@ icon:	"across:4|offset:[ 0, 0 ]|height:32|width:96|tooltip:GEENERATE PINS for se
 		undo "Generate DRAINS" on
 		(
 			clearListener(); print("Cleared in:\n"+getSourceFileName())
+			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\Lib\SupportManager\SupportManager.ms"
 			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-PINS_&_DRAINS\DRAINS.mcr"
 			SUPPORT_MANAGER.generateDrainHoles()
 
@@ -29,7 +30,11 @@ icon:	"control:spinner|id:SPIN_drain_width|across:4|range:[ 0.5, 10, 1.0 ]|width
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+	(
+
+
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
+	)
 )
 
 /**
@@ -42,7 +47,7 @@ icon:	"control:spinner|id:SPIN_drain_bottom|range:[ 1, 10, 2 ]|width:64|offset:[
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 /**
@@ -55,7 +60,7 @@ icon:	"control:spinner|id:SPIN_drain_top|range:[ 0.1, 10, 0.1 ]|width:64|offset:
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 
@@ -69,5 +74,5 @@ icon:	"control:spinner|id:SPIN_drain_top|range:[ 0.1, 10, 0.1 ]|width:64|offset:
 --(
 --	--format "EventFired:	% \n" EventFired
 --	on execute do
---		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+--		SUPPORT_MANAGER.updateModifiers ( EventFired )
 --)

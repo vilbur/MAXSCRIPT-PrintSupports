@@ -12,7 +12,7 @@ icon:	"across:3|align:#LEFT|control:radiobuttons|items:#( 'NORMAL', 'DOWN' )|col
 	--export_dir = execute ("@"+ "\""+EventFired.Roll.export_dir.text +"\"")
 
 	--DosCommand ("explorer \""+export_dir+"\"")
-	SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+	SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 /** SPINNER

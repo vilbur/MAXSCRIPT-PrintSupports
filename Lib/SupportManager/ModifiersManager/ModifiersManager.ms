@@ -75,14 +75,15 @@ struct ModifiersManager_v
 	 */
 	function updateModifier supports mod_name =
 	(
-		format "\n"; print "ModifiersManager_v.updateModifier()"
-
-		format "mod_name: %\n" mod_name
+		--format "\n"; print "ModifiersManager_v.updateModifier()"
+		--format "mod_name: %\n" mod_name
+		--format "supports: %\n" supports
 
 		if supports.count > 0 and ( _mod = supports[1].modifiers[mod_name] ) != undefined then
 		(
-			val = SUPPORT_OPTIONS.getOption #BAR_WIDTH
-
+			val = SUPPORT_OPTIONS.getOption mod_name
+			--format "val: %\n" val
+			--if val != undefined then
 			case classOf _mod of
 			(
 				(sweep):	_mod[#Cylinder_Section].radius	= val

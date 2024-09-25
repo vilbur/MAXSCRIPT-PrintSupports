@@ -99,7 +99,7 @@ icon:	"control:spinner|id:SPIN_bar_width|across:3|range:[ 0.8, 3, 1.0 ]|width:64
 (
 		--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 /**
@@ -112,7 +112,7 @@ icon:	"control:spinner|id:SPIN_chamfer_bar|across:3|type:#integer|range:[ 0, 10,
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 /** EXTRUDE TOP
@@ -125,7 +125,7 @@ icon:	"control:spinner|id:SPIN_extend_top|across:3|width:64|range:[ 0, 99, 0.5 ]
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 
@@ -170,7 +170,7 @@ icon:	"across:3|control:spinner|range:[ 0.1, 999, 4 ]|width:90|offset:[ -10, 12 
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
 
 /**
@@ -183,5 +183,5 @@ icon:	"across:3|control:spinner|range:[ 0.1, 999, 1 ]|width:72|offset:[ 30, 12 ]
 (
 	--format "EventFired:	% \n" EventFired
 	on execute do
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) (EventFired.val)
+		SUPPORT_MANAGER.updateModifiers ( EventFired )
 )
