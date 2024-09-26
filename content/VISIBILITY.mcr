@@ -31,7 +31,7 @@ function selectHideUnhideSupports type: state: =
 		--select nodes
 
 		if source_object_selected != undefined then
-			deselect source_object_selected
+	 ed
 
 	)
 	else
