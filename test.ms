@@ -1,15 +1,35 @@
 /* ISLANDS VIA VERTS */
 clearListener(); print("Cleared in:\n"+getSourceFileName())
 
---(
--- Event_v type:#rightClick params:"" code:"" callback:Dictionary #name code:"execute "
---
--- struct EventFired_v(Type,Roll,Control, function get prop = ( if hasProperty this ( prop as name ) then getProperty this ( prop as name ) else false  ))"
---	 global EventFired = EventFired_v Type:#rightClick Roll:ROLLOUT_subrollout Control:ROLLOUT_subrollout.CBX_checkbox_value
---CallbackNoParam();EventFired = undefined" arguments:#()  toolTip:"" autorun:false
---
---
---)
---onCreate() HEIGHT: unsupplied
+mod_name = #DRAIN_WIDTH
 
-for obj in selection where (_mod = obj.modifiers[#sweep]) != undefined do _mod.name = "DRAIN_WIDTH"
+_objects = for obj in selection where obj.modifiers[mod_name] != undefined collect obj
+
+objects_by_mods	=  Dictionary #STRING -- KEY:"modifier pointer" VALUE:#(objects with same instance of modifier )
+
+
+for obj in _objects do
+(
+	mod_pointer = (getHandleByAnim obj.modifiers[mod_name]) as string
+	--format "mod_pointer: %\n" mod_pointer
+
+	if objects_by_mods[mod_pointer] == undefined then
+		objects_by_mods[mod_pointer] = #()
+
+	append objects_by_mods[mod_pointer] obj
+)
+
+
+
+for mod_pointer in objects_by_mods.keys do
+(
+	objects_with_mod = objects_by_mods[mod_pointer]
+
+	_wirecolor = orange
+
+	_wirecolor.hue = ( random 0 255 )
+	_wirecolor.saturation = ( random 128 255 )
+
+	for obj in objects_with_mod do
+		obj.wirecolor = _wirecolor
+)
