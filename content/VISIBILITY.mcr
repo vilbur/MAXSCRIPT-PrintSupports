@@ -1,67 +1,4 @@
 
-/** Select hide unhide supports
- */
-function selectHideUnhideSupports type: state: =
-(
-	format "\n"; print ".selectHideUnhideSupports()"
-	format "type: %\n" type
-
-	ctrl = keyboard.controlPressed;
-	alt = keyboard.altPressed;
-	shift = keyboard.shiftPressed
-
-	_objects = if selection.count > 0 then selection as Array else objects as Array
-
-	nodes = SUPPORT_MANAGER.getObjectsByType _objects type:type hierarchy:shift
-
-	source_objects = SUPPORT_MANAGER.getObjectsByType _objects type:#SOURCE
-	format "SOURCE_OBJECTS: %\n" source_objects
-	--select source_objects
-
-	source_objects_selected = for source_object in source_objects where source_object.isSelected collect source_object
-
-	format "TEST: %\n" ( type == #SOURCE and not (ctrl and shift and alt ) and source_objects.count == source_objects_selected.count)
-
-
-	/* SELECT|DESELECT SOURCE OBJECT */
-	if type == #SOURCE and not (ctrl and shift and alt ) and source_objects.count == source_objects_selected.count then
-	(
-		--nodes = for obj in _objects where findItem source_objects_selected obj == 0 collect obj
-
-		--select nodes
-
-		if source_object_selected != undefined then
-	 ed
-
-	)
-	else
-	(
-		--timer_select = timeStamp()
-		with redraw off
-		(
-			max create mode
-
-			case of
-			(
-				/* IF CTRL - SELECT MORE */
-				shift: select ( nodes +_objects  )
-				/* IF CTRL - SELECT */
-				ctrl: select nodes
-
-				/* TOGGLE VISIBILITY */
-				default: for obj in nodes do obj.isHidden = not state
-			)
-
-		)
-		--format "select: % ms\n" (( timeStamp()) - timer_select)
-		redrawViews()
-
-	)
-
-
-)
-
-
 /*------------------------------------------------------------------------------
 	SOURCE OBJECT
 --------------------------------------------------------------------------------*/
@@ -72,7 +9,7 @@ macroscript	_print_support_visibility_source_show
 category:	"_3D-Print"
 buttontext:	"SOURCE"
 tooltip:	"Show source objects\n\nCTRL: Select source objects\n\nSHIFT:Select more"
---icon:	"tooltip:CTRL: Select source objects\n\nSHIFT:Select more"
+icon:	"across:3|height:32|width:128"
 (
 	on execute do
 		undo "Show\Hide Source" on
@@ -88,7 +25,7 @@ icon:	""
 (
 	on execute do
 		undo "Show\Hide Source" on
-			selectHideUnhideSupports type:#SOURCE state:true
+			selectHideUnhideSupports type:#SOURCE state:false
 )
 
 /*------------------------------------------------------------------------------
@@ -166,7 +103,7 @@ macroscript	_print_support_visibility_beams_show
 category:	"_3D-Print"
 buttontext:	"BEAMS"
 tooltip:	"Show source objects\n\nCTRL: Select source objects\n\nSHIFT:Select more"
---icon:	"tooltip:CTRL: Select source objects\n\nSHIFT:Select more"
+icon:	"across:3"
 (
 	on execute do
 		undo "Show\Hide Beams" on

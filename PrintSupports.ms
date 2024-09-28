@@ -4,6 +4,8 @@ filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/C
 
 filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/Menus/RcMenu/RcMenu.ms" )	--"./../MAXSCRIPT-UI-framework/Lib/Menus/RcMenu/RcMenu.ms"
 
+filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/MacroscriptGenerator/generateMacroscripts.ms" )	--"./../MAXSCRIPT-UI-framework/Lib/MacroscriptGenerator/generateMacroscripts.ms"
+
 /* UI GLOBALS */
 global DIALOG_content
 global ROLLOUT_generator
@@ -24,6 +26,8 @@ filein( getFilenamePath(getSourceFileName()) + "/content/rollouts-Main/rollout-0
 
 filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/SupportManager.ms" )	--"./Lib/SupportManager/SupportManager.ms"
 
+filein( getFilenamePath(getSourceFileName()) + "/Lib/SupportManager/Callbacks/selectHideUnhideSupports.ms" )	--"./Lib/SupportManager/Callbacks/selectHideUnhideSupports.ms"
+
 
 current_dir = getFilenamePath(getSourceFileName())
 
@@ -32,6 +36,8 @@ current_dir = getFilenamePath(getSourceFileName())
 	START VilTools
 ------------------------------------------------------------------------------*/
 try(
+
+	--generateMacroscripts( current_dir )
 
 
 	/** LOAD CONTENT */
