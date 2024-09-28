@@ -104,10 +104,7 @@ struct ModifiersManager_v
 
 					default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" mod_name -- this should never happen
 				)
-
-
 		)
-
 	),
 
 	/** Convert obj type

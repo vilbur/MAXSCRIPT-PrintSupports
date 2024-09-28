@@ -174,7 +174,7 @@ function selectSupportsByBeamsCount count =
 
 	supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
 	format "supports.count: %\n" supports.count
-	--beams = SUPPORT_MANAGER.getObjectsByType supports type:#BEAM
+	--beams = SUPPORT_MANAfilein @"filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr""GER.getObjectsByType supports type:#BEAM
 
 	bemas_of_supports = for support in supports collect SUPPORT_MANAGER.getObjectsByType support type:#BEAM
 	--SUPPORT_MANAGER.getObjectsByType beams type:#SUPPORT
@@ -226,6 +226,3 @@ toolTip:	"Select supports by beams count"
 		popUpMenu (Menu.create())
 	)
 )
-
-
-
