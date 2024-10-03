@@ -64,29 +64,29 @@ icon:	"across:4|height:32"
 		)
 )
 
-/** GENERATE POINTS
- */
-macroscript	_print_support_outline
-category:	"_3D-Print"
-buttontext:	"Outline"
-icon:	"across:4|height:32|width:96|tooltip:GENERATE POINTS From selected object.\n\nLAST OBEJCT IS USED IF NOTHING SELECTED"
-(
-	on execute do
-		undo "Show\Hide Points" on
-		--undo off
-		for i = 1 to 3 do
-		(
-			clearListener(); print("Cleared in:\n"+getSourceFileName())
-			actionMan.executeAction 0 "470"  -- Views: Selection/Preview Highlights Toggle
-
-			actionMan.executeAction 0 "63563"  -- Views: Preview Highlight Outlines Toggle
-			actionMan.executeAction 0 "63565"  -- Views: Selection Highlight Outlines Toggle
-
-			/*
-				QUICK WORKAROUND BY TOGGLE
-
-			*/
-			actionMan.executeAction 0 "557"  -- Views: Viewport Visual Style Edged Faces Toggle
-
-		)
-)
+--/** GENERATE POINTS
+-- */
+--macroscript	_print_support_outline
+--category:	"_3D-Print"
+--buttontext:	"Outline"
+--icon:	"across:4|height:32|width:96|tooltip:GENERATE POINTS From selected object.\n\nLAST OBEJCT IS USED IF NOTHING SELECTED"
+--(
+--	on execute do
+--		undo "Show\Hide Points" on
+--		--undo off
+--		for i = 1 to 3 do
+--		(
+--			clearListener(); print("Cleared in:\n"+getSourceFileName())
+--			actionMan.executeAction 0 "470"  -- Views: Selection/Preview Highlights Toggle
+--
+--			actionMan.executeAction 0 "63563"  -- Views: Preview Highlight Outlines Toggle
+--			actionMan.executeAction 0 "63565"  -- Views: Selection Highlight Outlines Toggle
+--
+--			/*
+--				QUICK WORKAROUND BY TOGGLE
+--
+--			*/
+--			actionMan.executeAction 0 "557"  -- Views: Viewport Visual Style Edged Faces Toggle
+--
+--		)
+--)

@@ -43,7 +43,7 @@ try(
 	/** LOAD CONTENT */
 	--ContentLoader	= ContentLoader_v path:(current_dir+"\\content") -- WITHOUT INI FILE --DEV
 	--ContentLoader	= ContentLoader_v path:(current_dir+"\\content") ini:( getSourceFileName())
-	ContentLoader	= ContentLoader_v path:(current_dir+"\\content") ini:( getSourceFileName()) min_size:[ 420, -1 ] max_size:[420, -1]
+	ContentLoader	= ContentLoader_v path:(current_dir+"\\content") ini:( getSourceFileName()) min_size:[ 400, -1 ] max_size:[400, -1] width:400
 
 
 
@@ -55,7 +55,7 @@ try(
 	--MaxToPrint = ContentLoader.create width:420 height:1024
 	--MaxToPrint = ContentLoader.create width:420 height:#AUTO
 	--MaxToPrint = ContentLoader.create width:420 height:undefined
-	MaxToPrint = ContentLoader.create width:420 lockWidth:true
+	MaxToPrint = ContentLoader.create lockWidth:true
 	--MaxToPrint = ContentLoader.create()
 	--MaxToPrint = ContentLoader.create width:420 height:unsupplied
 
