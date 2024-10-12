@@ -14,6 +14,11 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 	--format "\n"
 	--format "select_mode: %\n" select_mode
 	--format "select_more: %\n" select_more
+	/* CLOSE LAYER MANAGER BEFORE SELECTION */
+
+	if select_mode and (is_manager_open = LayerManager.isDialogOpen()) then
+		LayerManager.closeDialog()
+
 
 	objs_input = if selection.count > 0 then selection as Array else objects as Array
 
@@ -35,6 +40,10 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 	if select_more and not state then
 		for obj in objs_by_type where (index = findItem objs_input obj) > 0 do
 			deleteItem objs_input index
+
+
+	--timer_SELECTING = timeStamp()
+	--format "SELECTING START\n"
 
 	with redraw off
 	(
@@ -62,8 +71,9 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 	)
 	--format "select: % ms\n" (( timeStamp()) - timer_select)
 	redrawViews()
+	--format "SELECTING: % ms\n" (( timeStamp()) - timer_SELECTING)
 
-	--if close_layer_manager  then
-	--	LayerManager.editLayerByName ""
-
+	/* REOPEN LAYER MANAGER */
+	if is_manager_open then
+		LayerManager.editLayerByName ""
 )
