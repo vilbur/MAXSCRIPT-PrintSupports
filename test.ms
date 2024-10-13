@@ -2,19 +2,19 @@
 clearListener(); print("Cleared in:\n"+getSourceFileName())
 
 
-ViewportSettings = NitrousGraphicsManager.GetViewportSetting( 1 )
-SelectionEffectImpl = NitrousGraphicsManager.GetSelectionSetting()
+try( destroyDialog testRollout )catch()
 
---ViewportSettings.VisualStyleMode
+rollout testRollout "Test"
+(
+  group "Test"
+  (
+    button btn_button "Press Me If You Can"  offset:[0,10] across:2
+  )--end group
+)--end rollout
+createDialog testRollout width:200
 
+testRollout.controls[1].pos.y  += 10
+testRollout.controls[3].pos.y  -= 10
 
-ViewportSettings.ShowEdgedFacesEnabled = not ViewportSettings.ShowEdgedFacesEnabled
+testRollout.controls[3].pos.x  -= 10
 
-
---
---SelectionEffectImpl.SelectionHighlightEnabled = false
---SelectionEffectImpl.PreviewHighlightEnabled = false
---
-
-SelectionEffectImpl.SelectionOutlineEnabled  = not ViewportSettings.ShowEdgedFacesEnabled
-SelectionEffectImpl.PreviewOutlineEnabled  = not ViewportSettings.ShowEdgedFacesEnabled

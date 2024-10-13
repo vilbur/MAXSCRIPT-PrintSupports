@@ -326,9 +326,11 @@ struct SourceObject_v
 		(
 			--vPos = eMod.GetVertex v node:obj
 			--format "Vertex:% Position:%\n" v vPos
-
-			vert_normal = point3 0.0 0.0 0.0
 			normal_ids = #{}
+
+			if normals_local[vert] == undefined then
+				normals_local[vert] = point3 0 0 0
+
 
 			eMod.ConvertVertexSelection #{vert} normal_ids node:obj
 

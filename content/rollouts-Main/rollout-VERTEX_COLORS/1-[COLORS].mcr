@@ -28,7 +28,7 @@ macroscript	epoly_vertex_color_set_red
 category:	"_Epoly-Vertex-Color"
 buttonText:	"RED"
 toolTip:	"Set vertex color to selected verts"
-icon:	"MENU:Set &RED|across:4|width:64"
+icon:	"MENU:Set &RED|across:4|width:84|height:26"
 (
 	on isVisible return subObjectLevel != 0
 

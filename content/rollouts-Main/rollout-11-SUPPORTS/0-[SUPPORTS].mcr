@@ -152,7 +152,7 @@ icon:	"across:3|height:32|width:96|offset:[ -16, 0 ]"
 	on execute do
 		undo "Generate Supports" on
 		(
-			filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-GENERATOR\2-SUPPORTS.mcr"
+			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
 			generateSupportsOrRafts obj_type:#SUPPORT
 		)
 )

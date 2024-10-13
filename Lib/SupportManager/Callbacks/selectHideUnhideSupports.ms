@@ -16,9 +16,10 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 	--format "select_more: %\n" select_more
 	/* CLOSE LAYER MANAGER BEFORE SELECTION */
 
-	if select_mode and (is_manager_open = LayerManager.isDialogOpen()) then
+	if (is_manager_open = LayerManager.isDialogOpen()) and select_mode then
 		LayerManager.closeDialog()
 
+	timer_GETTING_OBJECTS = timeStamp()
 
 	objs_input = if selection.count > 0 then selection as Array else objects as Array
 
@@ -29,8 +30,7 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 
 	source_objects_selected = for source_object in source_objects where source_object.isSelected collect source_object
 
-	--if close_layer_manager = ( select_mode and LayerManager.isDialogOpen() ) then
-	--	LayerManager.closeDialog()
+	format "GETTING_OBJECTS: % ms\n" (( timeStamp()) - timer_GETTING_OBJECTS)
 
 
 	/* SELECT|DESELECT SOURCE OBJECT */
@@ -42,8 +42,8 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 			deleteItem objs_input index
 
 
-	--timer_SELECTING = timeStamp()
-	--format "SELECTING START\n"
+	timer_SELECTING = timeStamp()
+	format "SELECTING START\n"
 
 	with redraw off
 	(
@@ -71,7 +71,7 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 	)
 	--format "select: % ms\n" (( timeStamp()) - timer_select)
 	redrawViews()
-	--format "SELECTING: % ms\n" (( timeStamp()) - timer_SELECTING)
+	format "SELECTING: % ms\n" (( timeStamp()) - timer_SELECTING)
 
 	/* REOPEN LAYER MANAGER */
 	if is_manager_open then
