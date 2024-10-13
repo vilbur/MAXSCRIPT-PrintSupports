@@ -19,10 +19,10 @@ icon:	"across:3|offset:[ -8, 4 ]|width:96|height:32|tooltip:GENERATE BEAMS for s
 		undo "Generate Beams" on
 		(
 			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-GENERATOR\BEAMS.mcr"
-			--SUPPORT_MANAGER.generateBeams \
-			--	use_only_selected_supports:keyboard.controlPressed	\
-			--	use_max_distance:ROLLOUT_generator.CBX_max_distance.state	\
-			--	max_connections:ROLLOUT_generator.RB_connections_count.state
+			SUPPORT_MANAGER.generateBeams \
+				use_only_selected_supports:keyboard.controlPressed	\
+				use_max_distance:ROLLOUT_beams.CBX_max_distance.state	\
+				max_connections:ROLLOUT_beams.RB_connections_count.state
 		)
 )
 
@@ -39,43 +39,12 @@ tooltip:	"OPEN MENU"
 			clearListener(); print("Cleared in:\n"+getSourceFileName())
 			--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-GENERATOR\BEAMS.mcr"
 
-			--category = "_Epoly-Vertex-Color"
-			--
-			--macro_name = "epoly_vertex_color_" + method as string  + (if method == #SET then "_by_last_color" else "_by_selection")
-			--
-			--/* ITEMS BY COLOR */
-			--call_fn = "callMethodByVertexColor #"+ method as string + " "
-			--
-
 			/* DEFINE MAIN MENU */
 			Menu = RcMenu_v name:"GenerateBeamsMenu"
 
-
-			--if method != #SET then
-			--	Menu.item item_title	( "macros.run" + "\"" + category + "\"" + "\"" + macro_name + "\""	) -- macros.run "_Epoly-Vertex-Color" "color_set_by_selection"
-			--
-			--Menu.item "Force Generate without AUTOSORT and MAX DISTANCE"	( "generateBeams auto_sort:false use_max_distance:false"	)
-
 			Menu.item "Connect supports in CHAIN"	( "SUPPORT_MANAGER.generateBeams sort_mode:#JOIN_SUPPORTS_CHAIN"	)
 
-			--Menu.item "To Closest Selected Supports"	( "generateBeamsToClosestSupports()"	)
-			--Menu.item "&GREEN"	( call_fn + "green"	)
-			--Menu.item "&BLUE"	( call_fn + " " + COLOR_NAMES[#BLUE] as string	)
-			--Menu.item "&ORANGE"	( call_fn + "orange"	)
-			--Menu.item "&PINK"	( call_fn + " " + COLOR_NAMES[#PINK] as string	)
-			--Menu.item "&WHITE"	( call_fn + "white"	)
-
-
 			popUpMenu (Menu.create())
-
-
-			--_selection = for o in selection collect o
-			--
-			--if _selection.count > 0 then
-			--	new_nodes = SUPPORT_MANAGER.generateBeams( _selection) auto_sort:false use_max_distance:false
-			--
-			--select (if new_nodes.count > 0 then new_nodes else _selection)
-
 		)
 )
 

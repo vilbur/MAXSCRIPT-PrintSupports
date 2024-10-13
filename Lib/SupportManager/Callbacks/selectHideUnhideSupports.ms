@@ -72,8 +72,8 @@ function selectHideUnhideSupports type: state: select_mode: keyboard.controlPres
 	--format "select: % ms\n" (( timeStamp()) - timer_select)
 	redrawViews()
 	format "SELECTING: % ms\n" (( timeStamp()) - timer_SELECTING)
-
+	format "is_manager_open: %\n" is_manager_open
 	/* REOPEN LAYER MANAGER */
-	if is_manager_open then
-		LayerManager.editLayerByName ""
+	--if is_manager_open then
+		--LayerManager.editLayerByName ""
 )

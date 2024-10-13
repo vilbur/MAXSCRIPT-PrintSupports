@@ -30,8 +30,7 @@ tooltip:	""
 icon:	"offset:[0,10]"
 (
 	on execute do
-		format "EventFired: %\n" EventFired
-		--toggleSupportFoot true
+		toggleSupportFoot true
 )
 
 /** SUPPORT FOOT
