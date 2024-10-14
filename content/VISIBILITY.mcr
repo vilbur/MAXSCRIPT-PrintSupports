@@ -37,7 +37,7 @@ icon:	""
 macroscript	_print_support_visibility_show
 category:	"_3D-Print"
 buttontext:	"SUPPORTS"
-tooltip:	"Show support objects\n\nCTRL: Select support objects\n\nSHIFT:Select more"
+tooltip:	"Show SUPPORT objects\n\nCTRL: Select support objects\n\nSHIFT:Select more"
 --icon:	"tooltip:CTRL: Select support objects\n\nSHIFT:Select more"
 (
 	on execute do
@@ -67,7 +67,7 @@ tooltip:	"Hide supports"
 macroscript	_print_support_visibility_rafts
 category:	"_3D-Print"
 buttontext:	"RAFTS"
-tooltip:	"Show raft objects\n\nCTRL: Select raft objects\n\nSHIFT:Select more"
+tooltip:	"Show RAFT objects\n\nCTRL: Select raft objects\n\nSHIFT:Select more"
 --icon:	"tooltip:CTRL: Select raft objects\n\nSHIFT:Select more"
 (
 	on execute do
@@ -102,7 +102,7 @@ tooltip:	"Hide rafts"
 macroscript	_print_support_visibility_beams_show
 category:	"_3D-Print"
 buttontext:	"BEAMS"
-tooltip:	"Show source objects\n\nCTRL: Select source objects\n\nSHIFT:Select more"
+tooltip:	"Show BEAMS objects\n\nCTRL: Select beams objects\n\nSHIFT:Select more"
 icon:	"across:3"
 (
 	on execute do
@@ -131,7 +131,7 @@ tooltip:	"Hide beams"
 macroscript	_print_support_visibility_pins_show
 category:	"_3D-Print"
 buttontext:	"PINS"
-tooltip:	"Show pins objects\n\nCTRL: Select pins objects\n\nSHIFT:Select more"
+tooltip:	"Show PINS objects\n\nCTRL: Select pins objects\n\nSHIFT:Select more"
 --icon:	"tooltip:CTRL: Select pins objects\n\nSHIFT:Select more"
 (
 	on execute do
@@ -160,7 +160,7 @@ tooltip:	"Hide pins"
 macroscript	_print_support_visibility_drains_show
 category:	"_3D-Print"
 buttontext:	"DRAINS"
-tooltip:	"Show drains objects\n\nCTRL: Select drains objects\n\nSHIFT:Select more"
+tooltip:	"Show DRAINS objects\n\nCTRL: Select drains objects\n\nSHIFT:Select more"
 --icon:	"tooltip:CTRL: Select drains objects\n\nSHIFT:Select more"
 (
 	on execute do

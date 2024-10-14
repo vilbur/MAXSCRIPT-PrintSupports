@@ -88,7 +88,7 @@ struct SupportManager_v
 	shapes_to_update = #(), -- sore shape for mass updating
 
 	/* dependency */
-	BeamGenerator = BeamGenerator_v(),
+	BeamGenerator = BeamGenerator_v(), --"./BeamGenerator/BeamGenerator.ms"
 
 	/* reference */
 	/* inhered */
@@ -649,9 +649,9 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		format "\n"; print "SupportManager_v.getObjectsByType()"
-		format "type: %\n" type
-		format "_objects: %\n" _objects
+		--format "\n"; print "SupportManager_v.getObjectsByType()"
+		--format "type: %\n" type
+		--format "_objects: %\n" _objects
 		--/** Is type support
 		-- */
 		--function isTypeSupport type =
@@ -683,7 +683,7 @@ struct SupportManager_v
 		--format "source_keys: %\n" source_keys.count
 		--format "supports: %\n" supports.count
 		--format "beams: %\n" beams.count
-		format "drains: %\n" drains
+		--format "drains: %\n" drains
 
 		/*==============================================================================
 			GET SOURCE OBJECTS

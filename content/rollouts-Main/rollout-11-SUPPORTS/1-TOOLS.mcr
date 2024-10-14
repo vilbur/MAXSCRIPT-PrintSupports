@@ -27,7 +27,7 @@ macroscript	_print_support_toggle_foot_true
 category:	"_3D-Print"
 buttontext:	"Toggle Foot"
 tooltip:	""
-icon:	"offset:[0,10]"
+--icon:	"offset:[0,10]"
 (
 	on execute do
 		toggleSupportFoot true
