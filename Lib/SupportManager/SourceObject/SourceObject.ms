@@ -240,8 +240,6 @@ struct SourceObject_v
 			for SupportObjectData in Supports collect SupportObjectData.value.support_obj --return
 	),
 
-
-
 	/** Set verts pos by supports
 	 */
 	function setVertsPosBySupports =

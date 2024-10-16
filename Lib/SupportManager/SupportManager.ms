@@ -80,10 +80,9 @@ struct SupportManager_v
 	export_size,
 
 	/* properties */
-	SourceObjects  = Dictionary #STRING,
-	SupportObjects = Dictionary #STRING,
-
-	BeamObjects = Dictionary #STRING, --KEY:#POINTER_SUPORT_AxPOINTER_SUPORT_B VALUE:BeamObject_v
+    SourceObjects	= Dictionary #STRING,
+    SupportObjects	= Dictionary #STRING,
+    BeamObjects 	= Dictionary #STRING, --KEY:#POINTER_SUPORT_AxPOINTER_SUPORT_B VALUE:BeamObject_v
 
 	shapes_to_update = #(), -- sore shape for mass updating
 
@@ -104,24 +103,17 @@ struct SupportManager_v
 		supports_exists  = SourceObject.getSupportNodes obj_type:obj_type
 
 		new_nodes = SourceObject.generateSupports obj_type:obj_type
-		format "NEW_NODES: %\n" NEW_NODES
+		--format "NEW_NODES: %\n" NEW_NODES
 
 		if new_nodes.count > 0 then
 		(
 			MODIFIERS_MANAGER.addModifiers( new_nodes ) obj_type:obj_type supports_exists:supports_exists
 
-			--support_nodes =
-			--
-			--for SupportObject in (SupportObjects) do
-
 			bindSupportToTransformEvent( SourceObject.getSupportNodes() )
 
 			bindBeamOnDeleteCallback( SourceObject.getSupportNodes() )
 
-			--format "SourceObject.getSupportNodes(): %\n" (SourceObject.getSupportNodes())
-			--format "SourceObject.Supports: %\n" SourceObject.Supports
 			this.updateShapes()
-
 		)
 
 		new_nodes --return
@@ -409,23 +401,23 @@ struct SupportManager_v
 	 */
 	function updateModifiers EventFired =
 	(
-		format "\n"; print "SupportManager_v.updateModifiers()"
-		_selection = selection as Array
+		--format "\n"; print "SupportManager_v.updateModifiers()"
+		_selection = ( if selection.count > 0 then selection else objects ) as Array
 
 		obj_type = substring EventFired.Roll.name ((findString EventFired.Roll.name "_")+1) -1
 		prop_key = substring EventFired.control.name ((findString EventFired.control.name "_")+1) -1
 
-
 		obj_type = trimRight obj_type "s"
 
-		format "obj_type: %\n" obj_type
-		format "prop_key: %\n" prop_key
+		--format "obj_type: %\n" obj_type
+		--format "prop_key: %\n" prop_key
 
+		/* GET SOURCE OBJECTS */
 		source_objects = this.getSourceObjects ( _selection )
-		--format "source_objects: %\n" source_objects
-		objects_by_type       = this.getObjectsByType ( _selection ) type:( obj_type as name )
 
-		format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
+		/* GET OBJECTS BY TYPE */
+		objects_by_type = this.getObjectsByType ( _selection ) type:( obj_type as name )
+		--format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
 
 		--for SourceObject in source_objects do
 		--	join objects_by_type (SourceObject.getSupportNodes())
@@ -672,7 +664,7 @@ struct SupportManager_v
 			case of
 			(
                 ((sync_key = this._getKey #SOURCE obj) != undefined ): append source_keys sync_key
-                --((this._isType #SOURCE  obj) != undefined ): append source_keys obj
+
                 ((this._getKey #SUPPORT obj) != undefined ): append supports obj
                 ((this._getKey #RAFT	obj) != undefined ): append supports obj
                 ((this._getKey #BEAM    obj) != undefined ): append beams obj
@@ -680,10 +672,10 @@ struct SupportManager_v
                 --default:
 			)
 
-		--format "source_keys: %\n" source_keys.count
-		--format "supports: %\n" supports.count
-		--format "beams: %\n" beams.count
-		--format "drains: %\n" drains
+		--format "SOURCE_KEYS: %\n" source_keys.count
+		--format "SUPPORTS: %\n" supports.count
+		--format "BEAMS: %\n" beams.count
+		--format "DRAINS: %\n" drains
 
 		/*==============================================================================
 			GET SOURCE OBJECTS

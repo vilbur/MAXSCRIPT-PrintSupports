@@ -1,4 +1,29 @@
 
+/** Select supports by beams count
+ */
+function selectSupportsByBeamsCount count =
+(
+	--format "\n"; print ".selectSupportsByBeamsCount()"
+
+	_objects = (if selection.count > 0 then selection else objects) as Array
+
+	--source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
+
+	supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
+	format "supports.count: %\n" supports.count
+	--beams = SUPPORT_MANAfilein @"filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr""GER.getObjectsByType supports type:#BEAM
+
+	bemas_of_supports = for support in supports collect SUPPORT_MANAGER.getObjectsByType support type:#BEAM
+	--SUPPORT_MANAGER.getObjectsByType beams type:#SUPPORT
+	--format "bemas_of_supports.count: %\n" bemas_of_supports.count
+	--format "source_objects: %\n" source_objects
+	supports_by_count = for i = 1 to bemas_of_supports.count where bemas_of_supports[i].count == count collect supports[i]
+
+	if supports_by_count.count > 0 then
+		select supports_by_count
+
+)
+
 
 /**
  *
@@ -134,8 +159,6 @@ toolTip:	"Select supports which are NOT on ground"
 	)
 )
 
-
-
 /**
  *
  */
@@ -148,7 +171,7 @@ icon:	"across:4"
 
 	on execute do
 	(
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SELECTION-TOOLS\SUPPORT SELECTION.mcr"
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr"
 
 		supports = SUPPORT_MANAGER.getObjectsByType ( selection as Array ) type:#SUPPORT -- hierarchy:shift
 
@@ -158,35 +181,6 @@ icon:	"across:4"
 		select filtered
 	)
 )
-
-
-
-
-/** Select supports by beams count
- */
-function selectSupportsByBeamsCount count =
-(
-	--format "\n"; print ".selectSupportsByBeamsCount()"
-
-	_objects = (if selection.count > 0 then selection else objects) as Array
-
-	--source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
-
-	supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
-	format "supports.count: %\n" supports.count
-	--beams = SUPPORT_MANAfilein @"filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr""GER.getObjectsByType supports type:#BEAM
-
-	bemas_of_supports = for support in supports collect SUPPORT_MANAGER.getObjectsByType support type:#BEAM
-	--SUPPORT_MANAGER.getObjectsByType beams type:#SUPPORT
-	--format "bemas_of_supports.count: %\n" bemas_of_supports.count
-	--format "source_objects: %\n" source_objects
-	supports_by_count = for i = 1 to bemas_of_supports.count where bemas_of_supports[i].count == count collect supports[i]
-
-	if supports_by_count.count > 0 then
-		select supports_by_count
-
-)
-
 
 /**
  *
@@ -201,7 +195,6 @@ icon:	"across:4"
 		selectSupportsByBeamsCount 0
 )
 
-
 /**
  *
  */
@@ -212,7 +205,7 @@ toolTip:	"Select supports by beams count"
 (
 	on execute do
 	(
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-SELECTION-TOOLS\SUPPORT SELECTION.mcr"
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr"
 
 
 		/* DEFINE MAIN MENU */
