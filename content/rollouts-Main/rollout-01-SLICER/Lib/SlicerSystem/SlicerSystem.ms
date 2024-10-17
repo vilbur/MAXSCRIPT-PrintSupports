@@ -4,6 +4,13 @@ filein( getFilenamePath(getSourceFileName()) + "/SlicerCallbacks.ms" )	--"./Slic
 
 
 
+
+
+/*
+
+	TODO: MOVE CALLBACK TO FILE
+
+*/
 /** Wait when modifier stack will be ready
  */
 function waitOnModifiyStackIsReady_SLICER =
@@ -50,6 +57,12 @@ function onModifyStackReady_SLICER =
 		showEndResult  = true
 	)
 )
+
+
+
+
+
+
 
 /** Methods synchronizing islands dialog controls functions
  */

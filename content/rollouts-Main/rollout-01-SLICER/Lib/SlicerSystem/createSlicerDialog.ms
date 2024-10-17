@@ -47,13 +47,13 @@ function createSlicerSliderDialog =
 	--------------------------------------------------------------------------------*/
 	min_size = [ 42, -1 ]
 
-    Dialog 	    = Dialog_v "" id:#DIALOG_slicer_slider min_size:min_size --ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
+    Dialog 	    = Dialog_v "" id:#DIALOG_slicer_slider width:min_size.x min_size:min_size --ini:(getSourceFileName()) --min_size:[48, -1] max_size:[48, -1]
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 
 	/*------------------------------------------------------------------------------
 		CONTROLS
-	--------------------------------------------------------------------------------*/
+	------------------------------------------------------------------------------*/
 	tooltip_btn = "Shift slider 1 layer UP \ DOWN\n\nCTRL:  Go 10 layers UP \ DOWN\n\nSHIFT: Go 100 layers UP \ DOWN\n\nALT:  Go NEXT\PREVIOUS island"
 
 	btn_exit = _Controls.control #BUTTON "IN\OUT" width:42 height:24 offset:	[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
@@ -71,7 +71,6 @@ function createSlicerSliderDialog =
                     across:	1	\
                     offset:	[ -6, -4 ]	\
                     ini:	false
-                    --pos:	pos_slider
 
 	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -4 ] tooltip:tooltip_btn
 
@@ -91,15 +90,6 @@ function createSlicerSliderDialog =
 	_slider.Event #BUTTONDOWN	"flagForeground SLICER_SYSTEM.obj true"
 	_slider.Event #BUTTONUP	"flagForeground SLICER_SYSTEM.obj false"
 
-	----_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"
-	--_slider.Event #LEFTCLICK	""
-
-	--_slider.Event #CHANGED     "::SlicerCallbacks_v.moveSlider(#DOWN)"
-	--_slider.Event #buttondown      "::SlicerCallbacks_v.moveSlider(#DOWN)"
-	--_slider.Event #buttonup      "::SlicerCallbacks_v.moveSlider(#DOWN)"
-	--_slider.Event #RIGHTCLICK     "::SlicerCallbacks_v.moveSlider(#DOWN)"
-	--_slider.Event #RIGHTCLICK  "toggleSelectIslandMode()"
-
 	_spinner.Event #CHANGED "::SlicerCallbacks_v.onSpinnerChanged(val)"
 
 	btn_plus_minus.Event #PRESSED    "::SlicerCallbacks_v.onPlusMinusButton( 1 )"
@@ -110,8 +100,9 @@ function createSlicerSliderDialog =
 	/*------------------------------------------------------------------------------
 		CREATE DIALOG
 	--------------------------------------------------------------------------------*/
-	Dialog.create width:min_size.x height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
+	--Dialog.create width:min_size.x height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
 	--Dialog.create width:(42) height:#VIEWPORT lockWidth:false --style:#()   --bgcolor:( color 60 130 140 )
+	Dialog.create height:#VIEWPORT --style:#()  --lockWidth:false --bgcolor:( color 60 130 140 )
 
 	Dialog.dock #RIGHT
 
