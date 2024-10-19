@@ -101,9 +101,11 @@ struct SupportManager_v
 		SourceObject = this._getSourceObject(source_obj)
 
 		supports_exists  = SourceObject.getSupportNodes obj_type:obj_type
+		format "supports_exists: %\n" supports_exists
 
 		new_nodes = SourceObject.generateSupports obj_type:obj_type
-		--format "NEW_NODES: %\n" NEW_NODES
+		format "NEW SUPPORTS: %\n" new_nodes
+		format "COUNT: %\n" new_nodes.count
 
 		if new_nodes.count > 0 then
 		(
@@ -401,13 +403,16 @@ struct SupportManager_v
 	 */
 	function updateModifiers EventFired =
 	(
-		--format "\n"; print "SupportManager_v.updateModifiers()"
+		format "\n"; print "SupportManager_v.updateModifiers()"
 		_selection = ( if selection.count > 0 then selection else objects ) as Array
 
-		obj_type = substring EventFired.Roll.name ((findString EventFired.Roll.name "_")+1) -1
+		/* GET OBJECT TYPE BY ROLLOUT NAME  */
+		obj_type = substring EventFired.Roll.name    ((findString EventFired.Roll.name "_")+1) -1
+		/* GET PROPERTY KEY BY CONTROL NAME */
 		prop_key = substring EventFired.control.name ((findString EventFired.control.name "_")+1) -1
 
 		obj_type = trimRight obj_type "s"
+
 
 		--format "obj_type: %\n" obj_type
 		--format "prop_key: %\n" prop_key
@@ -416,8 +421,9 @@ struct SupportManager_v
 		source_objects = this.getSourceObjects ( _selection )
 
 		/* GET OBJECTS BY TYPE */
-		objects_by_type = this.getObjectsByType ( _selection ) type:( obj_type as name )
-		--format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
+		objects_by_type = this.getObjectsByType ( _selection ) type:( obj_type )
+		format "OBJECTS_BY_TYPE: %\n" OBJECTS_BY_TYPE
+		format "OBJECTS_BY_TYPE.count: %\n" OBJECTS_BY_TYPE.count
 
 		--for SourceObject in source_objects do
 		--	join objects_by_type (SourceObject.getSupportNodes())
@@ -426,8 +432,11 @@ struct SupportManager_v
 
 		SUPPORT_OPTIONS.init()
 
+		/* GET MODIFIER NAME -same as prop key, but change #RAFT_WIDTH > #BAR_WIDTH  */
+		--mod_name = if obj_type == #RAFT and prop_key == #RAFT_WIDTH then #BAR_WIDTH else prop_key as name
+
 		--SPIN_base_width
-		MODIFIERS_MANAGER.updateModifier( makeUniqueArray objects_by_type )(prop_key as name )
+		MODIFIERS_MANAGER.updateModifier( makeUniqueArray objects_by_type )( prop_key as name )
 	),
 
 
@@ -641,9 +650,9 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		--format "\n"; print "SupportManager_v.getObjectsByType()"
-		--format "type: %\n" type
-		--format "_objects: %\n" _objects
+		format "\n"; print "SupportManager_v.getObjectsByType()"
+		format "type: %\n" type
+		format "_objects: %\n" _objects
 		--/** Is type support
 		-- */
 		--function isTypeSupport type =
@@ -654,6 +663,7 @@ struct SupportManager_v
 
         source_keys = #()
         supports	= #()
+        rafts	= #()
         beams   	= #()
         drains   	= #()
 
@@ -666,16 +676,17 @@ struct SupportManager_v
                 ((sync_key = this._getKey #SOURCE obj) != undefined ): append source_keys sync_key
 
                 ((this._getKey #SUPPORT obj) != undefined ): append supports obj
-                ((this._getKey #RAFT	obj) != undefined ): append supports obj
+                ((this._getKey #RAFT	obj) != undefined ): append rafts obj
                 ((this._getKey #BEAM    obj) != undefined ): append beams obj
                 ((this._getKey #DRAIN   obj) != undefined ): append drains obj
                 --default:
 			)
 
-		--format "SOURCE_KEYS: %\n" source_keys.count
-		--format "SUPPORTS: %\n" supports.count
-		--format "BEAMS: %\n" beams.count
-		--format "DRAINS: %\n" drains
+		format "SOURCE_KEYS: %\n" source_keys.count
+		format "SUPPORTS: %\n" supports.count
+		format "RAFTS: %\n" rafts.count
+		format "BEAMS: %\n" beams.count
+		format "DRAINS: %\n" drains
 
 		/*==============================================================================
 			GET SOURCE OBJECTS
@@ -701,7 +712,8 @@ struct SupportManager_v
                     appendIfUnique objects_by_type obj
 
 		)
-		/*==============================================================================
+		/*=
+		  =============================================================================
 			GET BY SOURCE OBEJCT
 		================================================================================*/
 		else if source_keys.count > 0 then
@@ -722,16 +734,25 @@ struct SupportManager_v
 		/*==============================================================================
 			GET BY SUPPORTS
 		================================================================================*/
-		else if supports.count > 0 then
+		else if supports.count > 0 or rafts.count > 0 then
 		(
+			supports_or_rafts = if type == #SUPPORT then supports else rafts
+
+			objects_by_type = deepCopy supports_or_rafts
+
+			format "supports_or_rafts X: %\n" supports_or_rafts
+
 			/* GET BEAMS OF SOURCE OBJECT */
 			if hierarchy or type == #BEAM  then
-				for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
+				for key in BeamObjects.keys where findItem supports_or_rafts BeamObjects[key].support_A > 0 or findItem supports_or_rafts BeamObjects[key].support_B > 0 do
 					append objects_by_type BeamObjects[key].beam
 
-			if  hierarchy or type == #SUPPORT or type == #RAFT then
-				objects_by_type += supports
+			/* add to current selection */
+			--if hierarchy or type == #SUPPORT or type == #RAFT then
+			if hierarchy then
+				objects_by_type += _objects
 		)
+
 		/*==============================================================================
 			GET BY BEAMS
 		================================================================================*/
@@ -750,7 +771,10 @@ struct SupportManager_v
 				)
 		)
 
-		objects_by_type --return
+		--objects_by_type --return
+		format "objects_by_type: %\n" objects_by_type
+		for obj in objects_by_type where isValidNode obj collect obj  --return
+
 	),
 
 	/** Get source object

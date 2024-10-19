@@ -180,6 +180,9 @@ struct VertIslandFinder_v
 			faces_processed += faces_in_layer
 			verts_processed += verts_in_layer
 
+			--if mod l 100 == 0 then
+				--format "Takes % seconds to process\n" ((( timeStamp()) - layer_timer) / 1000.0)
+
 			gc light:true
 		)
 

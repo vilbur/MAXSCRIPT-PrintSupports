@@ -74,7 +74,7 @@ function createIslandManagerDialog islands_to_show: =
 
 	min_size = [ 96, -1 ]
 
-    Dialog 	    = Dialog_v "" id:#DIALOG_island_manager ini:(getSourceFileName()) min_size:min_size --max_size:[48, -1]
+    Dialog 	    = Dialog_v "" id:#DIALOG_island_manager ini:(getSourceFileName()) width:min_size.x min_size:min_size --max_size:[48, -1]
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 

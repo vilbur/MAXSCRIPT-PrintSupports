@@ -44,3 +44,33 @@ icon:	""
 	on execute do
 		toggleSupportFoot false
 )
+
+/**
+ */
+macroscript	_print_support_straighten
+category:	"_3D-Print"
+buttontext:	"Straighten"
+tooltip:	"Make support straigh by removing all knots from line"
+icon:	""
+(
+	on execute do
+	if queryBox ("Convert support to straigt lines ?") title:"Straighten support" then
+
+	(
+		_objects = selection as Array
+
+		supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
+
+		for support in supports where ( num_knots = numKnots support 1 ) > 2 do
+		(
+			for i = 2 to num_knots - 1 do
+				deleteKnot support 1 i
+
+			updateShape support
+		)
+
+	)
+		--toggleSupportFoot false
+)
+
+

@@ -107,7 +107,7 @@ icon:	"across:3"
 
 	on execute do
 	(
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-VERTEX SELECTION\VERTEX SELECTION TOOLS.mcr"
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-11-SUPPORTS\SELECTION.mcr"
 
 		if subObjectLevel == 0 then
 			selectVertsBySupports()
@@ -285,7 +285,8 @@ function searchInvalidSupports type: =
 				--format "test: %\n" ( segment_length - limit_lenght < -0.1 )
 
 				/* FOOT SEGMENT IS SHORT - on mostly straight support */
-				if segments_lengths[2] < chamfer_amount then
+				--if segments_lengths[2] < chamfer_amount then
+				for segment_length in segments_lengths while not support_invalid where segment_length < chamfer_amount do
 				(
 					support_invalid = true
 
@@ -338,6 +339,10 @@ function searchInvalidSupports type: =
 			else /* ANGLE IS TOO SHARP - higher priority - support is unprintable */
 				append invalid_supports[#ANGLE] support
 		)
+		else if shape_lengths[shape_lengths.count] < chamfer_amount *2 then
+			append invalid_supports[#CHAMFER] support
+
+
 	)
 	format "INVALID_SUPPORTS: %\n" invalid_supports
 
@@ -398,69 +403,11 @@ tooltip:	"Open menu"
 		/* DEFINE MENU */
 		Menu = RcMenu_v name:"CheckSupports"
 
-        Menu.item "Too &WIDE"    "checkLenghtsAndAnglesOfSupports type:#SHORT"
-        Menu.item "Too &SHORT"    "checkLenghtsAndAnglesOfSupports type:#SHORT"
+        Menu.item "High &RADIUS"    "checkLenghtsAndAnglesOfSupports type:#SHORT"
         Menu.item "High &ANGLE"    "checkLenghtsAndAnglesOfSupports type:#ANGLE"
         Menu.item "High &CHAMFER" "checkLenghtsAndAnglesOfSupports type:#CHAMFER"
+        Menu.item "Too  &SHORT"    "checkLenghtsAndAnglesOfSupports type:#SHORT"
 
 		popUpMenu (Menu.create())
 	)
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

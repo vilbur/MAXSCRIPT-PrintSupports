@@ -5,7 +5,7 @@
  */
 macroscript	maxtoprint_islands_dialog
 category:	"_3D-Print"
-buttontext:	"V I E W E R  ☰"
+buttontext:	"I S L A N D S  ☰"
 toolTip:	"Open islands dialog with VISIBLE islands"
 icon:	"across:3|height:32"
 (
@@ -54,7 +54,7 @@ icon:	"across:3|height:32"
  */
 macroscript	maxtoprint_islands_dialog_show_all
 category:	"_3D-Print"
-buttontext:	"V I E W E R  ☰"
+buttontext:	"I S L A N D S  ☰"
 toolTip:	"Open islands dialog with ALL islands"
 icon:	"across:3|height:32"
 (
@@ -67,13 +67,14 @@ icon:	"across:3|height:32"
 		)
 	)
 )
+
 /**
  *
  */
 macroscript	maxtoprint_find_islands
 category:	"_3D-Print"
 buttontext:	"Search Islands"
-toolTip:	"Refresh islands"
+toolTip:	"Search islands"
 icon:	"across:3"
 (
 	on execute do

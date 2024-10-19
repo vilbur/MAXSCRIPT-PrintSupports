@@ -73,21 +73,24 @@ struct ModifiersManager_v
 
 	/** Update modifier by value in SUPPORT_OPTIONS
 	 */
-	function updateModifier _objects mod_name =
+	function updateModifier _objects prop_key =
 	(
-		--format "\n"; print "ModifiersManager_v.updateModifier()"
-		--format "mod_name: %\n" mod_name
-		--format "_objects: %\n" _objects
+		format "\n"; print "ModifiersManager_v.updateModifier()"
+		format "_objects: %\n" _objects
+		format "prop_key: %\n" prop_key
 
 		mods = #()
+
+		mod_name = if prop_key == #RAFT_WIDTH then #BAR_WIDTH else prop_key
 
 		for obj in _objects where obj.modifiers[mod_name] != undefined do
 			appendIfUnique mods obj.modifiers[mod_name]
 
-		--format "mods.count: %\n" mods.count
+		format "mods.count: %\n" mods.count
+
 		if mods.count > 0 then
 		(
-			val = SUPPORT_OPTIONS.getOption mod_name
+			val = SUPPORT_OPTIONS.getOption prop_key
 
 			classof_mod = classOf mods[1]
 
@@ -102,7 +105,7 @@ struct ModifiersManager_v
 					--#EXTEND_END:	_mod.amount	= SUPPORT_OPTIONS.extend_end
 					--#EXTEND_TOP:	_mod.amount	= SUPPORT_OPTIONS.extend_top
 
-					default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" mod_name -- this should never happen
+					default: format "\nWARNING -- UPDATE OF UNSUPPORTED MODIER\n\nSupportModifiers_v.updateModifier(): %\n" prop_key -- this should never happen
 				)
 		)
 	),

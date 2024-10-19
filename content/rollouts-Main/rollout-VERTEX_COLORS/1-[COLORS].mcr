@@ -1,6 +1,6 @@
 --filein( getFilenamePath(getSourceFileName()) + "/Lib/callMethodByVertexColor/callMethodByVertexColor.ms" )	--"./Lib/callMethodByVertexColor/callMethodByVertexColor.ms"
 
-global COLOR_NAMES = Dictionary #( #BLUE, color 0 135 255 ) #(#PINK, color 225 88 199 ) #(#MAGENTA, color 225 0 255 )-- KEY:#COLOR_NAME VALUE:color value
+global COLOR_NAMES = Dictionary #( #BLUE, color 0 135 255 ) #(#ORANGE, color 225 60 0 ) #(#PINK, color 225 88 199 ) #(#MAGENTA, color 225 0 255 )-- KEY:#COLOR_NAME VALUE:color value
 
 /*==============================================================================
 	Color Set
@@ -89,7 +89,8 @@ icon:	"MENU:Set &ORANGE"
 	on isVisible return subObjectLevel != 0
 
 	on execute do
-		callMethodByVertexColor #SET orange
+		callMethodByVertexColor #SET COLOR_NAMES[#ORANGE]
+	--callMethodByVertexColor #SET orange
 )
 /**
   */

@@ -8,7 +8,9 @@ filein( getFilenamePath(getSourceFileName()) + "/../MAXSCRIPT-UI-framework/Lib/M
 
 /* UI GLOBALS */
 global DIALOG_content
+global DIALOG_slicer_slider
 global ROLLOUT_generator
+global ROLLOUT_slicer
 
 /* STRUCT GLOBALS - before import SupportManager */
 global SUPPORT_OPTIONS -- global SUPPORT_OPTIONS must be defined before SUPPORT_MANAGER

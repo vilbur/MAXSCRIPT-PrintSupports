@@ -66,22 +66,27 @@ struct SourceObject_v
 		this._setLocalVertexNormals(verts_process)
 
 		this._setWorldSpaceVertexNormals(verts_process)
-		--format "VERTS_PROCESS A: %\n" verts_process
+		format "VERTS_PROCESS A: %\n" verts_process
 		/* FILTER ONLY VERTS WHICH NORMAL IS POINTING DOWN OR TO SIDE */
 		verts_process = ( for vert in verts_process where this._isNormalValid(vert) collect vert ) as BitArray
-		--format "VERTS_PROCESS B: %\n" verts_process
+		format "VERTS_PROCESS B: %\n" verts_process
 
 		verts_pos = this._getVertsPositions(verts_process)
+
 		/* FILTER ONLY VERTS TO PROCESS FROM COLORED ARRAYS */
-		for vertex_color in verts_by_colors.keys do verts_by_colors[vertex_color] *= verts_process
+		verts_by_colors_process = Dictionary #STRING
+
+		for vertex_color in verts_by_colors.keys do
+			verts_by_colors_process[vertex_color] = verts_by_colors[vertex_color] * verts_process
+
 
 		/* CREATE SUPPORTS FOR EACH COLOR */
-		for vertex_color in verts_by_colors.keys do
-			for vert in verts_by_colors[vertex_color] where not supports_exists[vert]  do
+		for vertex_color in verts_by_colors_process.keys do
+			for vert in verts_by_colors_process[vertex_color] where not supports_exists[vert]  do
 
 			--if not supports_exists[vert] then
 			(
-				--format "create support for vert: %\n" vert
+				format "CREATE SUPPORT FOR VERT: % vertex_color: %\n" vert vertex_color
 				SupportObject = SupportObject_v source_obj:obj obj_type:obj_type sync_key:sync_key
 
 				/*------------------------------------------------------------------------------
@@ -115,7 +120,7 @@ struct SourceObject_v
 		bindSupportToTransformEvent( this.getSupportNodes() )
 
 		bindSourceObjectTransformEvent ( obj )
-
+		format "new_nodes.count: %\n" new_nodes.count
 		new_nodes --return
 	),
 

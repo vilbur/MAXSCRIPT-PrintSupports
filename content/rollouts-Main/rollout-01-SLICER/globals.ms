@@ -1,2 +1,0 @@
-global ROLLOUT_slicer
-global DIALOG_slicer_slider
