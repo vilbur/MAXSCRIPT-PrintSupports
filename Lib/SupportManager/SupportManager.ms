@@ -504,100 +504,102 @@ struct SupportManager_v
 	),
 
 
-	/** get objects by type
-	 */
-	function searchObjectsByType _objects type: hierarchy:false =
-	(
-		format "\n"; print "SupportManager_v.searchObjectsByType()"
-
-        source_keys = #()
-        supports	= #()
-        beams   	= #()
-
-        objects_to_process = #()
 
 
-		for obj in _objects do
-			case of
-			(
-                ((sync_key = this.isSourceObject obj) != false): append source_keys sync_key
-                --((this.isType #SOURCE  obj) != false): append source_keys obj
-                ((this.isType #SUPPORT obj) != false): append supports obj
-                ((this.isType #BEAM    obj) != false): append beams obj
-                --default:
-			)
-
-		format "source_keys: %\n" source_keys.count
-		format "supports: %\n" supports.count
-		format "beams: %\n" beams.count
-
-		if type == #SOURCE then
-		(
-			--for source_key in source_keys do append objects_to_process SourceObjects[source_key]
-			--if hierarchy then
-			--(
-				sync_keys_of_objs = for obj in supports + beams collect this._getSyncKey(obj)
-			--	format "sync_keys_of_objs: %\n" sync_keys_of_objs
-			--	format "source_keys: %\n" source_keys
-			--
-				source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
-			--	--objects_to_process = for key in  collect SourceObjects[key].obj
-			--
-			--	source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
-			--)
-
-
-			objects_to_process = for key in source_keys collect SourceObjects[key].obj
-		)
-
-		else if source_keys.count > 0 then
-		(
-
-			/* GET SUPPORTS OF SOURCE OBJECT */
-			if hierarchy or type == #SUPPORT  then
-				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 do
-					append objects_to_process SupportObjects[key].support_obj
-
-			/* GET BEAMS OF SOURCE OBJECT */
-			if hierarchy or type == #BEAM  then
-				for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
-					append objects_to_process BeamObjects[key].beam
-
-		)
-		else if supports.count > 0 then
-		(
-
-			if  hierarchy or type == #SUPPORT then
-				objects_to_process += supports
-
-			/* GET BEAMS OF SOURCE OBJECT */
-				if hierarchy or type == #BEAM  then
-					for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
-						append objects_to_process BeamObjects[key].beam
-
-		)
-		else if beams.count > 0 then
-		(
-
-			if type == #BEAM  then
-				objects_to_process = beams
-
-
-			else if type == #SUPPORT then
-				for beam in beams do(
-
-					appendIfUnique objects_to_process SupportObjects[getUserPropVal beam "SUPPORT_A"].support_obj
-					appendIfUnique objects_to_process SupportObjects[getUserPropVal beam "SUPPORT_B"].support_obj
-				)
-
-		)
-
-
-
-		format "OBJECTS_TO_PROCESS: %\n" OBJECTS_TO_PROCESS
-
-		objects_to_process --return
-	),
+--	/** get objects by type
+--	 */
+--	function searchObjectsByType _objects type: hierarchy:false =
+--	(
+--		format "\n"; print "SupportManager_v.searchObjectsByType()"
+--
+--        source_keys = #()
+--        supports	= #()
+--        beams   	= #()
+--
+--        objects_to_process = #()
+--
+--
+--		for obj in _objects do
+--			case of
+--			(
+--                ((sync_key = this.isSourceObject obj) != false): append source_keys sync_key
+--                --((this.isType #SOURCE  obj) != false): append source_keys obj
+--                ((this.isType #SUPPORT obj) != false): append supports obj
+--                ((this.isType #BEAM    obj) != false): append beams obj
+--                --default:
+--			)
+--
+--		format "source_keys: %\n" source_keys.count
+--		format "supports: %\n" supports.count
+--		format "beams: %\n" beams.count
+--
+--		if type == #SOURCE then
+--		(
+--			--for source_key in source_keys do append objects_to_process SourceObjects[source_key]
+--			--if hierarchy then
+--			--(
+--				sync_keys_of_objs = for obj in supports + beams collect this._getSyncKey(obj)
+--			--	format "sync_keys_of_objs: %\n" sync_keys_of_objs
+--			--	format "source_keys: %\n" source_keys
+--			--
+--				source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
+--			--	--objects_to_process = for key in  collect SourceObjects[key].obj
+--			--
+--			--	source_keys = makeUniqueArray (source_keys + sync_keys_of_objs)
+--			--)
+--
+--
+--			objects_to_process = for key in source_keys collect SourceObjects[key].obj
+--		)
+--
+--		else if source_keys.count > 0 then
+--		(
+--
+--			/* GET SUPPORTS OF SOURCE OBJECT */
+--			if hierarchy or type == #SUPPORT  then
+--				for key in SupportObjects.keys where findItem source_keys SupportObjects[key].sync_key > 0 do
+--					append objects_to_process SupportObjects[key].support_obj
+--
+--			/* GET BEAMS OF SOURCE OBJECT */
+--			if hierarchy or type == #BEAM  then
+--				for key in BeamObjects.keys where findItem source_keys BeamObjects[key].sync_key > 0 do
+--					append objects_to_process BeamObjects[key].beam
+--
+--		)
+--		else if supports.count > 0 then
+--		(
+--
+--			if  hierarchy or type == #SUPPORT then
+--				objects_to_process += supports
+--
+--			/* GET BEAMS OF SOURCE OBJECT */
+--				if hierarchy or type == #BEAM  then
+--					for key in BeamObjects.keys where findItem supports BeamObjects[key].support_A > 0 or findItem supports BeamObjects[key].support_B > 0 do
+--						append objects_to_process BeamObjects[key].beam
+--
+--		)
+--		else if beams.count > 0 then
+--		(
+--
+--			if type == #BEAM  then
+--				objects_to_process = beams
+--
+--
+--			else if type == #SUPPORT then
+--				for beam in beams do(
+--
+--					appendIfUnique objects_to_process SupportObjects[getUserPropVal beam "SUPPORT_A"].support_obj
+--					appendIfUnique objects_to_process SupportObjects[getUserPropVal beam "SUPPORT_B"].support_obj
+--				)
+--
+--		)
+--
+--
+--
+--		format "OBJECTS_TO_PROCESS: %\n" OBJECTS_TO_PROCESS
+--
+--		objects_to_process --return
+--	),
 
 	/*------------------------------------------------------------------------------
 		TEST OBEJCT TYPE
@@ -650,9 +652,9 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		format "\n"; print "SupportManager_v.getObjectsByType()"
-		format "type: %\n" type
-		format "_objects: %\n" _objects
+		--format "\n"; print "SupportManager_v.getObjectsByType()"
+		--format "type: %\n" type
+		--format "_objects: %\n" _objects
 		--/** Is type support
 		-- */
 		--function isTypeSupport type =
@@ -663,7 +665,7 @@ struct SupportManager_v
 
         source_keys = #()
         supports	= #()
-        rafts	= #()
+        rafts		  = #()
         beams   	= #()
         drains   	= #()
 
@@ -682,11 +684,11 @@ struct SupportManager_v
                 --default:
 			)
 
-		format "SOURCE_KEYS: %\n" source_keys.count
-		format "SUPPORTS: %\n" supports.count
-		format "RAFTS: %\n" rafts.count
-		format "BEAMS: %\n" beams.count
-		format "DRAINS: %\n" drains
+		--format "SOURCE_KEYS: %\n" source_keys.count
+		--format "SUPPORTS: %\n" supports.count
+		--format "RAFTS: %\n" rafts.count
+		--format "BEAMS: %\n" beams.count
+		--format "DRAINS: %\n" drains
 
 		/*==============================================================================
 			GET SOURCE OBJECTS
@@ -772,7 +774,7 @@ struct SupportManager_v
 		)
 
 		--objects_by_type --return
-		format "objects_by_type: %\n" objects_by_type
+		--format "objects_by_type: %\n" objects_by_type
 		for obj in objects_by_type where isValidNode obj collect obj  --return
 
 	),
