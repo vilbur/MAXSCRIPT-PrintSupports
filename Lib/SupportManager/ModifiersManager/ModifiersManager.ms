@@ -33,7 +33,7 @@ struct ModifiersManager_v
 		--format "SupportModifiers: %\n" SupportModifiers["default"].mod_names
 
 		_objects_exists = for obj in _objects_exists where isValidNode obj collect obj
-
+		format "_objects_exists: %\n" _objects_exists
 		this._objects =	_objects
 		--this._objects_exists =	_objects_exists
 		--support_with_modifiers	= (this._getSupportsWithModfiers(_objects_exists))[1]
