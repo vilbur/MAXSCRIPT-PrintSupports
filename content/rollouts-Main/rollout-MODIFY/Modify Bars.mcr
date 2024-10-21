@@ -27,40 +27,41 @@ icon:	"control:spinner|across:3|range:[ -999, 100, 0 ]|width:78|offset:[ 0, 0 ]|
 
 		for _mod in mods do
 		(
-			objs_with_mod = #()
-			mods_new = #()
 
-			mod_name = _mod.name
-
-			/* GET ALL OBJECTS WITH INSTANCE OF MODIFIER */
-			for obj in objects do
-				for _modifier in obj.modifiers where _mod == _modifier and ( refhierarchy.isRefTargetInstanced _modifier ) do
-					append objs_with_mod obj
-
-			format "objs_with_mod.count: %\n" objs_with_mod.count
-
-			/* GET UNSELECTED OBEJCTS WOTH SAME ISNTANCE */
-			instances_unselected = for obj in objs_with_mod where findItem _selection obj == 0 collect obj
-
-			if instances_unselected.count > 0 then
+			if not ROLLOUT_modify.CBX_keep_instances.state then
 			(
-				/* MAKE MODIFIERS UNIQUE */
-				InstanceMgr.MakeModifiersUnique supports _mod #GROUP
+				objs_with_mod = #()
+				mods_new = #()
 
-				/* GET NEW UNIQUE MODIFIERS */
-				for obj in _selection do
-					appendIfUnique mods_new obj.modifiers[#SWEEP]
+				mod_name = _mod.name
 
-				/* RESET NAME */
-				for mod_new in mods_new do
-					mod_new.name = mod_name
+				/* GET ALL OBJECTS WITH INSTANCE OF MODIFIER */
+				for obj in objects do
+					for _modifier in obj.modifiers where _mod == _modifier and ( refhierarchy.isRefTargetInstanced _modifier ) do
+						append objs_with_mod obj
+
+				format "objs_with_mod.count: %\n" objs_with_mod.count
+				/* GET UNSELECTED OBEJCTS WOTH SAME ISNTANCE */
+				instances_unselected = for obj in objs_with_mod where findItem _selection obj == 0 collect obj
+
+				if instances_unselected.count > 0 then
+				(
+					/* MAKE MODIFIERS UNIQUE */
+					InstanceMgr.MakeModifiersUnique supports _mod #GROUP
+
+					/* GET NEW UNIQUE MODIFIERS */
+					for obj in _selection do
+						appendIfUnique mods_new obj.modifiers[#SWEEP]
+
+					/* RESET NAME */
+					for mod_new in mods_new do
+						mod_new.name = mod_name
+				)
 			)
 
 			/* SET VALUE TO MODIIFERS */
 			for obj in supports do
 				setProperty obj.modifiers[#BAR_WIDTH] prop_key EventFired.val
-				--obj.modifiers[#BAR_WIDTH].xOffset = EventFired.val
-
 		)
 	)
 )
