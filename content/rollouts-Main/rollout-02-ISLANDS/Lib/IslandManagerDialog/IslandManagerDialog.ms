@@ -84,9 +84,10 @@ function createIslandManagerDialog islands_to_show: =
 
 	items_count = items.count
 
-	pos_y_start = 54
+	listbox_pos_z = 50
 
-	height_other_controls = 108
+	--height_other_controls = 126
+	height_other_controls = 122
 
     max_item_length = amax(for i = ISLANDS_SYSTEM.islands_data.count to 1 by -1 collect (ISLANDS_SYSTEM.islands_data[i][#BOTTOM] as string ).count)
 
@@ -95,7 +96,6 @@ function createIslandManagerDialog islands_to_show: =
 	width_listbox = (max_item_length * 10 ) + 16
 
 	slider_width = 32
-
 
 	space_for_listbox = viewport_height - height_other_controls
 
@@ -108,7 +108,7 @@ function createIslandManagerDialog islands_to_show: =
 	(
 		listbox_height_in_px = items.count * item_height
 
-		pos_y_start += viewport_height - listbox_height_in_px - height_other_controls -- 4 -- 2 px to set position pixel perfect
+		listbox_pos_z += viewport_height - listbox_height_in_px - height_other_controls -- 4 -- 2 px to set position pixel perfect
 
 		listbox_height = items.count
 	)
@@ -119,7 +119,7 @@ function createIslandManagerDialog islands_to_show: =
 	/*------------------------------------------------------------------------------
 		CONTROLS
 	--------------------------------------------------------------------------------*/
-    btn_exit = _Controls.control #BUTTON "Exit" across:1 width:48 height:24 align:#center tooltip:"Exit and remove slicer from all objects"
+    btn_exit = _Controls.control #BUTTON "Exit" across:1 width:48 height:24 align:#center offset:[ 0, -4 ] tooltip:"Exit and remove slicer from all objects"
 
     label_count = _Controls.control #LABEL label_text id:#LABEL_islands_count across:1 width:64 height:24 offset:[ -8, 2 ]
 
@@ -131,7 +131,7 @@ function createIslandManagerDialog islands_to_show: =
 	items:items			\
 	across:2			\
 	ini:false			\
-                   pos:[ 4, pos_y_start ]
+                   pos:[ 4, listbox_pos_z ]
 
 	/*------ SLIDER ------*/
     _slider = _Controls.control #SLIDER "" \
@@ -143,7 +143,7 @@ function createIslandManagerDialog islands_to_show: =
                     height:((listbox_height + 1) * item_height)	\
                     across:2	\
                     ini:false	\
-                    pos:[ width_listbox + 4, pos_y_start - 4 ]
+                    pos:[ width_listbox + 4, listbox_pos_z - 4 ]
 
 	/*------ CECKBUTTON ------*/
 	btn_isloate = _Controls.control #CHECKBUTTON "ISOLATE" id:#CBTN_isolate height:32
@@ -160,8 +160,12 @@ function createIslandManagerDialog islands_to_show: =
 	/*------------------------------------------------------------------------------
 		EVENTS
 	--------------------------------------------------------------------------------*/
+	btn_exit.Event #PRESSED "::IslandsCallbacks_v.destroyIslandsDialog()" border:false tooltip:"Exit slicer"
+
+
 	btn_isloate.Event #CHANGED    "::IslandsCallbacks_v.isolateSlectedIslands(val)" tooltip:"Show only verts of selected islands"
 	btn_isloate.Event #RIGHTCLICK "::IslandsCallbacks_v.unhideVerts()" tooltip:"Unhide Verts"
+
 
 	_radio.Event #CHANGED "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"
 	_radio.Event #RIGHTCLICK "::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()"

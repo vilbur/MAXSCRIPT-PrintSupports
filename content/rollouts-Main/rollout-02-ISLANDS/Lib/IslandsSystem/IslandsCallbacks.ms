@@ -72,7 +72,7 @@ struct IslandsCallbacks_v
 	 */
 	function onListboxSelectionEnd =
 	(
-		--format "\n"; print "IslandsCallbacks_v.onListboxSelectionEnd()"
+		format "\n"; print "IslandsCallbacks_v.onListboxSelectionEnd()"
 		--format "EventFired	= % \n" EventFired
 		_listbox = DIALOG_island_manager.ML_island_listbox
 
@@ -81,6 +81,12 @@ struct IslandsCallbacks_v
 		if selected_islands.numberSet > 0 then
 		(
 			verts = ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+
+			for index in selected_islands do
+			(
+				data = ISLANDS_SYSTEM.islands_data[index]
+				format "selected_island %: BOTTOM: %  TOP: %  NEW_ISLAND: %  WHOLE_ISLAND: % \n" index data[#BOTTOM] data[#TOP] data[#NEW_ISLAND] data[#WHOLE_ISLAND]
+			)
 
 			/* UPDATE SLIDER VALUE TO TOP MOST OF SELECTED ISLANDS */
 			--if selected_islands.count > 0 then
@@ -180,6 +186,15 @@ struct IslandsCallbacks_v
 			1:	2
 			2:	0
 		)
+	),
+
+	/** Destroy dialog
+	 */
+	function destroyIslandsDialog =
+	(
+		--format "\n"; print "IslandsCallbacks_v.destroyDialog()"
+		try( cui.UnRegisterDialogBar DIALOG_island_manager )catch()
+		try( destroyDialog           DIALOG_island_manager )catch()
 	),
 
 	private

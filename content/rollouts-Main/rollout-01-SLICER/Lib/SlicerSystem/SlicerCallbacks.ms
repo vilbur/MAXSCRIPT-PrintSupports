@@ -139,7 +139,7 @@ struct SlicerCallbacks_v
 		)
 		/* CTRL: Go next\previous island - if slider dialog is opened */
 		else if shift_island and DIALOG_island_manager != undefined then
-			layer_next = SLICER_SYSTEM.getLayerOfClosestIsland(layer_current)(increment)
+			layer_next = ISLANDS_SYSTEM.getLayerOfClosestIsland(layer_current)(increment)
 
 		/* GO 1 layer up\down */
 		else
@@ -169,11 +169,14 @@ struct SlicerCallbacks_v
 				/* UPDATE ISLAND MANAGER */
 				if shift_island and DIALOG_island_manager != undefined and layer_next != SLICER_SYSTEM.slice_start then
 				(
-					SLICER_SYSTEM.selectIslandByLayerInListbox #{layer_next}
-
+					ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
 
 					if subObjectLevel != undefined and subObjectLevel > 0 then
-						SLICER_SYSTEM.selectVertsOfIslands(selected_islands)
+					(
+						selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
+
+						ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
+					)
 				)
 			)
 

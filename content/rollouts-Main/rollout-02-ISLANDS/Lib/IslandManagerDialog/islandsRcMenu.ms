@@ -55,6 +55,7 @@ function islandsRcMenu =
 	if listbox_selection.numberSet > 0 then
 		Menu.item "Invert Selection"	"::IslandsRcMenuCallbacks_v.invertSelection()"
 
+	Menu.item "Select single layer islands"	"::IslandsRcMenuCallbacks_v.selectSingleLayerIslands()"
 	Menu.item "Select whole Islands"	"::IslandsRcMenuCallbacks_v.selectVertsOfIslands(#WHOLE_ISLAND)"
 
 

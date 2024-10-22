@@ -288,7 +288,7 @@ struct VertSelector_v
 
 		timer_get_verts = timeStamp()
 
-		format "vertex_sel.numberSet: %\n" vertex_sel.numberSet
+		--format "vertex_sel.numberSet: %\n" vertex_sel.numberSet
 		for vert in vertex_sel do
 		(
 			--hits = ray_grid.intersectRay ( verts_pos[vert] + offset ) direction true
@@ -297,17 +297,17 @@ struct VertSelector_v
 
 			hits = intersectRay obj ( Ray ( verts_pos[vert] + offset ) direction )
 
-			format "%: %\n" vert hits
+			--format "%: %\n" vert hits
 			if( mode == #INNER and hits != undefined ) or ( mode != #INNER and hits == undefined ) then
 				result[vert] = true
 		)
 
-		format "GRID.numberSet: %\n" result_grid.numberSet
-		format "%\n" result_grid
-		format "\n"
-
-		format "RESULT.numberSet: %\n" result.numberSet
-		format "%\n" result
+		--format "GRID.numberSet: %\n" result_grid.numberSet
+		--format "%\n" result_grid
+		--format "\n"
+		--
+		--format "RESULT.numberSet: %\n" result.numberSet
+		--format "%\n" result
 
 		obj.EditablePoly.SetSelection #Vertex #{}
 		obj.EditablePoly.SetSelection #Vertex result

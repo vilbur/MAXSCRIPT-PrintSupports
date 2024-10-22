@@ -26,15 +26,17 @@ function createSlicerSliderDialog =
 
 	SlicerCallbacks = "::SlicerCallbacks_v"
 
-	slider_ticks  = SLICER_SYSTEM.slice_count
+	controls_height = 86
+
 	--slider_height = SLICER_SYSTEM.viewport_height - ( mod SLICER_SYSTEM.viewport_height 10 ) - 70 -- round viewport height to ceil 10 E.G.: 1789 >>> 1780
-	slider_height = SLICER_SYSTEM.viewport_height - 78 -- round viewport height to ceil 10 E.G.: 1789 >>> 1780
+	slider_height = SLICER_SYSTEM.viewport_height - controls_height -- round viewport height to ceil 10 E.G.: 1789 >>> 1780
 
 	--if slider_height > slider_ticks then
 		--slider_ticks /= 10
 
+	--slider_ticks  = SLICER_SYSTEM.slice_count
 	--slider_ticks = (floor ( slider_ticks / 10 ) ) * 10
-	slider_ticks = (ceil ( slider_ticks / 100 ) ) * 10
+	slider_ticks = (ceil ( SLICER_SYSTEM.slice_count / 100 ) ) * 10
 	--slider_ticks = 100
 
 	--format "SLICER_SYSTEM.slice_count: %\n" SLICER_SYSTEM.slice_count
@@ -56,7 +58,7 @@ function createSlicerSliderDialog =
 	------------------------------------------------------------------------------*/
 	tooltip_btn = "Shift slider 1 layer UP \ DOWN\n\nCTRL:  Go 10 layers UP \ DOWN\n\nSHIFT: Go 100 layers UP \ DOWN\n\nALT:  Go NEXT\PREVIOUS island"
 
-	btn_exit = _Controls.control #BUTTON "IN\OUT" width:42 height:24 offset:	[ 12, -4 ] tooltip:"Exit and remove slicer from all objects"
+	btn_exit = _Controls.control #BUTTON "IN\OUT" width:42 height:24 offset:[ 12, -4 ] border:false tooltip:"Exit and remove slicer from all objects"
 
 
     /*------ SLIDER ------*/
@@ -83,7 +85,7 @@ function createSlicerSliderDialog =
 	/*------------------------------------------------------------------------------
 		EVENTS
 	--------------------------------------------------------------------------------*/
-	btn_exit.Event #PRESSED    "macros.run \"_3D-Print\" \"print_create_slicerdialog\" " tooltip:"SLICE CURRENT SELECTED OBJECT"
+	btn_exit.Event #PRESSED    "macros.run @_3D-Print@ @print_create_slicerdialog@ " tooltip:"SLICE CURRENT SELECTED OBJECT"
 	btn_exit.Event #RIGHTCLICK "::SlicerCallbacks_v.desroySliderDialogAndDeleteModifiers()" tooltip:"EXIT SLICE MODE"
 
 	_slider.Event #CHANGED     "::SlicerCallbacks_v.onSliderChanged(val)"

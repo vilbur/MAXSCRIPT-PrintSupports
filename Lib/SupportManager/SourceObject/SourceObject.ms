@@ -39,6 +39,7 @@ struct SourceObject_v
 	function generateSupports obj_type:#SUPPORT =
 	(
 		format "\n"; print "SourceObject_v.generateSupports()"
+		format "obj: %\n" obj
 		--format "OBJ_TYPE: %\n" obj_type
 
 		new_nodes = #()
@@ -50,6 +51,7 @@ struct SourceObject_v
 		--this._setVertsToProcess()
 
 		verts_sel	= getVertSelection obj.mesh
+		format "verts_sel: %\n" verts_sel
 
 		supports_exists = Supports.keys as BitArray
 		--format "SUPPORTS_EXISTS: %\n" supports_exists

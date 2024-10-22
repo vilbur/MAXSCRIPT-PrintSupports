@@ -112,11 +112,20 @@ struct IslandsRcMenuCallbacks_v
 		/* GET ISLANDS MATHING SIZE */
 		islands_by_size = (for i = 1 to islands_data.count where isIslandMatchinSize islands_data[i][#SIZE] size size_min size_max collect i) as BitArray
 
-		DIALOG_island_manager.ML_island_listbox.selection = ISLANDS_SYSTEM.getListboxItemsByIslandsIndex (islands_by_size)
+		::IslandsRcMenuCallbacks_v.selectIslandsAndUpdateListbox(islands_by_size)
+	),
 
-		--::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()
+	/** Select single layer islands
+	 */
+	function selectSingleLayerIslands =
+	(
+		--format "\n"; print "IslandsRcMenuCallbacks_v.selectSingleLayerIslands()"
 
-		::IslandsCallbacks_v.onListboxSelectionEnd()
+		islands_data = ISLANDS_SYSTEM.islands_data
+
+		islands = (for i = 1 to islands_data.count where islands_data[i][#TOP] == undefined collect i) as BitArray
+
+		::IslandsRcMenuCallbacks_v.selectIslandsAndUpdateListbox(islands)
 	),
 
 	/** Select verts of islands
@@ -232,7 +241,7 @@ struct IslandsRcMenuCallbacks_v
 
 			if ( islands_props_data = getUserPropVal obj "ISLANDS_DATA" ) != undefined then
 			(
-				--format "islands_props_data.count: %\n" islands_props_data.count
+				format "selected_islands.count: %\n" selected_islands.count
 
 				for i = selected_islands.count to 1 by -1 do
 					deleteItem islands_props_data selected_islands[i]
@@ -253,7 +262,7 @@ struct IslandsRcMenuCallbacks_v
 	 */
 	function sliceAtIsland =
 	(
-		--format "\n"; print "IslandsCallbacks_v.sliceAtIsland()"
+		format "\n"; print "IslandsCallbacks_v.sliceAtIsland()"
 		_listbox = DIALOG_island_manager.ML_island_listbox
 		--format "_listbox.items: %\n" _listbox.items
 		--islands_layers = (for item in _listbox.items collect (filterString item " ")[1] as integer ) --as BitArray -- get list items strings to bitarray
@@ -274,6 +283,9 @@ struct IslandsRcMenuCallbacks_v
 
 			layer_of_island = if DIALOG_island_manager.RB_slider_mode.state == 2 and island_data[#TOP] != undefined then island_data[#TOP] else island_data[#BOTTOM]
 			--format "LAYER_OF_ISLAND: %\n" layer_of_island
+
+			if not SLICER_SYSTEM.dialogExists() then
+				macros.run "_3D-Print" "maxtoprint_create_slicer_dialog"
 
 			SLICER_SYSTEM.setSlicePlaneModifier (#SLICE_PLANE_TOP) (#TRUE) (layer_of_island) (true)
 
@@ -303,8 +315,23 @@ struct IslandsRcMenuCallbacks_v
 	--	createIslandManagerDialog islands_to_show:(ISLANDS_SYSTEM.getIslandsToShowBySlection())
 	--),
 
-	private
 
+	/** Select islands and update listbox
+	 */
+	function selectIslandsAndUpdateListbox islands_indexes =
+	(
+		--format "\n"; print "IslandsRcMenuCallbacks_v.selectIslandsAndUpdateListbox()"
+
+		/* SELECT ITEMS IN LISTBOX */
+		DIALOG_island_manager.ML_island_listbox.selection = ISLANDS_SYSTEM.getListboxItemsByIslandsIndex (islands_indexes)
+
+		--::IslandsCallbacks_v.updateIslandSelectionByRadiobuttonsState()
+
+		/* FIRE LISTBOX CALLBACK */
+		::IslandsCallbacks_v.onListboxSelectionEnd()
+	),
+
+	private
 
 	/**
 	 */

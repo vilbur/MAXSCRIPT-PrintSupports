@@ -81,7 +81,7 @@ struct SlicerSystem_v
 	slice_start, --
 	slice_count, -- number of prit layers used for objects bbox z dimension
 
-	min_max_z = #(),
+	min_z,
 
 	/* private */
 	slice_modes = Dictionary #( #SLICE_PLANE_TOP, true ) #( #SLICE_PLANE_BOTTOM, false ),
@@ -103,7 +103,7 @@ struct SlicerSystem_v
 	  */
 	function setSlicePlaneModifier mode state layer_index_or_z_pos cap_state =
 	(
-		--format "\n"; print ("SlicerSystem_v.setSlicePlaneModifier()")
+		format "\n"; print "IslandsCallbacks_v.setSlicePlaneModifier()"
 		--format "slice_mod: %\n" slice_modifiers[mode]
 		--format "layer_index_or_z_pos: %\n" layer_index_or_z_pos
 		if ( slice_mod = slice_modifiers[mode] ) == undefined then
@@ -141,9 +141,9 @@ struct SlicerSystem_v
 
 	/** Set obejcts
 	 */
-	function setObejctsBySelection =
+	function setObjectsBySelection =
 	(
-		--format "\n"; print "SlicerSystem_v.setObejctsBySelection()"
+		format "\n"; print "SlicerSystem_v.setObjectsBySelection()"
 		_objects = for obj in selection where superClassOf obj == GeometryClass collect obj
 
 		obj = _objects[1]
@@ -152,17 +152,24 @@ struct SlicerSystem_v
 
 		this.toggleModifiers(false)
 
-		min_max_z = #( selection.min.z, selection.max.z )
+		bbox	= nodeGetBoundingBox obj ( Matrix3 1) -- return array of max\min positions E.G.: bbox[1].z | bbox[2].z
+
+		min_z = bbox[1].z
+		max_z = bbox[2].z
 
 		this.toggleModifiers(true)
 
 		select _objects
 
-		layers_count = (min_max_z[2] / layer_height) as integer
+		layers_count = (max_z / layer_height) as integer
+		format "layer_height: %\n" layer_height
+		format "layers_count: %\n" layers_count
 
-		slice_count = (( min_max_z[2] - min_max_z[1] ) / layer_height ) as integer
+		slice_count = (( max_z - min_z ) / layer_height ) as integer
+		format "slice_count: %\n" slice_count
 
-		slice_start = ( min_max_z[1]  / layer_height ) as integer + 1
+		slice_start = ( min_z  / layer_height ) as integer + 1
+		format "slice_start: %\n" slice_start
 	),
 
 	/** Add slice_modifiers
@@ -306,7 +313,7 @@ struct SlicerSystem_v
 		--layer_height	= DIALOG_content.SPIN_layer_height.value
 		--current_layer = DIALOG_slicer_slider.SPIN_layer_current.value
 
-		pos -= min_max_z[1]
+		pos -= min_z
 		--
 		--format "pos: %\n" pos
 		--format "display_units: %\n" display_units
@@ -422,6 +429,16 @@ struct SlicerSystem_v
 	(
 		if DIALOG_slicer_slider != undefined then
 			DIALOG_slicer_slider.SPIN_layer_current.value = layer_index
+	),
+
+
+	/** Dialog exists
+	 */
+	function dialogExists =
+	(
+		--format "\n"; print "SlicerSystem_v.dialogExists()"
+
+		GetDialogPos DIALOG_slicer_slider != [0,0]
 	),
 
 	private

@@ -1,6 +1,6 @@
 /**
   */
-macroscript	maxtoprint_create_slicerdialog
+macroscript	maxtoprint_create_slicer_dialog
 category:	"_3D-Print"
 buttontext:	"S L I C E R  ☰"
 tooltip:	"Slice selected object."
@@ -9,10 +9,11 @@ icon:	"across:3|height:32|tooltip:FIX IF NOT WORK PROPERLY: RESET OBJECT XFORM\n
 	on execute do
 	(
 		clearListener(); print("Cleared in:\n"+getSourceFileName())
-		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-01-SLICER\Lib\SlicerSystem\createSlicerDialog.ms"
+		--filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-01-SLICER\Lib\SlicerSystem\createSlicerDialog.ms"
+		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-01-SLICER\Lib\SlicerSystem\SlicerSystem.ms"
 		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-01-SLICER\[SLICER].mcr"
 
-		SLICER_SYSTEM.setObejctsBySelection()
+		SLICER_SYSTEM.setObjectsBySelection()
 
 		SLICER_SYSTEM.addModifiers()
 

@@ -27,7 +27,7 @@ struct IslandsSystem_v
 	 */
 	function getVertsOfIslands island_indexes =
 	(
-		--format "\n"; print "IslandsSystem_v.getVertsOfSelectedIslands()"
+		--format "\n"; print "IslandsSystem_v.getVertsOfIslands()"
 		verts = #{1..(getNumVerts obj.mesh)} * #{}
 
 		for island_index in island_indexes do
@@ -372,6 +372,39 @@ struct IslandsSystem_v
 
 		( for i in _listbox.selection collect this._getIslandLayerFromTitle(_listbox.items[i]) ) as BitArray
 
+	),
+
+
+	/** Fit zpozitions
+	 */
+	function fitZpozitions islands_data layer_height =
+	(
+		format "\n"; print "IslandsSystem_v.fitZpozitions()"
+		first_island = islands_data[1]
+
+		bottom_layer = first_island[#BOTTOM]
+		lowest_vert  = first_island[#LOWEST_VERT]
+		format "bottom_layer: %\n" bottom_layer
+		format "lowest_vert: %\n" lowest_vert
+
+		vert_pos = (in coordsys world meshop.getVerts obj.mesh lowest_vert node:obj)[1]
+
+		vert_pos_bottom_layer = ( vert_pos.z / layer_height ) as integer + 1
+
+		/* MOVE Z POSITIONS OF ISLANDS IF Z POSITION OF OBJECT CHANGED */
+		if bottom_layer != vert_pos_bottom_layer then
+		(
+			difference = vert_pos_bottom_layer - bottom_layer
+
+			for island_data in islands_data do
+				island_data[#BOTTOM] += difference
+
+		)
+
+		--format "vert_pos: %\n" vert_pos
+		--format "vert_pos_bottom_layer: %\n" vert_pos_bottom_layer
+
+		islands_data --return
 	),
 
 	/** Get first island from listbox
