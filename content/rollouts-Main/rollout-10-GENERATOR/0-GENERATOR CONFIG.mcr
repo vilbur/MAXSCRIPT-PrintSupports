@@ -44,7 +44,7 @@ icon:	"across:3|control:spinner|offset:[ 0, 20 ]|fieldwidth:24|range:[ 0.1, 999,
 			ROLLOUT_generator.SPIN_normal_length.range = range
 		)
 
-		SUPPORT_MANAGER.updateModifiers (EventFired.control) ( EventFired.val)
+		SUPPORT_MANAGER.updateModifiers (EventFired)
 	)
 
 )

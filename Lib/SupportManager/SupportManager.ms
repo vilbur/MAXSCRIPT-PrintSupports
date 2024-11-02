@@ -123,7 +123,7 @@ struct SupportManager_v
 
 	/** Generate beams
 	 */
-	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS auto_sort:true use_max_distance:false use_only_selected_supports:false max_connections: =
+	function generateBeams sort_mode:#JOIN_CLOSE_SUPPORTS auto_sort:true max_distance: use_max_distance:false use_only_selected_supports:false max_connections: =
 	(
 		format "\n"; print "SupportManager_v.generateBeams()"
 		--format "supports: %\n" supports
@@ -134,8 +134,18 @@ struct SupportManager_v
 		 */
 		function isTallEnough obj = obj.max.z - obj.min.z > SUPPORT_OPTIONS.min_height
 
-		/* GET ONLY SUPPORTS FROM OBJECTS */
-		supports = for obj in selection as Array where this.isType #SUPPORT obj != false collect obj
+		--/* GET ONLY SUPPORTS FROM OBJECTS */
+		--supports = for obj in selection as Array where this.isType #SUPPORT obj != false collect obj
+
+		_selection = selection as Array
+
+		selected_supports = for obj in _selection where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+		format "selected_supports: %\n" selected_supports
+		selected_rafts    = for obj in _selection where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
+		format "selected_rafts: %\n" selected_rafts
+		supports = selected_supports + selected_rafts
+
+		format "supports: %\n" supports
 
 		/* DO NOT USE MAX DISTANCE IF ONLY 1 or 2 supports are selected */
 		max_distance = if not use_max_distance or supports.count <= 2 then 999999999 else SUPPORT_OPTIONS.max_distance
@@ -652,7 +662,7 @@ struct SupportManager_v
 	 */
 	function getObjectsByType _objects type: visibility:true hierarchy:false =
 	(
-		--format "\n"; print "SupportManager_v.getObjectsByType()"
+		format "\n"; print "SupportManager_v.getObjectsByType()"
 		--format "type: %\n" type
 		--format "_objects: %\n" _objects
 		--/** Is type support
@@ -696,7 +706,7 @@ struct SupportManager_v
 		if type == #SOURCE then
 		(
 			--for source_key in source_keys do append objects_by_type SourceObjects[source_key]
-			sync_keys_of_objs = for obj in supports + beams collect this._getSyncKey(obj)
+			sync_keys_of_objs = for obj in supports + beams + rafts collect this._getSyncKey(obj)
 
 			objects_by_type = for key in makeUniqueArray (source_keys + sync_keys_of_objs) where SourceObjects[key] != undefined collect SourceObjects[key].obj
 		)

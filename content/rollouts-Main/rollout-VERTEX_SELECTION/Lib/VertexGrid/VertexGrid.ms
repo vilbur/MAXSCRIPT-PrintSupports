@@ -84,7 +84,9 @@ struct VertexGrid_v
 
 		verts_arr = verts as Array
 
+		timer_pos_by_axis = timeStamp()
 		pos_by_axis = this.getPositionsSplitByAxis(verts_arr)
+		format "pos_by_axis: % seconds\n" ((( timeStamp()) - timer_pos_by_axis) / 1000.0)
 
 		min_pos = #( amin pos_by_axis[1], amin pos_by_axis[2], amin pos_by_axis[3])
 

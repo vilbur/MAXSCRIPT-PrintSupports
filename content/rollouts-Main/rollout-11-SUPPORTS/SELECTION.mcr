@@ -63,7 +63,7 @@ icon:	"across:3"
 	 */
 	function selectVertsBySupports =
 	(
-		--format "\n"; print ".selectVertsBySupports()"
+		format "\n"; print ".selectVertsBySupports()"
 		_objects = selection as Array
 
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift

@@ -74,7 +74,7 @@ function createIslandManagerDialog islands_to_show: =
 
 	min_size = [ 96, -1 ]
 
-    Dialog 	    = Dialog_v "" id:#DIALOG_island_manager ini:(getSourceFileName()) width:min_size.x min_size:min_size --max_size:[48, -1]
+    Dialog 	    = Dialog_v "Islands" id:#DIALOG_island_manager ini:(getSourceFileName()) width:min_size.x min_size:min_size --max_size:[48, -1]
 
 	_Controls   = Dialog.Controls() --group:"Main Controls"
 
@@ -119,7 +119,7 @@ function createIslandManagerDialog islands_to_show: =
 	/*------------------------------------------------------------------------------
 		CONTROLS
 	--------------------------------------------------------------------------------*/
-    btn_exit = _Controls.control #BUTTON "Exit" across:1 width:48 height:24 align:#center offset:[ 0, -4 ] tooltip:"Exit and remove slicer from all objects"
+    btn_exit = _Controls.control #BUTTON "Exit" across:1 width:64 height:24 align:#center offset:[ -10, -4 ] border:false tooltip:"Exit and remove slicer from all objects"
 
     label_count = _Controls.control #LABEL label_text id:#LABEL_islands_count across:1 width:64 height:24 offset:[ -8, 2 ]
 

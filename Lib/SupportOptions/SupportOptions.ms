@@ -11,7 +11,7 @@
 struct SupportOptions_v
 (
 	/* construct */
-	_rollout, -- rollout where values are store in UI
+	rollouts, -- rollout where values are store in UI
 	export_size = 1,
 
 	/* SUPPORT GENERATOR OPTIONS */
@@ -78,10 +78,14 @@ struct SupportOptions_v
 	  */
 	function getValuesFroUi =
 	(
-		format "\n"; print "SupportOptions_v.getValuesFroUi()"
+		--format "\n"; print "SupportOptions_v.getValuesFroUi()"
 		/** Reg ex replace
 		 */
 		function regExReplace _string search _replace = ( dotNetObject "System.Text.RegularExpressions.Regex" search ).Replace ( _string as string ) _replace
+
+
+		if classOf rollouts != Array then
+			rollouts = #(rollouts)
 
 		/*------------------------------------------------------------------------------
 			HOT FIX - EXPORT SIZE VALUE SHOULD BE CONNECTED TO VilTools3
@@ -107,10 +111,11 @@ struct SupportOptions_v
 		  * Perform kind of this in loop:
 		  *   Options.base_extrude	= roll.SPIN_base_width.value
 		  */
-		for ctrl in this._rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
-			this.setOptionValue prop_key ( if classOf ctrl == CheckBoxControl or classOf ctrl == RadioControl  then ctrl.state else ctrl.value )
+		for _rollout in rollouts do
+			for ctrl in _rollout.controls where (prop_key = regExReplace ctrl.name ("^("+control_type_to_fetch_values+")_") "") != undefined and hasProperty SUPPORT_OPTIONS prop_key do
+				this.setOptionValue prop_key ( if classOf ctrl == CheckBoxControl or classOf ctrl == RadioControl  then ctrl.state else ctrl.value )
 
-		this.init()
+		--this.init()
 	),
 
 	/** Init
@@ -130,8 +135,8 @@ struct SupportOptions_v
 	(
 		--format "\n"; print "SupportOptions_v.setOptionValue()"
 		--format "%: %\n" prop_key val
-		setProperty this prop_key val
 
+		setProperty this prop_key val
 		--this.init()
 	),
 
@@ -140,9 +145,8 @@ struct SupportOptions_v
 	function getOption prop_key =
 	(
 		--format "\n"; print "SupportOptions_v.getProp()"
-		--format "prop_key: %\n" prop_key
 		/* Mutate value for modifier */
-		case prop_key of
+		val = case prop_key of
 		(
 			#BAR_WIDTH:	bar_width	/ 2 -- get radius value
 			#BASE_WIDTH:	base_width	/ 2 -- get radius value
@@ -151,7 +155,10 @@ struct SupportOptions_v
 			#CHAMFER_BAR:	this._getChamferBarValue()
 
 			default: getProperty this ( prop_key as string )
-		) --return
+		)
+
+		--format "%: %\n" prop_key val
+		val --return
 	),
 
 	/** Get mat id
@@ -249,9 +256,9 @@ struct SupportOptions_v
 	function _convertUnitsToMilimeters =
 	(
 		--format "\n"; print "SupportOptions_v._convertUnitsToMilimeters()"
-		for prop in getPropNames this where ( superClassOf (val = getProperty this prop )) == Number do
-			if val != undefined and findItem _DO_NOT_MODIFY_PROPERTIES prop == 0  then
-				setProperty this prop (this.getMilimeterValue val)
+		for prop_key in getPropNames this where ( superClassOf (val = getProperty this prop_key )) == Number do
+			if val != undefined and findItem _DO_NOT_MODIFY_PROPERTIES prop_key == 0  then
+				setProperty this prop_key (this.getMilimeterValue val)
 	),
 
 	/** Set units muliplier
@@ -286,8 +293,8 @@ struct SupportOptions_v
 	(
 		--format "\n"; print "SupportOptions_v.create()"
 
-		if _rollout == undefined then
-			messageBox ("UNDEFINED STRICT PROPERTY\n\nSTRUCT: SupportOptions_v\n\nPROPERTY: _rollout") title:"UNDEFINED PROPETRY"
+		if rollouts == undefined then
+			messageBox ("UNDEFINED STRICT PROPERTY\n\nSTRUCT: SupportOptions_v\n\nPROPERTY: rollouts") title:"UNDEFINED PROPETRY"
 
 	)
 )

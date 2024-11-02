@@ -62,7 +62,7 @@ function createSlicerSliderDialog =
 
 
     /*------ SLIDER ------*/
-    _slider = _Controls.control #SLIDER "" \
+    _slider = _Controls.control #SLIDER "Slicer" \
                     id:	#SLIDER_slicer	\
                     range:	[0, SLICER_SYSTEM.slice_count, 0]	\
                     type:	#INTEGER	\
@@ -77,7 +77,7 @@ function createSlicerSliderDialog =
 	btn_plus_minus = _Controls.control #BUTTON "+ \ -"across:1  width:42 height:32 offset:[ -4, -4 ] tooltip:tooltip_btn
 
 
-	_spinner = _Controls.control #SPINNER "" id:#SPIN_layer_current across:1 range:[ SLICER_SYSTEM.slice_start, SLICER_SYSTEM.layers_count, 0] width:42 type:#integer offset:[ -4, 0 ]
+	_spinner = _Controls.control #SPINNER "" id:#SPIN_layer_current across:1 range:[ SLICER_SYSTEM.slice_start, SLICER_SYSTEM.layers_count, 0] width:46 type:#integer offset:[ -6, 0 ]
 
 	_dropdown = _Controls.control #DROPDOWNLIST "" id:#DDL_slider_snaps  width:64  items:#( "layers", "verts" ) offset:[ -16, 0 ] --ini:false --params:#( #UNSELECT, true ) across:1 offset:[ 4, 2 ] --align:#center  --width:96
 

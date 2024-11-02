@@ -14,7 +14,9 @@ struct BeamGenerator_v
 	 */
 	function generateBeam support_A support_B =
 	(
-		--format "\n"; print "BeamGenerator_v.generateBeam()"
+		format "\n"; print "BeamGenerator_v.generateBeam()"
+		format "support_A: %\n" support_A
+		format "support_B: %\n" support_B
 		BeamObject = (BeamObject_v support_A support_B )
 
 		/* IF BEAM DOES NOT EXISTS YET */
@@ -46,14 +48,15 @@ struct BeamGenerator_v
 	function generateBeamsChain supports max_distance =
 	(
 		format "\n"; print "BeamGenerator_v.generateBeamsChain()"
+		format "supports: %\n" supports
 		new_beams = #()
 
-		supports = this._sortSupportsByDistance(supports) (max_distance)
+		sorted_supports = this._sortSupportsByDistance(supports) (max_distance)
 
 		for supports_in_cluster in sorted_supports do
 			format "SUPPORTS_IN_CLUSTER %: %\n" supports_in_cluster.count supports_in_cluster
 
-		for supports_in_cluster in supports do
+		for supports_in_cluster in sorted_supports do
 			for i = 1 to supports_in_cluster.count - 1 do
 				append new_beams (this.generateBeam supports_in_cluster[i] supports_in_cluster[i + 1])
 
@@ -72,8 +75,11 @@ struct BeamGenerator_v
 		source_objects = SUPPORT_MANAGER.getObjectsByType ( _objects ) type:#SOURCE -- hierarchy:shift
 		format "source_objects: %\n" source_objects
 
-		supports = SUPPORT_MANAGER.getObjectsByType _objects type:#SUPPORT
-		format "supports.count: %\n" supports.count
+		objects_support = for obj in _objects where SUPPORT_MANAGER.isType #SUPPORT obj != false collect obj
+
+		objects_rafts    = for obj in _objects where SUPPORT_MANAGER.isType #RAFT    obj != false collect obj
+
+		supports = objects_support + objects_rafts
 
 		/* USE ALL SUPPORTS OF SOURCE OBJECT OR ONLY SELECTED */
 		supports_to_connect = if not use_only_selected_supports then SUPPORT_MANAGER.getObjectsByType source_objects type:#SUPPORT else supports
@@ -129,6 +135,7 @@ struct BeamGenerator_v
 	 */
 	function beamExists support_A support_B =
 	(
+		format "\n"; print "SupportManager_v.beamExists()"
 		SUPPORT_MANAGER.BeamObjects[this._getBeamKey support_A support_B] != undefined
 	),
 
@@ -140,9 +147,9 @@ struct BeamGenerator_v
 	 */
 	function _getBeamKey support_A support_B =
 	(
-		--format "\n"; print "SupportManager_v.getBeamKey()"
+		format "\n"; print "SupportManager_v.getBeamKey()"
 		pointers = sort #( this._getSupportKey(support_A) , this._getSupportKey(support_B) )
-
+		format "pointers: %\n" pointers
 		( pointers[1] + "x" + pointers[2] ) --return
 	),
 
@@ -151,7 +158,11 @@ struct BeamGenerator_v
 	function _getSupportKey support =
 	(
 		--format "\n"; print "BeamObject_v._getSupportKey()"
-		getUserPropVal support "SUPPORT_KEY"
+		if ( support_key = getUserPropVal support "SUPPORT_KEY" ) != undefined then
+			support_key --return
+		else
+			 getUserPropVal support "RAFT_KEY"
+
 	),
 
 	/** Sort supports by distance
@@ -165,7 +176,7 @@ struct BeamGenerator_v
 	function _sortSupportsByDistance supports max_distance =
 	(
 		format "\n"; print "SupportManager_v.sortSupportsByDistance()"
-		format "use_max_distance: %\n" use_max_distance
+		format "max_distance: %\n" max_distance
         sorted_all = #()
 		cluster    = #()
 

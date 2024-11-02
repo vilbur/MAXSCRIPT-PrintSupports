@@ -387,17 +387,27 @@ struct IslandsSystem_v
 		format "bottom_layer: %\n" bottom_layer
 		format "lowest_vert: %\n" lowest_vert
 
-		vert_pos = (in coordsys world meshop.getVerts obj.mesh lowest_vert node:obj)[1]
-
+		vert_pos = (in coordsys world meshop.getVerts obj.baseobject.mesh lowest_vert node:obj)[1]
+		--format "vert_pos.z: %\n" vert_pos.z
 		vert_pos_bottom_layer = ( vert_pos.z / layer_height ) as integer + 1
-
+		--format "vert_pos_bottom_layer: %\n" vert_pos_bottom_layer
 		/* MOVE Z POSITIONS OF ISLANDS IF Z POSITION OF OBJECT CHANGED */
 		if bottom_layer != vert_pos_bottom_layer then
 		(
 			difference = vert_pos_bottom_layer - bottom_layer
 
 			for island_data in islands_data do
+			(
+				--format "\n\n"
+				--format "island_data[#TOP]: %\n" island_data[#TOP]
+				--format "island_data[#BOTTOM]: %\n" island_data[#BOTTOM]
+
+				if island_data[#TOP] != undefined then
+					island_data[#TOP] += difference
+
 				island_data[#BOTTOM] += difference
+				--format "island_data[#BOTTOM]: %\n" island_data[#BOTTOM]
+			)
 
 		)
 

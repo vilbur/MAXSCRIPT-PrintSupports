@@ -81,28 +81,29 @@ struct SlicerCallbacks_v
 		(
 			if verts_pos != undefined and classOf ( _mod = modPanel.getCurrentObject() ) == Edit_Poly then
 			(
-			--format "\n"; print "SlicerCallbacks_v._findAndReselectVerts()"
-				obj = SLICER_SYSTEM.obj
+			format "\n"; print "SlicerCallbacks_v._findAndReselectVerts() DISABLED"
 
-				verts_edit_poly = #{}
-				--format "test: %\n" (getNumVerts obj.mesh )
-
-
-				if (verts_count =  getNumVerts obj.mesh ) > 0 then -- prevent set slice plane below object`s min z
-				(
-					verts_pos_after_slice = in coordsys world  polyop.getVerts obj #{1..verts_count} node:obj
-
-					for vert_pos in verts_pos where (vert = findItem verts_pos_after_slice (vert_pos)) > 0 do
-						verts_edit_poly[vert] = true
-
-					_mod.ButtonOp #UnhideAllVertex
-
-					_mod.SetSelection #VERTEX #{}
-
-					_mod.Select #VERTEX verts_edit_poly
-
-					_mod.ButtonOp #HideUnselectedVertex
-				)
+				--obj = SLICER_SYSTEM.obj
+				--
+				--verts_edit_poly = #{}
+				----format "test: %\n" (getNumVerts obj.mesh )
+				--
+				--
+				--if (verts_count =  getNumVerts obj.mesh ) > 0 then -- prevent set slice plane below object`s min z
+				--(
+				--	verts_pos_after_slice = in coordsys world  polyop.getVerts obj #{1..verts_count} node:obj
+				--
+				--	for vert_pos in verts_pos where (vert = findItem verts_pos_after_slice (vert_pos)) > 0 do
+				--		verts_edit_poly[vert] = true
+				--
+				--	_mod.ButtonOp #UnhideAllVertex
+				--
+				--	_mod.SetSelection #VERTEX #{}
+				--
+				--	_mod.Select #VERTEX verts_edit_poly
+				--
+				--	_mod.ButtonOp #HideUnselectedVertex
+				--)
 			)
 		)
 
@@ -145,13 +146,17 @@ struct SlicerCallbacks_v
 		else
 			layer_next = layer_current + increment
 
-		/*------------------------------------------------------------------------------
+		/*==============================================================================
+
 			UPDATE LAYER
-		--------------------------------------------------------------------------------*/
+
+		================================================================================*/
 		if layer_next > 0 and layer_next >= SLICER_SYSTEM.slice_start then
 		(
 			if not shift_island then
 				vertex_sel_pos = _getPositionsOfSelectedVerts()
+			--format "layer_next: %\n" layer_next
+			--format "slice_start: %\n" SLICER_SYSTEM.slice_start
 
 			with redraw off
 			(
@@ -167,13 +172,15 @@ struct SlicerCallbacks_v
 				SLICER_SYSTEM.setSpinnerValue(layer_next)
 
 				/* UPDATE ISLAND MANAGER */
-				if shift_island and DIALOG_island_manager != undefined and layer_next != SLICER_SYSTEM.slice_start then
+				--if shift_island and DIALOG_island_manager != undefined and layer_next != SLICER_SYSTEM.slice_start then
+				if shift_island and DIALOG_island_manager != undefined then
 				(
 					ISLANDS_SYSTEM.selectIslandByLayerInListbox #{layer_next}
 
 					if subObjectLevel != undefined and subObjectLevel > 0 then
 					(
 						selected_islands = ISLANDS_SYSTEM.getIslandsOfSelectedItems()
+						format "Selected Islands: %\n" selected_islands
 
 						ISLANDS_SYSTEM.selectVertsOfIslands(selected_islands)
 					)

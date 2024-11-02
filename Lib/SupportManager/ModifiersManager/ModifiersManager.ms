@@ -217,8 +217,6 @@ struct ModifiersManager_v
 	(
 		--format "\n"; print "ModifiersManager.onCreate()"
 		SupportModifiers["default"] = SupportModifiers_v()
-
-
 	)
 
 )

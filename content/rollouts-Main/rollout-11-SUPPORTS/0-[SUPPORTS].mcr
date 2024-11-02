@@ -165,12 +165,15 @@ icon:	"across:3|height:32|width:96|offset:[ -16, 0 ]"
 macroscript	_print_platform_generator_base_width
 category:	"_3D-Print"
 buttontext:	"BASE width"
-tooltip:	"Width of base part"
-icon:	"across:3|control:spinner|range:[ 0.1, 999, 4 ]|width:90|offset:[ -10, 12 ]"
+tooltip:	"Width of base part\n\nRECOMENDED: 10"
+icon:	"across:3|control:spinner|range:[ 0.1, 999, 10 ]|width:90|offset:[ -10, 12 ]"
 (
-	--format "EventFired:	% \n" EventFired
 	on execute do
+	(
+		format "EventFired:	% \n" EventFired
+		filein @"C:\Users\vilbur\AppData\Local\Autodesk\3dsMax\2023 - 64bit\ENU\scripts\MAXSCRIPT-PrintSupports\content\rollouts-Main\rollout-11-SUPPORTS\0-[SUPPORTS].mcr"
 		SUPPORT_MANAGER.updateModifiers ( EventFired )
+	)
 )
 
 /**

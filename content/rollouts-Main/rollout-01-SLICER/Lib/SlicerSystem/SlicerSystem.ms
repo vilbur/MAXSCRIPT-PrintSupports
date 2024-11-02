@@ -156,6 +156,7 @@ struct SlicerSystem_v
 
 		min_z = bbox[1].z
 		max_z = bbox[2].z
+		format "min_z: %\n" min_z
 
 		this.toggleModifiers(true)
 
